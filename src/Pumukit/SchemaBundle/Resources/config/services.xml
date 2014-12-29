@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- See #5826 -->
+        <service id="doctrine" alias="doctrine_mongodb" />
+
+        <service id="pumukitschema.schema.locale" class="Pumukit\SchemaBundle\Listener\LocaleListener">
+            <argument type="service" id="request_stack" />
+            <argument>%kernel.default_locale%</argument>
+            <tag name="doctrine_mongodb.odm.event_listener" event="postLoad" />
+        </service>
+
+        <service id="pumukitschema.factory" class="Pumukit\SchemaBundle\Services\FactoryService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager" />
+            <argument type="service" id="translator" />
+            <argument>%pumukit2.locales%</argument>
+        </service>
+
+        <service id="pumukitschema.seriespic" class="Pumukit\SchemaBundle\Services\SeriesPicService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+	        <argument type="expression">parameter('kernel.root_dir') ~ '/../web/uploads/pic/'</argument>
+	        <argument>/uploads/pic</argument>
+        </service>
+
+        <service id="pumukitschema.mmspic" class="Pumukit\SchemaBundle\Services\MultimediaObjectPicService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+	        <argument type="expression">parameter('kernel.root_dir') ~ '/../web/uploads/pic/'</argument>
+	        <argument>/uploads/pic</argument>
+        </service>
+
+        <service id="pumukitschema.tag" class="Pumukit\SchemaBundle\Services\TagService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+        </service>
+
+        <service id="pumukitschema.link" class="Pumukit\SchemaBundle\Services\LinkService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+        </service>
+
+        <service id="pumukitschema.material" class="Pumukit\SchemaBundle\Services\MaterialService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+            <argument type="expression">parameter('kernel.root_dir') ~ '/../web/uploads/material'</argument>
+            <argument>/uploads/material</argument>
+        </service>
+
+        <service id="pumukitschema.track" class="Pumukit\SchemaBundle\Services\TrackService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+            <argument type="service" id="pumukitencoder.job"/>
+            <argument type="service" id="pumukitencoder.profile"/>
+        </service>
+
+        <service id="pumukitschema.person" class="Pumukit\SchemaBundle\Services\PersonService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+        </service>
+
+    </services>
+
+</container>

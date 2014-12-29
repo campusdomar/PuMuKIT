@@ -1,0 +1,130 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: security.yml }
+    - { resource: doctrine_extensions.yml }
+    - { resource: @PumukitAdminBundle/Resources/config/config.yml }
+
+framework:
+    #esi:             ~
+    translator:      { fallback: "%locale%" }
+    secret:          "%secret%"
+    router:
+        resource: "%kernel.root_dir%/config/routing.yml"
+        strict_requirements: ~
+    form:            ~
+    csrf_protection: ~
+    validation:      { enable_annotations: true }
+    templating:
+        engines: ['twig']
+        #assets_version: SomeVersionScheme
+    default_locale:  "%locale%"
+    trusted_hosts:   ~
+    trusted_proxies: ~
+    session:
+        # handler_id set to null will use default session handler from php.ini
+        handler_id:  ~
+    fragments:       ~
+    http_method_override: true
+
+# Twig Configuration
+twig:
+    debug:            "%kernel.debug%"
+    strict_variables: "%kernel.debug%"
+
+# Assetic Configuration
+assetic:
+    debug:          "%kernel.debug%"
+    use_controller: false
+    bundles:        [ ]
+    #java: /usr/bin/java
+    filters:
+        cssrewrite: ~
+        #closure:
+        #    jar: "%kernel.root_dir%/Resources/java/compiler.jar"
+        #yui_css:
+        #    jar: "%kernel.root_dir%/Resources/java/yuicompressor-2.4.7.jar"
+
+# MongoDB configuration
+doctrine_mongodb:
+    connections:
+        default:
+            server: "%mongodb_server%"
+            options: {}
+    default_database: "%mongodb_database%"
+    document_managers:
+        default:
+            auto_mapping: true
+
+# Swiftmailer Configuration
+swiftmailer:
+    transport: "%mailer_transport%"
+    host:      "%mailer_host%"
+    username:  "%mailer_user%"
+    password:  "%mailer_password%"
+    spool:     { type: memory }
+
+# FOSUser Configuration
+fos_user:
+    db_driver: mongodb
+    firewall_name: main
+    user_class: Pumukit\SchemaBundle\Document\User
+
+# Pumukit2 parameters
+parameters:
+    pumukit2.locales:
+        - es
+        - en
+
+pumukit_encoder:
+    thumbnail:
+        width: 304
+        height: 242
+    cpus: 
+        local:
+            host: 127.0.0.1
+    profiles:
+        master_copy:
+            display: false
+            wizard: true
+            master: true
+            resolution_hor: 0
+            resolution_ver: 0
+            framerate: 0
+            channels: 1
+            audio: false
+            bat: 'cp "{{input}}" "{{output}}"'
+            streamserver:
+                name: Localmaster
+                type: store
+                host: 127.0.0.1
+                description: Local master server
+                dir_out: "%kernel.root_dir%/../web/storage/masters"
+            app: cp
+            rel_duration_size: 1
+            rel_duration_trans: 1
+        master_video_h264:
+            display: false
+            wizard: true
+            master: true
+            format: mp4
+            codec: h264
+            mime_type: 'video/x-mp4'
+            extension: mp4
+            resolution_hor: 0
+            resolution_ver: 0
+            bitrate: 1 Mbps
+            framerate: 25
+            channels: 1
+            audio: false
+            bat: |
+                ffmpeg -y -i "{{input}}" -acodec libfdk_aac -vcodec libx264 -preset slow -crf 15 -threads 0 "{{output}}"
+            streamserver:
+                name: Localhost
+                type: download
+                host: 127.0.0.1
+                description: Local download server
+                dir_out: "%kernel.root_dir%/../web/storage/downloads"
+                url_out: "/storage/downloads"
+            app: ffmpeg
+            rel_duration_size: 1
+            rel_duration_trans: 1

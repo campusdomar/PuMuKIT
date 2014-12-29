@@ -1,0 +1,30 @@
+<div id="serial_body">
+
+{% for mm in mmobjs %}
+
+  <div class="pumukit_mmobjs" style="width:50%; float:left;">
+    <div class="pumukit_mmobj">
+      <figure class="album" style="margin:2px 20px 2px 2px">  
+        <a href="/video/{{mm.getId()}}">
+          <div class="picture">
+            <img src="{{ mm|first_url_pic(true) }}"></img>
+          </div>
+        </a>
+      </figure>
+
+      <div class="info">
+        <div class="title">
+          <a href="/video/{{mm.getId()}}">{{mm.getTitle()}}</a>
+        </div>
+
+        <div class="subtitle">
+          <abbr title="{{mm.getSubtitle()}}">{{mm.getSubtitle()}}</abbr>
+        </div>
+
+        <div class="mmobj_bottom">{{mm.getRecordDate()|date("d/m/Y")}}</div>
+      </div>
+    </div>
+  </div>
+
+{% endfor %}
+</div>

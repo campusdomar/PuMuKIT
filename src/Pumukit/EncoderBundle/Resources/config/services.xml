@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="pumukitencoder.cpu" class="Pumukit\EncoderBundle\Services\CpuService">
+            <argument>%pumukitencode.cpulist%</argument>
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+        </service>
+
+        <service id="pumukitencoder.profile" class="Pumukit\EncoderBundle\Services\ProfileService">
+            <argument>%pumukitencode.profilelist%</argument>
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+        </service>
+
+        <service id="pumukitencoder.job" class="Pumukit\EncoderBundle\Services\JobService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+            <argument type="service" id="pumukitencoder.profile"/>
+            <argument type="service" id="pumukitencoder.cpu"/>
+            <argument type="service" id="pumukit.inspection"/>
+        </service>
+        <service id="pumukitencoder.picextractor" class="Pumukit\EncoderBundle\Services\PicExtractorService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+            <argument type="service" id="pumukitschema.mmspic"/>
+            <argument>%pumukitencode.thumbnail.width%</argument>
+            <argument>%pumukitencode.thumbnail.height%</argument>
+	        <argument type="expression">parameter('kernel.root_dir') ~ '/../web/uploads/pic/'</argument>
+	        <argument>/uploads/pic</argument>
+        </service>
+    </services>
+
+</container>
