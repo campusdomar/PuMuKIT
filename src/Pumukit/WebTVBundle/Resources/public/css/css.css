@@ -126,3 +126,23 @@ zoom: 1;
 display: inline-block;
 font-family: Verdana, Arial, sans-serif;
 }*/
+
+.directo_info{
+    text-align: center;
+    margin: 10px auto;
+}
+.directo_info .row{
+    border: 1px black solid;
+    background-color: rgb(233, 233, 233);
+}
+.directo_info .info_header{
+    border-top: 2px black solid;
+    background-color: #32475b;
+    color: white;
+}
+.directo_info .info_footer{
+    border-bottom: 2px black solid;
+    background-color: #32475b;
+    color: white;
+}
+
