@@ -130,6 +130,8 @@ font-family: Verdana, Arial, sans-serif;
 .directo_info{
     text-align: center;
     margin: 10px auto;
+   max-width: 800px;
+
 }
 .directo_info .row{
     border: 1px black solid;
