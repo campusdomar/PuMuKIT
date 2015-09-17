@@ -133,17 +133,21 @@ font-family: Verdana, Arial, sans-serif;
    max-width: 800px;
 
 }
+
 .directo_info .row{
-    border: 1px black solid;
-    background-color: rgb(233, 233, 233);
+    background-color: #f0f0ff;
 }
-.directo_info .info_header{
-    border-top: 2px black solid;
-    background-color: #32475b;
-    color: white;
+.directo_info .row:nth-child(odd){
+    background-color: #dfdfff;
 }
+.directo_info .row.info_header{
+   background-color: #cc0000;
+   color: white;
+   font-weight: bold;
+   font-size: 0.9em;
+}
+
 .directo_info .info_footer{
-    border-bottom: 2px black solid;
     background-color: #32475b;
     color: white;
 }
