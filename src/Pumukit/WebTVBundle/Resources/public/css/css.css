@@ -126,3 +126,29 @@ zoom: 1;
 display: inline-block;
 font-family: Verdana, Arial, sans-serif;
 }*/
+
+.directo_info{
+    text-align: center;
+    margin: 10px auto;
+   max-width: 800px;
+
+}
+
+.directo_info .row{
+    background-color: #f0f0ff;
+}
+.directo_info .row:nth-child(odd){
+    background-color: #dfdfff;
+}
+.directo_info .row.info_header{
+   background-color: #cc0000;
+   color: white;
+   font-weight: bold;
+   font-size: 0.9em;
+}
+
+.directo_info .info_footer{
+    background-color: #32475b;
+    color: white;
+}
+

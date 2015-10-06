@@ -1,58 +1,46 @@
 {% set event = future_and_not_finished_event(1)|first %}
-<br />
-<br />
-<div id="directo_info" >
-  <table id="directo_announces">		
-    <thead>
-      <tr> 
-        <td valign="top" colspan="2">
-          {% if event %}
-            {% if ((event.date|date('U')) < ('now'|date('U'))) %}
-              {% trans %}Current live event{% endtrans %}
-            {% else %}
-              {% trans %}Next live event{% endtrans %}
-            {% endif %}
-          {% else %}
-            {% trans %}Next live event{% endtrans %}
-          {% endif %}
-        </td>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="impar"> 
-        <td width="25%" valign="top">
-          <div align="right"><font size="1">{% trans %}EVENT{% endtrans %}</font><br/></div>
-        </td>
-        <td width="75%"><div align="center">
-          <strong>{{ event ? event.name : '---' }}</strong></div>
-        </td>
-      </tr>
-      <tr class="par">
-        <td width="22%" valign="top">
-          <div align="right"><font size="1">{% trans %}PLACE{% endtrans %}</font></div>
-        </td>
-        <td width="78%"><div align="center">
-          <strong>{{ event ? event.place : '---' }}</strong></div>
-        </td>
-      </tr>
-      <tr class="impar"> 
-        <td valign="top"> 
-          <div align="right"><font size="1">{% trans %}DATE{% endtrans %}</font></div>
-        </td>
-        <td>
-          <div align="center"><strong><font color="#000066">{{ event ? event.date|date('d/m/Y') : '---' }}</font></strong></div>
-        </td>
-      </tr>
-      <tr class="par"> 
-        <td valign="top"> 
-          <div align="right"><font size="1">{% trans %}TIME{% endtrans %}</font></div>
-        </td>
-        <td>
-          <div align="center"><strong><font color="#000066">{{ event ? event.date|date('H:i') : '---' }}</font></strong></div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+<div class="directo_info" >
+  <div class="row info_header">
+    {% if event %}
+      {% if ((event.date|date('U')) < ('now'|date('U'))) %}
+        {% trans %}Current live broadcast{% endtrans %}
+      {% else %}
+        {% trans %}Next live broadcast{% endtrans %}
+      {% endif %}
+    {% else %}
+      {% trans %}Next live broadcast{% endtrans %}
+    {% endif %}	  
+  </div>
+  <div class="row">
+    <div class="col-xs-6">
+      {% trans %}EVENT{% endtrans %}
+    </div>
+    <div class="col-xs-6">
+      {{ event ? event.name : '---' }}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-6">
+      {% trans %}PLACE{% endtrans %}
+    </div>
+    <div class="col-xs-6">
+      {{ event ? event.place : '---' }}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-6">
+      {% trans %}DATE{% endtrans %}
+    </div>
+    <div class="col-xs-6">
+      {{ event ? event.date|date('d/m/Y') : '---' }}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-6">
+      {% trans %}TIME{% endtrans %}
+    </div>
+    <div class="col-xs-6">
+      {{ event ? event.date|date('H:i') : '---' }}
+    </div>
+  </div>
 </div>
-<br />
-<br />
