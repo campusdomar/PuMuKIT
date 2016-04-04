@@ -105,19 +105,9 @@ class PicExtractorService
             $picFileName = date('ymdGis'). rand(). '.jpg';
         }
 
-        $aspectTrack = $this->getAspect($track);
-        if (0 !== $aspectTrack) {
-            $newHeight = intval(1.0 * $this->width / $aspectTrack);
-            if ($newHeight <= $this->height) {
-                $newWidth = $this->width;
-            }else{
-                $newHeight = $this->height;
-                $newWidth = intval(1.0 * $this->height * $aspectTrack);
-            }
-        } else {
-            $newHeight = $this->height;
-            $newWidth = $this->width;
-        }
+        $heightAndWidht = $this->getHeightAndWidth($track);
+        $newHeight = $heightAndWidht['height'];
+        $newWidth = $heightAndWidht['width'];
 
         $vars = array(
             "{{ss}}" => $track->getTimeOfAFrame($frame),
@@ -204,5 +194,24 @@ class PicExtractorService
         }
 
         return null;
+    }
+
+    public function getHeightAndWidth($track)
+    {
+        $aspectTrack = $this->getAspect($track);
+        if (0 !== $aspectTrack) {
+            $newHeight = intval(1.0 * $this->width / $aspectTrack);
+            if ($newHeight <= $this->height) {
+                $newWidth = $this->width;
+            }else{
+                $newHeight = $this->height;
+                $newWidth = intval(1.0 * $this->height * $aspectTrack);
+            }
+        } else {
+            $newHeight = $this->height;
+            $newWidth = $this->width;
+        }
+
+        return array('height' => $newHeight, 'width' => $newWidth);
     }
 }
