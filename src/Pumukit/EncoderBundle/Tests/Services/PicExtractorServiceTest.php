@@ -17,8 +17,6 @@ class PicExtractorServiceTest extends WebTestCase
     private $resourcesDir;
     private $targetPath;
     private $targetUrl;
-    private $width;
-    private $height;
 
     public function __construct()
     {
@@ -47,10 +45,10 @@ class PicExtractorServiceTest extends WebTestCase
         $this->dm->getDocumentCollection('PumukitSchemaBundle:Series')->remove(array());
         $this->dm->flush();
 
-        $this->width = 304;
-        $this->height = 242;
+        $width = 304;
+        $height = 242;
         $command = 'avconv -ss {{ss}} -y -i "{{input}}" -r 1 -vframes 1 -s {{size}} -f image2 "{{output}}"';
-        $this->picExtractor = new PicExtractorService($this->dm, $this->mmsPicService, $this->width, $this->height, $this->targetPath, $this->targetUrl, $command);
+        $this->picExtractor = new PicExtractorService($this->dm, $this->mmsPicService, $width, $height, $this->targetPath, $this->targetUrl, $command);
     }
 
     public function testExtractPic()
@@ -85,19 +83,6 @@ class PicExtractorServiceTest extends WebTestCase
         $this->assertStringStartsWith($picUrl, $pic->getUrl());
 
         $this->deleteCreatedFiles();
-    }
-
-    public function testGetHeightAndWidth()
-    {
-        $trackPath = $this->resourcesDir.'/CAMERA.mp4';
-
-        $track = new Track();
-        $track->setPath($trackPath);
-
-        $heightAndWidth = $this->picExtractor->getHeightAndWidth($track);
-
-        $this->assertEquals($this->height, $heightAndWidth['height']);
-        $this->assertEquals($this->width, $heightAndWidth['width']);
     }
 
     private function deleteCreatedFiles()
