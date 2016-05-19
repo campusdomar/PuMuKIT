@@ -117,6 +117,10 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service id="pumukitschema.group_dispatcher" class="Pumukit\SchemaBundle\Services\GroupEventDispatcherService">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <!-- EMBEDDED DOCUMENTS EVENT DISPATCHER SERVICES -->
 
         <service id="pumukitschema.link_dispatcher" class="Pumukit\SchemaBundle\Services\LinkEventDispatcherService">
@@ -177,6 +181,11 @@
             <argument type="service" id="pumukitschema.permissionprofile"/>
             <argument>%pumukitschema.personal_scope_delete_owners%</argument>
             <argument>%pumukitschema.gen_user_salt%</argument>
+        </service>
+
+        <service id="pumukitschema.group" class="Pumukit\SchemaBundle\Services\GroupService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+            <argument type="service" id="pumukitschema.group_dispatcher" />
         </service>
 
         <service id="pumukitschema.pic" class="Pumukit\SchemaBundle\Services\PicService">
