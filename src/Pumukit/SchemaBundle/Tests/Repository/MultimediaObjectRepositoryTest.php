@@ -17,6 +17,9 @@ use Pumukit\SchemaBundle\Document\Role;
 use Pumukit\SchemaBundle\Document\SeriesType;
 use Pumukit\SchemaBundle\Document\Broadcast;
 use Pumukit\SchemaBundle\Document\Tag;
+use Pumukit\SchemaBundle\Document\Group;
+use Pumukit\SchemaBundle\Document\User;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class MultimediaObjectRepositoryTest extends WebTestCase
 {
@@ -26,6 +29,7 @@ class MultimediaObjectRepositoryTest extends WebTestCase
     private $factoryService;
     private $mmsPicService;
     private $tagService;
+    private $groupRepo;
 
     public function __construct()
     {
@@ -42,6 +46,8 @@ class MultimediaObjectRepositoryTest extends WebTestCase
             ->get('pumukitschema.mmspic');
         $this->tagService = static::$kernel->getContainer()
             ->get('pumukitschema.tag');
+        $this->groupRepo = $this->dm
+            ->getRepository('PumukitSchemaBundle:Group');
     }
 
     public function setUp()
@@ -60,6 +66,10 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->dm->getDocumentCollection('PumukitSchemaBundle:Broadcast')
             ->remove(array());
         $this->dm->getDocumentCollection('PumukitSchemaBundle:Tag')
+            ->remove(array());
+        $this->dm->getDocumentCollection('PumukitSchemaBundle:Group')
+            ->remove(array());
+        $this->dm->getDocumentCollection('PumukitSchemaBundle:User')
             ->remove(array());
         $this->dm->flush();
     }
@@ -2062,6 +2072,474 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->assertFalse(in_array($prototype, $multimediaObjects));
     }
 
+    public function testMultimediaObjectGroups()
+    {
+        $this->assertEquals(0, count($this->groupRepo->findAll()));
+
+        $key1 = 'Group1';
+        $name1 = 'Group 1';
+        $group1 = $this->createGroup($key1, $name1);
+
+        $this->assertEquals(1, count($this->groupRepo->findAll()));
+
+        $key2 = 'Group2';
+        $name2 = 'Group 2';
+        $group2 = $this->createGroup($key2, $name2);
+
+        $this->assertEquals(2, count($this->groupRepo->findAll()));
+
+        $multimediaObject = new MultimediaObject();
+        $multimediaObject->setTitle('test');
+        $multimediaObject->addGroup($group1);
+
+        $this->dm->persist($multimediaObject);
+        $this->dm->flush();
+
+        $this->assertTrue($multimediaObject->containsGroup($group1));
+        $this->assertFalse($multimediaObject->containsGroup($group2));
+        $this->assertEquals(1, $multimediaObject->getGroups()->count());
+
+        $multimediaObject->addGroup($group2);
+
+        $this->dm->persist($multimediaObject);
+        $this->dm->flush();
+
+        $this->assertTrue($multimediaObject->containsGroup($group1));
+        $this->assertTrue($multimediaObject->containsGroup($group2));
+        $this->assertEquals(2, $multimediaObject->getGroups()->count());
+
+        $multimediaObject->removeGroup($group1);
+
+        $this->dm->persist($multimediaObject);
+        $this->dm->flush();
+
+        $this->assertFalse($multimediaObject->containsGroup($group1));
+        $this->assertTrue($multimediaObject->containsGroup($group2));
+        $this->assertEquals(1, $multimediaObject->getGroups()->count());
+
+        $this->assertEquals(2, count($this->groupRepo->findAll()));
+    }
+
+    public function testFindSeriesFieldByPersonIdAndRoleCodOrGroups()
+    {
+        $key1 = 'Group1';
+        $name1 = 'Group 1';
+        $group1 = $this->createGroup($key1, $name1);
+
+        $key2 = 'Group2';
+        $name2 = 'Group 2';
+        $group2 = $this->createGroup($key2, $name2);
+
+        $key3 = 'Group3';
+        $name3 = 'Group 3';
+        $group3 = $this->createGroup($key3, $name3);
+
+        $user1 = new User();
+        $user1->setEmail('user1@mail.com');
+        $user1->setUsername('user1');
+        $user2 = new User();
+        $user2->setEmail('user2@mail.com');
+        $user2->setUsername('user2');
+        $user2->addGroup($group1);
+        $user3 = new User();
+        $user3->setEmail('user3@mail.com');
+        $user3->setUsername('user3');
+        $user3->addGroup($group2);
+        $user4 = new User();
+        $user4->setEmail('user4@mail.com');
+        $user4->setUsername('user4');
+        $user4->addGroup($group3);
+        $user5 = new User();
+        $user5->setEmail('user5@mail.com');
+        $user5->setUsername('user5');
+        $user5->addGroup($group1);
+        $user5->addGroup($group2);
+        $user6 = new User();
+        $user6->setEmail('user6@mail.com');
+        $user6->setUsername('user6');
+        $user6->addGroup($group1);
+        $user6->addGroup($group3);
+        $user7 = new User();
+        $user7->setEmail('user7@mail.com');
+        $user7->setUsername('user7');
+        $user7->addGroup($group2);
+        $user7->addGroup($group3);
+        $user8 = new User();
+        $user8->setEmail('user8@mail.com');
+        $user8->setUsername('user8');
+        $user8->addGroup($group1);
+        $user8->addGroup($group2);
+        $user8->addGroup($group3);
+        $this->dm->persist($user1);
+        $this->dm->persist($user2);
+        $this->dm->persist($user3);
+        $this->dm->persist($user4);
+        $this->dm->persist($user5);
+        $this->dm->persist($user6);
+        $this->dm->persist($user7);
+        $this->dm->persist($user8);
+        $this->dm->flush();
+
+        $broadcast = new Broadcast();
+        $broadcast->setBroadcastTypeId(Broadcast::BROADCAST_TYPE_PUB);
+        $broadcast->setDefaultSel(true);
+        $this->dm->persist($broadcast);
+        $this->dm->flush();
+
+        $series1 = $this->createSeries("Series 1");
+        $series2 = $this->createSeries("Series 2");
+        $series3 = $this->createSeries("Series 3");
+
+        $this->dm->persist($series1);
+        $this->dm->persist($series2);
+        $this->dm->persist($series3);
+        $this->dm->flush();
+
+        $person1 = $this->createPerson('Person 1');
+        $person2 = $this->createPerson('Person 2');
+
+        $role1 = $this->createRole("Role1");
+        $role2 = $this->createRole("Role2");
+        $role3 = $this->createRole("Role3");
+
+        $mm1 = $this->createMultimediaObjectAssignedToSeries('MmObject 1', $series1);
+        $mm2 = $this->createMultimediaObjectAssignedToSeries('MmObject 2', $series2);
+        $mm3 = $this->createMultimediaObjectAssignedToSeries('MmObject 3', $series1);
+        $mm4 = $this->createMultimediaObjectAssignedToSeries('MmObject 4', $series3);
+
+        $mm1->addPersonWithRole($person1, $role1);
+        $mm2->addPersonWithRole($person2, $role2);
+        $mm3->addPersonWithRole($person1, $role1);
+        $mm4->addPersonWithRole($person1, $role3);
+
+        $mm1->addGroup($group1);
+        $mm1->addGroup($group3);
+        $mm2->addGroup($group3);
+        $mm3->addGroup($group2);
+        $mm4->addGroup($group2);
+
+        $this->dm->persist($mm1);
+        $this->dm->persist($mm2);
+        $this->dm->persist($mm3);
+        $this->dm->persist($mm4);
+        $this->dm->flush();
+
+        // Test find by person and role or groups
+        $seriesPerson1Role1User1 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role1->getCod(), $user1->getGroups());
+        $seriesPerson1Role2User1 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role2->getCod(), $user1->getGroups());
+        $seriesPerson1Role3User1 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role3->getCod(), $user1->getGroups());
+        $seriesPerson2Role1User1 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role1->getCod(), $user1->getGroups());
+        $seriesPerson2Role2User1 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role2->getCod(), $user1->getGroups());
+        $seriesPerson2Role3User1 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role3->getCod(), $user1->getGroups());
+
+        $this->assertEquals(1, count($seriesPerson1Role1User1));
+        $this->assertEquals(0, count($seriesPerson1Role2User1));
+        $this->assertEquals(1, count($seriesPerson1Role3User1));
+        $this->assertEquals(0, count($seriesPerson2Role1User1));
+        $this->assertEquals(1, count($seriesPerson2Role2User1));
+        $this->assertEquals(0, count($seriesPerson2Role3User1));
+
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User1->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role1User1->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role1User1->toArray()));
+        $this->assertFalse(in_array($series1->getId(), $seriesPerson1Role2User1->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role2User1->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role2User1->toArray()));
+        $this->assertFalse(in_array($series1->getId(), $seriesPerson1Role3User1->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role3User1->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User1->toArray()));
+        $this->assertFalse(in_array($series1->getId(), $seriesPerson2Role1User1->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role1User1->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role1User1->toArray()));
+        $this->assertFalse(in_array($series1->getId(), $seriesPerson2Role2User1->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User1->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role2User1->toArray()));
+        $this->assertFalse(in_array($series1->getId(), $seriesPerson2Role3User1->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role3User1->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role3User1->toArray()));
+
+        $seriesPerson1Role1User2 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role1->getCod(), $user2->getGroups());
+        $seriesPerson1Role2User2 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role2->getCod(), $user2->getGroups());
+        $seriesPerson1Role3User2 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role3->getCod(), $user2->getGroups());
+        $seriesPerson2Role1User2 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role1->getCod(), $user2->getGroups());
+        $seriesPerson2Role2User2 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role2->getCod(), $user2->getGroups());
+        $seriesPerson2Role3User2 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role3->getCod(), $user2->getGroups());
+
+        $this->assertEquals(1, count($seriesPerson1Role1User2));
+        $this->assertEquals(1, count($seriesPerson1Role2User2));
+        $this->assertEquals(2, count($seriesPerson1Role3User2));
+        $this->assertEquals(1, count($seriesPerson2Role1User2));
+        $this->assertEquals(2, count($seriesPerson2Role2User2));
+        $this->assertEquals(1, count($seriesPerson2Role3User2));
+
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User2->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role1User2->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role1User2->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User2->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role2User2->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role2User2->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User2->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role3User2->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User2->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User2->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role1User2->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role1User2->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User2->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User2->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role2User2->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User2->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role3User2->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role3User2->toArray()));
+
+        $seriesPerson1Role1User3 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role1->getCod(), $user3->getGroups());
+        $seriesPerson1Role2User3 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role2->getCod(), $user3->getGroups());
+        $seriesPerson1Role3User3 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role3->getCod(), $user3->getGroups());
+        $seriesPerson2Role1User3 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role1->getCod(), $user3->getGroups());
+        $seriesPerson2Role2User3 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role2->getCod(), $user3->getGroups());
+        $seriesPerson2Role3User3 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role3->getCod(), $user3->getGroups());
+
+        $this->assertEquals(2, count($seriesPerson1Role1User3));
+        $this->assertEquals(2, count($seriesPerson1Role2User3));
+        $this->assertEquals(2, count($seriesPerson1Role3User3));
+        $this->assertEquals(2, count($seriesPerson2Role1User3));
+        $this->assertEquals(3, count($seriesPerson2Role2User3));
+        $this->assertEquals(2, count($seriesPerson2Role3User3));
+
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User3->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role1User3->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role1User3->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User3->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role2User3->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role2User3->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User3->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role3User3->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User3->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User3->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role1User3->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role1User3->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User3->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User3->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role2User3->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User3->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role3User3->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role3User3->toArray()));
+
+        $seriesPerson1Role1User4 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role1->getCod(), $user4->getGroups());
+        $seriesPerson1Role2User4 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role2->getCod(), $user4->getGroups());
+        $seriesPerson1Role3User4 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role3->getCod(), $user4->getGroups());
+        $seriesPerson2Role1User4 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role1->getCod(), $user4->getGroups());
+        $seriesPerson2Role2User4 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role2->getCod(), $user4->getGroups());
+        $seriesPerson2Role3User4 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role3->getCod(), $user4->getGroups());
+
+        $this->assertEquals(2, count($seriesPerson1Role1User4));
+        $this->assertEquals(2, count($seriesPerson1Role2User4));
+        $this->assertEquals(3, count($seriesPerson1Role3User4));
+        $this->assertEquals(2, count($seriesPerson2Role1User4));
+        $this->assertEquals(2, count($seriesPerson2Role2User4));
+        $this->assertEquals(2, count($seriesPerson2Role3User4));
+
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User4->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role1User4->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role1User4->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User4->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role2User4->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role2User4->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User4->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role3User4->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User4->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User4->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role1User4->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role1User4->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User4->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User4->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role2User4->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User4->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role3User4->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role3User4->toArray()));
+
+        $seriesPerson1Role1User5 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role1->getCod(), $user5->getGroups());
+        $seriesPerson1Role2User5 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role2->getCod(), $user5->getGroups());
+        $seriesPerson1Role3User5 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role3->getCod(), $user5->getGroups());
+        $seriesPerson2Role1User5 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role1->getCod(), $user5->getGroups());
+        $seriesPerson2Role2User5 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role2->getCod(), $user5->getGroups());
+        $seriesPerson2Role3User5 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role3->getCod(), $user5->getGroups());
+
+        $this->assertEquals(2, count($seriesPerson1Role1User5));
+        $this->assertEquals(2, count($seriesPerson1Role2User5));
+        $this->assertEquals(2, count($seriesPerson1Role3User5));
+        $this->assertEquals(2, count($seriesPerson2Role1User5));
+        $this->assertEquals(3, count($seriesPerson2Role2User5));
+        $this->assertEquals(2, count($seriesPerson2Role3User5));
+
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User5->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role1User5->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role1User5->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User5->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role2User5->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role2User5->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User5->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role3User5->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User5->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User5->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role1User5->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role1User5->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User5->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User5->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role2User5->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User5->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role3User5->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role3User5->toArray()));
+
+        $seriesPerson1Role1User6 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role1->getCod(), $user6->getGroups());
+        $seriesPerson1Role2User6 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role2->getCod(), $user6->getGroups());
+        $seriesPerson1Role3User6 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role3->getCod(), $user6->getGroups());
+        $seriesPerson2Role1User6 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role1->getCod(), $user6->getGroups());
+        $seriesPerson2Role2User6 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role2->getCod(), $user6->getGroups());
+        $seriesPerson2Role3User6 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role3->getCod(), $user6->getGroups());
+
+        $this->assertEquals(2, count($seriesPerson1Role1User6));
+        $this->assertEquals(2, count($seriesPerson1Role2User6));
+        $this->assertEquals(3, count($seriesPerson1Role3User6));
+        $this->assertEquals(2, count($seriesPerson2Role1User6));
+        $this->assertEquals(2, count($seriesPerson2Role2User6));
+        $this->assertEquals(2, count($seriesPerson2Role3User6));
+
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User6->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role1User6->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role1User6->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User6->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role2User6->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role2User6->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User6->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role3User6->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User6->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User6->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role1User6->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role1User6->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User6->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User6->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role2User6->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User6->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role3User6->toArray()));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role3User6->toArray()));
+
+        $seriesPerson1Role1User7 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role1->getCod(), $user7->getGroups());
+        $seriesPerson1Role2User7 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role2->getCod(), $user7->getGroups());
+        $seriesPerson1Role3User7 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role3->getCod(), $user7->getGroups());
+        $seriesPerson2Role1User7 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role1->getCod(), $user7->getGroups());
+        $seriesPerson2Role2User7 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role2->getCod(), $user7->getGroups());
+        $seriesPerson2Role3User7 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role3->getCod(), $user7->getGroups());
+
+        $this->assertEquals(3, count($seriesPerson1Role1User7));
+        $this->assertEquals(3, count($seriesPerson1Role2User7));
+        $this->assertEquals(3, count($seriesPerson1Role3User7));
+        $this->assertEquals(3, count($seriesPerson2Role1User7));
+        $this->assertEquals(3, count($seriesPerson2Role2User7));
+        $this->assertEquals(3, count($seriesPerson2Role3User7));
+
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User7->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role1User7->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role1User7->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User7->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role2User7->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role2User7->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User7->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role3User7->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User7->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User7->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role1User7->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role1User7->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User7->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User7->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role2User7->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User7->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role3User7->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role3User7->toArray()));
+
+        $seriesPerson1Role1User8 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role1->getCod(), $user8->getGroups());
+        $seriesPerson1Role2User8 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role2->getCod(), $user8->getGroups());
+        $seriesPerson1Role3User8 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role3->getCod(), $user8->getGroups());
+        $seriesPerson2Role1User8 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role1->getCod(), $user8->getGroups());
+        $seriesPerson2Role2User8 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role2->getCod(), $user8->getGroups());
+        $seriesPerson2Role3User8 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person2->getId(), $role3->getCod(), $user8->getGroups());
+
+        $this->assertEquals(3, count($seriesPerson1Role1User8));
+        $this->assertEquals(3, count($seriesPerson1Role2User8));
+        $this->assertEquals(3, count($seriesPerson1Role3User8));
+        $this->assertEquals(3, count($seriesPerson2Role1User8));
+        $this->assertEquals(3, count($seriesPerson2Role2User8));
+        $this->assertEquals(3, count($seriesPerson2Role3User8));
+
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User8->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role1User8->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role1User8->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User8->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role2User8->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role2User8->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User8->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role3User8->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User8->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User8->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role1User8->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role1User8->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User8->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User8->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role2User8->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User8->toArray()));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role3User8->toArray()));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role3User8->toArray()));
+    }
+
+    public function testFindWithGroup()
+    {
+        $key1 = 'Group1';
+        $name1 = 'Group 1';
+        $group1 = $this->createGroup($key1, $name1);
+
+        $key2 = 'Group2';
+        $name2 = 'Group 2';
+        $group2 = $this->createGroup($key2, $name2);
+
+        $broadcast = new Broadcast();
+        $broadcast->setBroadcastTypeId(Broadcast::BROADCAST_TYPE_PUB);
+        $broadcast->setDefaultSel(true);
+        $this->dm->persist($broadcast);
+        $this->dm->flush();
+
+        $series = $this->createSeries("Series");
+
+        $this->dm->persist($series);
+        $this->dm->flush();
+
+        $mm1 = $this->createMultimediaObjectAssignedToSeries('MmObject 1', $series);
+        $mm2 = $this->createMultimediaObjectAssignedToSeries('MmObject 2', $series);
+
+        $mm1->addGroup($group1);
+        $mm1->addGroup($group2);
+        $mm2->addGroup($group2);
+
+        $this->dm->persist($mm1);
+        $this->dm->persist($mm2);
+        $this->dm->flush();
+
+        $this->assertEquals(2, count($mm1->getGroups()));
+        $this->assertEquals(1, count($mm2->getGroups()));
+        $this->assertTrue(in_array($group1, $mm1->getGroups()->toArray()));
+        $this->assertTrue(in_array($group2, $mm1->getGroups()->toArray()));
+        $this->assertFalse(in_array($group1, $mm2->getGroups()->toArray()));
+        $this->assertTrue(in_array($group2, $mm2->getGroups()->toArray()));
+
+        $mmsGroup1 = $this->repo->findWithGroup($group1);
+        $mmsGroup2 = $this->repo->findWithGroup($group2);
+
+        $this->assertEquals(1, count($mmsGroup1));
+        $this->assertEquals(2, count($mmsGroup2));
+        $this->assertTrue(in_array($mm1, $mmsGroup1->toArray()));
+        $this->assertFalse(in_array($mm2, $mmsGroup1->toArray()));
+        $this->assertTrue(in_array($mm1, $mmsGroup2->toArray()));
+        $this->assertTrue(in_array($mm2, $mmsGroup2->toArray()));
+    }
+
     private function createPerson($name)
     {
         $email = $name.'@mail.es';
@@ -2188,5 +2666,18 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->dm->flush();
 
         return $broadcast;
+    }
+
+    private function createGroup($key='Group1', $name='Group 1')
+    {
+        $group = new Group();
+
+        $group->setKey($key);
+        $group->setName($name);
+
+        $this->dm->persist($group);
+        $this->dm->flush();
+
+        return $group;
     }
 }

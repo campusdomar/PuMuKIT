@@ -344,6 +344,10 @@ class FactoryService
             }
         }
 
+        foreach ($prototype->getGroups() as $group) {
+            $new->addGroup($group);
+        }
+
         return $new;
     }
 
@@ -384,6 +388,10 @@ class FactoryService
             foreach ($embeddedRole->getPeople() as $embeddedPerson) {
                 $new->addPersonWithRole($embeddedPerson, $embeddedRole);
             }
+        }
+
+        foreach ($src->getGroups() as $group) {
+            $new->addGroup($group);
         }
 
         $new->setSeries($src->getSeries());
