@@ -20,7 +20,7 @@ class BasePlayerController extends BasePlayerControllero implements WebTVControl
 {
     /**
      * @Route("/videoplayer/{id}", name="pumukit_videoplayer_index", defaults={"no_channels": true} )
-     * @Template("PumukitJWPlayerBundle:JWPlayer:index.html.twig")
+     * @Template("PumukitJWPlayerBundle:JWPlayer:player.html.twig")
      */
     public function indexAction(MultimediaObject $multimediaObject, Request $request)
     {
@@ -43,12 +43,13 @@ class BasePlayerController extends BasePlayerControllero implements WebTVControl
         return array('autostart' => $request->query->get('autostart', 'true'),
                      'intro' => $this->getIntro($request->query->get('intro')),
                      'multimediaObject' => $multimediaObject,
+                     'object' => $multimediaObject,
                      'track' => $track, );
     }
 
     /**
      * @Route("/videoplayer/magic/{secret}", name="pumukit_videoplayer_magicindex", defaults={"show_hide": true, "no_channels": true} )
-     * @Template("PumukitJWPlayerBundle:JWPlayer:index.html.twig")
+     * @Template("PumukitJWPlayerBundle:JWPlayer:player.html.twig")
      */
     public function magicIndexAction(MultimediaObject $multimediaObject, Request $request)
     {
@@ -79,6 +80,7 @@ class BasePlayerController extends BasePlayerControllero implements WebTVControl
         return array('autostart' => $request->query->get('autostart', 'true'),
                      'intro' => $this->getIntro($request->query->get('intro')),
                      'multimediaObject' => $multimediaObject,
+                     'object' => $multimediaObject,
                      'track' => $track,
                      'magic_url' => true);
 
@@ -86,7 +88,7 @@ class BasePlayerController extends BasePlayerControllero implements WebTVControl
 
     /**
      * @Route("/videoplayer/opencast/{id}", name="pumukit_videoplayer_opencast" )
-     * @Template("PumukitJWPlayerBundle:JWPlayer:index_opencast.html.twig")
+     * @Template("PumukitJWPlayerBundle:JWPlayer:player_opencast.html.twig")
      */
     public function opencastAction(MultimediaObject $multimediaObject, Request $request)
     {
@@ -100,6 +102,7 @@ class BasePlayerController extends BasePlayerControllero implements WebTVControl
         $this->dispatchViewEvent($multimediaObject);
         return array('intro' => $this->getIntro($request->query->get('intro')),
                      'multimediaObject' => $multimediaObject,
+                     'object' => $multimediaObject,
                      'is_mobile_device' => $isMobileDevice,
                      'is_old_browser' => $isOldBrowser);
     }
