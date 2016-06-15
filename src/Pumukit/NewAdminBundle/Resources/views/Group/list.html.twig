@@ -53,16 +53,16 @@
           </a>
         </td>
         <td>
-          {{ group.getKey() }}
+          {{ group.getKey()[:10] }}{% if ((group.getKey()|length) > 10 ) %}...{% endif %}
         </td>
         <td>
-          {{ group.getName() }}
+          {{ group.getName()[:20] }}{% if ((group.getName()|length) > 20 ) %}...{% endif %}
         </td>
         <td>
           {{ group.getOrigin() }}
         </td>
         <td>
-          {{ group.getComments()[:100] }}{% if ((group.getComments()|length) > 100 ) %}...{% endif %}
+          {{ group.getComments()[:150] }}{% if ((group.getComments()|length) > 150 ) %}...{% endif %}
         </td>
       </tr>
       {% endfor %}
