@@ -1,6 +1,6 @@
 {% for user_group in user.getGroups() %}
 {% if user_group.isLocal() and user.isLocal() %}
-<a href="#" class="list-group-item"
+<a href="#" class="list-group-item pumukitnewadmin-trim-row"
    id="add_group_{{ user_group.id }}"
    onclick="javascript:return select_group(this);"
    ondblclick="javascript:delete_group('{{ user_group.id }}', '{{ user_group.key }}', '{{ user_group.name }}', '{{ user_group.origin }}', 'user');">
