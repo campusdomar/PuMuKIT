@@ -1,19 +1,8 @@
 <div class="well">
-  <form autocomplete="off" id="pumukitnewadmin_series_updatemeta_form"
-        onsubmit="$.ajax({
-                  url: '{{ path('pumukitnewadmin_series_update', {'id': series.id}) }}',
-                  type: 'POST',
-                  data: $(this).serialize(),
-                  error: function(request, json){var message = '{% trans %}Series saved ERROR{% endtrans %}'; no_success(message);},
-                  success: function(response){
-                  $('#list_series').html(response);
-                  $('#preview_series').load('{{ path('pumukitnewadmin_series_show', {'id': series.id}) }}');
-                  var message = '{% trans %}Series saved OK{% endtrans %}';
-                  success(message);
-                  }
-                  });
-                  return false;"
-        action="{{ path('pumukitnewadmin_series_update', {'id': series.id}) }}" method="POST">
+  <form autocomplete="off" id="pumukitnewadmin_series_updatepub_form"
+        onsubmit="submitUpdatePub(this);return false;"
+        action="{{ path('pumukitnewadmin_series_update', {'id': series.id}) }}"
+        method="POST">
     {% form_theme form 'PumukitNewAdminBundle:Themes:fields.html.twig' %}
     <input type="hidden" name="id" id="id" value="{{ series.id }}">
 
@@ -38,3 +27,21 @@
 
   </form>
 </div>
+<script type="text/javascript">
+function submitUpdatePub(elem){
+    //TODO: Workaround.
+    var data = $(elem).add('#pumukitnewadmin_series_updatemeta_form').serialize();
+    $.ajax({
+        url: '{{ path('pumukitnewadmin_series_update', {'id': series.id}) }}',
+        type: 'POST',
+        data: data,
+        error: function(request, json){var message = '{% trans %}Series saved ERROR{% endtrans %}'; no_success(message);},
+        success: function(response){
+            $('#list_series').html(response);
+            $('#preview_series').load('{{ path('pumukitnewadmin_series_show', {'id': series.id}) }}');
+            var message = '{% trans %}Series saved OK{% endtrans %}';
+            success(message);
+        }
+    });
+ }
+</script>
