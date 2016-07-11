@@ -3,8 +3,9 @@
 namespace Pumukit\OpencastBundle\Services;
 
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use Symfony\Component\Security\Core\Role\Role;
 use Pumukit\SchemaBundle\Document\User;
-use Pumukit\SchemaBundle\Services\PermissionService;
+use Pumukit\SchemaBundle\Security\RoleHierarchy;
 
 class ClientService
 {
@@ -20,7 +21,7 @@ class ClientService
     private $manageOpencastUsers;
     private $insecure = false;
     private $logger;
-    private $permissionService;
+    private $roleHierarchy;
 
     /**
      * Constructor.
@@ -36,7 +37,7 @@ class ClientService
      */
     public function __construct($url = '', $user = '', $passwd = '', $player = '/engage/ui/watch.html', $scheduler = '/admin/index.html#/recordings', $dashboard = '/dashboard/index.html',
                                 $deleteArchiveMediaPackage = false, $deletionWorkflowName = 'delete-archive', $manageOpencastUsers = false, $insecure = false, $adminUrl = null, LoggerInterface $logger,
-                                PermissionService $permissionService)
+                                RoleHierarchy $roleHierarchy = null)
     {
         $this->logger = $logger;
 
@@ -58,7 +59,7 @@ class ClientService
         $this->manageOpencastUsers = $manageOpencastUsers;
         $this->insecure = $insecure;
         $this->adminUrl = $adminUrl;
-        $this->permissionService = $permissionService;
+        $this->roleHierarchy = $roleHierarchy;
     }
 
     /**
@@ -526,16 +527,15 @@ class ClientService
 
     private function getUserRoles(User $user)
     {
-        if ($user->isSuperAdmin()) {
-            $roles = '["ROLE_SUPER_ADMIN"';
-            foreach ($this->permissionService->getAllPermissions() as $role => $description) {
-                $roles .= ',+"'.$role.'"';
-            }
-            $roles .= ']';
+        if ($this->roleHierarchy) {
+            $userRoles = array_map(function($r){return new Role($r);}, $user->getRoles());
+            $allRoles = $this->roleHierarchy->getReachableRoles($userRoles);
+            $roles = array_map(function($r){return $r->getRole();}, $allRoles);
         } else {
-            $roles = '["'.implode('","', $user->getRoles()).'"]';
+            $roles = $user->getRoles();
         }
 
-        return $roles;
+            
+        return '["'.implode('","', $roles).'"]';
     }
 }

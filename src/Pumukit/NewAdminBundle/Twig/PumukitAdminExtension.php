@@ -10,6 +10,7 @@ use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Pumukit\NewAdminBundle\Form\Type\Base\CustomLanguageType;
+use Pumukit\SchemaBundle\Services\MultimediaObjectService;
 
 class PumukitAdminExtension extends \Twig_Extension
 {
@@ -23,13 +24,14 @@ class PumukitAdminExtension extends \Twig_Extension
     /**
      * Constructor.
      */
-    public function __construct(ProfileService $profileService, DocumentManager $documentManager, TranslatorInterface $translator, RouterInterface $router)
+    public function __construct(ProfileService $profileService, DocumentManager $documentManager, TranslatorInterface $translator, RouterInterface $router, MultimediaObjectService $mmobjService)
     {
         $this->dm = $documentManager;
         $this->languages = Intl::getLanguageBundle()->getLanguageNames();
         $this->profileService = $profileService;
         $this->translator = $translator;
         $this->router = $router;
+        $this->mmobjService = $mmobjService;
     }
 
     /**
@@ -74,6 +76,7 @@ class PumukitAdminExtension extends \Twig_Extension
         return array(
             new \Twig_SimpleFunction('php_upload_max_filesize', array($this, 'getPhpUploadMaxFilesize')),
             new \Twig_SimpleFunction('path_exists', array($this, 'existsRoute')),
+            new \Twig_SimpleFunction('is_playable_on_playlist', array($this, 'isPlayableOnPlaylist')),
             new \Twig_SimpleFunction('broadcast_description', array($this, 'getBroadcastDescription')),
         );
     }
@@ -484,21 +487,21 @@ class PumukitAdminExtension extends \Twig_Extension
     {
         $description = '';
         if (($broadcastType === EmbeddedBroadcast::TYPE_PUBLIC) && $template) {
-            $description = $this->translator->trans('Any Internet user can play the new multimedia objects created from this video template in the video portal');
+            $description = $this->translator->trans('Any Internet user can play the new multimedia objects created from this video template');
         } else if ($broadcastType === EmbeddedBroadcast::TYPE_PUBLIC) {
-            $description = $this->translator->trans('Any Internet user can play this multimedia object in the video portal');
+            $description = $this->translator->trans('Any Internet user can play this multimedia object');
         } else if (($broadcastType === EmbeddedBroadcast::TYPE_PASSWORD) && $template) {
-            $description = $this->translator->trans('Only users with the defined password can play the new multimedia objects created from this video template in the video portal');
+            $description = $this->translator->trans('Only users with the defined password can play the new multimedia objects created from this video template');
         } else if ($broadcastType === EmbeddedBroadcast::TYPE_PASSWORD) {
-            $description = $this->translator->trans('Only users with the defined password can play this multimedia object in the video portal');
+            $description = $this->translator->trans('Only users with the defined password can play this multimedia object');
         } else if (($broadcastType === EmbeddedBroadcast::TYPE_LOGIN) && $template) {
-            $description = $this->translator->trans('Only logged in users in the system can play the new multimedia objects created from this video template in the video portal');
+            $description = $this->translator->trans('Only logged in users in the system can play the new multimedia objects created from this video template');
         } else if ($broadcastType === EmbeddedBroadcast::TYPE_LOGIN) {
-            $description = $this->translator->trans('Only logged in users in the system can play this multimedia object in the video portal');
+            $description = $this->translator->trans('Only logged in users in the system can play this multimedia object');
         } else if (($broadcastType === EmbeddedBroadcast::TYPE_GROUPS) && $template) {
-            $description = $this->translator->trans('Only users in the selected Groups can play the new multimedia objects created from this video template in the video portal');
+            $description = $this->translator->trans('Only users in the selected Groups can play the new multimedia objects created from this video template');
         } else if ($broadcastType === EmbeddedBroadcast::TYPE_GROUPS) {
-            $description = $this->translator->trans('Only users in the selected Groups can play this multimedia object in the video portal');
+            $description = $this->translator->trans('Only users in the selected Groups can play this multimedia object');
         }
 
         return $description;
@@ -555,5 +558,17 @@ class PumukitAdminExtension extends \Twig_Extension
 
         $this->countMmobjsWithTag[$series->getId()][$tagCod] = $count;
         return $count;
+    }
+
+    /**
+     * Returns a boolean with whether the mmobj will be played on a playlist.
+     *
+     * @param MultimediaObject $mmobj
+     *
+     * @return boolean
+     */
+    public function isPlayableOnPlaylist($mmobj)
+    {
+        return $this->mmobjService->isPlayableOnPlaylist($mmobj);
     }
 }
