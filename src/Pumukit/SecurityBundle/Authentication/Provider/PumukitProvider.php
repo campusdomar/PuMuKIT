@@ -73,10 +73,8 @@ class PumukitProvider implements AuthenticationProviderInterface
 
     private function createUser($username)
     {
-        $userService = $this->container->get('pumukitschema.user');
-        $personService = $this->container->get('pumukitschema.person');
         $casService = $this->container->get('pumukit.casservice');
-
+        $loginService = $this->container->get('pumukit.security.login');
         $casService->forceAuthentication();
         $attributes = $casService->getAttributes();
 
@@ -95,11 +93,11 @@ class PumukitProvider implements AuthenticationProviderInterface
         }
         $group = null;
         if (isset($attributes[self::CAS_GROUP_KEY])) {
-            $group = $this->loginService->getGroup($attributes[self::CAS_GROUP_KEY], 'cas');
+            $group = $loginService->getGroup($attributes[self::CAS_GROUP_KEY], 'cas');
         }
         $origin = 'cas';
         $enabled = true;
-        return $this->loginService->createDefaultUser($username, $email, $defaultPermissionProfile, $group, $origin, $enabled);
+        return $loginService->createDefaultUser($username, $email, $defaultPermissionProfile, $group, $origin, $enabled);
 
         throw new AuthenticationServiceException('Not UserService to create a new user');
     }

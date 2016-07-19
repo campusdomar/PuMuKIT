@@ -4,7 +4,6 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
-
     <services>
       <service id="pumukit.casservice" class="Pumukit\SecurityBundle\Services\CASService">
         <argument>%pumukit_security.cas_url%</argument>
@@ -14,12 +13,12 @@
         <argument>%kernel.environment%</argument>
         <argument>%kernel.cache_dir%</argument>
       </service>
-      
+
       <service id="pumukit.security.authentication.provider" class="Pumukit\SecurityBundle\Authentication\Provider\PumukitProvider" public="false">
         <argument />  <!-- UserProvider -->
         <argument />  <!-- providerKey -->
         <argument type="service" id="security.user_checker" />
-        <argument type="service" id="service_container" /> 
+        <argument type="service" id="service_container" />
         <argument>%pumukit_security.create_users%</argument>
         <!--<call method="setUserService"><argument type="service" id="pumukitschema.user" /></call>-->
       </service>
@@ -34,7 +33,13 @@
         <argument type="service" id="router" />
         <argument type="service" id="pumukit.casservice" />
       </service>
-    </services>
 
+      <service id="pumukit.security.login" class="Pumukit\SecurityBundle\Service\LoginService">
+        <argument type="service" id="pumukitschema.user" />
+        <argument type="service" id="pumukitschema.person" />
+        <argument type="service" id="pumukitschema.group" />
+        <argument type="service" id="doctrine_mongodb.odm.document_manager" />
+      </service>
+    </services>
 
 </container>
