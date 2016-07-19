@@ -14,8 +14,17 @@ class LoginService
     }
 
     /**
+     * Creates a default user with the parameters passed.
      *
+     * The permission profile will be 'Auto Publisher' if the user is added to a 'PAS/PDI' group.
+     * Otherwise, it will try to get the defaultPermissionProfile from the service.
      *
+     * @param string $username
+     * @param string $email
+     * @param string $origin A string indicating from where was the user created.
+     * @param Group $group (optional) Null by default. A group the user can be added to.
+     * @param boolean $enabled (optional) True by default. Whether the user is enabled after creation or not.
+     * @return User $user The created user
      */
     public function createDefaultUser($username, $email, $origin, Group $group = null, $enabled = true){
 
@@ -46,7 +55,12 @@ class LoginService
     }
 
     /**
+     * Finds a group with the given key or creates one.
      *
+     * If the group with the given key is not found, it will create one using the $origin variable.
+     * @param string $key
+     * @param string $origin
+     * @return Group $group
      *
      */
     public function getGroup($key, $origin)
