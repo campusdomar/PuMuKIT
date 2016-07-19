@@ -71,7 +71,7 @@ class PumukitProvider implements AuthenticationProviderInterface
         return $authenticatedToken;
     }
 
-    private function createUser($userName)
+    private function createUser($username)
     {
         $userService = $this->container->get('pumukitschema.user');
         $personService = $this->container->get('pumukitschema.person');
@@ -81,62 +81,27 @@ class PumukitProvider implements AuthenticationProviderInterface
         $attributes = $casService->getAttributes();
 
         $permissionProfileService = $this->container->get('pumukitschema.permissionprofile');
-        if ($userService && $personService) {
-            //TODO create createDefaultUser in UserService.
-            //$this->userService->createDefaultUser($user);
-            $user = new User();
-            if (isset($attributes[self::CAS_CN_KEY])) {
-                $user->setUsername($attributes[self::CAS_CN_KEY]);
-            } else {
-                $user->setUsername($userName);
-            }
-
-            if (isset($attributes[self::CAS_MAIL_KEY])) {
-                $user->setEmail($attributes[self::CAS_MAIL_KEY]);
-            }
-            $defaultPermissionProfile = $permissionProfileService->getDefault();
-            if (null == $defaultPermissionProfile) {
-                throw new \Exception('Unable to assign a Permission Profile to the new User. There is no default Permission Profile');
-            }
-            $user->setPermissionProfile($defaultPermissionProfile);
-            $user->setOrigin('cas');
-            $user->setEnabled(true);
-
-            $userService->create($user);
-            if (isset($attributes[self::CAS_GROUP_KEY])) {
-                $group = $this->getGroup($attributes[self::CAS_GROUP_KEY]);
-                $userService->addGroup($group, $user, true, false);
-            }
-            $personService->referencePersonIntoUser($user);
-
-            return $user;
+        //TODO create createDefaultUser in UserService.
+        if (isset($attributes[self::CAS_CN_KEY])) {
+            $username = ($attributes[self::CAS_CN_KEY]);
         }
+        $email = '';
+        if (isset($attributes[self::CAS_MAIL_KEY]))
+            $email = $attributes[self::CAS_MAIL_KEY];
+
+        $defaultPermissionProfile = $permissionProfileService->getDefault();
+        if (null == $defaultPermissionProfile) {
+            throw new \Exception('Unable to assign a Permission Profile to the new User. There is no default Permission Profile');
+        }
+        $group = null;
+        if (isset($attributes[self::CAS_GROUP_KEY])) {
+            $group = $this->loginService->getGroup($attributes[self::CAS_GROUP_KEY], 'cas');
+        }
+        $origin = 'cas';
+        $enabled = true;
+        return $this->loginService->createDefaultUser($username, $email, $defaultPermissionProfile, $group, $origin, $enabled);
 
         throw new AuthenticationServiceException('Not UserService to create a new user');
-    }
-
-
-    private function getGroup($key)
-    {
-        $dm = $this->container->get('doctrine_mongodb.odm.document_manager');
-        $repo = $dm->getRepository('PumukitSchemaBundle:Group');
-        $groupService = $this->container->get('pumukitschema.group');
-
-        $cleanKey = preg_replace('/\W/', '', $key);
-
-        $group = $repo->findOneByKey($cleanKey);
-        if ($group) {
-            return $group;
-        }
-
-        $group = new Group();
-        $group->setKey($cleanKey);
-        $group->setName($key);
-        $group->setOrigin('cas');
-        $groupService->create($group);
-
-        return $group;
-
     }
 
     public function supports(TokenInterface $token)
