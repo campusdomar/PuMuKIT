@@ -3,7 +3,6 @@
 namespace Pumukit\SecurityBundle\Services;
 
 use Pumukit\SchemaBundle\Document\Group;
-use Pumukit\SchemaBundle\Document\PermissionProfile;
 
 class LoginService
 {
@@ -18,11 +17,22 @@ class LoginService
      *
      *
      */
-    public function createDefaultUser($username, $email, PermissionProfile $permissionProfile, $origin, Group $group = null, $enabled = true){
+    public function createDefaultUser($username, $email, $origin, Group $group = null, $enabled = true){
 
         $user = new User();
         $user->setUsername($username);
         $user->setEmail($email);
+
+        if(!$group || !in_array($group->getKey(), grouparray('PAS', 'PDI'))){
+            $permissionProfile = $permissionProfileService->getDefault();
+        }
+        else {
+            $permissionProfile = $permissionProfileService->getByName("Auto Publisher");
+        }
+        if (null == $permissionProfile) {
+            throw new \Exception('Unable to assign a Permission Profile to the new User.');
+        }
+
         $user->setPermissionProfile($permissionProfile);
         $user->setOrigin($origin);
         $user->setEnabled($enabled);

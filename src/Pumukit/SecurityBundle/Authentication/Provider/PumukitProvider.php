@@ -75,6 +75,11 @@ class PumukitProvider implements AuthenticationProviderInterface
     {
         $casService = $this->container->get('pumukit.casservice');
         $loginService = $this->container->get('pumukit.security.login');
+
+        if(!$casService || !$loginService) {
+            throw new AuthenticationServiceException('Not UserService to create a new user');
+        }
+
         $casService->forceAuthentication();
         $attributes = $casService->getAttributes();
 
@@ -87,19 +92,12 @@ class PumukitProvider implements AuthenticationProviderInterface
         if (isset($attributes[self::CAS_MAIL_KEY]))
             $email = $attributes[self::CAS_MAIL_KEY];
 
-        $defaultPermissionProfile = $permissionProfileService->getDefault();
-        if (null == $defaultPermissionProfile) {
-            throw new \Exception('Unable to assign a Permission Profile to the new User. There is no default Permission Profile');
-        }
         $group = null;
         if (isset($attributes[self::CAS_GROUP_KEY])) {
             $group = $loginService->getGroup($attributes[self::CAS_GROUP_KEY], 'cas');
         }
         $origin = 'cas';
-        $enabled = true;
-        return $loginService->createDefaultUser($username, $email, $defaultPermissionProfile, $group, $origin, $enabled);
-
-        throw new AuthenticationServiceException('Not UserService to create a new user');
+        return $loginService->createDefaultUser($username, $email, $defaultPermissionProfile, $group, $origin);
     }
 
     public function supports(TokenInterface $token)
