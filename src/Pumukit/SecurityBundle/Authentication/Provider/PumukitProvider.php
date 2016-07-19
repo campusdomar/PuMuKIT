@@ -84,7 +84,6 @@ class PumukitProvider implements AuthenticationProviderInterface
         $attributes = $casService->getAttributes();
 
         $permissionProfileService = $this->container->get('pumukitschema.permissionprofile');
-        //TODO create createDefaultUser in UserService.
         if (isset($attributes[self::CAS_CN_KEY])) {
             $username = ($attributes[self::CAS_CN_KEY]);
         }
