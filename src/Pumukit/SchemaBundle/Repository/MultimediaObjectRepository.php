@@ -1247,7 +1247,7 @@ class MultimediaObjectRepository extends DocumentRepository
     public function findAllAsIterable($filter_prototype = true)
     {
         if ($filter_prototype) {
-            $qb = $this->createStandardQueryBuilder();
+            return $qb = $this->createStandardQueryBuilder();
         } else {
             $qb = $this->createQueryBuilder();
         }

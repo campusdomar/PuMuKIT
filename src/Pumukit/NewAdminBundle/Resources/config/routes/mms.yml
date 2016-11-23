@@ -6,6 +6,14 @@ pumukitnewadmin_mms_index:
         _sylius:
             filterable: true
 
+pumukitnewadmin_mms_indexall:
+    pattern: /mmslist
+    methods: [GET]
+    defaults:
+        _controller: pumukitnewadmin.controller.mms:indexAllAction
+        _sylius:
+            filterable: true
+
 pumukitnewadmin_mms_create:
     pattern: /{id}/create
     methods: [GET, POST]

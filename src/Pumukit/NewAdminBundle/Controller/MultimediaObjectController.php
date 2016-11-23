@@ -68,6 +68,67 @@ class MultimediaObjectController extends SortableAdminController implements NewA
     }
 
     /**
+     * Overwrite to search criteria with date.
+     *
+     * @Template
+     */
+    public function indexAllAction(Request $request)
+    {
+        $config = $this->getConfiguration();
+        $criteria = $this->getCriteria($config);
+
+        $resources = $this->getResources($request, $config, $criteria);
+        $factoryService = $this->get('pumukitschema.factory');
+
+        $mms = $this->getListAllMultimediaObjects();
+
+        $update_session = true;
+        foreach ($mms as $mm) {
+            if ($mm->getId() == $this->get('session')->get('admin/mmslist/id')) {
+                $update_session = false;
+            }
+        }
+
+        if ($update_session) {
+            $this->get('session')->remove('admin/mmslist/id');
+        }
+
+        return array(
+            'mms' => $mms,
+            'disable_pudenew' => !$this->container->getParameter('show_latest_with_pudenew'),
+        );
+    }
+
+    /**
+     * Get the view list of multimedia objects
+     * belonging to a series.
+     */
+    protected function getListAllMultimediaObjects()
+    {
+        $session = $this->get('session');
+
+        $page = $session->get('admin/mmslist/page', 1);
+        $maxPerPage = $session->get('admin/mmslist/paginate', 10);
+
+        //$sorting = array('rank' => 'asc');
+        $mmsQueryBuilder = $this
+            ->get('doctrine_mongodb.odm.document_manager')
+            ->getRepository('PumukitSchemaBundle:MultimediaObject')
+            ->findAllAsIterable();
+
+        $adapter = new DoctrineODMMongoDBAdapter($mmsQueryBuilder);
+        $mms = new Pagerfanta($adapter);
+
+        $mms
+            ->setMaxPerPage($maxPerPage)
+            ->setNormalizeOutOfRangePages(true);
+
+        $mms->setCurrentPage($page);
+
+        return $mms;
+    }
+
+    /**
      * Redirect to the series list of a multimedia object series. Update
      * the session to set the correct page and selected object.
      *
@@ -161,17 +222,19 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             throw new \Exception('Not found any role.');
         }
 
-        $sessionId = $this->get('session')->get('admin/series/id', null);
+        /*$sessionId = $this->get('session')->get('admin/series/id', null);
         $series = $factoryService->findSeriesById($request->get('seriesId'), $sessionId);
 
         if (null === $series) {
             throw new \Exception('Series with id '.$request->get('seriesId').' or with session id '.$sessionId.' not found.');
         }
-        $this->get('session')->set('admin/series/id', $series->getId());
+        $this->get('session')->set('admin/series/id', $series->getId());*/
+
 
         $parentTags = $factoryService->getParentTags();
 
         $resource = $this->findOr404($request);
+        $series = $resource->getSeries();//TODO
         $translator = $this->get('translator');
         $locale = $request->getLocale();
         $formMeta = $this->createForm(new MultimediaObjectMetaType($translator, $locale), $resource);
@@ -209,7 +272,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
                      'mm' => $resource,
                      'form_meta' => $formMeta->createView(),
                      'form_pub' => $formPub->createView(),
-                     'series' => $series,
+                     //'series' => $series,
                      'roles' => $roles,
                      'personal_scope_role' => $personalScopeRole,
                      'personal_scope_role_code' => $personalScopeRoleCode,
@@ -268,13 +331,13 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             throw new \Exception('Not found any role.');
         }
 
-        $sessionId = $this->get('session')->get('admin/series/id', null);
+        /*$sessionId = $this->get('session')->get('admin/series/id', null);
         $series = $factoryService->findSeriesById(null, $sessionId);
         if (null === $series) {
             throw new \Exception('Series with id '.$request->get('id').' or with session id '.$sessionId.' not found.');
         }
         $this->get('session')->set('admin/series/id', $series->getId());
-
+         */
         $parentTags = $factoryService->getParentTags();
 
         $resource = $this->findOr404($request);
@@ -305,15 +368,9 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             $criteria = $this->getCriteria($config);
             $resources = $this->getResources($request, $config, $criteria);
           */
+            $referer = $request->headers->get('referer');
+            return $this->renderList( $resource, $referer );
 
-          $mms = $this->getListMultimediaObjects($series);
-
-            return $this->render('PumukitNewAdminBundle:MultimediaObject:list.html.twig',
-                               array(
-                                     'series' => $series,
-                                     'mms' => $mms,
-                                     )
-                               );
         }
 
         if ($config->isApiRequest()) {
@@ -325,7 +382,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
                                    'mm' => $resource,
                                    'form_meta' => $formMeta->createView(),
                                    'form_pub' => $formPub->createView(),
-                                   'series' => $series,
+                                   //'series' => $series,
                                    'roles' => $roles,
                                    'personal_scope_role' => $personalScopeRole,
                                    'personal_scope_role_code' => $personalScopeRoleCode,
@@ -338,6 +395,30 @@ class MultimediaObjectController extends SortableAdminController implements NewA
                              );
     }
 
+
+    private function renderList(MultimediaObject $resource, $referer)
+    {
+        if(strpos($referer, 'mmslist') === false) {
+            $mms = $this->getListMultimediaObjects($resource->getSeries());
+
+            return $this->render(
+                'PumukitNewAdminBundle:MultimediaObject:list.html.twig',
+                array(
+                    'mms' => $mms,
+                    'series' => $resource->getSeries()
+                )
+            );
+        } else {
+            $mms = $this->getListAllMultimediaObjects();
+            return $this->render(
+                'PumukitNewAdminBundle:MultimediaObject:listAll.html.twig',
+                array(
+                    'mms' => $mms,
+                )
+            );
+        }
+    }
+
     /**
      * Display the form for editing or update the resource.
      */
@@ -348,16 +429,17 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $factoryService = $this->get('pumukitschema.factory');
         $personService = $this->get('pumukitschema.person');
 
-        $sessionId = $this->get('session')->get('admin/series/id', null);
+        /*$sessionId = $this->get('session')->get('admin/series/id', null);
         $series = $factoryService->findSeriesById(null, $sessionId);
         if (null === $series) {
             throw new \Exception('Series with id '.$request->get('id').' or with session id '.$sessionId.' not found.');
         }
-        $this->get('session')->set('admin/series/id', $series->getId());
+        $this->get('session')->set('admin/series/id', $series->getId());*/
 
         $parentTags = $factoryService->getParentTags();
 
         $resource = $this->findOr404($request);
+        $series = $resource->getSeries();
         $this->get('session')->set('admin/mms/id', $resource->getId());
 
         $translator = $this->get('translator');
@@ -387,14 +469,8 @@ class MultimediaObjectController extends SortableAdminController implements NewA
                 return $this->handleView($this->view($formPub));
             }
 
-            $mms = $this->getListMultimediaObjects($series);
-
-            return $this->render('PumukitNewAdminBundle:MultimediaObject:list.html.twig',
-                                 array(
-                                       'series' => $series,
-                                       'mms' => $mms,
-                                       )
-                                 );
+            $referer = $request->headers->get('referer');
+            return $this->renderList($resource , $referer);
         }
 
         if ($config->isApiRequest()) {
