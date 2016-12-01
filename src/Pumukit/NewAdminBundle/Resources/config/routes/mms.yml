@@ -144,6 +144,12 @@ pumukitnewadmin_mms_list:
     defaults:
         _controller: pumukitnewadmin.controller.mms:listAction
 
+pumukitnewadmin_mms_listAll:
+    pattern: /listAll
+    methods: [GET, POST]
+    defaults:
+        _controller: pumukitnewadmin.controller.mms:listAllAction
+
 pumukitnewadmin_mms_status:
     pattern: /{id}/status
     methods: [GET, POST]

@@ -796,6 +796,43 @@ class MultimediaObjectController extends SortableAdminController implements NewA
      * List action
      * Overwrite to pass series parameter.
      */
+    public function listAllAction(Request $request)
+    {
+        $config = $this->getConfiguration();
+        $criteria = $this->getCriteria($config);
+        $resources = $this->getResources($request, $config, $criteria);
+
+        $factoryService = $this->get('pumukitschema.factory');
+        /*$seriesId = $request->get('seriesId', null);
+        $sessionId = $this->get('session')->get('admin/series/id', null);
+        $series = $factoryService->findSeriesById($seriesId, $sessionId);*/
+
+        $mms = $this->getListAllMultimediaObjects();
+
+        $update_session = true;
+        foreach ($mms as $mm) {
+            if ($mm->getId() == $this->get('session')->get('admin/mmslist/id')) {
+                $update_session = false;
+            }
+        }
+
+        if ($update_session) {
+            $this->get('session')->remove('admin/mmslist/id');
+        }
+
+        return $this->render('PumukitNewAdminBundle:MultimediaObject:listAll.html.twig',
+            array(
+                'mms' => $mms,
+                'disable_pudenew' => !$this->container->getParameter('show_latest_with_pudenew'),
+            )
+        );
+    }
+
+
+    /**
+     * List action
+     * Overwrite to pass series parameter.
+     */
     public function listAction(Request $request)
     {
         $config = $this->getConfiguration();
