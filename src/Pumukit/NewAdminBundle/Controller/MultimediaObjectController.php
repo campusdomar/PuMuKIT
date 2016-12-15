@@ -74,13 +74,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
      */
     public function indexAllAction(Request $request)
     {
-        $config = $this->getConfiguration();
-        $criteria = $this->getCriteria($config);
-
-        $resources = $this->getResources($request, $config, $criteria);
-        $factoryService = $this->get('pumukitschema.factory');
-
-        $mms = $this->getListAllMultimediaObjects();
+        $mms = $this->getListAllMultimediaObjects($request);
 
         $update_session = true;
         foreach ($mms as $mm) {
@@ -103,18 +97,36 @@ class MultimediaObjectController extends SortableAdminController implements NewA
      * Get the view list of multimedia objects
      * belonging to a series.
      */
-    protected function getListAllMultimediaObjects()
+    protected function getListAllMultimediaObjects($request)
     {
         $session = $this->get('session');
 
-        $page = $session->get('admin/mmslist/page', 1);
-        $maxPerPage = $session->get('admin/mmslist/paginate', 10);
+        /* Criteria search Request or session storage */
+        $criteria = $request->get('criteria');
+        if(!isset($criteria)) {
+            $criteria = $session->get('admin/mmslist/criteria');
+            if(!isset($criteria)) {
+                $criteria = null;
+            }
+        }
 
-        //$sorting = array('rank' => 'asc');
+        if(isset($criteria["reset"])) {
+            $criteria = null;
+        }
+
+        $page = $request->get('page');
+        $page = (!isset($page) || $page <= 0 ) ? 1 : $page;
+        $session->set('admin/mmslist/page', $page);
+
+        $paginate = $request->get('paginate');
+        $maxPerPage = (isset($paginate)) ? $paginate : $session->get('admin/mmslist/paginate',10);
+        $maxPerPage = (!isset($maxPerPage) || !in_array($maxPerPage, array(10,20,50)) ) ? 10: $maxPerPage;
+        $session->set('admin/mmslist/paginate', $maxPerPage);
+
         $mmsQueryBuilder = $this
             ->get('doctrine_mongodb.odm.document_manager')
             ->getRepository('PumukitSchemaBundle:MultimediaObject')
-            ->findAllAsIterable();
+            ->findAllAsIterable($criteria);
 
         $adapter = new DoctrineODMMongoDBAdapter($mmsQueryBuilder);
         $mms = new Pagerfanta($adapter);
@@ -801,13 +813,8 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $config = $this->getConfiguration();
         $criteria = $this->getCriteria($config);
         $resources = $this->getResources($request, $config, $criteria);
-
-        $factoryService = $this->get('pumukitschema.factory');
-        /*$seriesId = $request->get('seriesId', null);
-        $sessionId = $this->get('session')->get('admin/series/id', null);
-        $series = $factoryService->findSeriesById($seriesId, $sessionId);*/
-
-        $mms = $this->getListAllMultimediaObjects();
+        /*$factoryService = $this->get('pumukitschema.factory');*/
+        $mms = $this->getListAllMultimediaObjects($request);
 
         $update_session = true;
         foreach ($mms as $mm) {

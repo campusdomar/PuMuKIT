@@ -23,23 +23,23 @@
                     </div>
                 </div>
                 <div id="edit_mm">
-                    {% if(app.session.has('admin/mms/id')) %}
-                        {{ render(url('pumukitnewadmin_mms_edit', {'id': app.session.get('admin/mms/id')})) }}
+                    {% if(app.session.has('admin/mmslist/id')) %}
+                        {{ render(url('pumukitnewadmin_mms_edit', {'id': app.session.get('admin/mmslist/id')})) }}
                     {% endif %}
                 </div>
             </div>
 
             <div id="tv_admin_bar" class="col-md-2 hidden-xs hidden-sm">
                 <div id="preview_mm" class="well">
-                    {% if(app.session.has('admin/mms/id')) %}
-                        {{ render_hinclude(url('pumukitnewadmin_mms_show', {'id': app.session.get('admin/mms/id')})) }}
+                    {% if(app.session.has('admin/mmslist/id')) %}
+                        {{ render_hinclude(url('pumukitnewadmin_mms_show', {'id': app.session.get('admin/mmslist/id')})) }}
                     {% else %}
                         {% trans %}Select any multimedia object.{% endtrans %}
                     {% endif %}
                 </div>
             </div>
             <div class="col-md-2 hidden-xs hidden-sm">
-                {% include 'PumukitNewAdminBundle:MultimediaObject:acordeon.html.twig' with {'name': 'series', 'broadcasts': 'broadcasts', 'seriestypes': 'seriestypes'} %}
+                {% include 'PumukitNewAdminBundle:MultimediaObject:acordeon.html.twig' %}
             </div>
         {% else %}
             <div class="col-md-12">
