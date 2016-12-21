@@ -2,6 +2,7 @@
 
 namespace Pumukit\NewAdminBundle\Controller;
 
+use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,6 +21,7 @@ use Pumukit\SchemaBundle\Event\SchemaEvents;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Pagerfanta\Adapter\MongoAdapter;
 
 /**
  * @Security("is_granted('ROLE_ACCESS_MULTIMEDIA_SERIES')")
@@ -97,7 +99,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
      * Get the view list of multimedia objects
      * belonging to a series.
      */
-    protected function getListAllMultimediaObjects($request)
+    protected function getListAllMultimediaObjects(Request $request)
     {
         $session = $this->get('session');
 

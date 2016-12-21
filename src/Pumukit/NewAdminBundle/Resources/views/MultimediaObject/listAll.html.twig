@@ -12,8 +12,8 @@
                 </th>
                 <th colspan="{{ is_naked() ? 4 : 5 }}" width="5%"></th>
                 <th width="1%">{% trans %}Audio/Video{% endtrans %}</th>
-                <th width="15%">{% trans %}Serie{% endtrans %}</th>
                 <th width="1%">{% trans %}Img{% endtrans %}</th>
+                <th width="15%">{% trans %}Serie{% endtrans %}</th>
                 <th>{% trans %}Title{% endtrans %}</th>
                 <th width="1%">{% trans %}Duration{% endtrans %}</th>
                 <th width="1%">{% trans %}RecDate{% endtrans %}</th>
@@ -73,13 +73,14 @@
                         <span>{{ mm.isOnlyAudio() ? 'Audio':'Video' }}</span>
                     </td>
 
-                    <td><a href="{{ path('pumukitnewadmin_mms_shortener', {'id': mm.id }) }}">{{ mm.series }}</a></td>
-
                     <td onclick="click_fila_edit_urls('mm', this, '{{ path('pumukitnewadmin_mms_show', {'id': mm.id}) }}', '{{ path('pumukitnewadmin_mms_edit', {'id': mm.id}) }}')"
                         ondblclick="dblclick_preview_mm('{{ mm.id }}')">
                         <img class="mini pic-{{ mm.id }} preview" src="{{ mm|first_url_pic(false, false) }}"
                              alt="{% trans %}No_pic{% endtrans %}" height="23" width="30">
                     </td>
+
+                    <td><a href="{{ path('pumukitnewadmin_mms_shortener', {'id': mm.id }) }}">{{ mm.series }}</a></td>
+
                     <td onclick="click_fila_edit_urls('mm', this, '{{ path('pumukitnewadmin_mms_show', {'id': mm.id}) }}', '{{ path('pumukitnewadmin_mms_edit', {'id': mm.id}) }}')"
                         ondblclick="dblclick_preview_mm('{{ mm.id }}')">
                         {{ mm.getTitle() }}
