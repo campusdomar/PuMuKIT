@@ -84,7 +84,8 @@ class SenderService
      * @param $subject
      * @param $template
      * @param array $parameters
-     * @param bool $error
+     * @param bool  $error
+     *
      * @return bool
      */
     public function sendNotification($emailTo, $subject, $template, $parameters = array(), $error = true)
@@ -100,7 +101,6 @@ class SenderService
                     $parameters,
                     $error
                 );
-
             }
 
             if (isset($filterEmail['error'])) {
@@ -124,6 +124,7 @@ class SenderService
      * Checks if string|array email are valid.
      *
      * @param string|array $emailTo
+     *
      * @return bool
      */
     private function filterEmail($emailTo)
