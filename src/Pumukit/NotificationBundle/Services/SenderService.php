@@ -100,6 +100,7 @@ class SenderService
                     $parameters,
                     $error
                 );
+
             }
 
             if (isset($filterEmail['error'])) {
