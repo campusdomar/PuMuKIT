@@ -80,13 +80,6 @@ class SenderService
 
     /**
      *
-<<<<<<< d3d6088528848d3cbd6c14ca745a80c3d83971c9
-     * @param $emailTo
-     * @param $subject
-     * @param $template
-     * @param array $parameters
-     * @param bool  $error
-     *
      * @param $emailTo
      * @param $subject
      * @param $template
