@@ -810,7 +810,8 @@ class MultimediaObject
      */
     public function isPublicEmbeddedBroadcast()
     {
-        return (bool) (!$this->embeddedBroadcast || EmbeddedBroadcast::TYPE_PUBLIC === $this->embeddedBroadcast->getType());
+        return (bool) (!$this->embeddedBroadcast || EmbeddedBroadcast::TYPE_PUBLIC === $this->embeddedBroadcast->getType(
+            ));
     }
 
     // Start tag section. Caution: MultimediaObject tags are Tag objects, not strings.
@@ -1023,9 +1024,11 @@ class MultimediaObject
      */
     public function removePicById($picId)
     {
-        $this->pics = $this->pics->filter(function ($pic) use ($picId) {
-            return $pic->getId() !== $picId;
-        });
+        $this->pics = $this->pics->filter(
+            function ($pic) use ($picId) {
+                return $pic->getId() !== $picId;
+            }
+        );
     }
 
     /**
@@ -1271,11 +1274,11 @@ class MultimediaObject
      * @return ArrayCollection
      */
     public function getFilteredPicsWithTags(
-                                          array $any_tags = array(),
-                                          array $all_tags = array(),
-                                          array $not_any_tags = array(),
-                                          array $not_all_tags = array())
-    {
+        array $any_tags = array(),
+        array $all_tags = array(),
+        array $not_any_tags = array(),
+        array $not_all_tags = array()
+    ) {
         $r = array();
 
         foreach ($this->pics as $pic) {
@@ -1333,9 +1336,11 @@ class MultimediaObject
      */
     public function removeTrackById($trackId)
     {
-        $this->tracks = $this->tracks->filter(function ($track) use ($trackId) {
-            return $track->getId() !== $trackId;
-        });
+        $this->tracks = $this->tracks->filter(
+            function ($track) use ($trackId) {
+                return $track->getId() !== $trackId;
+            }
+        );
 
         $this->updateDuration();
     }
@@ -1564,12 +1569,12 @@ class MultimediaObject
      * @return ArrayCollection
      */
     public function getFilteredTracksWithTags(
-                                            array $any_tags = array(),
-                                            array $all_tags = array(),
-                                            array $not_any_tags = array(),
-                                            array $not_all_tags = array(),
-                                            $all = true)
-    {
+        array $any_tags = array(),
+        array $all_tags = array(),
+        array $not_any_tags = array(),
+        array $not_all_tags = array(),
+        $all = true
+    ) {
         $r = array();
 
         foreach ($this->tracks as $track) {
@@ -1608,12 +1613,12 @@ class MultimediaObject
      * @return Track|null
      */
     public function getFilteredTrackWithTags(
-                                            array $any_tags = array(),
-                                            array $all_tags = array(),
-                                            array $not_any_tags = array(),
-                                            array $not_all_tags = array(),
-                                            $all = true)
-    {
+        array $any_tags = array(),
+        array $all_tags = array(),
+        array $not_any_tags = array(),
+        array $not_all_tags = array(),
+        $all = true
+    ) {
         foreach ($this->tracks as $track) {
             // TODO Move 'hide' field to tag 'hidden' in track (see hidden vs display tag)
             if ($track->getHide() && $all) {
@@ -1667,9 +1672,11 @@ class MultimediaObject
      */
     public function removeMaterialById($materialId)
     {
-        $this->materials = $this->materials->filter(function ($material) use ($materialId) {
-            return $material->getId() !== $materialId;
-        });
+        $this->materials = $this->materials->filter(
+            function ($material) use ($materialId) {
+                return $material->getId() !== $materialId;
+            }
+        );
     }
 
     /**
@@ -1883,11 +1890,11 @@ class MultimediaObject
      * @return ArrayCollection
      */
     public function getFilteredMaterialsWithTags(
-                                               array $any_tags = array(),
-                                               array $all_tags = array(),
-                                               array $not_any_tags = array(),
-                                               array $not_all_tags = array())
-    {
+        array $any_tags = array(),
+        array $all_tags = array(),
+        array $not_any_tags = array(),
+        array $not_all_tags = array()
+    ) {
         $r = array();
 
         foreach ($this->materials as $material) {
@@ -1939,9 +1946,11 @@ class MultimediaObject
      */
     public function removeLinkById($linkId)
     {
-        $this->links = $this->links->filter(function ($link) use ($linkId) {
-            return $link->getId() !== $linkId;
-        });
+        $this->links = $this->links->filter(
+            function ($link) use ($linkId) {
+                return $link->getId() !== $linkId;
+            }
+        );
     }
 
     /**
@@ -2155,11 +2164,11 @@ class MultimediaObject
      * @return ArrayCollection
      */
     public function getFilteredLinksWithTags(
-                                           array $any_tags = array(),
-                                           array $all_tags = array(),
-                                           array $not_any_tags = array(),
-                                           array $not_all_tags = array())
-    {
+        array $any_tags = array(),
+        array $all_tags = array(),
+        array $not_any_tags = array(),
+        array $not_all_tags = array()
+    ) {
         $r = array();
 
         foreach ($this->links as $link) {
@@ -2632,6 +2641,7 @@ class MultimediaObject
         $minutes = floor($this->getDuration() / 60);
 
         $seconds = $this->getDuration() % 60;
+
         //if ($seconds < 10 ) $minutes = '0' . $seconds;
 
         return array('minutes' => $minutes, 'seconds' => $seconds);
