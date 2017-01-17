@@ -55,7 +55,7 @@ class LDAPUserService
         }
 
         $user->setUsername($username);
-        
+
         if (isset($info['cn'][0])) {
             $user->setFullname($info['cn'][0]);
         }
