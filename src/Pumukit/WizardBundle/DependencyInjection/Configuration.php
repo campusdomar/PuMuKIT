@@ -41,6 +41,10 @@ class Configuration implements ConfigurationInterface
           ->defaultFalse()
           ->info('Enable adding license to a MultimediaObject in metadata step. This license is defined in pumukit_schema.license (could be a string or an array).')
         ->end()
+        ->booleanNode('reuse_series')
+          ->defaultFalse()
+          ->info('Enable adding new multimedia object to an existing series belonging to the logged in user.')
+        ->end()
       ->end();
 
         return $treeBuilder;
