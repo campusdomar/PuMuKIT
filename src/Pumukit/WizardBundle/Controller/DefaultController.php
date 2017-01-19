@@ -104,10 +104,9 @@ class DefaultController extends Controller
         $sameSeries = $this->getSameSeriesValue($formData, $request->get('same_series', false));
         $showSeries = !$sameSeries;
         $formData['same_series'] = $sameSeries ? 1 : 0;
-        if (!isset($formData['series']['new_checkbox'])) {
-            $formData['series']['new_checkbox'] = 0;
+        if (!isset($formData['series']['new'])) {
+            $formData['series']['new'] = 0;
         }
-        $formData['series']['new'] = $formData['series']['new_checkbox'];
         $newSeries = (bool) $formData['series']['new'];
         if (!$newSeries && isset($formData['series']['reuse']['id'])) {
             $id = $formData['series']['reuse']['id'];
@@ -180,11 +179,9 @@ class DefaultController extends Controller
         $sameSeries = $this->getSameSeriesValue($formData, $request->get('same_series', false));
         $showSeries = !$sameSeries;
         $formData['same_series'] = $sameSeries ? 1 : 0;
-
-        if (!isset($formData['series']['new_checkbox'])) {
-            $formData['series']['new_checkbox'] = 0;
+        if (!isset($formData['series']['new'])) {
+            $formData['series']['new'] = 0;
         }
-        $formData['series']['new'] = $formData['series']['new_checkbox'];
         $newSeries = (bool) $formData['series']['new'];
         if (!$newSeries && isset($formData['series']['reuse']['id'])) {
             $id = $formData['series']['reuse']['id'];
