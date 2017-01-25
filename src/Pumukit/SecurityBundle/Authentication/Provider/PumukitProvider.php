@@ -96,7 +96,7 @@ class PumukitProvider implements AuthenticationProviderInterface
             $group = $loginService->getGroup($attributes[self::CAS_GROUP_KEY], 'cas');
         }
         $origin = 'cas';
-        return $loginService->createDefaultUser($username, $email, $defaultPermissionProfile, $group, $origin);
+        return $loginService->createDefaultUser($username, $email, $origin, $group);
     }
 
     public function supports(TokenInterface $token)
