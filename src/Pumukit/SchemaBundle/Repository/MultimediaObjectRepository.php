@@ -1244,10 +1244,17 @@ class MultimediaObjectRepository extends DocumentRepository
      *
      * @return Cursor
      */
-    public function findAllAsIterable($filter_prototype = true)
+    public function findAllAsIterable($criteria, $filter_prototype = true)
     {
         if ($filter_prototype) {
             $qb = $this->createStandardQueryBuilder();
+            if ($criteria) {
+                foreach ($criteria as $key => $value) {
+                    $qb->field($key)->equals(new \MongoRegex('/%s/i', $value));
+                }
+            }
+
+            return $qb;
         } else {
             $qb = $this->createQueryBuilder();
         }
