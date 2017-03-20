@@ -41,13 +41,12 @@ class MultimediaObjectController extends PlayerController implements WebTVContro
 
         $editorChapters = $this->getChapterMarks($multimediaObject);
 
-        return array(
-            'autostart' => $request->query->get('autostart', 'true'),
-            'intro' => $this->getIntro($request->query->get('intro')),
-            'multimediaObject' => $multimediaObject,
-            'track' => $track,
-            'editor_chapters' => $editorChapters,
-        );
+        return array('autostart' => $request->query->get('autostart', 'true'),
+        'intro' => $this->getIntro($request->query->get('intro')),
+        'multimediaObject' => $multimediaObject,
+        'track' => $track,
+        'editor_chapters' => $editorChapters,
+        'cinema_mode' => $this->getParameter('pumukit_web_tv.cinema_mode'));
     }
 
     /**
@@ -102,7 +101,9 @@ class MultimediaObjectController extends PlayerController implements WebTVContro
                      'intro' => $this->getIntro($request->query->get('intro')),
                      'multimediaObject' => $multimediaObject,
                      'track' => $track,
-                     'magic_url' => true, );
+                     'magic_url' => true,
+                     'cinema_mode' => $this->getParameter('pumukit_web_tv.cinema_mode')
+        );
     }
 
     /**
