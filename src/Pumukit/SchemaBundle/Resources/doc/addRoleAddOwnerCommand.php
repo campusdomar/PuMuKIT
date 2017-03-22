@@ -12,8 +12,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Debug\Debug;
 use Pumukit\SchemaBundle\Document\User;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\DepositorBundle\Services\NotificationService;
 
 class addRoleAddOwnerCommand extends ContainerAwareCommand
 {
@@ -62,4 +60,3 @@ $kernel = new AppKernel($env, $debug);
 $application = new Application($kernel);
 $application->add(new addRoleAddOwnerCommand());
 $application->run($input);
-                             
