@@ -44,6 +44,11 @@ class MultimediaObjectController extends PlayerController implements WebTVContro
             return $this->redirect($track->getUrl());
         }
 
+        // If we didn't ask for a specific track, we let the player decide.
+        if(!$request->query->has('track_id')) {
+            $track = null;
+        }
+
         $this->updateBreadcrumbs($multimediaObject);
 
         $editorChapters = $this->getChapterMarks($multimediaObject);
