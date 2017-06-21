@@ -3,8 +3,6 @@
 namespace Pumukit\SchemaBundle\Repository;
 
 use Doctrine\ODM\MongoDB\DocumentRepository;
-use Doctrine\ODM\MongoDB\Mapping\Annotations\ObjectId;
-use phpDocumentor\Reflection\Types\Object_;
 use Pumukit\SchemaBundle\Document\SeriesType;
 
 /**
@@ -19,9 +17,9 @@ class SeriesRepository extends DocumentRepository
      * Find series by tag id.
      *
      * @param Tag|EmbeddedTag $tag
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param array           $sort
+     * @param int             $limit
+     * @param int             $page
      *
      * @return ArrayCollection
      */
@@ -38,7 +36,7 @@ class SeriesRepository extends DocumentRepository
      * Create QueryBuilder to find series by tag id.
      *
      * @param Tag|EmbeddedTag $tag
-     * @param array $sort
+     * @param array           $sort
      *
      * @return QueryBuilder
      */
@@ -72,8 +70,8 @@ class SeriesRepository extends DocumentRepository
      *
      * @param array $tags
      * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param int   $limit
+     * @param int   $page
      *
      * @return ArrayCollection
      */
@@ -93,8 +91,8 @@ class SeriesRepository extends DocumentRepository
      *
      * @param array $tags
      * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param int   $limit
+     * @param int   $page
      *
      * @return ArrayCollection
      */
@@ -127,9 +125,9 @@ class SeriesRepository extends DocumentRepository
      * Find series without tag.
      *
      * @param Tag|EmbeddedTag $tag
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param array           $sort
+     * @param int             $limit
+     * @param int             $page
      *
      * @return ArrayCollection
      */
@@ -224,8 +222,8 @@ class SeriesRepository extends DocumentRepository
     /**
      * Find series by person id and role cod or groups.
      *
-     * @param string $personId
-     * @param string $roleCod
+     * @param string          $personId
+     * @param string          $roleCod
      * @param ArrayCollection $groups
      *
      * @return ArrayCollection
@@ -241,12 +239,12 @@ class SeriesRepository extends DocumentRepository
     /**
      * Find series by person id and role cod or groups sorted Query Builder.
      *
-     * @param string $personId
-     * @param string $roleCod
+     * @param string          $personId
+     * @param string          $roleCod
      * @param ArrayCollection $groups
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param array           $sort
+     * @param int             $limit
+     * @param int             $page
      *
      * @return ArrayCollection
      */
@@ -265,12 +263,12 @@ class SeriesRepository extends DocumentRepository
     /**
      * Find series by person id and role cod or groups sorted Query.
      *
-     * @param string $personId
-     * @param string $roleCod
+     * @param string          $personId
+     * @param string          $roleCod
      * @param ArrayCollection $groups
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param array           $sort
+     * @param int             $limit
+     * @param int             $page
      *
      * @return ArrayCollection
      */
@@ -284,12 +282,12 @@ class SeriesRepository extends DocumentRepository
     /**
      * Find series by person id and role cod or groups sorted.
      *
-     * @param string $personId
-     * @param string $roleCod
+     * @param string          $personId
+     * @param string          $roleCod
      * @param ArrayCollection $groups
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param array           $sort
+     * @param int             $limit
+     * @param int             $page
      *
      * @return ArrayCollection
      */
@@ -336,10 +334,10 @@ class SeriesRepository extends DocumentRepository
      * Find series with tag and series type.
      *
      * @param Tag|EmbeddedTag $tag
-     * @param SeriesType $seriesType
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param SeriesType      $seriesType
+     * @param array           $sort
+     * @param int             $limit
+     * @param int             $page
      *
      * @return ArrayCollection
      */
@@ -356,8 +354,8 @@ class SeriesRepository extends DocumentRepository
      * Create QueryBuilder to find series with tag and series type.
      *
      * @param Tag|EmbeddedTag $tag
-     * @param SeriesType $seriesType
-     * @param array $sort
+     * @param SeriesType      $seriesType
+     * @param array           $sort
      *
      * @return QueryBuilder
      */
@@ -382,16 +380,16 @@ class SeriesRepository extends DocumentRepository
      */
     public function findOneBySeriesProperty($propertyName, $propertyValue)
     {
-        return $this->createQueryBuilder()->field('properties.' . $propertyName)->equals($propertyValue)->getQuery()->getSingleResult();
+        return $this->createQueryBuilder()->field('properties.'.$propertyName)->equals($propertyValue)->getQuery()->getSingleResult();
     }
 
     /**
      * Find by EmbeddedBroadcast type Query Builder.
      *
      * @param string $type
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param array  $sort
+     * @param int    $limit
+     * @param int    $page
      *
      * @return ArrayCollection
      */
@@ -411,9 +409,9 @@ class SeriesRepository extends DocumentRepository
      * Find by EmbeddedBroadcast type Query.
      *
      * @param string $type
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param array  $sort
+     * @param int    $limit
+     * @param int    $page
      *
      * @return ArrayCollection
      */
@@ -428,9 +426,9 @@ class SeriesRepository extends DocumentRepository
      * Find by EmbeddedBroadcast type.
      *
      * @param string $type
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param array  $sort
+     * @param int    $limit
+     * @param int    $page
      *
      * @return ArrayCollection
      */
@@ -445,10 +443,10 @@ class SeriesRepository extends DocumentRepository
      * Find by embedded broadcast type and groups Query Builder.
      *
      * @param string $type
-     * @param array $groups
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param array  $groups
+     * @param array  $sort
+     * @param int    $limit
+     * @param int    $page
      *
      * @return int
      */
@@ -468,10 +466,10 @@ class SeriesRepository extends DocumentRepository
      * Find by embedded broadcast type and groups Query.
      *
      * @param string $type
-     * @param array $groups
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param array  $groups
+     * @param array  $sort
+     * @param int    $limit
+     * @param int    $page
      *
      * @return int
      */
@@ -486,10 +484,10 @@ class SeriesRepository extends DocumentRepository
      * Find by embedded broadcast type and groups.
      *
      * @param string $type
-     * @param array $groups
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param array  $groups
+     * @param array  $sort
+     * @param int    $limit
+     * @param int    $page
      *
      * @return int
      */
@@ -505,15 +503,15 @@ class SeriesRepository extends DocumentRepository
      *
      * @param string $search
      * @param string $locale
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param array  $sort
+     * @param int    $limit
+     * @param int    $page
      *
      * @return QueryBuilder
      */
     public function findByTitleWithLocaleQueryBuilder($title = '', $locale = 'en', $sort = array(), $limit = 0, $page = 0)
     {
-        $qb = $this->createQueryBuilder()->field('title.' . $locale)->equals(new \MongoRegex(sprintf('/%s/i', $title)));
+        $qb = $this->createQueryBuilder()->field('title.'.$locale)->equals(new \MongoRegex(sprintf('/%s/i', $title)));
 
         $qb = $this->addSortAndLimitToQueryBuilder($qb, $sort, $limit, $page);
 
@@ -525,9 +523,9 @@ class SeriesRepository extends DocumentRepository
      *
      * @param string $search
      * @param string $locale
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param array  $sort
+     * @param int    $limit
+     * @param int    $page
      *
      * @return Query
      */
@@ -543,9 +541,9 @@ class SeriesRepository extends DocumentRepository
      *
      * @param string $search
      * @param string $locale
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param array  $sort
+     * @param int    $limit
+     * @param int    $page
      *
      * @return Query
      */
@@ -560,8 +558,8 @@ class SeriesRepository extends DocumentRepository
      * Add limit (and page) to Query Builder.
      *
      * @param QueryBuilder $qb
-     * @param int $limit
-     * @param int $page
+     * @param int          $limit
+     * @param int          $page
      *
      * @return QueryBuilder
      */
@@ -578,7 +576,7 @@ class SeriesRepository extends DocumentRepository
      * Add sort to Query Builder.
      *
      * @param QueryBuilder $qb
-     * @param array $sort
+     * @param array        $sort
      *
      * @return QueryBuilder
      */
@@ -595,9 +593,9 @@ class SeriesRepository extends DocumentRepository
      * Add sort and limit (and page) to Query Builder.
      *
      * @param QueryBuilder $qb
-     * @param array $sort
-     * @param int $limit
-     * @param int $page
+     * @param array        $sort
+     * @param int          $limit
+     * @param int          $page
      *
      * @return QueryBuilder
      */
@@ -613,6 +611,7 @@ class SeriesRepository extends DocumentRepository
      * @param $user
      * @param bool $onlyAdminSeries
      * @param $locale
+     *
      * @return array
      */
     public function findUserSeries($user, $onlyAdminSeries = false, $locale)
@@ -654,10 +653,9 @@ class SeriesRepository extends DocumentRepository
 
         $aSeries = array_merge($aSeries, $aMMO);
         usort($aSeries, function ($a, $b) {
-            return ($a["_id"]["title"] <= $b["_id"]["title"]) ? -1 : 1;
+            return ($a['_id']['title'] <= $b['_id']['title']) ? -1 : 1;
         });
 
         return $aSeries;
     }
-
 }
