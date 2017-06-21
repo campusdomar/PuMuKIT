@@ -75,13 +75,15 @@ class DefaultController extends Controller
             } else {
                 $sort = array('title' => 1);
             }
-            $limit = self::SERIES_LIMIT;
+            //$limit = self::SERIES_LIMIT;
             /* $limit = 30; */
-            $seriesService = $this->get('pumukitschema.series');
+            //$seriesService = $this->get('pumukitschema.series');
             $user = $this->getUser();
             $reuseAdminSeries = $this->getParameter('pumukit_wizard.reuse_admin_series');
-            $personalScopeRoleCode = $this->getParameter('pumukitschema.personal_scope_role_code');
-            $userSeries = $seriesService->getSeriesOfUser($user, $reuseAdminSeries, $personalScopeRoleCode, $sort, $limit);
+            //$personalScopeRoleCode = $this->getParameter('pumukitschema.personal_scope_role_code');
+            //$userSeries = $seriesService->getSeriesOfUser($user, $reuseAdminSeries, $personalScopeRoleCode, $sort, $limit);
+            $dm = $this->get('doctrine_mongodb.odm.document_manager');
+            $userSeries = $dm->getRepository('PumukitSchemaBundle:Series')->findUserSeries($user, $reuseAdminSeries, $request->getLocale());
         }
         $showTags = $this->container->getParameter('pumukit_wizard.show_tags', false);
         $showObjectLicense = $this->container->getParameter('pumukit_wizard.show_object_license', false);
