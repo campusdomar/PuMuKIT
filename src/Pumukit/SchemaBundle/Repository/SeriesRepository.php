@@ -610,11 +610,10 @@ class SeriesRepository extends DocumentRepository
     /**
      * @param $user
      * @param bool $onlyAdminSeries
-     * @param $locale
      *
      * @return array
      */
-    public function findUserSeries($user, $onlyAdminSeries = false, $locale)
+    public function findUserSeries($user, $onlyAdminSeries = false)
     {
         $dm = $this->getDocumentManager();
 
