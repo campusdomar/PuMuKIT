@@ -8,11 +8,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 class WidgetController extends Controller implements WebTVController
 {
-    /**
-     * @Template()
-     */
+    static $menuResponse = null;
+
     public function menuAction()
     {
+        if (self::$menuResponse) return self::$menuResponse;
+
         if ($this->container->hasParameter('pumukit_new_admin.advance_live_event') and $this->container->getParameter('pumukit_new_admin.advance_live_event')) {
             $dm = $this->container->get('doctrine_mongodb')->getManager();
             $events = $dm->getRepository('PumukitSchemaBundle:MultimediaObject')->findEventsGroupBy();
@@ -37,12 +38,16 @@ class WidgetController extends Controller implements WebTVController
         $mediatecaTitle = $this->container->getParameter('menu.mediateca_title');
         $categoriesTitle = $this->container->getParameter('menu.categories_title');
 
-        return array('live_channels' => array('events' => $events, 'type' => $liveEventTypeSession), 'menu_selected' => $selected, 'menu_stats' => $menuStats,
-        'home_title' => $homeTitle,
-        'announces_title' => $announcesTitle,
-        'search_title' => $searchTitle,
-        'mediateca_title' => $mediatecaTitle,
-        'categories_title' => $categoriesTitle, );
+        self::$menuResponse = $this->render('PumukitWebTVBundle:Widget:menu.html.twig', array(
+            'live_channels' => array('events' => $events, 'type' => $liveEventTypeSession), 'menu_selected' => $selected, 'menu_stats' => $menuStats,
+            'home_title' => $homeTitle,
+            'announces_title' => $announcesTitle,
+            'search_title' => $searchTitle,
+            'mediateca_title' => $mediatecaTitle,
+            'categories_title' => $categoriesTitle,
+        ));
+
+        return self::$menuResponse;
     }
 
     /**
