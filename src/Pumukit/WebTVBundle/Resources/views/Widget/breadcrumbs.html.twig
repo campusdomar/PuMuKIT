@@ -16,15 +16,15 @@
 
         {% if breadcrumbs|length > 2 %}
             <li>
-                <a id="tvpumukites_breadcrumbs_series_a" href="{{ breadcrumbs[2]["link"] }}" {% if breadcrumbs|length == 3 %}class="active" {% endif %}>
+                <a id="breadcrumbs_series_a" href="{{ breadcrumbs[2]["link"] }}" {% if breadcrumbs|length == 3 %}class="active" {% endif %}>
                     {{ breadcrumbs[2]["title"] }}
                 </a>
             </li>
         {% endif %}
 
         {% if breadcrumbs|length > 3 %}
-            <li id="tvpumukites_breadcrumbs_mmobj">
-                <a id="tvpumukites_breadcrumbs_mmobj_a" href="{{ breadcrumbs[3]["link"] }}" {% if breadcrumbs|length == 4 %}class="active" {% endif %}>
+            <li>
+                <a id="breadcrumbs_mmobj_a" href="{{ breadcrumbs[3]["link"] }}" {% if breadcrumbs|length == 4 %}class="active" {% endif %}>
                     {{ breadcrumbs[3]["title"] }}
                 </a>
             </li>
@@ -34,29 +34,30 @@
 
 <script type="text/javascript">
     $(function () {
-        var breadcrumbs_mmobj = $('#tvpumukites_breadcrumbs_mmobj');
-        var breadcrumbs_series = $('#tvpumukites_breadcrumbs_series_a');
-        var breadcrumbs_mmobja = $('#tvpumukites_breadcrumbs_mmobj_a');
-        if ((breadcrumbs_mmobj != null) && (breadcrumbs_series != null)) {
-
-            var breadcrumbLiHeight = ($('.breadcrumb li').first().height()) + 8;
-            var breadcrumb = ($('.breadcrumb').height());
-            var breadcrumbSerieTitle = breadcrumbs_series.height();
-            var s, m = false;
-            while (((breadcrumbSerieTitle + 3) > breadcrumbLiHeight) || (breadcrumb > breadcrumbLiHeight)) {
-                if (breadcrumbs_series.text().trim().length > 20) {
-                    breadcrumbs_series.text(breadcrumbs_series.text().substring(0, breadcrumbs_series.text().trim().length - 1));
-                    s = true;
-                } else {
-                    breadcrumbs_mmobja.text(breadcrumbs_mmobja.text().substring(0, breadcrumbs_mmobja.text().trim().length - 1));
-                    m = true;
-                }
-                breadcrumbSerieTitle = $('.breadcrumb').height();
-                breadcrumb = ($('.breadcrumb').height());
-            }
-
-            if (m) breadcrumbs_mmobja.append("...");
-            if (s) breadcrumbs_series.append("...");
+        var breadcrumbs_seriesa = $('#breadcrumbs_series_a');
+        var breadcrumbs_mmobja = $('#breadcrumbs_mmobj_a');
+        if (!breadcrumbs_mmobja.length && !breadcrumbs_seriesa.length) {
+            return false;
         }
+
+        var breadcrumbLiHeight = ($('.breadcrumb li').first().height()) + 8;
+        var breadcrumbHeight = ($('.breadcrumb').height());
+        var breadcrumbSeriesTitle = breadcrumbs_seriesa.height();
+
+        var appendSeries, appendMultimediaObject = false;
+        while (((breadcrumbSeriesTitle + 3) > breadcrumbLiHeight) || (breadcrumbHeight > breadcrumbLiHeight)) {
+            if (breadcrumbs_seriesa.text().trim().length > 20) {
+                breadcrumbs_seriesa.text(breadcrumbs_seriesa.text().substring(0, breadcrumbs_seriesa.text().trim().length - 1));
+                appendSeries = true;
+            } else {
+                breadcrumbs_mmobja.text(breadcrumbs_mmobja.text().substring(0, breadcrumbs_mmobja.text().trim().length - 1));
+                appendMultimediaObject = true;
+            }
+            breadcrumbSeriesTitle = $('.breadcrumb').height();
+            breadcrumbHeight = ($('.breadcrumb').height());
+        }
+        if (appendMultimediaObject) breadcrumbs_mmobja.append("...");
+        if (appendSeries) breadcrumbs_seriesa.append("...");
+
     });
 </script>
