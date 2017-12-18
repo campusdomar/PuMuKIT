@@ -52,7 +52,7 @@ class SearchController extends Controller implements WebTVController
         $pagerfanta = $this->createPager($queryBuilder, $request->query->get('page', 1));
 
         // -- Get years array --
-        $searchYears = $this->getSeriesYears();
+        $searchYears = $this->getSeriesYears($queryBuilder);
 
         // -- Init Number Cols for showing results ---
         $numberCols = $this->container->getParameter('columns_objs_search');
@@ -110,14 +110,13 @@ class SearchController extends Controller implements WebTVController
         $totalObjects = $countQuery->count()->getQuery()->execute();
         // --- Execute QueryBuilder and get paged results ---
         $pagerfanta = $this->createPager($queryBuilder, $request->query->get('page', 1));
-        // --- Query to get existing languages ---
-        $searchLanguages = $this->get('doctrine_mongodb')
-        ->getRepository('PumukitSchemaBundle:MultimediaObject')
-        ->createStandardQueryBuilder()
-        ->distinct('tracks.language')
-        ->getQuery()->execute();
-        // --- Get years array ---
-        $searchYears = $this->getMmobjsYears();
+
+        // --- Query to get existing languages, years, types... ---
+        $searchLanguages = $this->getMmobjsLanguages($queryBuilder);
+        $searchYears = $this->getMmobjsYears($queryBuilder);
+        $searchTypes = $this->getMmobjsTypes($queryBuilder);
+        $searchDuration = $this->getMmobjsDuration($queryBuilder);
+        $searchTags = $this->getMmobjsTags($queryBuilder);
 
         // -- Init Number Cols for showing results ---
         $numberCols = $this->container->getParameter('columns_objs_search');
@@ -134,6 +133,9 @@ class SearchController extends Controller implements WebTVController
             'languages' => $searchLanguages,
             'blocked_tag' => $blockedTag,
             'search_years' => $searchYears,
+            'types' => $searchTypes,
+            'durations' => $searchDuration,
+            'tags' => $searchTags,
             'total_objects' => $totalObjects,
         );
     }
@@ -271,34 +273,207 @@ class SearchController extends Controller implements WebTVController
     }
     // ========== END queryBuilder functions =========
 
-    private function getMmobjsYears()
+    private function getMmobjsLanguages($queryBuilder = null)
     {
-        $mmObjColl = $this->get('doctrine_mongodb')->getManager()->getDocumentCollection('PumukitSchemaBundle:MultimediaObject');
-        $pipeline = array(
-            array('$match' => array('status' => MultimediaObject::STATUS_PUBLISHED)),
-            array('$group' => array('_id' => array('$year' => '$record_date'))),
-            array('$sort' => array('_id' => 1)),
-        );
-        $yearResults = $mmObjColl->aggregate($pipeline);
-        $years = array();
-        foreach ($yearResults as $year) {
-            $years[] = $year['_id'];
+        //return $this->getMmobjsFaceted(array('$year' => '$tracks.language'), $queryBuilder);
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $mmObjColl = $dm->getDocumentCollection('PumukitSchemaBundle:MultimediaObject');
+        $mmObjRepo = $dm->getRepository('PumukitSchemaBundle:MultimediaObject');
+        $criteria = $dm->getFilterCollection()->getFilterCriteria($mmObjRepo->getClassMetadata());
+
+        if ($queryBuilder) {
+            $pipeline = array(
+                array('$match' => $queryBuilder->getQueryArray()),
+            );
+        } else {
+            $pipeline = array(
+                array('$match' => array('status' => MultimediaObject::STATUS_PUBLISHED)),
+            );
         }
 
-        return $years;
+        if ($criteria) {
+            $pipeline[] = array('$match' => $criteria);
+        }
+
+        $pipeline[] = array('$group' => array('_id' => '$tracks.language', 'count' => array('$sum' => 1)));
+        $pipeline[] = array('$sort' => array('_id' => 1));
+
+        $languageResults = $mmObjColl->aggregate($pipeline);
+
+        $languages = array();
+        foreach ($languageResults as $language) {
+            if (!isset($languages[$language['_id'][0]])) {
+                $languages[$language['_id'][0]] = 0;
+            }
+            $languages[$language['_id'][0]] += $language['count'];
+        }
+
+        return $languages;
+
+        /*
+        return $searchLanguages = $this->get('doctrine_mongodb')
+        ->getRepository('PumukitSchemaBundle:MultimediaObject')
+        ->createStandardQueryBuilder()
+        ->distinct('tracks.language')
+        ->getQuery()->execute();
+        */
     }
 
-    private function getSeriesYears()
+    private function getMmobjsYears($queryBuilder = null)
     {
-        $mmObjColl = $this->get('doctrine_mongodb')->getManager()->getDocumentCollection('PumukitSchemaBundle:Series');
-        $pipeline = array(
-            array('$group' => array('_id' => array('$year' => '$public_date'))),
-            array('$sort' => array('_id' => 1)),
+        return $this->getMmobjsFaceted(array('$year' => '$record_date'), $queryBuilder);
+    }
+
+    private function getMmobjsDuration($queryBuilder)
+    {
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $mmObjColl = $dm->getDocumentCollection('PumukitSchemaBundle:MultimediaObject');
+        $mmObjRepo = $dm->getRepository('PumukitSchemaBundle:MultimediaObject');
+        $criteria = $dm->getFilterCollection()->getFilterCriteria($mmObjRepo->getClassMetadata());
+
+        if ($queryBuilder) {
+            $pipeline = array(
+                array('$match' => $queryBuilder->getQueryArray()),
+            );
+        } else {
+            $pipeline = array(
+                array('$match' => array('status' => MultimediaObject::STATUS_PUBLISHED)),
+            );
+        }
+
+        if ($criteria) {
+            $pipeline[] = array('$match' => $criteria);
+        }
+
+        $pipeline[] = array('$group' => array('_id' => '$duration', 'count' => array('$sum' => 1)));
+        //$pipeline[] = array('$sort' => array('_id' => 1));
+
+        $facetedResults = $mmObjColl->aggregate($pipeline);
+        $faceted = array(
+            0 => 0,
+            5 => 0,
+            10 => 0,
+            30 => 0,
+            60 => 0,
         );
+
+        foreach ($facetedResults as $result) {
+            if ($result['_id'] < 5 * 60) {
+                $faceted[0] += $result['count'];
+            } elseif ($result['_id'] < 10 * 60) {
+                $faceted[5] += $result['count'];
+            } elseif ($result['_id'] < 30 * 60) {
+                $faceted[10] += $result['count'];
+            } elseif ($result['_id'] < 60 * 60) {
+                $faceted[30] += $result['count'];
+            } else {
+                $faceted[60] += $result['count'];
+            }
+        }
+
+        return $faceted;
+    }
+
+    private function getMmobjsTags($queryBuilder = null)
+    {
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $mmObjColl = $dm->getDocumentCollection('PumukitSchemaBundle:MultimediaObject');
+        $mmObjRepo = $dm->getRepository('PumukitSchemaBundle:MultimediaObject');
+        $criteria = $dm->getFilterCollection()->getFilterCriteria($mmObjRepo->getClassMetadata());
+
+        if ($queryBuilder) {
+            $pipeline = array(
+                array('$match' => $queryBuilder->getQueryArray()),
+            );
+        } else {
+            $pipeline = array(
+                array('$match' => array('status' => MultimediaObject::STATUS_PUBLISHED)),
+            );
+        }
+
+        if ($criteria) {
+            $pipeline[] = array('$match' => $criteria);
+        }
+
+        $pipeline[] = array('$project' => array('_id' => '$tags.cod'));
+        $pipeline[] = array('$unwind' => '$_id');
+        $pipeline[] = array('$group' => array('_id' => '$_id', 'count' => array('$sum' => 1)));
+        //$pipeline[] = array('$sort' => array('_id' => 1));
+
+        $facetedResults = $mmObjColl->aggregate($pipeline);
+        $faceted = array();
+        foreach ($facetedResults as $result) {
+            $faceted[$result['_id']] = $result['count'];
+        }
+
+        return $faceted;
+    }
+
+    private function getMmobjsTypes($queryBuilder = null)
+    {
+        $typeResult = $this->getMmobjsFaceted('$type', $queryBuilder);
+
+        return $typeResult;
+    }
+
+    private function getMmobjsFaceted($idGroup, $queryBuilder = null)
+    {
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $mmObjColl = $dm->getDocumentCollection('PumukitSchemaBundle:MultimediaObject');
+        $mmObjRepo = $dm->getRepository('PumukitSchemaBundle:MultimediaObject');
+        $criteria = $dm->getFilterCollection()->getFilterCriteria($mmObjRepo->getClassMetadata());
+
+        if ($queryBuilder) {
+            $pipeline = array(
+                array('$match' => $queryBuilder->getQueryArray()),
+            );
+        } else {
+            $pipeline = array(
+                array('$match' => array('status' => MultimediaObject::STATUS_PUBLISHED)),
+            );
+        }
+
+        if ($criteria) {
+            $pipeline[] = array('$match' => $criteria);
+        }
+
+        $pipeline[] = array('$group' => array('_id' => $idGroup, 'count' => array('$sum' => 1)));
+        $pipeline[] = array('$sort' => array('_id' => 1));
+
+        $facetedResults = $mmObjColl->aggregate($pipeline);
+        $faceted = array();
+        foreach ($facetedResults as $result) {
+            $faceted[$result['_id']] = $result['count'];
+        }
+
+        return $faceted;
+    }
+
+    private function getSeriesYears($queryBuilder = null)
+    {
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $mmObjColl = $dm->getDocumentCollection('PumukitSchemaBundle:Series');
+        $mmObjRepo = $dm->getRepository('PumukitSchemaBundle:Series');
+        $criteria = $dm->getFilterCollection()->getFilterCriteria($mmObjRepo->getClassMetadata());
+
+        $pipeline = array();
+
+        if ($queryBuilder) {
+            $pipeline[] = array('$match' => $queryBuilder->getQueryArray());
+        }
+
+        if ($criteria) {
+            $pipeline[] = array('$match' => $criteria);
+        }
+
+        $pipeline[] = array('$group' => array('_id' => array('$year' => '$public_date'), 'count' => array('$sum' => 1)));
+        $pipeline[] = array('$sort' => array('_id' => 1));
+
         $yearResults = $mmObjColl->aggregate($pipeline);
         $years = array();
         foreach ($yearResults as $year) {
-            $years[] = $year['_id'];
+            $years[$year['_id']] = $year['count'];
         }
 
         return $years;

@@ -45,8 +45,8 @@
           <a style="padding-left:20px;cursor:pointer;" onclick="toggleDateSelect()">{% trans %}Select by date range {% endtrans %}</a>
           <select id='year' name='year' class='form-control' onchange="submitForm(this);" {{ activated?'disabled':''}}>
             <option value="" {% if app.request.query.get('year') == "" %} selected="selected" {% endif %}>{% trans%}Any{% endtrans %}</option>
-            {% for year in search_years %}
-              <option value="{{year}}" {% if app.request.query.get('year') == year %} selected="selected" {% endif %}>{{year}}</option>
+            {% for year, count in search_years %}
+              <option value="{{year}}" {% if app.request.query.get('year') == year %} selected="selected" {% endif %}>{{year}} ({{ count }})</option>
             {% endfor %}
           </select>
         </div>
