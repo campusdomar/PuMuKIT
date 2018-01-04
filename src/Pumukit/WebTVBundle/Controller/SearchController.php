@@ -9,7 +9,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Pagerfanta\Adapter\DoctrineODMMongoDBAdapter;
 use Pagerfanta\Pagerfanta;
-use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Tag;
 
@@ -18,6 +17,10 @@ class SearchController extends Controller implements WebTVController
     /**
      * @Route("/searchseries")
      * @Template("PumukitWebTVBundle:Search:index.html.twig")
+     *
+     * @param Request $request
+     *
+     * @return array
      */
     public function seriesAction(Request $request)
     {
@@ -33,10 +36,10 @@ class SearchController extends Controller implements WebTVController
         // --- END Get Variables --
         // --- Get valid series ids ---
         $validSeries = $this->get('doctrine_mongodb')->getRepository('PumukitSchemaBundle:MultimediaObject')
-                            ->createStandardQueryBuilder()
-                            ->distinct('series')
-                            ->getQuery()
-                            ->execute()->toArray();
+            ->createStandardQueryBuilder()
+            ->distinct('series')
+            ->getQuery()
+            ->execute()->toArray();
         // --- END Get valid series ids ---
         // --- Create QueryBuilder ---
         $queryBuilder = $this->createSeriesQueryBuilder();
@@ -71,6 +74,14 @@ class SearchController extends Controller implements WebTVController
      * @Route("/searchmultimediaobjects/{tagCod}/{useTagAsGeneral}", defaults={"tagCod": null, "useTagAsGeneral": false})
      * @ParamConverter("blockedTag", class="PumukitSchemaBundle:Tag", options={"mapping": {"tagCod": "cod"}})
      * @Template("PumukitWebTVBundle:Search:index.html.twig")
+     *
+     * @param Request  $request
+     * @param Tag|null $blockedTag
+     * @param bool     $useTagAsGeneral
+     *
+     * @return array
+     *
+     * @throws \Exception
      */
     public function multimediaObjectsAction(Request $request, Tag $blockedTag = null, $useTagAsGeneral = false)
     {
@@ -108,11 +119,12 @@ class SearchController extends Controller implements WebTVController
         // --- Execute QueryBuilder count --
         $countQuery = clone $queryBuilder;
         $totalObjects = $countQuery->count()->getQuery()->execute();
+
         // --- Execute QueryBuilder and get paged results ---
         $pagerfanta = $this->createPager($queryBuilder, $request->query->get('page', 1));
 
         // --- Query to get existing languages, years, types... ---
-        $searchLanguages = $this->getMmobjsLanguages($queryBuilder);
+        $searchLanguages = $this->getMmobjsLanguages($queryBuilder, $languageFound);
         $searchYears = $this->getMmobjsYears($queryBuilder);
         $searchTypes = $this->getMmobjsTypes($queryBuilder);
         $searchDuration = $this->getMmobjsDuration($queryBuilder);
@@ -132,15 +144,15 @@ class SearchController extends Controller implements WebTVController
             'number_cols' => $numberCols,
             'languages' => $searchLanguages,
             'blocked_tag' => $blockedTag,
-            'search_years' => $searchYears,
             'types' => $searchTypes,
             'durations' => $searchDuration,
             'tags' => $searchTags,
+            'search_years' => $searchYears,
             'total_objects' => $totalObjects,
         );
     }
 
-    private function createPager($objects, $page)
+    protected function createPager($objects, $page)
     {
         $limit = $this->container->getParameter('limit_objs_search');
 
@@ -152,7 +164,12 @@ class SearchController extends Controller implements WebTVController
         return $pagerfanta;
     }
 
-    private function getParentTag()
+    /**
+     * @return mixed
+     *
+     * @throws \Exception
+     */
+    protected function getParentTag()
     {
         $tagRepo = $this->get('doctrine_mongodb')->getRepository('PumukitSchemaBundle:Tag');
         $searchByTagCod = $this->container->getParameter('search.parent_tag.cod');
@@ -165,7 +182,7 @@ class SearchController extends Controller implements WebTVController
         return $parentTag;
     }
 
-    private function getOptionalParentTag()
+    protected function getOptionalParentTag()
     {
         $tagRepo = $this->get('doctrine_mongodb')->getRepository('PumukitSchemaBundle:Tag');
 
@@ -180,7 +197,7 @@ class SearchController extends Controller implements WebTVController
 
     // ========= queryBuilder functions ==========
 
-    private function searchQueryBuilder($queryBuilder, $searchFound)
+    protected function searchQueryBuilder($queryBuilder, $searchFound)
     {
         if ($searchFound != '') {
             $queryBuilder->field('$text')->equals(array('$search' => $searchFound));
@@ -189,7 +206,7 @@ class SearchController extends Controller implements WebTVController
         return $queryBuilder;
     }
 
-    private function typeQueryBuilder($queryBuilder, $typeFound)
+    protected function typeQueryBuilder($queryBuilder, $typeFound)
     {
         if ($typeFound != '') {
             $queryBuilder->field('tracks.only_audio')->equals($typeFound == 'audio');
@@ -198,7 +215,7 @@ class SearchController extends Controller implements WebTVController
         return $queryBuilder;
     }
 
-    private function durationQueryBuilder($queryBuilder, $durationFound)
+    protected function durationQueryBuilder($queryBuilder, $durationFound)
     {
         if ($durationFound != '') {
             if ($durationFound == '-5') {
@@ -221,7 +238,7 @@ class SearchController extends Controller implements WebTVController
         return $queryBuilder;
     }
 
-    private function dateQueryBuilder($queryBuilder, $startFound, $endFound, $yearFound, $dateField = 'record_date')
+    protected function dateQueryBuilder($queryBuilder, $startFound, $endFound, $yearFound, $dateField = 'record_date')
     {
         if ($yearFound) {
             $start = \DateTime::createFromFormat('d/m/Y:H:i:s', sprintf('01/01/%s:00:00:01', $yearFound));
@@ -243,18 +260,20 @@ class SearchController extends Controller implements WebTVController
         return $queryBuilder;
     }
 
-    private function languageQueryBuilder($queryBuilder, $languageFound)
+    protected function languageQueryBuilder($queryBuilder, $languageFound)
     {
         if ($languageFound != '') {
-            $queryBuilder->field('tracks.language')->equals($languageFound);
+            $queryBuilder->field('tracks')->elemMatch(
+                $queryBuilder->expr()->field('language')->equals($languageFound)
+                    ->field('tags')->equals('display')
+            );
         }
 
         return $queryBuilder;
     }
 
-    private function tagsQueryBuilder($queryBuilder, $tagsFound, $blockedTag, $useTagAsGeneral = false)
+    protected function tagsQueryBuilder($queryBuilder, $tagsFound, $blockedTag, $useTagAsGeneral = false)
     {
-        $tagRepo = $this->get('doctrine_mongodb')->getRepository('PumukitSchemaBundle:Tag');
         if ($blockedTag !== null) {
             $tagsFound[] = $blockedTag->getCod();
         }
@@ -271,12 +290,11 @@ class SearchController extends Controller implements WebTVController
 
         return $queryBuilder;
     }
+
     // ========== END queryBuilder functions =========
 
-    private function getMmobjsLanguages($queryBuilder = null)
+    protected function getMmobjsLanguages($queryBuilder = null, $languageFound = null)
     {
-        //return $this->getMmobjsFaceted(array('$year' => '$tracks.language'), $queryBuilder);
-
         $dm = $this->get('doctrine_mongodb')->getManager();
         $mmObjColl = $dm->getDocumentCollection('PumukitSchemaBundle:MultimediaObject');
         $mmObjRepo = $dm->getRepository('PumukitSchemaBundle:MultimediaObject');
@@ -296,36 +314,36 @@ class SearchController extends Controller implements WebTVController
             $pipeline[] = array('$match' => $criteria);
         }
 
-        $pipeline[] = array('$group' => array('_id' => '$tracks.language', 'count' => array('$sum' => 1)));
+        $pipeline[] = array('$unwind' => '$tracks');
+        if ($languageFound) {
+            $pipeline[] = array('$match' => array('tracks.language' => $languageFound));
+        }
+
+        $pipeline[] = array('$match' => array('tracks.tags' => 'display'));
+        $pipeline[] = array('$group' => array('_id' => array('language' => '$tracks.language', 'mmoid' => '$_id')));
+
+        $pipeline[] = array('$group' => array('_id' => '$_id.language', 'count' => array('$sum' => 1)));
         $pipeline[] = array('$sort' => array('_id' => 1));
 
         $languageResults = $mmObjColl->aggregate($pipeline);
 
         $languages = array();
         foreach ($languageResults as $language) {
-            if (!isset($languages[$language['_id'][0]])) {
-                $languages[$language['_id'][0]] = 0;
+            if (!isset($languages[$language['_id']])) {
+                $languages[$language['_id']] = 0;
             }
-            $languages[$language['_id'][0]] += $language['count'];
+            $languages[$language['_id']] += $language['count'];
         }
 
         return $languages;
-
-        /*
-        return $searchLanguages = $this->get('doctrine_mongodb')
-        ->getRepository('PumukitSchemaBundle:MultimediaObject')
-        ->createStandardQueryBuilder()
-        ->distinct('tracks.language')
-        ->getQuery()->execute();
-        */
     }
 
-    private function getMmobjsYears($queryBuilder = null)
+    protected function getMmobjsYears($queryBuilder = null)
     {
         return $this->getMmobjsFaceted(array('$year' => '$record_date'), $queryBuilder);
     }
 
-    private function getMmobjsDuration($queryBuilder)
+    protected function getMmobjsDuration($queryBuilder)
     {
         $dm = $this->get('doctrine_mongodb')->getManager();
         $mmObjColl = $dm->getDocumentCollection('PumukitSchemaBundle:MultimediaObject');
@@ -347,35 +365,37 @@ class SearchController extends Controller implements WebTVController
         }
 
         $pipeline[] = array('$group' => array('_id' => '$duration', 'count' => array('$sum' => 1)));
-        //$pipeline[] = array('$sort' => array('_id' => 1));
 
         $facetedResults = $mmObjColl->aggregate($pipeline);
         $faceted = array(
-            0 => 0,
-            5 => 0,
-            10 => 0,
-            30 => 0,
-            60 => 0,
+            -5 => 0,
+            -10 => 0,
+            -30 => 0,
+            -60 => 0,
+            +60 => 0,
         );
 
         foreach ($facetedResults as $result) {
-            if ($result['_id'] < 5 * 60) {
-                $faceted[0] += $result['count'];
-            } elseif ($result['_id'] < 10 * 60) {
-                $faceted[5] += $result['count'];
-            } elseif ($result['_id'] < 30 * 60) {
-                $faceted[10] += $result['count'];
-            } elseif ($result['_id'] < 60 * 60) {
-                $faceted[30] += $result['count'];
+            if ($result['_id'] <= 5 * 60) {
+                $faceted[-5] += $result['count'];
+            }
+            if ($result['_id'] <= 10 * 60) {
+                $faceted[-10] += $result['count'];
+            }
+            if ($result['_id'] <= 30 * 60) {
+                $faceted[-30] += $result['count'];
+            }
+            if ($result['_id'] <= 60 * 60) {
+                $faceted[-60] += $result['count'];
             } else {
-                $faceted[60] += $result['count'];
+                $faceted[+60] += $result['count'];
             }
         }
 
         return $faceted;
     }
 
-    private function getMmobjsTags($queryBuilder = null)
+    protected function getMmobjsTags($queryBuilder = null)
     {
         $dm = $this->get('doctrine_mongodb')->getManager();
         $mmObjColl = $dm->getDocumentCollection('PumukitSchemaBundle:MultimediaObject');
@@ -399,7 +419,6 @@ class SearchController extends Controller implements WebTVController
         $pipeline[] = array('$project' => array('_id' => '$tags.cod'));
         $pipeline[] = array('$unwind' => '$_id');
         $pipeline[] = array('$group' => array('_id' => '$_id', 'count' => array('$sum' => 1)));
-        //$pipeline[] = array('$sort' => array('_id' => 1));
 
         $facetedResults = $mmObjColl->aggregate($pipeline);
         $faceted = array();
@@ -410,14 +429,18 @@ class SearchController extends Controller implements WebTVController
         return $faceted;
     }
 
-    private function getMmobjsTypes($queryBuilder = null)
+    protected function getMmobjsTypes($queryBuilder = null)
     {
-        $typeResult = $this->getMmobjsFaceted('$type', $queryBuilder);
-
-        return $typeResult;
+        return $this->getMmobjsFaceted('$type', $queryBuilder);
     }
 
-    private function getMmobjsFaceted($idGroup, $queryBuilder = null)
+    /**
+     * @param array $idGroup
+     * @param null  $queryBuilder
+     *
+     * @return array
+     */
+    protected function getMmobjsFaceted($idGroup, $queryBuilder = null)
     {
         $dm = $this->get('doctrine_mongodb')->getManager();
         $mmObjColl = $dm->getDocumentCollection('PumukitSchemaBundle:MultimediaObject');
@@ -450,26 +473,26 @@ class SearchController extends Controller implements WebTVController
         return $faceted;
     }
 
-    private function getSeriesYears($queryBuilder = null)
+    /**
+     * @param null $queryBuilder
+     *
+     * @return array
+     */
+    protected function getSeriesYears($queryBuilder = null)
     {
         $dm = $this->get('doctrine_mongodb')->getManager();
         $mmObjColl = $dm->getDocumentCollection('PumukitSchemaBundle:Series');
         $mmObjRepo = $dm->getRepository('PumukitSchemaBundle:Series');
         $criteria = $dm->getFilterCollection()->getFilterCriteria($mmObjRepo->getClassMetadata());
-
         $pipeline = array();
-
         if ($queryBuilder) {
             $pipeline[] = array('$match' => $queryBuilder->getQueryArray());
         }
-
         if ($criteria) {
             $pipeline[] = array('$match' => $criteria);
         }
-
         $pipeline[] = array('$group' => array('_id' => array('$year' => '$public_date'), 'count' => array('$sum' => 1)));
         $pipeline[] = array('$sort' => array('_id' => 1));
-
         $yearResults = $mmObjColl->aggregate($pipeline);
         $years = array();
         foreach ($yearResults as $year) {
