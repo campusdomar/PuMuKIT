@@ -95,6 +95,13 @@ class SearchController extends Controller implements WebTVController
         $parentTagOptional = $this->getOptionalParentTag();
         // --- END Get Tag Parent for Tag Fields ---
 
+        $aChildrenTagOptional = array();
+        if ($parentTagOptional) {
+            foreach ($parentTagOptional->getChildren() as $children) {
+                $aChildrenTagOptional[$children->getTitle()] = $children;
+            }
+            ksort($aChildrenTagOptional);
+        }
         // --- Get Variables ---
         $searchFound = $request->query->get('search');
         $tagsFound = $request->query->get('tags');
@@ -129,6 +136,7 @@ class SearchController extends Controller implements WebTVController
         $searchTypes = $this->getMmobjsTypes($queryBuilder);
         $searchDuration = $this->getMmobjsDuration($queryBuilder);
         $searchTags = $this->getMmobjsTags($queryBuilder);
+        $searchWithoutTags = $this->getMmobjsWithoutTags($queryBuilder);
 
         // -- Init Number Cols for showing results ---
         $numberCols = $this->container->getParameter('columns_objs_search');
@@ -140,6 +148,7 @@ class SearchController extends Controller implements WebTVController
             'objects' => $pagerfanta,
             'parent_tag' => $parentTag,
             'parent_tag_optional' => $parentTagOptional,
+            'children_tag_optional' => $aChildrenTagOptional,
             'tags_found' => $tagsFound,
             'number_cols' => $numberCols,
             'languages' => $searchLanguages,
@@ -147,6 +156,7 @@ class SearchController extends Controller implements WebTVController
             'types' => $searchTypes,
             'durations' => $searchDuration,
             'tags' => $searchTags,
+            'without_tags' => $searchWithoutTags,
             'search_years' => $searchYears,
             'total_objects' => $totalObjects,
         );
@@ -218,20 +228,27 @@ class SearchController extends Controller implements WebTVController
     protected function durationQueryBuilder($queryBuilder, $durationFound)
     {
         if ($durationFound != '') {
+            if ($durationFound == '0') {
+                $queryBuilder->field('duration')->equals(0);
+            }
             if ($durationFound == '-5') {
-                $queryBuilder->field('tracks.duration')->lte(300);
+                $queryBuilder->field('duration')->gt(0);
+                $queryBuilder->field('duration')->lte(300);
             }
             if ($durationFound == '-10') {
-                $queryBuilder->field('tracks.duration')->lte(600);
+                $queryBuilder->field('duration')->gt(300);
+                $queryBuilder->field('duration')->lte(600);
             }
             if ($durationFound == '-30') {
-                $queryBuilder->field('tracks.duration')->lte(1800);
+                $queryBuilder->field('duration')->gt(600);
+                $queryBuilder->field('duration')->lte(1800);
             }
             if ($durationFound == '-60') {
-                $queryBuilder->field('tracks.duration')->lte(3600);
+                $queryBuilder->field('duration')->gt(1800);
+                $queryBuilder->field('duration')->lte(3600);
             }
             if ($durationFound == '+60') {
-                $queryBuilder->field('tracks.duration')->gt(3600);
+                $queryBuilder->field('duration')->gt(3600);
             }
         }
 
@@ -340,7 +357,7 @@ class SearchController extends Controller implements WebTVController
 
     protected function getMmobjsYears($queryBuilder = null)
     {
-        return $this->getMmobjsFaceted(array('$year' => '$record_date'), $queryBuilder);
+        return $this->getMmobjsFaceted(array('$year' => '$record_date'), $queryBuilder, $sort = -1);
     }
 
     protected function getMmobjsDuration($queryBuilder)
@@ -368,6 +385,7 @@ class SearchController extends Controller implements WebTVController
 
         $facetedResults = $mmObjColl->aggregate($pipeline);
         $faceted = array(
+            0 => 0,
             -5 => 0,
             -10 => 0,
             -30 => 0,
@@ -376,19 +394,18 @@ class SearchController extends Controller implements WebTVController
         );
 
         foreach ($facetedResults as $result) {
-            if ($result['_id'] <= 5 * 60) {
-                $faceted[-5] += $result['count'];
-            }
-            if ($result['_id'] <= 10 * 60) {
-                $faceted[-10] += $result['count'];
-            }
-            if ($result['_id'] <= 30 * 60) {
-                $faceted[-30] += $result['count'];
-            }
-            if ($result['_id'] <= 60 * 60) {
-                $faceted[-60] += $result['count'];
-            } else {
+            if ($result['_id'] > 60 * 60) {
                 $faceted[+60] += $result['count'];
+            } elseif (($result['_id'] <= 60 * 60) and ($result['_id'] > 30 * 60)) {
+                $faceted[-60] += $result['count'];
+            } elseif (($result['_id'] <= 30 * 60) and ($result['_id'] > 10 * 60)) {
+                $faceted[-30] += $result['count'];
+            } elseif (($result['_id'] <= 10 * 60) and ($result['_id'] > 5 * 60)) {
+                $faceted[-10] += $result['count'];
+            } elseif (($result['_id'] <= 5 * 60) and ($result['_id'] > 0)) {
+                $faceted[-5] += $result['count'];
+            } else {
+                $faceted[0] += $result['count'];
             }
         }
 
@@ -416,12 +433,49 @@ class SearchController extends Controller implements WebTVController
             $pipeline[] = array('$match' => $criteria);
         }
 
-        $pipeline[] = array('$project' => array('_id' => '$tags.cod'));
+        $pipeline[] = array('$project' => array('_id' => '$tags.cod', 'path' => '$tags.path'));
         $pipeline[] = array('$unwind' => '$_id');
         $pipeline[] = array('$group' => array('_id' => '$_id', 'count' => array('$sum' => 1)));
 
         $facetedResults = $mmObjColl->aggregate($pipeline);
         $faceted = array();
+        foreach ($facetedResults as $result) {
+            $faceted[$result['_id']] = $result['count'];
+        }
+
+        return $faceted;
+    }
+
+    protected function getMmobjsWithoutTags($queryBuilder = null)
+    {
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $mmObjColl = $dm->getDocumentCollection('PumukitSchemaBundle:MultimediaObject');
+        $mmObjRepo = $dm->getRepository('PumukitSchemaBundle:MultimediaObject');
+
+        $faceted = array();
+
+        $searchByTagCod = $this->container->getParameter('search.parent_tag.cod');
+
+        $parentTagCod = $dm->getRepository('PumukitSchemaBundle:Tag')->findOneBy(array('cod' => $searchByTagCod));
+        if (!$parentTagCod) {
+            return $faceted;
+        }
+
+        $criteria = $dm->getFilterCollection()->getFilterCriteria($mmObjRepo->getClassMetadata());
+
+        $pipeline = array();
+        if ($queryBuilder) {
+            $pipeline[] = array('$match' => $queryBuilder->getQueryArray());
+        }
+
+        if ($criteria) {
+            $pipeline[] = array('$match' => $criteria);
+        }
+
+        $pipeline[] = array('$match' => array('tags.cod' => array('$nin' => array($searchByTagCod))));
+        $pipeline[] = array('$group' => array('_id' => "$searchByTagCod", 'count' => array('$sum' => 1)));
+
+        $facetedResults = $mmObjColl->aggregate($pipeline);
         foreach ($facetedResults as $result) {
             $faceted[$result['_id']] = $result['count'];
         }
@@ -435,12 +489,13 @@ class SearchController extends Controller implements WebTVController
     }
 
     /**
-     * @param array $idGroup
-     * @param null  $queryBuilder
+     * @param      $idGroup
+     * @param null $queryBuilder
+     * @param int  $sort
      *
      * @return array
      */
-    protected function getMmobjsFaceted($idGroup, $queryBuilder = null)
+    protected function getMmobjsFaceted($idGroup, $queryBuilder = null, $sort = 1)
     {
         $dm = $this->get('doctrine_mongodb')->getManager();
         $mmObjColl = $dm->getDocumentCollection('PumukitSchemaBundle:MultimediaObject');
@@ -462,7 +517,7 @@ class SearchController extends Controller implements WebTVController
         }
 
         $pipeline[] = array('$group' => array('_id' => $idGroup, 'count' => array('$sum' => 1)));
-        $pipeline[] = array('$sort' => array('_id' => 1));
+        $pipeline[] = array('$sort' => array('_id' => $sort));
 
         $facetedResults = $mmObjColl->aggregate($pipeline);
         $faceted = array();
