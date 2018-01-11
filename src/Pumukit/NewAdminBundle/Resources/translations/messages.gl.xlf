@@ -3344,10 +3344,6 @@
         <source>Create series</source>
         <target xml:lang="gl" state="needs-translation">Create series</target>
       </trans-unit>
-      <trans-unit id="39c121c9cde45339d3f5bac7459577e7" resname="Edit Templates">
-        <source>Edit Templates</source>
-        <target>Editar plantillas</target>
-      </trans-unit>
     </body>
   </file>
 </xliff>
