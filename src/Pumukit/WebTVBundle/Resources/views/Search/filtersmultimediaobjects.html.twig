@@ -48,16 +48,16 @@
                 <option value="0" {% if app.request.query.get('duration') == "0" %} selected="selected" {% endif %}>{% trans %}Unknown{% endtrans %} ({{ durations[0]|default(0) }})</option>
             {% endif %}
             {% if durations[-5] is defined and durations[-5] != 0 %}
-                <option value="-5" {% if app.request.query.get('duration') == "-5" %} selected="selected" {% endif %}>{% trans %}Between 0 and 5 minutes{% endtrans %} ({{ durations[-5]|default(0) }})</option>
+                <option value="-5" {% if app.request.query.get('duration') == "-5" %} selected="selected" {% endif %}>{% trans %}From 0 to 5 minutes{% endtrans %} ({{ durations[-5]|default(0) }})</option>
             {% endif %}
             {% if durations[-10] is defined and durations[-10] != 0 %}
-                <option value="-10" {% if app.request.query.get('duration') == "-10" %} selected="selected" {% endif %}>{% trans %}Between 5 and 10 minutes{% endtrans %} ({{ durations[-10]|default(0) }})</option>
+                <option value="-10" {% if app.request.query.get('duration') == "-10" %} selected="selected" {% endif %}>{% trans %}From 5 to 10 minutes{% endtrans %} ({{ durations[-10]|default(0) }})</option>
             {% endif %}
             {% if durations[-30] is defined and durations[-30] != 0 %}
-                <option value="-30" {% if app.request.query.get('duration') == "-30" %} selected="selected" {% endif %}>{% trans %}Between 10 and 30 minutes{% endtrans %} ({{ durations[-30]|default(0) }})</option>
+                <option value="-30" {% if app.request.query.get('duration') == "-30" %} selected="selected" {% endif %}>{% trans %}From 10 to 30 minutes{% endtrans %} ({{ durations[-30]|default(0) }})</option>
             {% endif %}
             {% if durations[-60] is defined and durations[-60] != 0 %}
-                <option value="-60" {% if app.request.query.get('duration') == "-60" %} selected="selected" {% endif %}>{% trans %}Between 30 and 60 minutes{% endtrans %} ({{ durations[-60]|default(0) }})</option>
+                <option value="-60" {% if app.request.query.get('duration') == "-60" %} selected="selected" {% endif %}>{% trans %}From 30 to 60 minutes{% endtrans %} ({{ durations[-60]|default(0) }})</option>
             {% endif %}
             {% if durations[60] is defined and durations[60] != 0 %}
                 <option value="+60" {% if app.request.query.get('duration') == "+60" %} selected="selected" {% endif %}>{% trans %}More than 60 minutes{% endtrans %} ({{ durations[60]|default(0) }})</option>
