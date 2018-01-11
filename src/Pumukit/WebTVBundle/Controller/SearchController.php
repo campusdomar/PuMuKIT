@@ -289,24 +289,26 @@ class SearchController extends Controller implements WebTVController
 
     protected function tagsQueryBuilder($queryBuilder, $tagsFound, $blockedTag, $useTagAsGeneral = false, $parentTagCod = null)
     {
-        if ($tagsFound && reset($tagsFound) === 'unknown') {
+        if ($parentTagCod && $tagsFound && in_array('unknown', $tagsFound)) {
             $queryBuilder->field('tags.cod')->notIn(array($parentTagCod));
-        } else {
-            if ($blockedTag !== null) {
-                $tagsFound[] = $blockedTag->getCod();
-            }
-            if ($tagsFound !== null) {
-                $tagsFound = array_values(array_diff($tagsFound, array('All', '')));
-            }
-            if (count($tagsFound) > 0) {
-                $queryBuilder->field('tags.cod')->all($tagsFound);
-            }
+            $pos = array_search('unknown', $tagsFound);
+            unset($tagsFound[$pos]);
+        }
 
-            if ($useTagAsGeneral && $blockedTag !== null) {
-                $queryBuilder->field('tags.path')->notIn(
-                    array(new \MongoRegex('/'.preg_quote($blockedTag->getPath()).'.*\|/'))
-                );
-            }
+        if ($blockedTag !== null) {
+            $tagsFound[] = $blockedTag->getCod();
+        }
+        if ($tagsFound !== null) {
+            $tagsFound = array_values(array_diff($tagsFound, array('All', '')));
+        }
+        if (count($tagsFound) > 0) {
+            $queryBuilder->field('tags.cod')->all($tagsFound);
+        }
+
+        if ($useTagAsGeneral && $blockedTag !== null) {
+            $queryBuilder->field('tags.path')->notIn(
+                array(new \MongoRegex('/'.preg_quote($blockedTag->getPath()).'.*\|/'))
+            );
         }
 
         return $queryBuilder;
