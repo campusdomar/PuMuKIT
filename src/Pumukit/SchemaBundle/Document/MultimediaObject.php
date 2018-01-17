@@ -1154,8 +1154,17 @@ class MultimediaObject
     {
         $this->tracks->add($track);
 
-        if ($track->getDuration() > $this->getDuration()) {
+        if (count($this->getTracks()) == 0) {
             $this->setDuration($track->getDuration());
+        } else {
+            $aDuration = array();
+            foreach ($this->getTracks() as $oTrack) {
+                $aDuration[] = $oTrack->getDuration();
+            }
+            $maxDuration = max($aDuration);
+            if ($maxDuration === $this->getDuration() and $track->getDuration() > $maxDuration) {
+                $this->setDuration($track->getDuration());
+            }
         }
     }
 
@@ -1918,7 +1927,7 @@ class MultimediaObject
             }
         }
 
-        if ($maxDuration !== $this->getDuration()) {
+        if ($maxDuration < $this->getDuration()) {
             $this->setDuration($maxDuration);
         }
     }
