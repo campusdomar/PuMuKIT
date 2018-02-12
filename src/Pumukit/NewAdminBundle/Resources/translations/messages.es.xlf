@@ -3432,7 +3432,7 @@
       </trans-unit>
       <trans-unit id="d05e95d00fe411e8b6420ed5f89f718b" resname="Today events list">
         <source>Today events list</source>
-        <target>Directos hoy</target>
+        <target xml:lang="es-ES" state="translated">Directos hoy</target>
       </trans-unit>
       <trans-unit id="4fa154c6f5a3cc42591e049ef35c65cc" resname="Select objects">
         <source>Select objects</source>
