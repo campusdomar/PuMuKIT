@@ -3338,7 +3338,7 @@
         <source>Not yet held event message</source>
         <target>Not yet held event message</target>
       </trans-unit>
-      <trans-unit id="d05e95d00fe411e8b6420ed5f89f718b" resname="Today events list">
+      <trans-unit id="d7c00ac27e345f7048f6181b182bdbf9" resname="Today events list">
         <source>Today events list</source>
         <target>Today events list</target>
       </trans-unit>
@@ -3385,6 +3385,14 @@
       <trans-unit id="b0415d954b4db90d746a00c0a3e4ff28" resname="Modify all multimedia objects status">
         <source>Modify all multimedia objects status</source>
         <target>Modify all multimedia objects status</target>
+      </trans-unit>
+      <trans-unit id="9aa5a39bd64b18c79c21bbf97dbb0557" resname="Show configuration for messages, poster image and color text.">
+        <source>Show configuration for messages, poster image and color text.</source>
+        <target>Show configuration for messages, poster image and color text.</target>
+      </trans-unit>
+      <trans-unit id="8e55bbde437f7d9ba1d6cbd9b1b274dc" resname="Click to edit messages, poster image and color text">
+        <source>Click to edit messages, poster image and color text</source>
+        <target>Click to edit messages, poster image and color text</target>
       </trans-unit>
     </body>
   </file>
