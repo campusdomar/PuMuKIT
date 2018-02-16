@@ -957,9 +957,12 @@ class JobService
         foreach ($jobs as $job) {
             if ($job->getTimestart() < $yesterday) {
                 $job->setStatus(Job::STATUS_ERROR);
+                $message = '[checkService] Job executing for a long time, set status to ERROR ';
+                $job->appendOutput($message);
                 $this->logger->error(
-                  "[checkService] Job executing for a long time $job->getId(), set status to ERROR"
+                   $message.$job->getId()
                 );
+                $this->dm->flush();
             }
         }
     }
