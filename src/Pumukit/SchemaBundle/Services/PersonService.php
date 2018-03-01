@@ -177,7 +177,7 @@ class PersonService
         $seriesCollection = new ArrayCollection();
         $count = 0;
         foreach ($mmobjs as $mmobj) {
-            if ($limit !== 0) {
+            if (0 !== $limit) {
                 if ($count === $limit) {
                     break;
                 }

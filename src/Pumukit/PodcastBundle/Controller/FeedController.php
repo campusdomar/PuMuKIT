@@ -242,7 +242,7 @@ class FeedController extends Controller
             if ($track) {
                 $item = $channel->addChild('item');
 
-                $title = (strlen($multimediaObject->getTitle()) === 0) ?
+                $title = (0 === strlen($multimediaObject->getTitle())) ?
                   $multimediaObject->getSeries()->getTitle() :
                   $multimediaObject->getTitle();
                 $item->addChild('title', htmlspecialchars($title));
@@ -250,7 +250,7 @@ class FeedController extends Controller
                 $item->addChild('itunes:summary', htmlspecialchars($multimediaObject->getDescription()), self::ITUNES_DTD_URL);
                 $item->addChild('description', htmlspecialchars($multimediaObject->getDescription()));
 
-                if ($itunesUTag !== null) {
+                if (null !== $itunesUTag) {
                     foreach ($multimediaObject->getTags() as $tag) {
                         if ($tag->isDescendantOf($itunesUTag)) {
                             $itunesUCategory = $item->addChild('itunesu:category', null, self::ITUNESU_FEED_URL);
