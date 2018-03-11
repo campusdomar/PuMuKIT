@@ -1752,7 +1752,7 @@ class MultimediaObjectRepository extends DocumentRepository
      *
      * @return array() A key/value hash where the key is the series id (string) and the value is the count
      */
-    public function countMmobjsBySeries($seriesList = array())
+    public function countMmobjsBySeries($seriesList = array(), $sort = null)
     {
         $dm = $this->getDocumentManager();
 
@@ -1768,10 +1768,17 @@ class MultimediaObjectRepository extends DocumentRepository
             $criteria['series'] = array('$in' => $seriesIds);
         }
 
-        $pipeline = array(
-            array('$match' => $criteria),
-            array('$group' => array('_id' => '$series', 'count' => array('$sum' => 1))),
-        );
+        $pipeline = array();
+
+        if ($criteria) {
+            $pipeline[] = array('$match' => $criteria);
+        }
+
+        $pipeline[] = array('$group' => array('_id' => '$series', 'count' => array('$sum' => 1)));
+
+        if ($sort !== null) {
+            $pipeline[] = array('$sort' => array('count' => $sort ? -1 : 1));
+        }
 
         $aggregation = $multimediaObjectsColl->aggregate($pipeline);
         $mmobjCount = array();
