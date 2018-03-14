@@ -3441,6 +3441,7 @@
       <trans-unit id="b0415d954b4db90d746a00c0a3e4ff28" resname="Modify all multimedia objects status">
         <source>Modify all multimedia objects status</source>
         <target>Modificar estado de objectos multimedia</target>
+      </trans-unit>
       <trans-unit id="bd2135d039aaa998629afbc13c2fdc27" resname="Default live screen image">
         <source>Default live screen image</source>
         <target xml:lang="es-ES" state="translated">Póster por defecto del evento</target>
