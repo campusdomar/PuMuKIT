@@ -269,7 +269,7 @@ class SeriesController extends AdminController implements NewAdminController
             }
         }
 
-        if ($deleteSeriesCount == 0) {
+        if (0 == $deleteSeriesCount) {
             return new Response('0 series deleted', Response::HTTP_BAD_REQUEST);
         }
 
@@ -375,7 +375,7 @@ class SeriesController extends AdminController implements NewAdminController
         $value = $session->get('admin/series/type', 'desc');
         $key = $session->get('admin/series/sort', 'public_date');
 
-        if ($key == 'title') {
+        if ('title' == $key) {
             $key .= '.'.$request->getLocale();
         }
 
@@ -684,9 +684,9 @@ class SeriesController extends AdminController implements NewAdminController
         $groupRepo = $dm->getRepository('PumukitSchemaBundle:Group');
         $embeddedBroadcastService = $this->get('pumukitschema.embeddedbroadcast');
         $embeddedBroadcastService->updateTypeAndName($type, $multimediaObject, false);
-        if ($type === EmbeddedBroadcast::TYPE_PASSWORD) {
+        if (EmbeddedBroadcast::TYPE_PASSWORD === $type) {
             $embeddedBroadcastService->updatePassword($password, $multimediaObject, false);
-        } elseif ($type === EmbeddedBroadcast::TYPE_GROUPS) {
+        } elseif (EmbeddedBroadcast::TYPE_GROUPS === $type) {
             $index = 3;
             foreach ($addGroups as $addGroup) {
                 $groupId = explode('_', $addGroup)[$index];

@@ -256,7 +256,7 @@ class PlaylistMultimediaObjectController extends Controller
             throw $this->createNotFoundException();
         }
         //Sanity check. (May be remove if we want to mix series and playlists in the future.)
-        if ($playlist->getType() != Series::TYPE_PLAYLIST) {
+        if (Series::TYPE_PLAYLIST != $playlist->getType()) {
             throw $this->createNotFoundException();
         }
 
@@ -286,7 +286,7 @@ class PlaylistMultimediaObjectController extends Controller
             throw $this->createNotFoundException();
         }
         //Sanity check. (May be remove if we want to mix series and playlists in the future.)
-        if ($playlist->getType() != Series::TYPE_PLAYLIST) {
+        if (Series::TYPE_PLAYLIST != $playlist->getType()) {
             throw $this->createNotFoundException();
         }
 

@@ -164,7 +164,7 @@ class Tag
      */
     public function setTitle($title, $locale = null)
     {
-        if ($locale == null) {
+        if (null == $locale) {
             $locale = $this->locale;
         }
         $this->title[$locale] = $title;
@@ -179,7 +179,7 @@ class Tag
      */
     public function getTitle($locale = null)
     {
-        if ($locale == null) {
+        if (null == $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->title[$locale])) {
@@ -217,7 +217,7 @@ class Tag
      */
     public function setDescription($description, $locale = null)
     {
-        if ($locale == null) {
+        if (null == $locale) {
             $locale = $this->locale;
         }
         $this->description[$locale] = $description;
@@ -232,7 +232,7 @@ class Tag
      */
     public function getDescription($locale = null)
     {
-        if ($locale == null) {
+        if (null == $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->description[$locale])) {
@@ -551,11 +551,11 @@ class Tag
         if ($tagCod == $this->getCod()) {
             return false;
         }
-        if (strpos($this->getPath(), sprintf('%s|', $tagCod)) === 0) {
+        if (0 === strpos($this->getPath(), sprintf('%s|', $tagCod))) {
             return true;
         }
 
-        return strpos($this->getPath(), sprintf('|%s|', $tagCod)) === false ? false : true;
+        return false === strpos($this->getPath(), sprintf('|%s|', $tagCod)) ? false : true;
     }
 
     /**

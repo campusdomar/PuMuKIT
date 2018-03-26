@@ -377,7 +377,7 @@ class Live
      */
     public function setName($name, $locale = null)
     {
-        if ($locale == null) {
+        if (null == $locale) {
             $locale = $this->locale;
         }
         $this->name[$locale] = $name;
@@ -390,7 +390,7 @@ class Live
      */
     public function getName($locale = null)
     {
-        if ($locale == null) {
+        if (null == $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->name[$locale])) {
@@ -427,7 +427,7 @@ class Live
      */
     public function setDescription($description, $locale = null)
     {
-        if ($locale == null) {
+        if (null == $locale) {
             $locale = $this->locale;
         }
         $this->description[$locale] = $description;
@@ -440,7 +440,7 @@ class Live
      */
     public function getDescription($locale = null)
     {
-        if ($locale == null) {
+        if (null == $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->description[$locale])) {

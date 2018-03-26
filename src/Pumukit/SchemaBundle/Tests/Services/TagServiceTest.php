@@ -64,7 +64,7 @@ class TagServiceTest extends WebTestCase
     }
 
     /**
-     * @expectedException         Exception
+     * @expectedException         \Exception
      * @expectedExceptionMessage  not found
      */
     public function testTagFindNotExistinAdd()
@@ -254,7 +254,7 @@ class TagServiceTest extends WebTestCase
     }
 
     /**
-     * @expectedException         Exception
+     * @expectedException         \Exception
      * @expectedExceptionMessage  not found
      */
     public function testTagFindNotExistInRemove()
