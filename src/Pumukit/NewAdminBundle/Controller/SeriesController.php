@@ -14,7 +14,7 @@ use Pumukit\SchemaBundle\Security\Permission;
 use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
 use Pumukit\NewAdminBundle\Form\Type\SeriesType;
 use Pumukit\NewAdminBundle\Form\Type\MultimediaObjectTemplateMetaType;
-use Pagerfanta\Adapter\ArrayAdapter;
+use Pagerfanta\Adapter\FixedAdapter;
 use Pagerfanta\Pagerfanta;
 
 /**
@@ -489,19 +489,6 @@ class SeriesController extends AdminController implements NewAdminController
         $criteria = array_merge($criteria, array('type' => array('$in' => array(Series::TYPE_SERIES, null))));
 
         if ($config->isPaginated()) {
-            if (array_key_exists('multimedia_objects', $sorting)) {
-                $resources = $this
-                    ->resourceResolver
-                    ->getResource($repository, 'findBy', array($criteria));
-                $resources = $this->reorderResources($resources);
-                $adapter = new ArrayAdapter($resources);
-                $resources = new Pagerfanta($adapter);
-            } else {
-                $resources = $this
-                    ->resourceResolver
-                    ->getResource($repository, 'createPaginator', array($criteria, $sorting));
-            }
-
             if ($request->get('page', null)) {
                 $page = (int) $request->get('page', 1);
                 if ($page < 1) {
@@ -513,6 +500,27 @@ class SeriesController extends AdminController implements NewAdminController
 
             if ($request->get('paginate', null)) {
                 $session->set($session_namespace.'/paginate', $request->get('paginate', 10));
+            }
+
+            if (array_key_exists('multimedia_objects', $sorting)) {
+                $dm = $this->get('doctrine_mongodb.odm.document_manager');
+                $mmrepo = $dm->getRepository('PumukitSchemaBundle:MultimediaObject');
+                $data = $mmrepo->countMmobjsBySeries(array(), $sorting['multimedia_objects'] == 'asc');
+
+                $page = $session->get($session_namespace.'/page', 1);
+                $maxPerPage = $session->get($session_namespace.'/paginate', 10);
+                $dataSlice = array_slice($data, ($page - 1) * $maxPerPage, $maxPerPage);
+                $criteria = array_merge($criteria, array('id' => array('$in' => array_keys($dataSlice))));
+
+                $resources = $this
+                    ->resourceResolver
+                    ->getResource($repository, 'findBy', array($criteria));
+                $adapter = new FixedAdapter(count($data), $resources->toArray());
+                $resources = new Pagerfanta($adapter);
+            } else {
+                $resources = $this
+                    ->resourceResolver
+                    ->getResource($repository, 'createPaginator', array($criteria, $sorting));
             }
 
             if ($selectedSeriesId) {
@@ -585,64 +593,6 @@ class SeriesController extends AdminController implements NewAdminController
                 }
             }
         }
-    }
-
-    /**
-     * Used in AdminController to
-     * reorder series when sort is multimedia_objects.
-     *
-     * @param ArrayCollection $resources
-     *
-     * @return array $series
-     */
-    private function reorderResources($resources)
-    {
-        $series = array();
-        foreach ($resources as $resource) {
-            if (empty($series)) {
-                $series[] = $resource;
-            } else {
-                $aux = $series;
-                foreach ($aux as $index => $oneseries) {
-                    if ($this->compareSeries($resource, $oneseries)) {
-                        array_splice($series, $index, 0, array($resource));
-                        break;
-                    } elseif ($index == (count($aux) - 1)) {
-                        $series[] = $resource;
-                    }
-                }
-            }
-        }
-
-        return $series;
-    }
-
-    /**
-     * Compare Series
-     * Compare the number of multimedia objects
-     * according to type (greater or lower than).
-     *
-     * @param Series $series1
-     * @param Series $series2
-     *
-     * @return bool
-     */
-    private function compareSeries($series1, $series2)
-    {
-        $type = $this->get('session')->get('admin/series/type');
-
-        $dm = $this->get('doctrine_mongodb.odm.document_manager');
-        $mmRepo = $dm->getRepository('PumukitSchemaBundle:MultimediaObject');
-        $numberMultimediaObjectsInSeries1 = $mmRepo->countInSeries($series1);
-        $numberMultimediaObjectsInSeries2 = $mmRepo->countInSeries($series2);
-
-        if ('asc' === $type) {
-            return $numberMultimediaObjectsInSeries1 < $numberMultimediaObjectsInSeries2;
-        } elseif ('desc' === $type) {
-            return $numberMultimediaObjectsInSeries1 > $numberMultimediaObjectsInSeries2;
-        }
-
-        return false;
     }
 
     /**
