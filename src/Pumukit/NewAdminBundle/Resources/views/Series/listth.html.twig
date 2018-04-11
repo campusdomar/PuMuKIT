@@ -1,33 +1,75 @@
-{% if 'title' == app.session.get('admin/series/sort') %}
-  <th id="th-title">
-    <a href="#" id="pumukitnewadmin_series_title_sort_selected">{% trans %}Title{% endtrans %}&nbsp;{{ app.session.get('admin/series/type')=='asc'?'&#x25B4;':'&#x25BE;' }}</a>
-  </th>
-{% else %}
-  <th id="th-title">
-    <a href="#" id="pumukitnewadmin_series_title_sort_not_selected">{% trans %}Title{% endtrans %}</a>
-  </th>
+{% set typeIcon = app.session.get('admin/series/type')=='asc'?'&#x25B4;':'&#x25BE;' %}
+
+<style>
+    .border-top-none {
+        border-top: none !important;
+    }
+    .border-bottom-none {
+        border-bottom: none !important;
+    }
+</style>
+
+{% if not is_naked() %}
+    {% set colspan = 3 %}
+    {% if advance_live_event %}
+        {% set colspan = 4 %}
+    {% endif %}
+    <tr>
+        <th colspan="7" class="border-top-none border-bottom-none">&nbsp;</th>
+
+        <th colspan="{{ colspan }}" class="border-top-none text-center">{% trans %}Obj. Mm.{% endtrans %}</th>
+    </tr>
 {% endif %}
 
-{% if 'public_date' == app.session.get('admin/series/sort', 'public_date') %}
-  <th id="th-date" width="8%">
-    <a href="#" id="pumukitnewadmin_series_public_date_sort_selected">{% trans %}Date{% endtrans %}&nbsp;{{ app.session.get('admin/series/type')=='asc'?'&#x25B4;':'&#x25BE;' }}</a>
-  </th>
-{% else %}
-  <th id="th-date" width="8%">
-    <a href="#" id="pumukitnewadmin_series_public_date_sort_not_selected">{% trans %}Date{% endtrans %}</a>
-  </th>
-{% endif %}
+<tr>
+    <th width="1%" id="th-checkbox" class="border-top-none">
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" onclick="window.click_checkbox_all('series', this.checked)">
+            </label>
+        </div>
+    </th>
+    <th id="th-icons" colspan="{{ is_naked() ? 1 : 2 }}" width="4%" class="border-top-none"></th>
+    <th id="th-img" width="1%" class="border-top-none">{% trans %}Img{% endtrans %}</th>
 
-{# TODO fix this sorting
-{% if 'multimedia_objects' == app.session.get('admin/series/sort') %}
-  <th id="th-mm" width="1%">
-    <a href="#" id="pumukitnewadmin_series_multimedia_objects_sort_selected">{% trans %}Mm.Obj.{% endtrans %}&nbsp;{{ app.session.get('admin/series/type')=='asc'?'&#x25B4;':'&#x25BE;' }}</a>
-  </th>  
-{% else %}
-  <th id="th-mm" width="1%">
-    <a href="#" id="pumukitnewadmin_series_multimedia_objects_sort_not_selected">{% trans %}Mm.Obj.{% endtrans %}</a>
-  </th>
-{% endif %}
-#}
-{# TODO delete this line when fixing the previous sorting #}
-<th id="th-mm" width="1%">{% trans %}Mm.Obj.{% endtrans %}</th>
+    <th id="th-title" class="border-top-none">
+        {% if 'title' == app.session.get('admin/series/sort') %}
+            <a href="#" id="pumukitnewadmin_series_title_sort_selected">
+                {% trans %}Title{% endtrans %}
+                &nbsp;{{ typeIcon|raw  }}
+            </a>
+        {% else %}
+            <a href="#" id="pumukitnewadmin_series_title_sort_not_selected">
+                {% trans %}Title{% endtrans %}
+            </a>
+        {% endif %}
+    </th>
+
+    <th id="th-date" width="8%" class="border-top-none">
+        {% if 'public_date' == app.session.get('admin/series/sort', 'public_date') %}
+            <a href="#" id="pumukitnewadmin_series_public_date_sort_selected">
+                {% trans %}Date{% endtrans %}
+                &nbsp;{{ typeIcon|raw  }}
+            </a>
+        {% else %}
+            <a href="#" id="pumukitnewadmin_series_public_date_sort_not_selected">
+                {% trans %}Date{% endtrans %}
+            </a>
+        {% endif %}
+    </th>
+
+    {% if not is_naked() %}
+
+        <th id="th-series-hide" width="1%" class="border-top-none">{% trans %}Hide{% endtrans %}</th>
+
+        {% if advance_live_event %}
+            <th id="th-mm-eve" width="1%" class="border-top-none">{% trans %}Event{% endtrans %}</th>
+        {% endif %}
+
+        <th id="th-mm-pub" width="1%" class="border-top-none">{% trans %}Published{% endtrans %}</th>
+        <th id="th-mm-blo" width="1%" class="border-top-none">{% trans %}Blocked{% endtrans %}</th>
+        <th id="th-mm-hid" width="1%" class="border-top-none">{% trans %}Hidden{% endtrans %}</th>
+    {% else %}
+        <th id="th-mm" width="1%">{% trans %}Hidden{% endtrans %}</th>
+    {% endif %}
+</tr>

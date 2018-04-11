@@ -300,7 +300,7 @@ class PumukitAdminExtension extends \Twig_Extension
      */
     public function getSeriesText($series)
     {
-        list($mmobjsPublished, $mmobjsHidden, $mmobjsBlocked) = $this->countMmobjsByStatus($series);
+        /*list($mmobjsPublished, $mmobjsHidden, $mmobjsBlocked) = $this->countMmobjsByStatus($series);
 
         $iconText = sprintf(
             "%d %s,\n%d %s,\n%d %s,\n",
@@ -310,9 +310,9 @@ class PumukitAdminExtension extends \Twig_Extension
             $this->translator->trans('Hidden Multimedia Object(s)'),
             $mmobjsBlocked,
             $this->translator->trans('Blocked Multimedia Object(s)')
-        );
+        );*/
 
-        return $iconText;
+        return $this->groupMmobjsByStatusAndType($series);
     }
 
     /**
@@ -562,7 +562,7 @@ class PumukitAdminExtension extends \Twig_Extension
 
         $seriesColl = $this->dm->getDocumentCollection('PumukitSchemaBundle:MultimediaObject');
         $aggrPipe = array(
-            array('$match' => array('series' => new \MongoId($series->getId()))),
+            array('$match' => array('series' => new \MongoId($series->getId()), 'islive' => false)),
             array('$group' => array('_id' => '$status',
                                     'count' => array('$sum' => 1), )),
         );
@@ -585,8 +585,34 @@ class PumukitAdminExtension extends \Twig_Extension
         $result = array($mmobjsPublished, $mmobjsHidden, $mmobjsBlocked);
 
         return $this->countMmobjsByStatus[$series->getId()] = $result;
+    }
+
+    private function groupMmobjsByStatusAndType($series)
+    {
+        $result = $this->countMmobjsByStatus($series);
+
+        $events = $this->dm->getRepository('PumukitSchemaBundle:MultimediaObject')->findBy(array('series' => new \MongoId($series->getId()), 'islive' => true));
+
+        array_push($result, count($events));
+
+        $result['announce_pub'] = $this->countMMobjsByStatusWithTag($series, MultimediaObject::STATUS_PUBLISHED);
+        $result['announce_hid'] = $this->countMMobjsByStatusWithTag($series, MultimediaObject::STATUS_HIDDEN);
+        $result['announce_blo'] = $this->countMMobjsByStatusWithTag($series, MultimediaObject::STATUS_BLOCKED);
 
         return $result;
+    }
+
+    private function countMMobjsByStatusWithTag($series, $status)
+    {
+        $repoSeries = $this->dm->getRepository('PumukitSchemaBundle:MultimediaObject');
+        $qb = $repoSeries->createStandardQueryBuilder()
+            ->field('series')->equals(new \MongoId($series->getId()))
+            ->field('islive')->equals(false)
+            ->field('status')->equals($status)
+            ->field('tags.cod')->equals('PUDENEW');
+        $count = $qb->count()->getQuery()->execute();
+
+        return $count;
     }
 
     //TODO: Pass to a SERVICE

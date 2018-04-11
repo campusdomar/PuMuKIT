@@ -50,6 +50,7 @@ class SeriesController extends AdminController implements NewAdminController
 
         return array(
             'series' => $resources,
+            'advance_live_event' => $this->container->getParameter('pumukit_new_admin.advance_live_event'),
             'disable_pudenew' => !$this->container->getParameter('show_latest_with_pudenew'),
         );
     }
