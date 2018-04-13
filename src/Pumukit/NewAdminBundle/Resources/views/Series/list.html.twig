@@ -3,23 +3,13 @@
         <input type="hidden" name="pumukitnewadmin_series_sort_change_type" id="pumukitnewadmin_series_sort_change_type" value="{{ app.session.get('admin/series/type')=='asc'?'desc':'asc' }}"/>
         <table class="table table-striped table-hover">
             <thead>
-            <tr>
-                <th width="1%" id="th-checkbox">
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" onclick="window.click_checkbox_all('series', this.checked)">
-                        </label>
-                    </div>
-                </th>
-                <th id="th-icons" colspan="{{ is_naked() ? 1 : 3 }}" width="4%"></th>
-                <th id="th-img" width="1%">{% trans %}Img{% endtrans %}</th>
                 {% include 'PumukitNewAdminBundle:Series:listth.html.twig' %}
-            </tr>
             </thead>
 
             <tbody>
             {% for oneseries in series %}
                 {% set numV = oneseries|count_multimedia_objects %}
+                {% set mmobj_data = oneseries|series_text %}
                 <tr style="cursor: pointer" {% if(app.session.get('admin/series/id') == oneseries.id ) %} class="success" {% endif %}>
                     <td headers="th-checkbox">
                         <div class="checkbox">
@@ -33,18 +23,9 @@
                         <td headers="th-icons">
                             {% spaceless %}
                                 <i class="{{ oneseries|series_announce_icon }}" data-toggle="tooltip" data-placement="right" title="{{ oneseries|series_announce_text }}"></i>
-                                <i class="{{ oneseries|mms_announce_icon }}" data-toggle="tooltip" data-placement="right" title="{{ oneseries|mms_announce_text }}"></i>
                             {% endspaceless %}
                         </td>
-                        <td headers="th-icons">
-                            {% if app.user and is_granted('ROLE_ACCESS_PUBLICATION_TAB') %}
-                                <a href="{{ path('pumukitnewadmin_series_changepub', {'id': oneseries.id}) }}" data-toggle="modal" data-backdrop="static" data-target="#myModal" title="{% trans %}Series publication status{% endtrans %}">
-                                    <i class="{{ oneseries|series_icon }}" data-toggle="tooltip" data-placement="right" title="{{ oneseries|series_text }}({% trans %}Click to modify status of all Multimedia Objects{% endtrans %})"></i>
-                                </a>
-                            {% else %}
-                                <i class="{{ oneseries|series_icon }}" data-toggle="tooltip" data-placement="right" title="{{ oneseries|series_text }}({% trans %}Not enough privileges to modify status of all Multimedia Objects{% endtrans %})"></i>
-                            {% endif %}
-                        </td>
+
                     {% endif %}
                     <td headers="th-icons">
                         {% include 'PumukitNewAdminBundle:Series:updatemenu.html.twig' with {'oneseries': oneseries, 'numV': numV} %}
@@ -58,11 +39,51 @@
                         </a>
                     </td>
                     <td headers="th-date" class="text-nowrap" onclick="click_fila_edit_urls('series', this, '{{ path('pumukitnewadmin_series_show', {'id': oneseries.id}) }}', '{{ path('pumukitnewadmin_series_update', {'id': oneseries.id}) }}')" ondblclick="dblclick_fila_url('series', this, '{{ path('pumukitnewadmin_mms_index', {'id': oneseries.id }) }}')">
-                        {{ oneseries.getPublicDate()|date('Y-m-d') }}
+                        {{ oneseries.getPublicDate()|localizeddate('medium','none',app.request.getLocale()) }}
                     </td>
-                    <td headers="th-mm" onclick="click_fila_edit_urls('series', this, '{{ path('pumukitnewadmin_series_show', {'id': oneseries.id}) }}', '{{ path('pumukitnewadmin_series_update', {'id': oneseries.id}) }}')" ondblclick="dblclick_fila_url('series', this, '{{ path('pumukitnewadmin_mms_index', {'id': oneseries.id }) }}')">
-                        {{ numV }}
-                    </td>
+                    {% if not is_naked() %}
+                        <td headers="th-series-hide" class="text-center" onclick="click_fila_edit_urls('series', this, '{{ path('pumukitnewadmin_series_show', {'id': oneseries.id}) }}', '{{ path('pumukitnewadmin_series_update', {'id': oneseries.id}) }}')" ondblclick="dblclick_fila_url('series', this, '{{ path('pumukitnewadmin_mms_index', {'id': oneseries.id }) }}')">
+                            {% if oneseries.hide %}
+                                <i class="mdi-action-done"></i>
+                            {% endif %}
+                        </td>
+                        {% if advance_live_event %}
+                            <td headers="th-mm-eve" class="text-center" onclick="click_fila_edit_urls('series', this, '{{ path('pumukitnewadmin_series_show', {'id': oneseries.id}) }}', '{{ path('pumukitnewadmin_series_update', {'id': oneseries.id}) }}')" ondblclick="dblclick_fila_url('series', this, '{{ path('pumukitnewadmin_mms_index', {'id': oneseries.id }) }}')">
+                                {{ mmobj_data.3 }}
+                            </td>
+                        {% endif %}
+                        <td headers="th-mm-pub" class="text-center" onclick="click_fila_edit_urls('series', this, '{{ path('pumukitnewadmin_series_show', {'id': oneseries.id}) }}', '{{ path('pumukitnewadmin_series_update', {'id': oneseries.id}) }}')" ondblclick="dblclick_fila_url('series', this, '{{ path('pumukitnewadmin_mms_index', {'id': oneseries.id }) }}')">
+                            {% if mmobj_data['announce_pub'] is defined and mmobj_data['announce_pub'] > 0 %}
+                                <span data-toggle="tooltip" data-placement="right" title="{{ mmobj_data['announce_pub'] }} {% trans %} announced Multimedia Object(s){% endtrans %}" style="color:green">
+                                    {{ mmobj_data.0 }}
+                                </span>
+                            {% else %}
+                                {{ mmobj_data.0 }}
+                            {% endif %}
+                        </td>
+                        <td headers="th-mm-blo" class="text-center" onclick="click_fila_edit_urls('series', this, '{{ path('pumukitnewadmin_series_show', {'id': oneseries.id}) }}', '{{ path('pumukitnewadmin_series_update', {'id': oneseries.id}) }}')" ondblclick="dblclick_fila_url('series', this, '{{ path('pumukitnewadmin_mms_index', {'id': oneseries.id }) }}')">
+                            {% if mmobj_data['announce_blo'] is defined and mmobj_data['announce_blo'] > 0 %}
+                                <span data-toggle="tooltip" data-placement="right" title="{{ mmobj_data['announce_blo'] }} {% trans %} announced Multimedia Object(s){% endtrans %}" style="color:green">
+                                    {{ mmobj_data.2 }}
+                                </span>
+                            {% else %}
+                                {{ mmobj_data.2 }}
+                            {% endif %}
+                        </td>
+                        <td headers="th-mm-hid" class="text-center" onclick="click_fila_edit_urls('series', this, '{{ path('pumukitnewadmin_series_show', {'id': oneseries.id}) }}', '{{ path('pumukitnewadmin_series_update', {'id': oneseries.id}) }}')" ondblclick="dblclick_fila_url('series', this, '{{ path('pumukitnewadmin_mms_index', {'id': oneseries.id }) }}')">
+                            {% if mmobj_data['announce_hid'] is defined and mmobj_data['announce_hid'] > 0 %}
+                                <span data-toggle="tooltip" data-placement="right" title="{{ mmobj_data['announce_blo'] }} {% trans %} announced Multimedia Object(s){% endtrans %}">
+                                    {{ mmobj_data.1 }}
+                                </span>
+                            {% else %}
+                                {{ mmobj_data.1 }}
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <td headers="th-mm" onclick="click_fila_edit_urls('series', this, '{{ path('pumukitnewadmin_series_show', {'id': oneseries.id}) }}', '{{ path('pumukitnewadmin_series_update', {'id': oneseries.id}) }}')" ondblclick="dblclick_fila_url('series', this, '{{ path('pumukitnewadmin_mms_index', {'id': oneseries.id }) }}')">
+                            {{ numV }}
+                        </td>
+                    {% endif %}
                 </tr>
             {% else %}
                 <tr>
@@ -77,13 +98,20 @@
                         <td headers="th-checkbox">&nbsp;</td>
                         {% if not is_naked() %}
                             <td headers="th-icons">&nbsp;</td>
-                            <td headers="th-icons">&nbsp;</td>
                         {% endif %}
                         <td headers="th-icons">&nbsp;</td>
                         <td headers="th-img">&nbsp;</td>
                         <td headers="th-title">&nbsp;</td>
                         <td headers="th-date">&nbsp;</td>
-                        <td headers="th-mm">&nbsp;</td>
+                        {% if not is_naked() %}
+                            <td headers="th-series-hide">&nbsp;</td>
+                            <td headers="th-mm-eve"></td>
+                            <td headers="th-mm-pub"></td>
+                            <td headers="th-mm-blo"></td>
+                            <td headers="th-mm-hid"></td>
+                        {% else %}
+                            <td headers="th-mm">&nbsp;</td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             {% endif %}
