@@ -361,17 +361,22 @@ class FactoryService
         $repoMmobjs = $this->dm->getRepository('PumukitSchemaBundle:MultimediaObject');
 
         $multimediaObjects = $repoMmobjs->findBySeries($series);
+
+        $collection = $this->dm->getDocumentCollection('PumukitSchemaBundle:MultimediaObject');
+        $filter = array('series' => new \MongoId($series->getId()));
+        $collection->remove($filter);
+
         foreach ($multimediaObjects as $mm) {
-            $series->removeMultimediaObject($mm);
-            $this->dm->remove($mm);
             $this->mmsDispatcher->dispatchDelete($mm);
         }
 
-        $this->dm->remove($series);
-
-        $this->dm->flush();
+        $collectionSeries = $this->dm->getDocumentCollection('PumukitSchemaBundle:Series');
+        $filter = array('_id' => new \MongoId($series->getId()));
+        $collectionSeries->remove($filter);
 
         $this->seriesDispatcher->dispatchDelete($series);
+
+        $this->dm->flush();
     }
 
     /**
@@ -517,7 +522,7 @@ class FactoryService
      * Clone a multimedia object.
      *
      * @param MultimediaObject $src
-     * @param null             $series
+     * @param Series           $series
      *
      * @return MultimediaObject
      *
