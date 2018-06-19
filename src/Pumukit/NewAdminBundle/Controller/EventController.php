@@ -108,6 +108,7 @@ class EventController extends AdminController implements NewAdminController
         $config = $this->getConfiguration();
 
         $criteria = $this->getCriteria($config);
+
         list($events, $month, $year, $calendar) = $this->getResources($request, $config, $criteria);
 
         $repo = $this
@@ -275,7 +276,6 @@ class EventController extends AdminController implements NewAdminController
         $session_namespace = 'admin/event';
 
         $newEventId = $request->get('newEventId');
-        $page = $session->get($session_namespace.'/page', 1);
 
         $m = '';
         $y = '';
@@ -287,8 +287,7 @@ class EventController extends AdminController implements NewAdminController
                 ->getResource($repository, 'createPaginator', array($criteria, $sorting));
 
             if ($request->get('page', null)) {
-                $page = $request->get('page');
-                $session->set($session_namespace.'/page', $page);
+                $session->set($session_namespace.'/page', $request->get('page', 1));
             }
 
             // ADDED FROM ADMIN CONTROLLER
@@ -296,11 +295,26 @@ class EventController extends AdminController implements NewAdminController
                 $session->set($session_namespace.'/paginate', $request->get('paginate', 10));
             }
 
+            if ($newEventId) {
+                $adapter = $resources->getAdapter();
+                $returnedEvent = $adapter->getSlice(0, $adapter->getNbResults());
+                $position = 1;
+                foreach ($returnedEvent as $event) {
+                    if ($newEventId == $event->getId()) {
+                        break;
+                    }
+                    ++$position;
+                }
+                $maxPerPage = $session->get($session_namespace.'/paginate', 10);
+                $page = intval(ceil($position / $maxPerPage));
+            } else {
+                $page = $session->get($session_namespace.'/page', 1);
+            }
+
             $resources
                 ->setMaxPerPage($config->getPaginationMaxPerPage())
-                ->setNormalizeOutOfRangePages(true);
-
-            $resources->setCurrentPage($page);
+                ->setNormalizeOutOfRangePages(true)
+                ->setCurrentPage($page);
         } else {
             $resources = $this
                 ->resourceResolver
