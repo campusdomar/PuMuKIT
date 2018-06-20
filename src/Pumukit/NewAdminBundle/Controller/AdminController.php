@@ -94,7 +94,6 @@ class AdminController extends ResourceController implements NewAdminController
 
         $config = $this->getConfiguration();
         $resourceName = $config->getResourceName();
-        $resourceId = $request->get('id');
 
         $resource = $this->findOr404($request);
         $form = $this->getForm($resource);
@@ -111,7 +110,7 @@ class AdminController extends ResourceController implements NewAdminController
                 return $this->handleView($this->view($resource, 204));
             }
 
-            return $this->redirect($this->generateUrl('pumukitnewadmin_'.$resourceName.'_list', array('newEventId' => $resourceId)));
+            return $this->redirect($this->generateUrl('pumukitnewadmin_'.$resourceName.'_list'));
         }
 
         if ($this->config->isApiRequest()) {
