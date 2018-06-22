@@ -22,7 +22,11 @@ class PumukitCompressPicsCommand extends ContainerAwareCommand
             ->setDescription('Pumukit compress pics size')
             ->addArgument('limit', InputArgument::OPTIONAL, 'Limit size in KB of pic to compress or not.')
             ->setHelp(<<<'EOT'
-                php app/console pumukit:compress:pics
+                php app/console pumukit:compress:pics LIMIT_SIZE_IN_KB
+Example:
+                php app/console pumukit:compress:pics 100
+
+Will compress those pics whose size is bigger than 100KB.
 EOT
             );
     }
@@ -54,6 +58,9 @@ EOT
                 $this->limitSize = $limit;
             }
         } catch (\Exception $e) {
+            $output->writeln('Error trying to set limit size from command line argument "limit": '.$e->getMessage());
+
+            return false;
         }
 
         $criteria = array(
