@@ -97,23 +97,27 @@ EOT
     {
         foreach ($objects as $object) {
             foreach ($object->getPics() as $pic) {
-                if (!$pic->containsTag('poster')) {
-                    try {
-                        $path = $pic->getPath();
-                        $fileOriginalSize = round(filesize($path) / 1024, 1);
-                        $this->output->writeln('Checking image "'.$path.'" with original size '.$fileOriginalSize.'KB');
-                        $this->picCompressor->compressPic($path);
-                        clearstatcache();
-                        $fileNewSize = round(filesize($path) / 1024, 1);
-                        if ($fileOriginalSize !== $fileNewSize) {
-                            $this->output->writeln('Compressed image "'.$path.'" from original size '.$fileOriginalSize.'KB to new size '.$fileNewSize.'KB');
-                        } else {
-                            $this->output->writeln('Not compressed image "'.$path.'"');
-                        }
-                    } catch (\Exception $e) {
-                        $this->output->writeln('Error in compressing pics: '.$e->getMessage());
-                        throw $e;
+                if ($pic->containsTag('poster')) {
+                    continue;
+                }
+                try {
+                    $path = $pic->getPath();
+                    if (!$path) {
+                        continue;
                     }
+                    $fileOriginalSize = round(filesize($path) / 1024, 1);
+                    $this->output->writeln('Checking image "'.$path.'" with original size '.$fileOriginalSize.'KB');
+                    $this->picCompressor->compressPic($path);
+                    clearstatcache();
+                    $fileNewSize = round(filesize($path) / 1024, 1);
+                    if ($fileOriginalSize !== $fileNewSize) {
+                        $this->output->writeln('Compressed image "'.$path.'" from original size '.$fileOriginalSize.'KB to new size '.$fileNewSize.'KB');
+                    } else {
+                        $this->output->writeln('Not compressed image "'.$path.'"');
+                    }
+                } catch (\Exception $e) {
+                    $this->output->writeln('<error>Error in compressing pic: '.$e->getMessage().'</error>');
+                    throw $e;
                 }
             }
         }

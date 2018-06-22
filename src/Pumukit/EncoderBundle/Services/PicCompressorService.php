@@ -21,18 +21,17 @@ class PicCompressorService
 
     public function compressPic($path)
     {
-        if (file_exists($path)) {
-            if ((filesize($path) / 1024) > $this->limitSize) {
-                $extension = strtolower(pathinfo($path)['extension']);
-                if ('jpg' === $extension || 'jpeg' === $extension) {
-                    return $this->compressJPGImage($path);
-                } elseif ('png' == $extension) {
-                    return $this->compressPNGImage($path);
-                }
+        if (!file_exists($path)) {
+            throw new \Exception('File to compress does not exist: '.$path);
+        }
+        if ((filesize($path) / 1024) > $this->limitSize) {
+            $extension = strtolower(pathinfo($path)['extension']);
+            if ('jpg' === $extension || 'jpeg' === $extension) {
+                return $this->compressJPGImage($path);
+            } elseif ('png' == $extension) {
+                return $this->compressPNGImage($path);
             }
         }
-
-        return 0;
     }
 
     protected function compressJPGImage($path)
