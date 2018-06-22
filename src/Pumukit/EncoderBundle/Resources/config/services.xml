@@ -8,6 +8,10 @@
         <parameter key="pumukit.picextractor.command.ffmpeg">ffmpeg -ss {{ss}} -y -i "{{input}}" -r 1 -vframes 1 -s {{size}} -f image2 "{{output}}"</parameter>
         <parameter key="pumukit.picextractor.command.libav">avconv -ss {{ss}} -y -i "{{input}}" -r 1 -vframes 1 -s {{size}} -f image2 "{{output}}"</parameter>
         <parameter key="pumukit.picextractor.command">%pumukit.picextractor.command.libav%</parameter>
+        <parameter key="pumukit.piccompressor.command.jpg">jpegoptim -S "{{size}}" "{{input}}"</parameter>
+        <parameter key="pumukit.piccompressor.command.png">optipng "{{input}}"</parameter>
+        <parameter key="pumukit.piccompressor.command.limitsize">100</parameter>
+        <parameter key="pumukit.piccompressor.command.compresssize">100</parameter>
     </parameters>
 
     <services>
@@ -50,6 +54,13 @@
             <argument>%pumukit2.uploads_dir%/pic</argument>
             <argument>%pumukit2.uploads_url%/pic</argument>
             <argument>%pumukit.picextractor.command%</argument>
+        </service>
+
+        <service id="pumukitencoder.piccompressor" class="Pumukit\EncoderBundle\Services\PicCompressorService">
+            <argument>%pumukit.piccompressor.command.jpg%</argument>
+            <argument>%pumukit.piccompressor.command.png%</argument>
+            <argument>%pumukit.piccompressor.command.limitsize%</argument>
+            <argument>%pumukit.piccompressor.command.compresssize%</argument>
         </service>
 
         <service id="pumukitencoder.remove" class="Pumukit\EncoderBundle\EventListener\RemoveListener">
