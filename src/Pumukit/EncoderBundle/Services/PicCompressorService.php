@@ -24,9 +24,9 @@ class PicCompressorService
         if (file_exists($path)) {
             if ((filesize($path) / 1024) > $this->limitSize) {
                 $extension = strtolower(pathinfo($path)['extension']);
-                if ($extension === 'jpg' || $extension === 'jpeg') {
+                if ('jpg' === $extension || 'jpeg' === $extension) {
                     return $this->compressJPGImage($path);
-                } elseif ($extension == 'png') {
+                } elseif ('png' == $extension) {
                     return $this->compressPNGImage($path);
                 }
             }
