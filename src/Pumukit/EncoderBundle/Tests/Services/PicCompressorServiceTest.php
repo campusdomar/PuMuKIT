@@ -31,36 +31,6 @@ class PicCompressorServiceTest extends WebTestCase
         parent::tearDown();
     }
 
-    public function testCompressJPGImage()
-    {
-        if (false == TestCommand::commandExists('jpegoptim')) {
-            $this->markTestSkipped('PicCompressor test marks as skipped (No jpegoptim).');
-        }
-        $jpgPicToCompress = $this->resourcesDir.'/pictocompress.jpg';
-        $jpgPicToCompressOriginal = $this->resourcesDir.'/pictocompress.jpg.original';
-        $originalFileSize = filesize($jpgPicToCompress);
-        $copied = copy($jpgPicToCompress, $jpgPicToCompressOriginal);
-        $output = $this->picCompressor->compressJPGImage($jpgPicToCompress);
-        clearstatcache();
-        $this->assertGreaterThan(filesize($jpgPicToCompress), $originalFileSize);
-        $moved = rename($jpgPicToCompressOriginal, $jpgPicToCompress);
-    }
-
-    public function testCompressPNGImage()
-    {
-        if (false == TestCommand::commandExists('optipng')) {
-            $this->markTestSkipped('PicCompressor test marks as skipped (No optipng).');
-        }
-        $pngPicToCompress = $this->resourcesDir.'/pictocompress.png';
-        $pngPicToCompressOriginal = $this->resourcesDir.'/pictocompress.png.original';
-        $originalFileSize = filesize($pngPicToCompress);
-        $copied = copy($pngPicToCompress, $pngPicToCompressOriginal);
-        $output = $this->picCompressor->compressPNGImage($pngPicToCompress);
-        clearstatcache();
-        $this->assertGreaterThan(filesize($pngPicToCompress), $originalFileSize);
-        $moved = rename($pngPicToCompressOriginal, $pngPicToCompress);
-    }
-
     public function testCompressPicJPG()
     {
         if (false == TestCommand::commandExists('jpegoptim')) {

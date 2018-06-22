@@ -22,7 +22,7 @@ class PicCompressorService
     public function compressPic($path)
     {
         if (file_exists($path)) {
-            if (filesize($path) / 1024 > $this->limitSize) {
+            if ((filesize($path) / 1024) > $this->limitSize) {
                 $extension = strtolower(pathinfo($path)['extension']);
                 if ($extension === 'jpg' || $extension === 'jpeg') {
                     return $this->compressJPGImage($path);
@@ -35,7 +35,7 @@ class PicCompressorService
         return 0;
     }
 
-    public function compressJPGImage($path)
+    protected function compressJPGImage($path)
     {
         $vars = array(
             '{{size}}' => $this->compressSize,
@@ -45,7 +45,7 @@ class PicCompressorService
         return $this->executeCompression($this->jpgCommand, $vars);
     }
 
-    public function compressPNGImage($path)
+    protected function compressPNGImage($path)
     {
         $vars = array(
             '{{input}}' => $path,
