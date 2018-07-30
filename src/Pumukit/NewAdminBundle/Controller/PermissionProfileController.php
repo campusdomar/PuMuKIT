@@ -97,7 +97,7 @@ class PermissionProfileController extends AdminController implements NewAdminCon
         $config = $this->getConfiguration();
 
         $permissionProfile = new PermissionProfile();
-        $form = $this->getForm($permissionProfile);
+        $form = $this->getForm($permissionProfile, $request);
 
         if ($form->handleRequest($request)->isValid()) {
             try {
@@ -136,7 +136,7 @@ class PermissionProfileController extends AdminController implements NewAdminCon
         $config = $this->getConfiguration();
 
         $permissionProfile = $this->findOr404($request);
-        $form = $this->getForm($permissionProfile);
+        $form = $this->getForm($permissionProfile, $request);
 
         if (in_array($request->getMethod(), array('POST', 'PUT', 'PATCH')) && $form->submit($request, !$request->isMethod('PATCH'))->isValid()) {
             try {
@@ -161,10 +161,10 @@ class PermissionProfileController extends AdminController implements NewAdminCon
      *
      * @return FormInterface
      */
-    public function getForm($permissionProfile = null)
+    public function getForm($permissionProfile = null, Request $request)
     {
         $translator = $this->get('translator');
-        $locale = $this->getRequest()->getLocale();
+        $locale = $request->getLocale();
 
         $form = $this->createForm(new PermissionProfileType($translator, $locale), $permissionProfile);
 
@@ -212,9 +212,9 @@ class PermissionProfileController extends AdminController implements NewAdminCon
         $repo = $dm->getRepository('PumukitSchemaBundle:PermissionProfile');
         $permissionProfileService = $this->get('pumukitschema.permissionprofile');
 
-        $selectedDefault = $this->getRequest()->get('selected_default');
-        $selectedScopes = $this->getRequest()->get('selected_scopes');
-        $checkedPermissions = $this->getRequest()->get('checked_permissions');
+        $selectedDefault = $request->get('selected_default');
+        $selectedScopes = $request->get('selected_scopes');
+        $checkedPermissions = $request->get('checked_permissions');
 
         if ('string' === gettype($selectedScopes)) {
             $selectedScopes = json_decode($selectedScopes, true);
