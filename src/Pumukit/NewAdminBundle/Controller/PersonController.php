@@ -57,7 +57,8 @@ class PersonController extends AdminController implements NewAdminController
         $form = $this->createForm(new PersonType($translator, $locale), $person);
 
         if (($request->isMethod('PUT') || $request->isMethod('POST'))) {
-            if ($form->bind($request)->isValid()) {
+            $form->handleRequest($request);
+            if ($form->isValid()) {
                 try {
                     $person = $personService->savePerson($person);
                 } catch (\Exception $e) {
@@ -98,7 +99,8 @@ class PersonController extends AdminController implements NewAdminController
         $form = $this->createForm(new PersonType($translator, $locale), $person);
 
         if (($request->isMethod('PUT') || $request->isMethod('POST'))) {
-            if ($form->bind($request)->isValid()) {
+            $form->handleRequest($request);
+            if ($form->isValid()) {
                 try {
                     $person = $personService->updatePerson($person);
                 } catch (\Exception $e) {
@@ -235,7 +237,8 @@ class PersonController extends AdminController implements NewAdminController
         if (($request->isMethod('PUT') || $request->isMethod('POST'))) {
             $personService = $this->get('pumukitschema.person');
             $personalScopeRoleCode = $personService->getPersonalScopeRoleCode();
-            if ($form->bind($request)->isValid()) {
+            $form->handleRequest($request);
+            if ($form->isValid()) {
                 try {
                     $multimediaObject = $personService->createRelationPerson($person, $role, $multimediaObject);
                 } catch (\Exception $e) {
@@ -304,7 +307,8 @@ class PersonController extends AdminController implements NewAdminController
         $form = $this->createForm(new PersonType($translator, $locale), $person);
 
         if (($request->isMethod('PUT') || $request->isMethod('POST'))) {
-            if ($form->bind($request)->isValid()) {
+            $form->handleRequest($request);
+            if ($form->isValid()) {
                 try {
                     $person = $personService->updatePerson($person);
                 } catch (\Exception $e) {

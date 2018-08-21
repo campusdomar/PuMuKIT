@@ -76,7 +76,8 @@ class TagController extends Controller implements NewAdminController
         $locale = $request->getLocale();
         $form = $this->createForm(new TagType($translator, $locale), $tag);
 
-        if (($request->isMethod('PUT') || $request->isMethod('POST')) && $form->bind($request)->isValid()) {
+        $form->handleRequest($request);
+        if (($request->isMethod('PUT') || $request->isMethod('POST')) && $form->isValid()) {
             try {
                 $tag = $this->get('pumukitschema.tag')->updateTag($tag);
             } catch (\Exception $e) {
@@ -106,7 +107,8 @@ class TagController extends Controller implements NewAdminController
 
         $form = $this->createForm(new TagType($translator, $locale), $tag);
 
-        if (($request->isMethod('PUT') || $request->isMethod('POST')) && $form->bind($request)->isValid()) {
+        $form->handleRequest($request);
+        if (($request->isMethod('PUT') || $request->isMethod('POST')) && $form->isValid()) {
             try {
                 $dm->persist($tag);
                 $dm->flush();
