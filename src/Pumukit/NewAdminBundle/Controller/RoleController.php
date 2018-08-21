@@ -115,7 +115,7 @@ class RoleController extends SortableAdminController implements NewAdminControll
 
     public function batchDeleteAction(Request $request)
     {
-        $ids = $this->getRequest()->get('ids');
+        $ids = $request->get('ids');
 
         if ('string' === gettype($ids)) {
             $ids = json_decode($ids, true);

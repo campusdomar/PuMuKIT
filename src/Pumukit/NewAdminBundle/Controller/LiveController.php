@@ -26,7 +26,7 @@ class LiveController extends AdminController implements NewAdminController
         $config = $this->getConfiguration();
 
         $resource = $this->createNew();
-        $form = $this->getForm($resource);
+        $form = $this->getForm($resource, $request->getLocale());
 
         if ($form->handleRequest($request)->isValid()) {
             $resource = $this->domainManager->create($resource);
@@ -129,7 +129,7 @@ class LiveController extends AdminController implements NewAdminController
     {
         $translator = $this->get('translator');
 
-        $ids = $this->getRequest()->get('ids');
+        $ids = $request->get('ids');
 
         if ('string' === gettype($ids)) {
             $ids = json_decode($ids, true);
