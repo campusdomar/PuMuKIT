@@ -67,7 +67,7 @@ class GroupController extends AdminController implements NewAdminController
         $config = $this->getConfiguration();
 
         $group = $this->createNew();
-        $form = $this->getForm($group, $request);
+        $form = $this->getForm($group, $request->getLocale());
 
         if (in_array($request->getMethod(), array('POST', 'PUT'))) {
             $formHandleRequest = $form->handleRequest($request);
@@ -122,7 +122,7 @@ class GroupController extends AdminController implements NewAdminController
             return new Response('Not allowed to update not local Group', Response::HTTP_METHOD_NOT_ALLOWED);
         }
 
-        $form = $this->getForm($group, $request);
+        $form = $this->getForm($group, $request->getLocale());
 
         if (in_array($request->getMethod(), array('POST', 'PUT', 'PATCH')) && $form->submit($request, !$request->isMethod('PATCH'))->isValid()) {
             try {

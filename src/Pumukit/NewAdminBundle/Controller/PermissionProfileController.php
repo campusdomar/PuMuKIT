@@ -97,7 +97,7 @@ class PermissionProfileController extends AdminController implements NewAdminCon
         $config = $this->getConfiguration();
 
         $permissionProfile = new PermissionProfile();
-        $form = $this->getForm($permissionProfile, $request);
+        $form = $this->getForm($permissionProfile, $request->getLocale());
 
         if ($form->handleRequest($request)->isValid()) {
             try {
@@ -136,7 +136,7 @@ class PermissionProfileController extends AdminController implements NewAdminCon
         $config = $this->getConfiguration();
 
         $permissionProfile = $this->findOr404($request);
-        $form = $this->getForm($permissionProfile, $request);
+        $form = $this->getForm($permissionProfile, $request->getLocale());
 
         if (in_array($request->getMethod(), array('POST', 'PUT', 'PATCH')) && $form->submit($request, !$request->isMethod('PATCH'))->isValid()) {
             try {
@@ -157,14 +157,14 @@ class PermissionProfileController extends AdminController implements NewAdminCon
     /**
      * Overwrite to get form with translations.
      *
-     * @param object|null $permissionProfile
+     * @param null   $permissionProfile
+     * @param string $locale
      *
-     * @return FormInterface
+     * @return \Symfony\Component\Form\Form|\Symfony\Component\Form\FormInterface
      */
-    public function getForm($permissionProfile = null, Request $request)
+    public function getForm($permissionProfile = null, $locale = 'en')
     {
         $translator = $this->get('translator');
-        $locale = $request->getLocale();
 
         $form = $this->createForm(new PermissionProfileType($translator, $locale), $permissionProfile);
 

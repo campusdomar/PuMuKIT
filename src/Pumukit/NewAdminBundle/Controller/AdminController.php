@@ -47,7 +47,7 @@ class AdminController extends ResourceController implements NewAdminController
         $resourceName = $config->getResourceName();
 
         $resource = $this->createNew();
-        $form = $this->getForm($resource);
+        $form = $this->getForm($resource, $request->getLocale());
 
         if ($form->handleRequest($request)->isValid()) {
             try {
@@ -96,7 +96,7 @@ class AdminController extends ResourceController implements NewAdminController
         $resourceName = $config->getResourceName();
 
         $resource = $this->findOr404($request);
-        $form = $this->getForm($resource);
+        $form = $this->getForm($resource, $request->getLocale());
 
         if (in_array($request->getMethod(), array('POST', 'PUT', 'PATCH')) && $form->submit($request, !$request->isMethod('PATCH'))->isValid()) {
             try {
@@ -317,18 +317,18 @@ class AdminController extends ResourceController implements NewAdminController
     /**
      * Overwrite to get form with translations.
      *
-     * @param object|null $resource
+     * @param null   $resource
+     * @param string $locale
      *
-     * @return FormInterface
+     * @return \Symfony\Component\Form\Form|\Symfony\Component\Form\FormInterface
      */
-    public function getForm($resource = null, Request $request)
+    public function getForm($resource = null, $locale = 'en')
     {
         $formName = $this->config->getFormType();
         $prefix = 'pumukitnewadmin_';
         $formType = 'Pumukit\\NewAdminBundle\\Form\\Type\\'.ucfirst(substr($formName, strlen($prefix))).'Type';
 
         $translator = $this->get('translator');
-        $locale = $request->getLocale();
 
         $form = $this->createForm(new $formType($translator, $locale), $resource);
 
