@@ -115,7 +115,6 @@ EOT
                 if (0 == $row % 100) {
                     echo 'Row '.$row."\n";
                 }
-
                 ++$row;
             }
             fclose($file);

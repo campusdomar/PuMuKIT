@@ -24,7 +24,6 @@ class ChannelController extends Controller implements WebTVControllerInterface
     public function seriesAction($channelNumber)
     {
         $numberCols = $this->container->getParameter('columns_objs_bytag');
-        $limit = $this->container->getParameter('limit_objs_bytag');
 
         $channelService = $this->get('pumukit_web_tv.channels');
         $channelTitle = $channelService->getChannelTitle($channelNumber);

@@ -56,7 +56,6 @@
             <argument type="service" id="pumukitschema.person" />
             <argument type="service" id="pumukitschema.user" />
             <argument type="service" id="pumukitschema.embeddedbroadcast" />
-            <argument type="service" id="pumukitschema.series" />
             <argument type="service" id="pumukitschema.multimediaobject_dispatcher" />
             <argument type="service" id="pumukitschema.series_dispatcher" />
             <argument type="service" id="translator" />
@@ -213,7 +212,6 @@
             <argument type="service" id="pumukitschema.user_dispatcher" />
             <argument type="service" id="pumukitschema.permission"/>
             <argument type="service" id="pumukitschema.permissionprofile"/>
-            <argument>%pumukitschema.personal_scope_delete_owners%</argument>
         </service>
 
         <service id="pumukitschema.group" class="Pumukit\SchemaBundle\Services\GroupService">
@@ -247,7 +245,6 @@
             <argument type="service" id="pumukitschema.multimediaobject_dispatcher" />
             <argument type="service" id="security.authorization_checker" />
             <argument type="service" id="templating" />
-            <argument type="service" id="router" />
             <argument>%pumukit_new_admin.disable_broadcast_creation%</argument>
         </service>
 

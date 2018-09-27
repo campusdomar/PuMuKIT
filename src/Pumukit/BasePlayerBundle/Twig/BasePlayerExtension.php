@@ -15,12 +15,10 @@ class BasePlayerExtension extends \Twig_Extension
      */
     protected $context;
 
-    private $dm;
     private $trackService;
 
-    public function __construct(DocumentManager $documentManager, RequestContext $context, TrackUrlService $trackService)
+    public function __construct(RequestContext $context, TrackUrlService $trackService)
     {
-        $this->dm = $documentManager;
         $this->context = $context;
         $this->trackService = $trackService;
     }

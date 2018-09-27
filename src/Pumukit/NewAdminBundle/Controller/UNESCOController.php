@@ -346,7 +346,6 @@ class UNESCOController extends Controller implements NewAdminControllerInterface
             'mm' => $multimediaObject,
             'form_meta' => $formMeta->createView(),
             'form_pub' => $formPub->createView(),
-            //'series' => $series,
             'roles' => $roles,
             'personal_scope_role' => $personalScopeRole,
             'personal_scope_role_code' => $personalScopeRoleCode,
