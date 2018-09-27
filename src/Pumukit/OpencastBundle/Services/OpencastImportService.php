@@ -135,7 +135,7 @@ class OpencastImportService
     public function getOpencastUrls($opencastId = '')
     {
         $opencastUrls = array();
-        if (null != $opencastId) {
+        if (null === $opencastId) {
             try {
                 $archiveMediaPackage = $this->opencastClient->getMediapackageFromArchive($opencastId);
             } catch (\Exception $e) {
