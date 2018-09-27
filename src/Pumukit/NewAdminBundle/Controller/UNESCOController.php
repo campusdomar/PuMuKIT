@@ -308,7 +308,6 @@ class UNESCOController extends Controller implements NewAdminControllerInterface
 
         $parentTags = $factoryService->getParentTags();
 
-        //$multimediaObject = $this->findOr404($request);
         $translator = $this->get('translator');
         $locale = $request->getLocale();
         $formMeta = $this->createForm(MultimediaObjectMetaType::class, $multimediaObject, array('translator' => $translator, 'locale' => $locale));
@@ -451,7 +450,6 @@ class UNESCOController extends Controller implements NewAdminControllerInterface
         $groups = $this->getAllGroups();
 
         return array(
-            //'form' => $form->createView(),
             'disable_pudenew' => $disablePudenew,
             'groups' => $groups,
             'genre' => $aGenre,

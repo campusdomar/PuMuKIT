@@ -209,7 +209,7 @@ class MultimediaObjectService
     {
         $qb = $this->seriesRepo->createQueryBuilder()->field('playlist.multimedia_objects')->equals(new \MongoId($multimediaObject->getId()));
         //Doing some variation of this should work as well. (Not this code particularly).
-        //$qb = $this->seriesRepo->createQueryBuilder()->field('playlist.multimedia_objects')->pullAll(array(new \MongoId($multimediaObject->getId())));
+        //Example: $qb = $this->seriesRepo->createQueryBuilder()->field('playlist.multimedia_objects')->pullAll(array(new \MongoId($multimediaObject->getId())));
         $playlists = $qb->getQuery()->execute();
         foreach ($playlists as $playlist) {
             $playlist->getPlaylist()->removeAllMultimediaObjectsById($multimediaObject->getId());
