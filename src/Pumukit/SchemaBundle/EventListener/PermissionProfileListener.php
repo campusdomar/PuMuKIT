@@ -11,13 +11,11 @@ class PermissionProfileListener
 {
     private $userService;
     private $dm;
-    private $logger;
 
-    public function __construct(DocumentManager $dm, UserService $userService, LoggerInterface $logger)
+    public function __construct(DocumentManager $dm, UserService $userService)
     {
         $this->dm = $dm;
         $this->userService = $userService;
-        $this->logger = $logger;
     }
 
     /**

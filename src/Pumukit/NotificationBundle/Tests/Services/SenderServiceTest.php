@@ -45,9 +45,8 @@ class SenderServiceTest extends WebTestCase
         $this->adminEmail = 'admin@pumukit.org';
         $this->notificateErrorsToAdmin = true;
         $this->platformName = 'Pumukit tv';
-        $this->environment = 'dev';
 
-        $this->senderService = new SenderService($this->mailer, $this->templating, $this->translator, $this->dm, $this->enable, $this->senderEmail, $this->senderName, $this->enableMultiLang, $this->locales, $this->subjectSuccessTrans, $this->subjectFailsTrans, $this->adminEmail, $this->notificateErrorsToAdmin, $this->platformName, $this->environment);
+        $this->senderService = new SenderService($this->mailer, $this->templating, $this->translator, $this->dm, $this->enable, $this->senderEmail, $this->senderName, $this->enableMultiLang, $this->locales, $this->subjectSuccessTrans, $this->subjectFailsTrans, $this->adminEmail, $this->notificateErrorsToAdmin, $this->platformName);
     }
 
     public function tearDown()
@@ -65,7 +64,6 @@ class SenderServiceTest extends WebTestCase
         $this->adminEmail = null;
         $this->notificateErrorsToAdmin = null;
         $this->platformName = null;
-        $this->environment = null;
         $this->senderService = null;
         gc_collect_cycles();
         parent::tearDown();

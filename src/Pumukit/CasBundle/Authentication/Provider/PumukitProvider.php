@@ -21,17 +21,19 @@ class PumukitProvider implements AuthenticationProviderInterface
     private $userProvider;
     private $providerKey;
     private $userChecker;
-    private $container;
     private $createUsers;
     private $CASUserService;
 
-    public function __construct(UserProviderInterface $userProvider, $providerKey, UserCheckerInterface $userChecker, ContainerInterface $container, CASUserService $CASUserService, $createUsers = true)
-    {
+    public function __construct(
+        UserProviderInterface $userProvider,
+        $providerKey,
+        UserCheckerInterface $userChecker,
+        CASUserService $CASUserService,
+        $createUsers = true
+    ) {
         $this->userProvider = $userProvider;
         $this->providerKey = $providerKey;
         $this->userChecker = $userChecker;
-        //NOTE: using container instead of tag service to avoid ServiceCircularReferenceException.
-        $this->container = $container;
         $this->createUsers = $createUsers;
         $this->CASUserService = $CASUserService;
     }

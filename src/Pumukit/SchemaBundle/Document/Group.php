@@ -270,6 +270,26 @@ class Group implements GroupInterface
     }
 
     /**
+     * Set locale.
+     *
+     * @param string $locale
+     */
+    public function setLocale($locale)
+    {
+        $this->locale = $locale;
+    }
+
+    /**
+     * Get locale.
+     *
+     * @return string
+     */
+    public function getLocale()
+    {
+        return $this->locale;
+    }
+
+    /**
      * To string.
      *
      * @return string

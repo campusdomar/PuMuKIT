@@ -480,7 +480,7 @@ class EmbeddedTag
      *
      * @return EmbeddedTag
      */
-    public static function getEmbeddedTag($embedTags, $tag)
+    public static function getEmbeddedTag($tag)
     {
         if ($tag instanceof self) {
             return $tag;

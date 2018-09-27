@@ -125,6 +125,14 @@ class Message
     }
 
     /**
+     * @return string $multimediaObject
+     */
+    public function getMultimediaObject($multimediaObject)
+    {
+        return $this->multimediaObject;
+    }
+
+    /**
      * @return string
      */
     public function getChannel()

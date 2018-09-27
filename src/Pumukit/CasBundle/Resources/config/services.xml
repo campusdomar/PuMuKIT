@@ -18,7 +18,6 @@
             <argument/>  <!-- UserProvider -->
             <argument/>  <!-- providerKey -->
             <argument type="service" id="security.user_checker"/>
-            <argument type="service" id="service_container"/>
             <argument type="service" id="pumukit.casuserservice"/>
             <argument>%pumukit_security.create_users%</argument>
             <!--<call method="setUserService"><argument type="service" id="pumukitschema.user" /></call>-->

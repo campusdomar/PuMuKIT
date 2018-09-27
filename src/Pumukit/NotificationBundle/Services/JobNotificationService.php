@@ -127,7 +127,7 @@ class JobNotificationService
      *
      * @return string
      */
-    protected function getMessage(Job $job, $error = false)
+    protected function getMessage($error = false)
     {
         if ($error) {
             return $this->subjectFails;
@@ -146,7 +146,7 @@ class JobNotificationService
      */
     protected function getSubjectEmailInParameters(Job $job, $error = false)
     {
-        $message = $this->getMessage($job, $error);
+        $message = $this->getMessage($error);
         $subject = ($this->senderService->getPlatformName() ? $this->senderService->getPlatformName().': ' : '').$message;
 
         return $subject;

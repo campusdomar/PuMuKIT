@@ -50,7 +50,7 @@ class PicExtractorListenerTest extends WebTestCase
         $picExtractorService->expects($this->any())
             ->method('extractPic')
             ->will($this->returnValue('success'));
-        $this->picExtractorListener = new PicExtractorListener($this->dm, $mmsPicService, $picExtractorService, $this->logger, $this->autoExtractPic);
+        $this->picExtractorListener = new PicExtractorListener($this->dm, $picExtractorService, $this->logger, $this->autoExtractPic);
     }
 
     public function tearDown()
@@ -149,7 +149,7 @@ class PicExtractorListenerTest extends WebTestCase
         $picExtractorService->expects($this->any())
             ->method('extractPic')
             ->will($this->returnValue('Error'));
-        $picExtractorListener = new PicExtractorListener($this->dm, $mmsPicService, $picExtractorService, $this->logger, $this->autoExtractPic);
+        $picExtractorListener = new PicExtractorListener($this->dm, $picExtractorService, $this->logger, $this->autoExtractPic);
 
         $series = $this->factoryService->createSeries();
         $mm = $this->factoryService->createMultimediaObject($series);
@@ -187,7 +187,7 @@ class PicExtractorListenerTest extends WebTestCase
         $picExtractorService->expects($this->any())
             ->method('extractPic')
             ->will($this->returnValue('success'));
-        $picExtractorListener = new PicExtractorListener($this->dm, $mmsPicService, $picExtractorService, $this->logger, $this->autoExtractPic);
+        $picExtractorListener = new PicExtractorListener($this->dm, $picExtractorService, $this->logger, $this->autoExtractPic);
 
         $series = $this->factoryService->createSeries();
         $mm = $this->factoryService->createMultimediaObject($series);
