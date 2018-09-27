@@ -42,8 +42,6 @@ class EmbeddedBroadcastServiceTest extends WebTestCase
             ->get('security.authorization_checker');
         $this->templating = static::$kernel->getContainer()
             ->get('templating');
-        $this->router = static::$kernel->getContainer()
-            ->get('router');
 
         $this->dm->getDocumentCollection(MultimediaObject::class)->remove(array());
         $this->dm->getDocumentCollection(Group::class)->remove(array());
@@ -61,14 +59,13 @@ class EmbeddedBroadcastServiceTest extends WebTestCase
         $this->dispatcher = null;
         $this->authorizationChecker = null;
         $this->templating = null;
-        $this->router = null;
         gc_collect_cycles();
         parent::tearDown();
     }
 
     public function testCreateEmbeddedBroadcastByType()
     {
-        $embeddedBroadcastService = new EmbeddedBroadcastService($this->dm, $this->mmsService, $this->dispatcher, $this->authorizationChecker, $this->templating, $this->router, false);
+        $embeddedBroadcastService = new EmbeddedBroadcastService($this->dm, $this->mmsService, $this->dispatcher, $this->authorizationChecker, $this->templating, false);
         $passwordBroadcast = $embeddedBroadcastService->createEmbeddedBroadcastByType(EmbeddedBroadcast::TYPE_PASSWORD);
         $ldapBroadcast = $embeddedBroadcastService->createEmbeddedBroadcastByType(EmbeddedBroadcast::TYPE_LOGIN);
         $groupsBroadcast = $embeddedBroadcastService->createEmbeddedBroadcastByType(EmbeddedBroadcast::TYPE_GROUPS);
@@ -154,7 +151,7 @@ class EmbeddedBroadcastServiceTest extends WebTestCase
 
     public function testGetAllBroadcastTypes()
     {
-        $embeddedBroadcastService = new EmbeddedBroadcastService($this->dm, $this->mmsService, $this->dispatcher, $this->authorizationChecker, $this->templating, $this->router, false);
+        $embeddedBroadcastService = new EmbeddedBroadcastService($this->dm, $this->mmsService, $this->dispatcher, $this->authorizationChecker, $this->templating, false);
         $broadcasts = array(
                             EmbeddedBroadcast::TYPE_PUBLIC => EmbeddedBroadcast::NAME_PUBLIC,
                             EmbeddedBroadcast::TYPE_PASSWORD => EmbeddedBroadcast::NAME_PASSWORD,
@@ -163,7 +160,7 @@ class EmbeddedBroadcastServiceTest extends WebTestCase
                             );
         $this->assertEquals($broadcasts, $embeddedBroadcastService->getAllTypes());
 
-        $embeddedBroadcastService = new EmbeddedBroadcastService($this->dm, $this->mmsService, $this->dispatcher, $this->authorizationChecker, $this->templating, $this->router, true);
+        $embeddedBroadcastService = new EmbeddedBroadcastService($this->dm, $this->mmsService, $this->dispatcher, $this->authorizationChecker, $this->templating, true);
         $broadcasts = array(
                             EmbeddedBroadcast::TYPE_PUBLIC => EmbeddedBroadcast::NAME_PUBLIC,
                             EmbeddedBroadcast::TYPE_LOGIN => EmbeddedBroadcast::NAME_LOGIN,
@@ -174,7 +171,7 @@ class EmbeddedBroadcastServiceTest extends WebTestCase
 
     public function testCreatePublicEmbeddedBroadcast()
     {
-        $embeddedBroadcastService = new EmbeddedBroadcastService($this->dm, $this->mmsService, $this->dispatcher, $this->authorizationChecker, $this->templating, $this->router, false);
+        $embeddedBroadcastService = new EmbeddedBroadcastService($this->dm, $this->mmsService, $this->dispatcher, $this->authorizationChecker, $this->templating, false);
         $publicBroadcast = $embeddedBroadcastService->createPublicEmbeddedBroadcast();
         $this->assertEquals(EmbeddedBroadcast::TYPE_PUBLIC, $publicBroadcast->getType());
         $this->assertEquals(EmbeddedBroadcast::NAME_PUBLIC, $publicBroadcast->getName());
@@ -515,7 +512,7 @@ class EmbeddedBroadcastServiceTest extends WebTestCase
             ->method('render')
             ->will($this->returnValue($content));
 
-        $embeddedBroadcastService = new EmbeddedBroadcastService($this->dm, $this->mmsService, $this->dispatcher, $authorizationChecker, $templating, $this->router, false);
+        $embeddedBroadcastService = new EmbeddedBroadcastService($this->dm, $this->mmsService, $this->dispatcher, $authorizationChecker, $templating, false);
 
         $response = $embeddedBroadcastService->canUserPlayMultimediaObject($mm, null, '');
         $this->assertTrue($response instanceof Response);
@@ -534,7 +531,7 @@ class EmbeddedBroadcastServiceTest extends WebTestCase
             ->method('isGranted')
             ->will($this->returnValue(true));
 
-        $embeddedBroadcastService = new EmbeddedBroadcastService($this->dm, $this->mmsService, $this->dispatcher, $authorizationChecker, $templating, $this->router, false);
+        $embeddedBroadcastService = new EmbeddedBroadcastService($this->dm, $this->mmsService, $this->dispatcher, $authorizationChecker, $templating, false);
 
         $this->assertTrue($embeddedBroadcastService->canUserPlayMultimediaObject($mm, $user, ''));
 
