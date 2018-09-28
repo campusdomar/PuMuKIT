@@ -54,7 +54,7 @@ class TrackServiceTest extends WebTestCase
         $this->dm->flush();
 
         $profileService = new ProfileService($this->getDemoProfiles(), $this->dm);
-        $this->trackService = new TrackService($this->dm, $this->trackDispatcher, $profileService, null, true);
+        $this->trackService = new TrackService($this->dm, $this->trackDispatcher, null, true);
 
         $this->tmpDir = $this->trackService->getTempDirs()[0];
     }

@@ -38,6 +38,7 @@ class JobGeneratorListenerTest extends WebTestCase
                               'videoHD' => array('target' => 'TAGP, TAGFP*', 'resolution_hor' => 1920, 'resolution_ver' => 1024, 'audio' => false, 'streamserver' => $streamserver),
                               'audio' => array('target' => 'TAGA TAGC', 'resolution_hor' => 0, 'resolution_ver' => 0, 'audio' => true, 'streamserver' => $streamserver),
                               'audio2' => array('target' => 'TAGB*, TAGC', 'resolution_hor' => 0, 'resolution_ver' => 0, 'audio' => true, 'streamserver' => $streamserver), );
+        $profileService = new ProfileService($testProfiles, $this->dm);
 
         $jobService = $this->getMockBuilder('Pumukit\EncoderBundle\Services\JobService')
                           ->disableOriginalConstructor()
@@ -50,7 +51,7 @@ class JobGeneratorListenerTest extends WebTestCase
                        ->disableOriginalConstructor()
                        ->getMock();
 
-        $this->jobGeneratorListener = new JobGeneratorListener($this->dm, $jobService, $this->logger);
+        $this->jobGeneratorListener = new JobGeneratorListener($this->dm, $jobService, $profileService, $this->logger);
 
         $dispatcher = new EventDispatcher();
         $this->listener = new MultimediaObjectListener($this->dm);
