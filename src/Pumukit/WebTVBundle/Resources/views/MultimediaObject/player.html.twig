@@ -2,7 +2,11 @@
     function resizeFrame(elem) {
         var width = $(elem).width();
         var height = width / 16 * 9;
-        $(elem).height(height);
+        {% if multimediaObject.isMultistream() %}
+            $(elem).height(height + 118);
+        {% else %}
+            $(elem).height(height);
+        {% endif %}
     }
 
     $(window).resize(function () {
