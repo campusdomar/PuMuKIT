@@ -87,17 +87,6 @@ class Series
     private $series_style;
 
     /**
-     * Legacy: It is kept for compatibility issues.
-     *
-     * @var ArrayCollection
-     * @MongoDB\ReferenceMany(targetDocument="MultimediaObject", mappedBy="series",
-     *                                                           repositoryMethod="findWithoutPrototype",
-     *                                                           sort={"rank"=1}, simple=true, orphanRemoval=true)
-     * @Serializer\Exclude
-     */
-    private $multimedia_objects;
-
-    /**
      * @var ArrayCollection
      * @MongoDB\EmbedOne(targetDocument="Playlist")
      * @Serializer\Exclude
@@ -200,7 +189,6 @@ class Series
     {
         $this->secret = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
         $this->hide = false;
-        $this->multimedia_objects = new ArrayCollection();
         $this->playlist = new Playlist();
         $this->__PicConstruct();
     }
@@ -351,6 +339,8 @@ class Series
      */
     public function containsMultimediaObject(MultimediaObject $multimedia_object)
     {
+        //TODO:
+        throw new \Exception("PMK2.5 PHP7 use service");
         return $this->multimedia_objects->contains($multimedia_object);
     }
 
@@ -361,6 +351,7 @@ class Series
      */
     public function addMultimediaObject(MultimediaObject $multimedia_object)
     {
+        throw new \Exception("PMK2.5 PHP7 use service");
         return $this->multimedia_objects->add($multimedia_object);
     }
 
@@ -371,6 +362,7 @@ class Series
      */
     public function removeMultimediaObject(MultimediaObject $multimedia_object)
     {
+        throw new \Exception("PMK2.5 PHP7 use service");
         $this->multimedia_objects->removeElement($multimedia_object);
     }
 
@@ -381,6 +373,7 @@ class Series
      */
     public function getMultimediaObjects()
     {
+        throw new \Exception("PMK2.5 PHP7 use service");
         return $this->multimedia_objects;
     }
 
@@ -871,6 +864,7 @@ class Series
      */
     public function containsMultimediaObjectWithTag(Tag $tag)
     {
+        throw new \Exception("PMK2.5 PHP7 use service");
         foreach ($this->multimedia_objects as $mmo) {
             if ($mmo->containsTag($tag)) {
                 return true;
@@ -889,8 +883,8 @@ class Series
      */
     public function getMultimediaObjectsWithTag(Tag $tag)
     {
+        throw new \Exception("PMK2.5 PHP7 use service");
         $r = array();
-
         foreach ($this->multimedia_objects as $mmo) {
             if ($mmo->containsTag($tag)) {
                 $r[] = $mmo;
@@ -909,6 +903,7 @@ class Series
      */
     public function getMultimediaObjectWithTag(Tag $tag)
     {
+        throw new \Exception("PMK2.5 PHP7 use service");
         foreach ($this->multimedia_objects as $mmo) {
             if ($mmo->containsTag($tag)) {
                 return $mmo;
@@ -927,6 +922,7 @@ class Series
      */
     public function getMultimediaObjectsWithAllTags(array $tags)
     {
+        throw new \Exception("PMK2.5 PHP7 use service");
         $r = array();
         foreach ($this->multimedia_objects as $mmo) {
             if ($mmo->containsAllTags($tags)) {
@@ -946,6 +942,7 @@ class Series
      */
     public function getMultimediaObjectWithAllTags(array $tags)
     {
+        throw new \Exception("PMK2.5 PHP7 use service");
         foreach ($this->multimedia_objects as $mmo) {
             if ($mmo->containsAllTags($tags)) {
                 return $mmo;
@@ -964,8 +961,8 @@ class Series
      */
     public function getMultimediaObjectsWithAnyTag(array $tags)
     {
+        throw new \Exception("PMK2.5 PHP7 use service");
         $r = array();
-
         foreach ($this->multimedia_objects as $mmo) {
             if ($mmo->containsAnyTag($tags)) {
                 $r[] = $mmo;
@@ -984,6 +981,7 @@ class Series
      */
     public function getMultimediaObjectWithAnyTag(array $tags)
     {
+        throw new \Exception("PMK2.5 PHP7 use service");
         foreach ($this->multimedia_objects as $mmo) {
             if ($mmo->containsAnyTag($tags)) {
                 return $mmo;
@@ -1005,8 +1003,8 @@ class Series
      */
     public function getFilteredMultimediaObjectsWithTags(array $any_tags = array(), array $all_tags = array(), array $not_any_tags = array(), array $not_all_tags = array())
     {
+        throw new \Exception("PMK2.5 PHP7 use service");
         $r = array();
-
         foreach ($this->multimedia_objects as $mmo) {
             if ($any_tags && !$mmo->containsAnyTag($any_tags)) {
                 continue;
