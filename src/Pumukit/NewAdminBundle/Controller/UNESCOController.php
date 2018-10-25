@@ -154,7 +154,7 @@ class UNESCOController extends Controller implements NewAdminController
             $element_sort = $session->get('admin/unesco/element_sort');
             $sortType = $session->get('admin/unesco/type');
 
-            if ($sortType == 'score') {
+            if ('score' == $sortType) {
                 $multimediaObjects->sortMeta('score', 'textScore');
             } else {
                 $multimediaObjects->sort($element_sort, $sortType);
