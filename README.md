@@ -1,3 +1,5 @@
+[![Docker Repository on Quay](https://quay.io/repository/pnieto/pumukit2/status "Docker Repository on Quay")](https://quay.io/repository/pnieto/pumukit2)
+
 PuMuKIT-2
 =========
 
