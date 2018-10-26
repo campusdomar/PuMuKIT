@@ -143,7 +143,7 @@ class MultimediaObjectPicServiceTest extends WebTestCase
             $pic = $mm->getPics()[0];
             $this->assertTrue($mm->containsPic($pic));
 
-            $uploadedPic = '/uploads/pic/'.$mm->getId().DIRECTORY_SEPARATOR.$picFile->getClientOriginalName();
+            $uploadedPic = '/uploads/pic/series/'.$mm->getSeries()->getId().'/video/'.$mm->getId().DIRECTORY_SEPARATOR.$picFile->getClientOriginalName();
             $this->assertEquals($uploadedPic, $pic->getUrl());
         }
 
@@ -172,7 +172,7 @@ class MultimediaObjectPicServiceTest extends WebTestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage for storing Pics does not exist
      */
     public function testInvalidTargetPath()

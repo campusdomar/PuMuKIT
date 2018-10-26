@@ -18,74 +18,74 @@ class Annotation
      */
     private $id;
 
-/**
- * @var object_id
- *
- * @MongoDB\ObjectId
- */
+    /**
+     * @var object_id
+     *
+     * @MongoDB\Field(type="object_id")
+     */
     //This field would be the equivalent to 'mediapackage_id' on opencast.
     private $multimediaObject;
 
     /**
      * @var date
      *
-     * @MongoDB\Date
+     * @MongoDB\Field(type="date")
      */
     private $created;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $type;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $user_id;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $session;
 
     /**
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $inpoint;
 
     /**
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $outpoint;
 
     /**
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $length;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $value;
 
     /**
      * @var bool
      *
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $is_private;
 

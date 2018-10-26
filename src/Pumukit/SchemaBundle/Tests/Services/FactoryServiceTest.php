@@ -9,6 +9,7 @@ use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Role;
 use Pumukit\SchemaBundle\Document\Tag;
 use Pumukit\SchemaBundle\Document\Person;
+use Pumukit\SchemaBundle\Services\FactoryService;
 
 class FactoryServiceTest extends WebTestCase
 {
@@ -67,10 +68,10 @@ class FactoryServiceTest extends WebTestCase
 
         $this->assertEquals(1, count($this->seriesRepo->findAll()));
         $this->assertEquals(1, count($this->mmobjRepo->findAll()));
-        $this->assertEquals(1, count($this->mmobjRepo->findAll()[0]->getSeries()));
+        $this->assertEquals($series, $this->mmobjRepo->findAll()[0]->getSeries());
         //NOTE getMultimediaObjects gives us all multimedia objects in the series except prototype
-        $this->assertEquals(0, count($this->seriesRepo->findAll()[0]->getMultimediaObjects()));
         $this->assertEquals($series, $this->seriesRepo->findAll()[0]);
+        $this->assertEquals(0, count($this->seriesRepo->getMultimediaObjects($series)));
 
         //NOTE series.multimedia_objects have diferent internal initialized value.
         //$this->assertEquals($series, $this->mmobjRepo->findAll()[0]->getSeries());
@@ -84,16 +85,14 @@ class FactoryServiceTest extends WebTestCase
         $mmobj = $this->factory->createMultimediaObject($series);
 
         $this->assertEquals(1, count($this->seriesRepo->findAll()));
-        $this->assertEquals($series, $this->seriesRepo->findAll()[0]);
         $this->assertEquals(2, count($this->mmobjRepo->findAll()));
-        $this->assertEquals(1, count($this->mmobjRepo->findAll()[0]->getSeries()));
+        $this->assertEquals($series, $this->seriesRepo->findAll()[0]);
         $this->assertEquals($series->getId(), $this->mmobjRepo->findAll()[0]->getSeries()->getId());
-        $this->assertEquals(1, count($this->mmobjRepo->find($mmobj->getId())->getSeries()));
         $this->assertEquals($series->getId(), $this->mmobjRepo->find($mmobj->getId())->getSeries()->getId());
 
         $this->assertEquals(1, count($this->mmobjRepo->findWithoutPrototype($series)));
-        $this->assertEquals(1, count($this->seriesRepo->findAll()[0]->getMultimediaObjects()));
-        $this->assertEquals($mmobj, $this->seriesRepo->findAll()[0]->getMultimediaObjects()->toArray()[0]);
+        $this->assertEquals(1, count($this->seriesRepo->getMultimediaObjects($series)));
+        $this->assertEquals($mmobj, $this->seriesRepo->getMultimediaObjects($series)->getSingleResult());
 
         $this->assertEquals($mmobj->getStatus(), MultimediaObject::STATUS_BLOCKED);
     }
@@ -352,5 +351,25 @@ class FactoryServiceTest extends WebTestCase
         }
         $this->assertEquals(count($new->getRoles()), count($src->getRoles()));
         $this->assertEquals(count($new->getTags()), count($src->getTags()));
+    }
+
+    public function testGetDefaultMultimediaObjectI18nTitle()
+    {
+        $i18nTitle = array();
+        foreach ($this->factory->getLocales() as $locale) {
+            $i18nTitle[$locale] = FactoryService::DEFAULT_MULTIMEDIAOBJECT_TITLE;
+        }
+
+        $this->assertEquals($i18nTitle, $this->factory->getDefaultMultimediaObjectI18nTitle());
+    }
+
+    public function testGetDefaultSeriesI18nTitle()
+    {
+        $i18nTitle = array();
+        foreach ($this->factory->getLocales() as $locale) {
+            $i18nTitle[$locale] = FactoryService::DEFAULT_SERIES_TITLE;
+        }
+
+        $this->assertEquals($i18nTitle, $this->factory->getDefaultSeriesI18nTitle());
     }
 }

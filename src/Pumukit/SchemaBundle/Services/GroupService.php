@@ -101,9 +101,9 @@ class GroupService
      * @param Group $group
      * @param bool  $executeFlush
      */
-    public function delete(Group $group, $executeFlush = true)
+    public function delete(Group $group, $executeFlush = true, $checkOrigin = true)
     {
-        if (!$this->canBeDeleted($group)) {
+        if (!$this->canBeDeleted($group, $checkOrigin)) {
             throw new \Exception('Not allowed to delete Group "'.$group->getKey().'": is external Group and/or has existent relations with users and multimedia objects.');
         }
         $this->dm->remove($group);
@@ -121,9 +121,9 @@ class GroupService
      *
      * @return bool
      */
-    public function canBeDeleted(Group $group)
+    public function canBeDeleted(Group $group, $checkOrigin = true)
     {
-        if (!$group->isLocal()) {
+        if ($checkOrigin && !$group->isLocal()) {
             return false;
         }
         if (0 < $this->countUsersInGroup($group)) {
@@ -293,12 +293,15 @@ class GroupService
      *
      * @return Cursor
      */
-    public function findUsersInGroup(Group $group, $sort = array())
+    public function findUsersInGroup(Group $group, $sort = array(), $limit = 0)
     {
         $qb = $this->userRepo->createQueryBuilder()
             ->field('groups')->equals($group->getId());
         if (0 !== count($sort)) {
             $qb->sort($sort);
+        }
+        if ($limit > 0) {
+            $qb->limit($limit);
         }
 
         return $qb->getQuery()

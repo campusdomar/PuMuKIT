@@ -5,8 +5,6 @@ namespace Pumukit\SchemaBundle\Tests\Services;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\SchemaBundle\Document\Person;
 use Pumukit\SchemaBundle\Document\Role;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\User;
 
 class PersonServiceTest extends WebTestCase
@@ -215,6 +213,11 @@ class PersonServiceTest extends WebTestCase
         $roleActor->setCod($newActorCode);
 
         $roleActor = $this->personService->updateRole($roleActor);
+
+        $this->dm->refresh($mm1);
+        $this->dm->refresh($mm2);
+        $this->dm->refresh($mm3);
+
         $this->assertEquals($newActorCode, $this->roleRepo->find($roleActor->getId())->getCod());
         $this->assertEquals($newActorCode, $mm1->getEmbeddedRole($roleActor)->getCod());
         $this->assertEquals($newActorCode, $mm2->getEmbeddedRole($roleActor)->getCod());
@@ -224,6 +227,11 @@ class PersonServiceTest extends WebTestCase
         $rolePresenter->setCod($newPresenterCode);
 
         $rolePresenter = $this->personService->updateRole($rolePresenter);
+
+        $this->dm->refresh($mm1);
+        $this->dm->refresh($mm2);
+        $this->dm->refresh($mm3);
+
         $this->assertEquals($newPresenterCode, $this->roleRepo->find($rolePresenter->getId())->getCod());
         $this->assertEquals($newPresenterCode, $mm1->getEmbeddedRole($rolePresenter)->getCod());
         $this->assertEquals($newPresenterCode, $mm2->getEmbeddedRole($rolePresenter)->getCod());
@@ -545,7 +553,7 @@ class PersonServiceTest extends WebTestCase
         $this->dm->persist($mm1);
         $this->dm->flush();
 
-        $this->assertEquals(1, count($this->personService->countMultimediaObjectsWithPerson($personJohn)));
+        $this->assertEquals(1, $this->personService->countMultimediaObjectsWithPerson($personJohn));
     }
 
     public function testUpAndDownPersonWithRole()
@@ -639,7 +647,7 @@ class PersonServiceTest extends WebTestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      * @expectedExceptionMessage remove Person with id
      */
     public function testDeletePerson()

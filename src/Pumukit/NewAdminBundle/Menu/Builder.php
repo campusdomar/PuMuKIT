@@ -36,9 +36,15 @@ class Builder extends ContainerAware
             $series->addChild('Multimedia', array('route' => 'pumukitnewadmin_mms_index'));
             $series->setDisplayChildren(false);
 
-            $mmslist = $mediaManager->addChild($this->container->getParameter('pumukit_new_admin.multimedia_object_label'), array('route' => 'pumukitnewadmin_mms_indexall'));
-            $mmslist->addChild('Multimedia', array('route' => 'pumukitnewadmin_mms_indexall'));
-            $mmslist->setDisplayChildren(false);
+            $activeMmsListAll = $this->container->getParameter('pumukit2.show_mms_list_all_menu');
+            if ($activeMmsListAll) {
+                $mmslist = $mediaManager->addChild($this->container->getParameter('pumukit_new_admin.multimedia_object_label'), array('route' => 'pumukitnewadmin_mms_indexall'));
+                $mmslist->addChild('Multimedia', array('route' => 'pumukitnewadmin_mms_indexall'));
+                $mmslist->setDisplayChildren(false);
+            }
+
+            $unesco = $mediaManager->addChild('UNESCO catalogue', array('route' => 'pumukitnewadmin_unesco_index'));
+            $unesco->setDisplayChildren(false);
         }
         if ($authorizationChecker->isGranted(Permission::ACCESS_EDIT_PLAYLIST)) {
             if (!isset($mediaManager)) {
@@ -63,15 +69,29 @@ class Builder extends ContainerAware
             }
         }
 
-        if ($authorizationChecker->isGranted(Permission::ACCESS_LIVE_EVENTS) || $authorizationChecker->isGranted(Permission::ACCESS_LIVE_CHANNELS)) {
-            $live = $menu->addChild('Live');
-            if ($authorizationChecker->isGranted(Permission::ACCESS_LIVE_CHANNELS)) {
-                $live->addChild('Live Channels', array('route' => 'pumukitnewadmin_live_index'));
+        $advanceLiveEvent = $this->container->hasParameter('pumukit_new_admin.advance_live_event') ? $this->container->getParameter('pumukit_new_admin.advance_live_event') : false;
+        if ($advanceLiveEvent) {
+            if ($authorizationChecker->isGranted(Permission::ACCESS_LIVE_EVENTS) || $authorizationChecker->isGranted(Permission::ACCESS_LIVE_CHANNELS)) {
+                $live = $menu->addChild('Live management');
+                if ($authorizationChecker->isGranted(Permission::ACCESS_LIVE_EVENTS)) {
+                    $live->addChild('Live Events', array('route' => 'pumukit_new_admin_live_event_index'));
+                }
+                if ($authorizationChecker->isGranted(Permission::ACCESS_LIVE_CHANNELS)) {
+                    $live->addChild('Channel configuration', array('route' => 'pumukitnewadmin_live_index'));
+                }
             }
-            if ($authorizationChecker->isGranted(Permission::ACCESS_LIVE_EVENTS)) {
-                $live->addChild('Live Events', array('route' => 'pumukitnewadmin_event_index'));
+        } else {
+            if ($authorizationChecker->isGranted(Permission::ACCESS_LIVE_EVENTS) || $authorizationChecker->isGranted(Permission::ACCESS_LIVE_CHANNELS)) {
+                $live = $menu->addChild('Live');
+                if ($authorizationChecker->isGranted(Permission::ACCESS_LIVE_CHANNELS)) {
+                    $live->addChild('Live Channels', array('route' => 'pumukitnewadmin_live_index'));
+                }
+                if ($authorizationChecker->isGranted(Permission::ACCESS_LIVE_EVENTS)) {
+                    $live->addChild('Live Events', array('route' => 'pumukitnewadmin_event_index'));
+                }
             }
         }
+
         if ($authorizationChecker->isGranted(Permission::ACCESS_JOBS)) {
             $menu->addChild('Encoder jobs', array('route' => 'pumukit_encoder_info'));
         }
@@ -85,6 +105,12 @@ class Builder extends ContainerAware
             if ($authorizationChecker->isGranted(Permission::ACCESS_TAGS)) {
                 $tables->addChild('Tags', array('route' => 'pumukitnewadmin_tag_index'));
             }
+
+            $menuPlaceAndPrecinct = $this->container->hasParameter('pumukit_new_admin.show_menu_place_and_precinct') ? $this->container->getParameter('pumukit_new_admin.show_menu_place_and_precinct') : false;
+            if ($authorizationChecker->isGranted(Permission::ACCESS_TAGS) && $menuPlaceAndPrecinct) {
+                $tables->addChild('Places and precinct', array('route' => 'pumukitnewadmin_places_index'));
+            }
+
             if ($showSeriesTypeTab && $authorizationChecker->isGranted(Permission::ACCESS_SERIES_TYPES)) {
                 $tables->addChild('Series types', array('route' => 'pumukitnewadmin_seriestype_index'));
             }
@@ -113,6 +139,13 @@ class Builder extends ContainerAware
         if ($showImporterTab && $authorizationChecker->isGranted('ROLE_ACCESS_IMPORTER')) {
             $tools = $menu->addChild('Tools');
             $tools->addChild('OC-Importer', array('route' => 'pumukitopencast'));
+        }
+
+        if ($authorizationChecker->isGranted('ROLE_ACCESS_SERIES_STYLE')) {
+            if (!$tools) {
+                $tools = $menu->addChild('Tools');
+            }
+            $tools->addChild('Series style', array('route' => 'pumukit_newadmin_series_styles'));
         }
 
         foreach ($this->container->get('pumukitnewadmin.menu')->items() as $item) {

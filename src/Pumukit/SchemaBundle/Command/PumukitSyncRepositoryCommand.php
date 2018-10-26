@@ -5,7 +5,7 @@ namespace Pumukit\SchemaBundle\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Pumukit\SchemaBundle\Document\Tag;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\EncoderBundle\Document\Job;
 
 class PumukitSyncRepositoryCommand extends ContainerAwareCommand
@@ -46,11 +46,11 @@ EOT
 
         $jobsByStatus = $jobColl->aggregate(array(
             array('$group' => array('_id' => '$status', 'count' => array('$sum' => 1))),
-        ));
+        ), array('cursor' => array()));
         foreach ($jobsByStatus as $jg) {
             if (in_array($jg['_id'], array(Job::STATUS_PAUSED, Job::STATUS_WAITING))) {
                 $jobsPending += $jg['count'];
-            } elseif ($jg['_id'] == Job::STATUS_EXECUTING) {
+            } elseif (Job::STATUS_EXECUTING == $jg['_id']) {
                 $jobsPending = $jg['count'];
             }
         }
@@ -58,12 +58,12 @@ EOT
         $jobsPendingInMmObj = $mmObjColl->aggregate(array(
             array('$unwind' => '$properties.pending_jobs'),
             array('$group' => array('_id' => null, 'count' => array('$sum' => 1))),
-        ))[0]['count'];
+        ), array('cursor' => array()))[0]['count'];
 
         $jobsExecutingInMmObj = $mmObjColl->aggregate(array(
             array('$unwind' => '$properties.executing_jobs'),
             array('$group' => array('_id' => null, 'count' => array('$sum' => 1))),
-        ))[0]['count'];
+        ), array('cursor' => array()))[0]['count'];
 
         if ($jobsPending != $jobsPendingInMmObj) {
             $this->cleanJobsProperties('pending', $output);
@@ -91,6 +91,7 @@ EOT
         $mmObjRepo = $this->dm->getRepository('PumukitSchemaBundle:MultimediaObject');
 
         $pendingJobsId = $jobRepo->createQueryBuilder()
+                       ->hydrate(false)
                        ->select('_id')
                        ->field('status')->in($statuses)
                        ->getQuery()
@@ -101,7 +102,7 @@ EOT
             ->field('properties.'.$type.'_jobs')->exists(true);
 
         if ($pendingJobsId) {
-            $qb->field('properties.'.$type.'_jobs')->notIn($pendingJobsId);
+            $qb->field('properties.'.$type.'_jobs')->notIn(array_keys($pendingJobsId));
         }
 
         $mms = $qb->getQuery()
@@ -110,24 +111,47 @@ EOT
         foreach ($mms as $multimediaObject) {
             $output->writeln('Fixing '.$type.'_jobs of multimedia object '.$multimediaObject->getId());
             $multimediaObject->removeProperty($type.'_jobs');
-            $this->dm->persist($multimediaObject);
-            $this->dm->flush();
         }
+
+        $this->dm->flush();
     }
 
     private function syncTags(InputInterface $input, OutputInterface $output)
     {
-        $tagRepo = $this->getContainer()->get('doctrine_mongodb')->getRepository('PumukitSchemaBundle:Tag');
-        $mmRepo = $this->getContainer()->get('doctrine_mongodb')->getRepository('PumukitSchemaBundle:MultimediaObject');
+        $tagRepo = $this->dm->getRepository('PumukitSchemaBundle:Tag');
+        $mmRepo = $this->dm->getRepository('PumukitSchemaBundle:MultimediaObject');
+        $tagColl = $this->dm->getDocumentCollection('PumukitSchemaBundle:Tag');
+        $mmColl = $this->dm->getDocumentCollection('PumukitSchemaBundle:MultimediaObject');
+
+        $tagsInMMAggResult = $mmColl->aggregate(array(
+            array('$match' => array('islive' => false, 'status' => array('$ne' => MultimediaObject::STATUS_PROTOTYPE))),
+            array('$project' => array('_id' => '$tags.cod')),
+            array('$unwind' => '$_id'),
+            array('$group' => array('_id' => '$_id', 'count' => array('$sum' => 1))),
+        ), array('cursor' => array()));
+
+        $tagsInMM = array();
+        foreach ($tagsInMMAggResult as $i) {
+            $tagsInMM[$i['_id']] = $i['count'];
+        }
+
+        $tagParentsAggResult = $tagColl->aggregate(array(
+            array('$group' => array('_id' => '$parent', 'count' => array('$sum' => 1))),
+        ), array('cursor' => array()));
+
+        $tagParents = array();
+        foreach ($tagParentsAggResult as $i) {
+            $key = (string) $i['_id']['$id'];
+            $tagParents[$key] = $i['count'];
+        }
 
         $tags = $tagRepo->findAll();
         foreach ($tags as $tag) {
-            $mms = $mmRepo->findWithTag($tag);
-            $numOfChildren = $tagRepo->childCount($tag, true);
-            $output->writeln(sprintf('%s: %d mmobj and %d children', $tag->getCod(), count($mms), $numOfChildren));
-            $tag->setNumberMultimediaObjects(count($mms));
+            $countMms = isset($tagsInMM[$tag->getCod()]) ? $tagsInMM[$tag->getCod()] : 0;
+            $numOfChildren = isset($tagParents[$tag->getId()]) ? $tagParents[$tag->getId()] : 0;
+            $output->writeln(sprintf('%s: %d mmobj and %d children', $tag->getCod(), $countMms, $numOfChildren));
+            $tag->setNumberMultimediaObjects($countMms);
             $tag->setNumberOfChildren($numOfChildren);
-            $this->dm->persist($tag);
         }
         $this->dm->flush();
     }

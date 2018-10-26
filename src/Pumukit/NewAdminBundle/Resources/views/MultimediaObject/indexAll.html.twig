@@ -36,7 +36,7 @@
                 </div>
             </div>
             <div class="col-md-2 hidden-xs hidden-sm">
-                {% include 'PumukitNewAdminBundle:MultimediaObject:acordeon.html.twig' with {'roles' : roles} %}
+                {% include 'PumukitNewAdminBundle:MultimediaObject:acordeon.html.twig' with {'roles' : roles, 'statusPub' : statusPub} %}
             </div>
         {% else %}
             <div class="col-md-12">
@@ -47,7 +47,7 @@
         {% endif %}
     </div>
 
-    <div class="modal fade" id="myAuxModal" tabindex="-1" role="dialog" aria-labelledby="myAuxModalLabel" aria-hidden="true">
+    <div class="pmk-modal modal fade" id="myAuxModal" tabindex="-1" role="dialog" aria-labelledby="myAuxModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content"></div>
         </div>
@@ -77,6 +77,11 @@
                 }
             });
             window.mmobjkeywords.initialize();
+
+            window.update_list = function(seriesId)
+            {
+                $('#list_mms').load("{{ path('pumukitnewadmin_mms_listall') }}");
+            }
         </script>
     {% endif %}
 {% endblock %}

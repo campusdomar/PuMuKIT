@@ -6,6 +6,9 @@ use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Track;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Pumukit\BasePlayerBundle\Event\BasePlayerEvents;
 use Pumukit\BasePlayerBundle\Event\ViewedEvent;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -13,22 +16,35 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 class TrackFileController extends Controller
 {
     /**
-     * @Route("/trackfile/{id}.{ext}", name="pumukit_trackfile_index" )
+     * @Route("/trackfile/{id}.{ext}", name="pumukit_trackfile_index")
+     * @Route("/trackfile/{id}", name="pumukit_trackfile_index_no_ext")
+     *
+     * @param $id
+     * @param Request $request
+     *
+     * @return BinaryFileResponse|\Symfony\Component\HttpFoundation\RedirectResponse
+     *
+     * @throws \Exception
      */
     public function indexAction($id, Request $request)
     {
-        $mmobjRepo = $this
-          ->get('doctrine_mongodb.odm.document_manager')
-          ->getRepository('PumukitSchemaBundle:MultimediaObject');
-
-        $mmobj = $mmobjRepo->findOneByTrackId($id);
-        if (!$mmobj) {
-            throw $this->createNotFoundException("Not mmobj found with the track id: $id");
-        }
-        $track = $mmobj->getTrackById($id);
+        list($mmobj, $track) = $this->getMmobjAndTrack($id);
 
         if ($this->shouldIncreaseViews($track, $request)) {
             $this->dispatchViewEvent($mmobj, $track);
+        }
+
+        // Master without url
+        if (!$track->getUrl()) {
+            if ($request->query->getBoolean('forcedl')) {
+                $response = new BinaryFileResponse($track->getPath());
+                $response->trustXSendfileTypeHeader();
+                $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE);
+
+                return $response;
+            } else {
+                throw $this->createNotFoundException("Not mmobj found with the track id: $id");
+            }
         }
 
         if ($secret = $this->container->getParameter('pumukitplayer.secure_secret')) {
@@ -45,6 +61,73 @@ class TrackFileController extends Controller
         }
     }
 
+    /**
+     * @Route("/trackplayed/{id}", name="pumukit_trackplayed_index")
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return JsonResponse
+     *
+     * @throws \Exception
+     */
+    public function trackPlayedAction(Request $request, $id)
+    {
+        list($mmobj, $track) = $this->getMmobjAndTrack($id);
+
+        if ('on_play' != $this->container->getParameter('pumukitplayer.when_dispatch_view_event')) {
+            return new JsonResponse(array('status' => 'error'));
+        }
+
+        if (0 !== strpos($request->headers->get('referer'), $request->getSchemeAndHttpHost())) {
+            return new JsonResponse(array('status' => 'error'));
+        }
+
+        $this->dispatchViewEvent($mmobj, $track);
+
+        return new JsonResponse(array('status' => 'success'));
+    }
+
+    /**
+     * @param $id
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
+    private function getMmobjAndTrack($id)
+    {
+        $mmobjRepo = $this->get('doctrine_mongodb.odm.document_manager')->getRepository('PumukitSchemaBundle:MultimediaObject');
+
+        $mmobj = $mmobjRepo->findOneByTrackId($id);
+        if (!$mmobj) {
+            throw $this->createNotFoundException("Not mmobj found with the track id: $id");
+        }
+
+        $track = $mmobj->getTrackById($id);
+        if ($track->isHide()) {
+            $logger = $this->container->get('logger');
+            $logger->warning('Trying to reproduce an hide track');
+        }
+
+        if (!$this->isGranted('play', $mmobj)) {
+            throw $this->createNotFoundException("Not mmobj found with the public track id: $id");
+        }
+
+        return array(
+            $mmobj,
+            $track,
+        );
+    }
+
+    /**
+     * @param Track $track
+     * @param $timestamp
+     * @param $secret
+     * @param $ip
+     *
+     * @return mixed
+     */
     protected function getHash(Track $track, $timestamp, $secret, $ip)
     {
         $url = $track->getUrl();
@@ -53,23 +136,41 @@ class TrackFileController extends Controller
         return str_replace('=', '', strtr(base64_encode(md5("${timestamp}${path}${ip} ${secret}", true)), '+/', '-_'));
     }
 
+    /**
+     * @param Track   $track
+     * @param Request $request
+     *
+     * @return bool
+     */
     protected function shouldIncreaseViews(Track $track, Request $request)
     {
+        if ('on_load' != $this->container->getParameter('pumukitplayer.when_dispatch_view_event')) {
+            return false;
+        }
+
+        if ($track->containsTag('presentation/delivery')) {
+            return false;
+        }
+
         $range = $request->headers->get('range');
         $start = $request->headers->get('start');
         if (!$range && !$start) {
             return true;
         }
-        if ($range && substr($range, 0, 8) == 'bytes=0-') {
+        if ($range && 'bytes=0-' == substr($range, 0, 8)) {
             return true;
         }
-        if ($start !== null && $start == 0) {
+        if (null !== $start && 0 == $start) {
             return true;
         }
 
         return false;
     }
 
+    /**
+     * @param MultimediaObject $multimediaObject
+     * @param Track|null       $track
+     */
     protected function dispatchViewEvent(MultimediaObject $multimediaObject, Track $track = null)
     {
         $event = new ViewedEvent($multimediaObject, $track);

@@ -4,11 +4,9 @@ namespace Pumukit\WebTVBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Pumukit\SchemaBundle\Document\Track;
 
 class MultimediaObjectController extends PlayerController implements WebTVController
 {
@@ -23,32 +21,39 @@ class MultimediaObjectController extends PlayerController implements WebTVContro
             return $response;
         }
 
-        $track = $request->query->has('track_id') ?
-               $multimediaObject->getTrackById($request->query->get('track_id')) :
-               $multimediaObject->getDisplayTrack();
+        $track = null;
 
-        if (!$track) {
-            throw $this->createNotFoundException();
-        }
+        if ($request->query->has('track_id')) {
+            $track = $multimediaObject->getTrackById($request->query->get('track_id'));
 
-        if ($track->containsTag('download')) {
-            return $this->redirect($track->getUrl());
+            if (!$track) {
+                throw $this->createNotFoundException();
+            }
+
+            if ($track->containsTag('download')) {
+                $url = $track->getUrl();
+                $url .= (parse_url($url, PHP_URL_QUERY) ? '&' : '?').'forcedl=1';
+
+                return $this->redirect($url);
+            }
         }
 
         $this->updateBreadcrumbs($multimediaObject);
 
         $editorChapters = $this->getChapterMarks($multimediaObject);
 
-        return array('autostart' => $request->query->get('autostart', 'true'),
-        'intro' => $this->getIntro($request->query->get('intro')),
-        'multimediaObject' => $multimediaObject,
-        'track' => $track,
-        'editor_chapters' => $editorChapters, );
+        return array(
+            'autostart' => $request->query->get('autostart', 'true'),
+            'intro' => $this->get('pumukit_baseplayer.intro')->getIntroForMultimediaObject($request->query->get('intro'), $multimediaObject->getProperty('intro')),
+            'multimediaObject' => $multimediaObject,
+            'track' => $track,
+            'editor_chapters' => $editorChapters,
+            'cinema_mode' => $this->getParameter('pumukit_web_tv.cinema_mode'),
+        );
     }
 
     /**
      * @Route("/iframe/{id}", name="pumukit_webtv_multimediaobject_iframe" )
-     * @Template()
      */
     public function iframeAction(MultimediaObject $multimediaObject, Request $request)
     {
@@ -66,8 +71,8 @@ class MultimediaObjectController extends PlayerController implements WebTVContro
             if ($mmobjService->hasPlayableResource($multimediaObject) && $multimediaObject->isPublicEmbeddedBroadcast()) {
                 return $this->redirect($this->generateUrl('pumukit_webtv_multimediaobject_index', array('id' => $multimediaObject->getId())));
             }
-        } elseif (($multimediaObject->getStatus() != MultimediaObject::STATUS_PUBLISHED
-                 && $multimediaObject->getStatus() != MultimediaObject::STATUS_HIDE
+        } elseif ((MultimediaObject::STATUS_PUBLISHED != $multimediaObject->getStatus()
+                 && MultimediaObject::STATUS_HIDE != $multimediaObject->getStatus()
                  ) || !$multimediaObject->containsTagWithCod('PUCHWEBTV')) {
             return $this->render('PumukitWebTVBundle:Index:404notfound.html.twig');
         }
@@ -77,27 +82,52 @@ class MultimediaObjectController extends PlayerController implements WebTVContro
             return $response;
         }
 
-        $track = $request->query->has('track_id') ?
-               $multimediaObject->getTrackById($request->query->get('track_id')) :
-               $multimediaObject->getDisplayTrack();
+        $request->attributes->set('noindex', true);
 
-        if ($track && $track->containsTag('download')) {
-            return $this->redirect($track->getUrl());
+        $track = null;
+
+        if ($request->query->has('track_id')) {
+            $track = $multimediaObject->getTrackById($request->query->get('track_id'));
+
+            if (!$track) {
+                throw $this->createNotFoundException();
+            }
+
+            if ($track->containsTag('download')) {
+                $url = $track->getUrl();
+                $url .= (parse_url($url, PHP_URL_QUERY) ? '&' : '?').'forcedl=1';
+
+                return $this->redirect($url);
+            }
         }
 
         $this->updateBreadcrumbs($multimediaObject);
 
-        return array('autostart' => $request->query->get('autostart', 'true'),
-                     'intro' => $this->getIntro($request->query->get('intro')),
-                     'multimediaObject' => $multimediaObject,
-                     'track' => $track,
-                     'magic_url' => true, );
+        $editorChapters = $this->getChapterMarks($multimediaObject);
+
+        return array(
+            'autostart' => $request->query->get('autostart', 'true'),
+            'intro' => $this->get('pumukit_baseplayer.intro')->getIntroForMultimediaObject($request->query->get('intro'), $multimediaObject->getProperty('intro')),
+            'multimediaObject' => $multimediaObject,
+            'track' => $track,
+            'magic_url' => true,
+            'editor_chapters' => $editorChapters,
+            'cinema_mode' => $this->getParameter('pumukit_web_tv.cinema_mode'),
+        );
+    }
+
+    /**
+     * @Route("/iframe/magic/{secret}", name="pumukit_webtv_multimediaobject_magiciframe", defaults={"show_hide": true})
+     */
+    public function magicIframeAction(MultimediaObject $multimediaObject, Request $request)
+    {
+        return $this->forward('PumukitBasePlayerBundle:BasePlayer:magic', array('request' => $request, 'multimediaObject' => $multimediaObject));
     }
 
     /**
      * @Template()
      */
-    public function seriesAction(MultimediaObject $multimediaObject)
+    public function seriesAction(MultimediaObject $multimediaObject, Request $request)
     {
         $series = $multimediaObject->getSeries();
 
@@ -107,10 +137,23 @@ class MultimediaObjectController extends PlayerController implements WebTVContro
 
         $limit = $this->container->getParameter('limit_objs_player_series');
 
-        $multimediaObjects = $mmobjRepo->findWithStatus($series, array(MultimediaObject::STATUS_PUBLISHED), $limit);
+        $referer = $request->headers->get('referer');
+        $secretSeriesUrl = $this->generateUrl('pumukit_webtv_series_magicindex', array('secret' => $series->getSecret()), true);
+        $fromSecret = 0 === strpos($referer, $secretSeriesUrl);
+        $relatedLink = strpos($referer, 'magic');
+        $multimediaObjectMagicUrl = $request->get('magicUrl', false);
 
-        return array('series' => $series,
-                     'multimediaObjects' => $multimediaObjects,
+        $showMagicUrl = ($fromSecret || $relatedLink || $multimediaObjectMagicUrl);
+        $status = ($showMagicUrl) ?
+                array(MultimediaObject::STATUS_PUBLISHED, MultimediaObject::STATUS_HIDDEN) :
+                array(MultimediaObject::STATUS_PUBLISHED);
+
+        $multimediaObjects = $mmobjRepo->findWithStatus($series, $status, $limit);
+
+        return array(
+            'series' => $series,
+            'multimediaObjects' => $multimediaObjects,
+            'showMagicUrl' => $showMagicUrl,
         );
     }
 
@@ -120,8 +163,8 @@ class MultimediaObjectController extends PlayerController implements WebTVContro
     public function relatedAction(MultimediaObject $multimediaObject)
     {
         $mmobjRepo = $this
-        ->get('doctrine_mongodb.odm.document_manager')
-        ->getRepository('PumukitSchemaBundle:MultimediaObject');
+          ->get('doctrine_mongodb.odm.document_manager')
+          ->getRepository('PumukitSchemaBundle:MultimediaObject');
         $relatedMms = $mmobjRepo->findRelatedMultimediaObjects($multimediaObject);
 
         return array('multimediaObjects' => $relatedMms);
@@ -129,12 +172,32 @@ class MultimediaObjectController extends PlayerController implements WebTVContro
 
     public function preExecute(MultimediaObject $multimediaObject, Request $request, $secret = false)
     {
-        if ($opencasturl = $multimediaObject->getProperty('opencasturl')) {
+        if ($multimediaObject->getProperty('opencasturl') && !$request->query->has('track_id')) {
             if ($secret) {
                 return $this->forward('PumukitWebTVBundle:Opencast:magic', array('request' => $request, 'multimediaObject' => $multimediaObject));
             } else {
                 return $this->forward('PumukitWebTVBundle:Opencast:index', array('request' => $request, 'multimediaObject' => $multimediaObject));
             }
         }
+    }
+
+    /**
+     * @Route("/video/{id}/info", name="pumukit_webtv_multimediaobject_info" )
+     * @Template("PumukitWebTVBundle:MultimediaObject:info.html.twig")
+     */
+    public function multimediaInfoAction(MultimediaObject $multimediaObject, Request $request)
+    {
+        $embeddedBroadcastService = $this->get('pumukitschema.embeddedbroadcast');
+        $password = $request->get('broadcast_password');
+        $response = $embeddedBroadcastService->canUserPlayMultimediaObject($multimediaObject, $this->getUser(), $password);
+        if ($response instanceof Response) {
+            return $this->render('PumukitWebTVBundle:MultimediaObject:emptyinfo.html.twig');
+        }
+        $editorChapters = $this->getChapterMarks($multimediaObject);
+
+        return array(
+            'multimediaObject' => $multimediaObject,
+            'editor_chapters' => $editorChapters,
+        );
     }
 }

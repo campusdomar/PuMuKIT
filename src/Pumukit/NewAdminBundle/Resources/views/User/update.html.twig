@@ -11,9 +11,10 @@
 <div class="modal-body">
   {% if app.user and is_granted(constant('Pumukit\\SchemaBundle\\Security\\Permission::ACCESS_ADMIN_USERS')) %}
   {% form_theme form 'PumukitNewAdminBundle:Themes:fields.html.twig' %}
-  <form autocomplete="off" id="pumukitnewadmin_user_form_update"
+  <form id="pumukitnewadmin_user_form_update"
         action="{{ path('pumukitnewadmin_user_update', {'id': user.id}) }}" method="POST">
     <fieldset>
+      <legend hidden>{% trans %}modify user{% endtrans %}</legend>
       <input type="hidden" name="userId" id="userId" value="{{ user.id }}">
       {% for child in form %}
         {{ form_row(child) }}

@@ -32,23 +32,37 @@ class MultimediaObjectPicService
     }
 
     /**
-     * Returns the target path for a series.
+     * Returns the target path for an object.
+     *
+     * @param MultimediaObject $multimediaObject
+     *
+     * @return string
      */
     public function getTargetPath(MultimediaObject $multimediaObject)
     {
-        return $this->targetPath.'/'.$multimediaObject->getId();
+        return $this->targetPath.'/series/'.$multimediaObject->getSeries()->getId().'/video/'.$multimediaObject->getId();
     }
 
     /**
-     * Returns the target url for a series.
+     * Returns the target url for an object.
+     *
+     * @param MultimediaObject $multimediaObject
+     *
+     * @return string
      */
     public function getTargetUrl(MultimediaObject $multimediaObject)
     {
-        return $this->targetUrl.'/'.$multimediaObject->getId();
+        return $this->targetUrl.'/series/'.$multimediaObject->getSeries()->getId().'/video/'.$multimediaObject->getId();
     }
 
     /**
      * Get pics from series or multimedia object.
+     *
+     * @param $series
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ODM\MongoDB\MongoDBException
      */
     public function getRecommendedPics($series)
     {
@@ -57,11 +71,21 @@ class MultimediaObjectPicService
 
     /**
      * Set a pic from an url into the multimediaObject.
+     *
+     * @param MultimediaObject $multimediaObject
+     * @param                  $picUrl
+     * @param bool             $flush
+     * @param bool             $isEventPoster
+     *
+     * @return MultimediaObject
      */
-    public function addPicUrl(MultimediaObject $multimediaObject, $picUrl, $flush = true)
+    public function addPicUrl(MultimediaObject $multimediaObject, $picUrl, $flush = true, $isEventPoster = false)
     {
         $pic = new Pic();
         $pic->setUrl($picUrl);
+        if ($isEventPoster) {
+            $pic = $this->updatePosterTag($multimediaObject, $pic);
+        }
 
         $multimediaObject->addPic($pic);
         $this->dm->persist($multimediaObject);
@@ -76,8 +100,16 @@ class MultimediaObjectPicService
 
     /**
      * Set a pic from an url into the multimediaObject.
+     *
+     * @param MultimediaObject $multimediaObject
+     * @param UploadedFile     $picFile
+     * @param bool             $isEventPoster
+     *
+     * @return MultimediaObject
+     *
+     * @throws \Exception
      */
-    public function addPicFile(MultimediaObject $multimediaObject, UploadedFile $picFile)
+    public function addPicFile(MultimediaObject $multimediaObject, UploadedFile $picFile, $isEventPoster = false)
     {
         if (UPLOAD_ERR_OK != $picFile->getError()) {
             throw new \Exception($picFile->getErrorMessage());
@@ -88,6 +120,47 @@ class MultimediaObjectPicService
         }
 
         $path = $picFile->move($this->getTargetPath($multimediaObject), $picFile->getClientOriginalName());
+
+        $pic = new Pic();
+        $pic->setUrl(str_replace($this->targetPath, $this->targetUrl, $path));
+        $pic->setPath($path);
+
+        if ($isEventPoster) {
+            $pic = $this->updatePosterTag($multimediaObject, $pic);
+        }
+
+        $multimediaObject->addPic($pic);
+        $this->dm->persist($multimediaObject);
+        $this->dm->flush();
+
+        $this->dispatcher->dispatchCreate($multimediaObject, $pic);
+
+        return $multimediaObject;
+    }
+
+    /**
+     * Set a pic from a memory string.
+     *
+     * @param MultimediaObject $multimediaObject
+     * @param                  $pic
+     * @param string           $format
+     *
+     * @return MultimediaObject
+     */
+    public function addPicMem(MultimediaObject $multimediaObject, $pic, $format = 'png')
+    {
+        $absCurrentDir = $this->getTargetPath($multimediaObject);
+        if (!file_exists($absCurrentDir)) {
+            mkdir($absCurrentDir);
+        }
+        $fileName = uniqid().'.'.$format;
+        $path = $absCurrentDir.'/'.$fileName;
+        while (file_exists($path)) {
+            $fileName = uniqid().'.png';
+            $path = $absCurrentDir.'/'.$fileName;
+        }
+
+        file_put_contents($path, $pic);
 
         $pic = new Pic();
         $pic->setUrl(str_replace($this->targetPath, $this->targetUrl, $path));
@@ -104,6 +177,13 @@ class MultimediaObjectPicService
 
     /**
      * Remove Pic from Multimedia Object.
+     *
+     * @param MultimediaObject $multimediaObject
+     * @param                  $picId
+     *
+     * @return MultimediaObject
+     *
+     * @throws \Exception
      */
     public function removePicFromMultimediaObject(MultimediaObject $multimediaObject, $picId)
     {
@@ -116,7 +196,7 @@ class MultimediaObjectPicService
 
         if ($this->forceDeleteOnDisk && $picPath) {
             $otherPics = $this->repo->findBy(array('pics.path' => $picPath));
-            if (count($otherPics) == 0) {
+            if (0 == count($otherPics)) {
                 $this->deleteFileOnDisk($picPath, $multimediaObject);
             }
         }
@@ -126,6 +206,12 @@ class MultimediaObjectPicService
         return $multimediaObject;
     }
 
+    /**
+     * @param $path
+     * @param $multimediaObject
+     *
+     * @throws \Exception
+     */
     private function deleteFileOnDisk($path, $multimediaObject)
     {
         $dirname = pathinfo($path, PATHINFO_DIRNAME);
@@ -147,5 +233,21 @@ class MultimediaObjectPicService
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
+    }
+
+    /**
+     * @param MultimediaObject $multimediaObject
+     * @param Pic              $pic
+     *
+     * @return Pic
+     */
+    private function updatePosterTag(MultimediaObject $multimediaObject, Pic $pic)
+    {
+        foreach ($multimediaObject->getPicsWithTag('poster') as $posterPic) {
+            $multimediaObject->removePic($posterPic);
+        }
+        $pic->addTag('poster');
+
+        return $pic;
     }
 }

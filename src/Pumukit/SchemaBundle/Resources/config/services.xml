@@ -30,6 +30,7 @@
         <service id="pumukitschema.schema.permissionprofile" class="Pumukit\SchemaBundle\EventListener\PermissionProfileListener">
             <argument type="service" id="doctrine_mongodb.odm.document_manager" />
             <argument type="service" id="pumukitschema.user" />
+            <argument type="service" id="logger" />
             <tag name="kernel.event_listener" event="permissionprofile.update" method="postUpdate" />
         </service>
 
@@ -38,12 +39,24 @@
             <tag name="kernel.event_listener" event="series.update" method="postUpdate" />
         </service>
 
+        <service id="pumukitschema.schema.multimediaobject" class="Pumukit\SchemaBundle\EventListener\MultimediaObjectListener">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager" />
+            <tag name="kernel.event_listener" event="multimediaobject.update" method="postUpdate" />
+            <tag name="kernel.event_listener" event="track.create" method="postUpdate" />
+            <tag name="kernel.event_listener" event="track.update" method="postUpdate" />
+            <tag name="kernel.event_listener" event="track.delete" method="postUpdate" />
+            <tag name="kernel.event_listener" event="personwithrole.create" method="postUpdate" />
+            <tag name="kernel.event_listener" event="personwithrole.update" method="postUpdate" />
+            <tag name="kernel.event_listener" event="personwithrole.delete" method="postUpdate" />
+        </service>
+
         <service id="pumukitschema.factory" class="Pumukit\SchemaBundle\Services\FactoryService">
             <argument type="service" id="doctrine_mongodb.odm.document_manager" />
             <argument type="service" id="pumukitschema.tag" />
             <argument type="service" id="pumukitschema.person" />
             <argument type="service" id="pumukitschema.user" />
             <argument type="service" id="pumukitschema.embeddedbroadcast" />
+            <argument type="service" id="pumukitschema.series" />
             <argument type="service" id="pumukitschema.multimediaobject_dispatcher" />
             <argument type="service" id="pumukitschema.series_dispatcher" />
             <argument type="service" id="translator" />
@@ -79,8 +92,17 @@
             <argument type="service" id="pumukitschema.multimediaobject_dispatcher" />
         </service>
 
+        <service id="pumukitschema.multimedia_object_voter" class="Pumukit\SchemaBundle\Services\MultimediaObjectVoter">
+            <argument type="service" id="pumukitschema.multimedia_object"/>
+            <tag name="security.voter" />
+        </service>        
+
+        <service id="pumukitschema.sorted_multimedia_object" class="Pumukit\SchemaBundle\Services\SortedMultimediaObjectsService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+        </service>
+
         <service id="pumukitschema.multimedia_object_views" class="Pumukit\SchemaBundle\EventListener\MultimediaObjectViews">
-            <argument type="service" id="pumukitschema.multimedia_object" />
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
             <tag name="kernel.event_listener" event="multimediaobject.view" method="onMultimediaObjectViewed" />
         </service>
 
@@ -228,6 +250,12 @@
 
         <service id="pumukitschema.special_translation" class="Pumukit\SchemaBundle\Services\SpecialTranslationService">
             <argument type="service" id="translator" />
+        </service>
+
+        <service id="pumukitschema.eventsession" class="Pumukit\SchemaBundle\Services\EmbeddedEventSessionService">
+          <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+          <argument>%pumukitschema.event_default_poster%</argument>
+          <argument>%pumukit_new_admin.advance_live_event_create_default_pic%</argument>
         </service>
 
     </services>

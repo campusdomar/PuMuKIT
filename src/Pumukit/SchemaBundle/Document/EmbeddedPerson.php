@@ -24,14 +24,14 @@ class EmbeddedPerson
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     protected $name;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      * @Assert\Email
      * //@Assert\NotEmpty
      */
@@ -40,7 +40,7 @@ class EmbeddedPerson
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      * //@Assert\Url('http', 'https', 'ftp')
      */
     protected $web;
@@ -48,35 +48,35 @@ class EmbeddedPerson
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     protected $phone;
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     protected $honorific = array('en' => '');
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     protected $firm = array('en' => '');
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     protected $post = array('en' => '');
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     protected $bio = array('en' => '');
 
@@ -203,7 +203,7 @@ class EmbeddedPerson
      */
     public function setHonorific($honorific, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->honorific[$locale] = $honorific;
@@ -218,7 +218,7 @@ class EmbeddedPerson
      */
     public function getHonorific($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->honorific[$locale])) {
@@ -252,7 +252,7 @@ class EmbeddedPerson
      */
     public function setFirm($firm, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->firm[$locale] = $firm;
@@ -267,7 +267,7 @@ class EmbeddedPerson
      */
     public function getFirm($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->firm[$locale])) {
@@ -301,7 +301,7 @@ class EmbeddedPerson
      */
     public function setPost($post, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->post[$locale] = $post;
@@ -316,7 +316,7 @@ class EmbeddedPerson
      */
     public function getPost($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->post[$locale])) {
@@ -350,7 +350,7 @@ class EmbeddedPerson
      */
     public function setBio($bio, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->bio[$locale] = $bio;
@@ -365,7 +365,7 @@ class EmbeddedPerson
      */
     public function getBio($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->bio[$locale])) {
@@ -440,13 +440,20 @@ class EmbeddedPerson
      *
      * Returns strings with person info:
      * Firm, Post and Bio separated by commas
+     * or without Bio if param is false
+     *
+     * @param bool $withBio
      *
      * @return string
      */
-    public function getInfo()
+    public function getInfo($withBio = true)
     {
-        $aux = array($this->getPost(), $this->getFirm(), $this->getBio());
-        $aux = array_filter($aux, create_function('$a', 'return (!is_null($a)&&(""!=$a));'));
+        $aux = $withBio ?
+             array($this->getPost(), $this->getFirm(), $this->getBio()) :
+             array($this->getPost(), $this->getFirm());
+        $aux = array_filter($aux, function ($a) {
+            return !is_null($a) && ('' != $a);
+        });
 
         return implode(', ', $aux);
     }

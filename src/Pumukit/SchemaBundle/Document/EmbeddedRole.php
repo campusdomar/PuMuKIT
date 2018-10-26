@@ -22,7 +22,7 @@ class EmbeddedRole
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $cod = '0';
 
@@ -31,28 +31,28 @@ class EmbeddedRole
      *
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $xml;
 
     /**
      * @var bool
      *
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $display = true;
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $name = array('en' => '');
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $text = array('en' => '');
 
@@ -146,7 +146,7 @@ class EmbeddedRole
      */
     public function setName($name, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->name[$locale] = $name;
@@ -161,7 +161,7 @@ class EmbeddedRole
      */
     public function getName($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->name[$locale])) {
@@ -199,7 +199,7 @@ class EmbeddedRole
      */
     public function setText($text, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->text[$locale] = $text;
@@ -214,7 +214,7 @@ class EmbeddedRole
      */
     public function getText($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->text[$locale])) {
@@ -317,7 +317,7 @@ class EmbeddedRole
 
         $hasRemoved = (count($aux) !== count($this->people));
 
-        $this->people = new ArrayCollection(array_values($aux->toArray()));
+        $this->people = $aux;
 
         return $hasRemoved;
     }

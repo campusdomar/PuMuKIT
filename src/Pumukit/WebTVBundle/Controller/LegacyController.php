@@ -3,6 +3,7 @@
 namespace Pumukit\WebTVBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
@@ -16,6 +17,8 @@ class LegacyController extends Controller implements WebTVController
      * @Route("/{_locale}/serial/index/id/{pumukit1id}", requirements={"_locale"=".."})
      * @Route("/{_locale}/serial/{pumukit1id}.html", requirements={"_locale"=".."})
      * @Route("/{_locale}/serial/{pumukit1id}", requirements={"_locale"=".."})
+     * @Route("/index.php/{_locale}/serial/{pumukit1id}.html")
+     * @Route("/index.php/{_locale}/serial/{pumukit1id}")
      *
      * Parameters:
      * - {_locale} matches the current locale
@@ -34,17 +37,33 @@ class LegacyController extends Controller implements WebTVController
             throw $this->createNotFoundException();
         }
 
-        return $this->redirect($this->generateUrl('pumukit_webtv_series_index', array('id' => $series->getId())));
+        return $this->redirectToRoute('pumukit_webtv_series_index', array('id' => $series->getId()), Response::HTTP_MOVED_PERMANENTLY);
     }
 
     /**
      * @Route("/{_locale}/video/{pumukit1id}.html", defaults={"filter": false}, requirements={"_locale"=".."})
      * @Route("/{_locale}/video/{pumukit1id}", defaults={"filter": false}, requirements={"_locale"=".."})
+     * @Route("/{_locale}/video/mm/{pumukit1id}.html", defaults={"filter": false})
+     * @Route("/{_locale}/video/mm/{pumukit1id}", defaults={"filter": false})
+     * @Route("/video/{pumukit1id}.html", requirements={
+     *     "pumukit1id": "\d+"
+     * }, defaults={"filter": false})
      * @Route("/video/{pumukit1id}", requirements={
+     *     "pumukit1id": "\d+"
+     * }, defaults={"filter": false})
+     * @Route("/mmobj/index/id/{pumukit1id}.html", defaults={"filter": false})
+     * @Route("/mmobj/index/id/{pumukit1id}", requirements={
+     *     "pumukit1id": "\d+"
+     * }, defaults={"filter": false})
+     * @Route("/index.php/{_locale}/video/{pumukit1id}.html", defaults={"filter": false}, requirements={"_locale"=".."})
+     * @Route("/index.php/{_locale}/video/{pumukit1id}", defaults={"filter": false}, requirements={"_locale"=".."})
+     * @Route("/index.php/video/{pumukit1id}", requirements={
      *     "pumukit1id": "\d+"
      * }, defaults={"filter": false})
      * @Route("/video/index/id/{pumukit1id}.html", defaults={"filter": false})
      * @Route("/video/index/id/{pumukit1id}", defaults={"filter": false})
+     * @Route("/index.php/video/index/id/{pumukit1id}.html", defaults={"filter": false})
+     * @Route("/index.php/video/index/id/{pumukit1id}", defaults={"filter": false})
      *
      * Parameters:
      * - {_locale} matches current locale
@@ -63,15 +82,17 @@ class LegacyController extends Controller implements WebTVController
         if (!$multimediaObject) {
             throw $this->createNotFoundException();
         }
-        if ($multimediaObject->getStatus() == MultimediaObject::STATUS_HIDE) {
-            return $this->redirect($this->generateUrl('pumukit_webtv_multimediaobject_magicindex', array('secret' => $multimediaObject->getSecret())));
+        if (MultimediaObject::STATUS_HIDE == $multimediaObject->getStatus()) {
+            return $this->redirectToRoute('pumukit_webtv_multimediaobject_magicindex', array('secret' => $multimediaObject->getSecret()), Response::HTTP_MOVED_PERMANENTLY);
         } else {
-            return $this->redirect($this->generateUrl('pumukit_webtv_multimediaobject_index', array('id' => $multimediaObject->getId())));
+            return $this->redirectToRoute('pumukit_webtv_multimediaobject_index', array('id' => $multimediaObject->getId()), Response::HTTP_MOVED_PERMANENTLY);
         }
     }
 
     /**
+     * @Route("/{_locale}/mmobj/iframe/id/{pumukit1id}", requirements={"_locale"=".."})
      * @Route("/{_locale}/video/iframe/{pumukit1id}.html", requirements={"_locale"=".."})
+     * @Route("/index.php/{_locale}/video/iframe/{pumukit1id}.html", requirements={"_locale"=".."})
      *
      * Parameters:
      * - {_locale} matches the current locale
@@ -90,7 +111,7 @@ class LegacyController extends Controller implements WebTVController
             throw $this->createNotFoundException();
         }
 
-        return $this->redirect($this->generateUrl('pumukit_webtv_multimediaobject_iframe', array('id' => $multimediaObject->getId())));
+        return $this->redirectToRoute('pumukit_webtv_multimediaobject_iframe', array('id' => $multimediaObject->getId()), Response::HTTP_MOVED_PERMANENTLY);
     }
 
     /**
@@ -115,7 +136,7 @@ class LegacyController extends Controller implements WebTVController
             throw $this->createNotFoundException();
         }
 
-        return $this->redirect($this->generateUrl('pumukit_webtv_multimediaobject_index', array('id' => $multimediaObject->getId())));
+        return $this->redirectToRoute('pumukit_webtv_multimediaobject_index', array('id' => $multimediaObject->getId()), Response::HTTP_MOVED_PERMANENTLY);
     }
 
     /**
@@ -133,11 +154,11 @@ class LegacyController extends Controller implements WebTVController
           ->field('properties.pumukit1magic')->equals($hash)
           ->getQuery()->getSingleResult();
 
-        if (null == $series) {
+        if (null === $series) {
             throw $this->createNotFoundException();
         }
 
-        return $this->redirect($this->generateUrl('pumukit_webtv_series_magicindex', array('secret' => $series->getSecret())));
+        return $this->redirectToRoute('pumukit_webtv_series_magicindex', array('secret' => $series->getSecret()), Response::HTTP_MOVED_PERMANENTLY);
     }
 
     /**
@@ -145,6 +166,6 @@ class LegacyController extends Controller implements WebTVController
      */
     public function directoAction()
     {
-        return $this->redirect($this->generateUrl('pumukit_live', array()));
+        return $this->redirectToRoute('pumukit_live', array(), Response::HTTP_MOVED_PERMANENTLY);
     }
 }

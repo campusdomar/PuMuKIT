@@ -9,16 +9,46 @@ use Doctrine\Common\Collections\ArrayCollection;
 /**
  * @MongoDB\Document(repositoryClass="Pumukit\SchemaBundle\Repository\SeriesRepository")
  * @MongoDB\Indexes({
- *   @MongoDB\Index(name="text_index", keys={"$**"="text"}, options={"language_override"="english"})
+ *   @MongoDB\Index(name="text_index", keys={"textindex.text"="text", "secondarytextindex.text"="text"}, options={"language_override"="indexlanguage", "default_language"="none", "weights"={"textindex.text"=10, "secondarytextindex.text"=1}})
  * })
  */
 class Series
 {
     use Traits\Keywords;
     use Traits\Properties;
+    use Traits\Pic {
+        Traits\Pic::__construct as private __PicConstruct;
+    }
 
     const TYPE_SERIES = 0;
     const TYPE_PLAYLIST = 1;
+
+    const SORT_MANUAL = 0;
+    const SORT_PUB_ASC = 1;
+    const SORT_PUB_DES = 2;
+    const SORT_REC_DES = 3;
+    const SORT_REC_ASC = 4;
+    const SORT_ALPHAB = 5;
+
+    public static $sortCriteria = array(
+        self::SORT_MANUAL => array('rank' => 'asc'),
+        self::SORT_PUB_ASC => array('public_date' => 'asc'),
+        self::SORT_PUB_DES => array('public_date' => 'des'),
+        self::SORT_REC_DES => array('record_date' => 'des'),
+        self::SORT_REC_ASC => array('record_date' => 'asc'),
+        self::SORT_ALPHAB => array('title.es' => 'asc'),
+        //TODO culture
+    );
+
+    public static $sortText = array(
+        self::SORT_MANUAL => 'manual',
+        self::SORT_PUB_ASC => 'publication date ascending',
+        self::SORT_PUB_DES => 'publication date descending',
+        self::SORT_REC_DES => 'recording date descending',
+        self::SORT_REC_ASC => 'recording date ascending',
+        self::SORT_ALPHAB => 'title',
+    );
+
     /**
      * @MongoDB\Id
      */
@@ -26,8 +56,8 @@ class Series
 
     /**
      * @var string
-     *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
+     * @MongoDB\Index
      */
     private $secret;
 
@@ -35,10 +65,16 @@ class Series
      * Flag with TYPE_SERIES or TYPE_PLAYLIST to determine the collection type.
      *
      * @var int
-     *
-     * @MongoDB\Integer
+     * @MongoDB\Field(type="int")
+     * @MongoDB\Index
      */
     private $type;
+
+    /**
+     * @var int
+     * @MongoDB\Field(type="int")
+     */
+    private $sorting = self::SORT_MANUAL;
 
     /**
      * @MongoDB\ReferenceOne(targetDocument="SeriesType", inversedBy="series", simple=true, cascade={"persist"})
@@ -46,99 +82,100 @@ class Series
     private $series_type;
 
     /**
-     * Legacy: It is kept for compatibility issues.
-     *
-     * @var ArrayCollection
-     *
-     * @MongoDB\ReferenceMany(targetDocument="MultimediaObject", mappedBy="series", repositoryMethod="findWithoutPrototype", sort={"rank"=1}, simple=true, orphanRemoval=true, cascade="ALL")
-     * @Serializer\Exclude
+     * @MongoDB\ReferenceOne(targetDocument="SeriesStyle", inversedBy="series", simple=true, cascade={"persist"})
      */
-    private $multimedia_objects;
+    private $series_style;
 
     /**
      * @var ArrayCollection
-     *
      * @MongoDB\EmbedOne(targetDocument="Playlist")
      * @Serializer\Exclude
      */
     private $playlist;
 
     /**
-     * @var ArrayCollection
-     *
-     * @MongoDB\EmbedMany(targetDocument="Pic")
-     */
-    private $pics;
-
-    /**
      * @var bool
-     *
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $announce = false;
 
     /**
-     * @var datetime
+     * When series is hide and we access to the serie with the mmobj->getSeries(),
+     * it creates a pseudo serie with default values (the webtv filter dont permit to access hide series),
+     * and we want to force that the serie will be hide.
      *
-     * @MongoDB\Date
+     * @var bool
+     * @MongoDB\Field(type="boolean")
+     * @MongoDB\Index
+     */
+    private $hide = true;
+
+    /**
+     * @var datetime
+     * @MongoDB\Field(type="date")
+     * @MongoDB\Index
      */
     private $public_date;
 
     /**
      * @var string
-     *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $title = array('en' => '');
 
     /**
      * @var string
-     *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $subtitle = array('en' => '');
 
     /**
      * @var text
-     *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $description = array('en' => '');
 
     /**
      * @var text
-     *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $header = array('en' => '');
 
     /**
      * @var text
-     *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $footer = array('en' => '');
 
     /**
      * @var string
-     *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $copyright;
 
     /**
      * @var string
-     *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $license;
 
     /**
      * @var string
-     *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $line2 = array('en' => '');
+
+    /**
+     * @var array
+     * @MongoDB\Raw
+     */
+    private $textindex = array();
+
+    /**
+     * @var array
+     * @MongoDB\Raw
+     */
+    private $secondarytextindex = array();
 
     /**
      * Used locale to override Translation listener`s locale
@@ -150,10 +187,10 @@ class Series
 
     public function __construct()
     {
-        $this->secret = new \MongoId();
-        $this->multimedia_objects = new ArrayCollection();
+        $this->secret = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
+        $this->hide = false;
         $this->playlist = new Playlist();
-        $this->pics = new ArrayCollection();
+        $this->__PicConstruct();
     }
 
     public function __toString()
@@ -190,6 +227,18 @@ class Series
     }
 
     /**
+     * Resets secret.
+     *
+     * @return string
+     */
+    public function resetSecret()
+    {
+        $this->secret = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
+
+        return $this->secret;
+    }
+
+    /**
      * Get type.
      *
      * @return int
@@ -210,15 +259,35 @@ class Series
     }
 
     /**
-     * Resets secret.
+     * Get sorting type.
      *
-     * @return string
+     * @return int
      */
-    public function resetSecret()
+    public function getSorting()
     {
-        $this->secret = new \MongoId();
+        return $this->sorting;
+    }
 
-        return $this->secret;
+    /**
+     * Get sorting criteria.
+     *
+     * @return array
+     */
+    public function getSortingCriteria()
+    {
+        return isset(self::$sortCriteria[$this->sorting]) ?
+            self::$sortCriteria[$this->sorting] :
+            self::$sortCriteria[0];
+    }
+
+    /**
+     * Set sorting type.
+     *
+     * @return int
+     */
+    public function setSorting($sorting)
+    {
+        return $this->sorting = $sorting;
     }
 
     /**
@@ -242,6 +311,26 @@ class Series
     }
 
     /**
+     * Set series_style.
+     *
+     * @param SeriesStyle $series_style
+     */
+    public function setSeriesStyle(SeriesStyle $series_style = null)
+    {
+        $this->series_style = $series_style;
+    }
+
+    /**
+     * Get series_style.
+     *
+     * @return SeriesStyle
+     */
+    public function getSeriesStyle()
+    {
+        return $this->series_style;
+    }
+
+    /**
      * Contains multimedia_object.
      *
      * @param MultimediaObject $multimedia_object
@@ -250,6 +339,9 @@ class Series
      */
     public function containsMultimediaObject(MultimediaObject $multimedia_object)
     {
+        //TODO:
+        throw new \Exception('PMK2.5 PHP7 use service');
+
         return $this->multimedia_objects->contains($multimedia_object);
     }
 
@@ -260,6 +352,8 @@ class Series
      */
     public function addMultimediaObject(MultimediaObject $multimedia_object)
     {
+        throw new \Exception('PMK2.5 PHP7 use service');
+
         return $this->multimedia_objects->add($multimedia_object);
     }
 
@@ -270,6 +364,7 @@ class Series
      */
     public function removeMultimediaObject(MultimediaObject $multimedia_object)
     {
+        throw new \Exception('PMK2.5 PHP7 use service');
         $this->multimedia_objects->removeElement($multimedia_object);
     }
 
@@ -280,6 +375,8 @@ class Series
      */
     public function getMultimediaObjects()
     {
+        throw new \Exception('PMK2.5 PHP7 use service');
+
         return $this->multimedia_objects;
     }
 
@@ -324,6 +421,46 @@ class Series
     }
 
     /**
+     * Get announce.
+     *
+     * @return bool
+     */
+    public function isAnnounce()
+    {
+        return $this->announce;
+    }
+
+    /**
+     * Set hide.
+     *
+     * @param bool $hide
+     */
+    public function setHide($hide)
+    {
+        $this->hide = $hide;
+    }
+
+    /**
+     * Get hide.
+     *
+     * @return bool
+     */
+    public function getHide()
+    {
+        return $this->hide;
+    }
+
+    /**
+     * Get hide.
+     *
+     * @return bool
+     */
+    public function isHide()
+    {
+        return $this->hide;
+    }
+
+    /**
      * Set public_date.
      *
      * @param datetime $public_date
@@ -351,7 +488,7 @@ class Series
      */
     public function setTitle($title, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->title[$locale] = $title;
@@ -366,7 +503,7 @@ class Series
      */
     public function getTitle($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->title[$locale])) {
@@ -404,7 +541,7 @@ class Series
      */
     public function setSubtitle($subtitle, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->subtitle[$locale] = $subtitle;
@@ -419,7 +556,7 @@ class Series
      */
     public function getSubtitle($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->subtitle[$locale])) {
@@ -457,7 +594,7 @@ class Series
      */
     public function setDescription($description, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->description[$locale] = $description;
@@ -472,7 +609,7 @@ class Series
      */
     public function getDescription($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->description[$locale])) {
@@ -510,7 +647,7 @@ class Series
      */
     public function setHeader($header, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->header[$locale] = $header;
@@ -525,7 +662,7 @@ class Series
      */
     public function getHeader($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->header[$locale])) {
@@ -563,7 +700,7 @@ class Series
      */
     public function setFooter($footer, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->footer[$locale] = $footer;
@@ -578,7 +715,7 @@ class Series
      */
     public function getFooter($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->footer[$locale])) {
@@ -621,7 +758,7 @@ class Series
     /**
      * Get copyright.
      *
-     * @return array
+     * @return string
      */
     public function getCopyright()
     {
@@ -641,7 +778,7 @@ class Series
     /**
      * Get license.
      *
-     * @return array
+     * @return string $license
      */
     public function getLicense()
     {
@@ -656,7 +793,7 @@ class Series
      */
     public function setLine2($line2, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->line2[$locale] = $line2;
@@ -671,7 +808,7 @@ class Series
      */
     public function getLine2($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->line2[$locale])) {
@@ -730,6 +867,7 @@ class Series
      */
     public function containsMultimediaObjectWithTag(Tag $tag)
     {
+        throw new \Exception('PMK2.5 PHP7 use service');
         foreach ($this->multimedia_objects as $mmo) {
             if ($mmo->containsTag($tag)) {
                 return true;
@@ -748,8 +886,8 @@ class Series
      */
     public function getMultimediaObjectsWithTag(Tag $tag)
     {
+        throw new \Exception('PMK2.5 PHP7 use service');
         $r = array();
-
         foreach ($this->multimedia_objects as $mmo) {
             if ($mmo->containsTag($tag)) {
                 $r[] = $mmo;
@@ -768,9 +906,8 @@ class Series
      */
     public function getMultimediaObjectWithTag(Tag $tag)
     {
+        throw new \Exception('PMK2.5 PHP7 use service');
         foreach ($this->multimedia_objects as $mmo) {
-            //if ($mmo->tags->contains($tag)) {
-            //FIXME no pasa el test phpunit cuando se llama desde seriestest
             if ($mmo->containsTag($tag)) {
                 return $mmo;
             }
@@ -788,6 +925,7 @@ class Series
      */
     public function getMultimediaObjectsWithAllTags(array $tags)
     {
+        throw new \Exception('PMK2.5 PHP7 use service');
         $r = array();
         foreach ($this->multimedia_objects as $mmo) {
             if ($mmo->containsAllTags($tags)) {
@@ -807,6 +945,7 @@ class Series
      */
     public function getMultimediaObjectWithAllTags(array $tags)
     {
+        throw new \Exception('PMK2.5 PHP7 use service');
         foreach ($this->multimedia_objects as $mmo) {
             if ($mmo->containsAllTags($tags)) {
                 return $mmo;
@@ -825,8 +964,8 @@ class Series
      */
     public function getMultimediaObjectsWithAnyTag(array $tags)
     {
+        throw new \Exception('PMK2.5 PHP7 use service');
         $r = array();
-
         foreach ($this->multimedia_objects as $mmo) {
             if ($mmo->containsAnyTag($tags)) {
                 $r[] = $mmo;
@@ -845,6 +984,7 @@ class Series
      */
     public function getMultimediaObjectWithAnyTag(array $tags)
     {
+        throw new \Exception('PMK2.5 PHP7 use service');
         foreach ($this->multimedia_objects as $mmo) {
             if ($mmo->containsAnyTag($tags)) {
                 return $mmo;
@@ -864,14 +1004,10 @@ class Series
      *
      * @return ArrayCollection
      */
-    public function getFilteredMultimediaObjectsWithTags(
-        array $any_tags = array(),
-        array $all_tags = array(),
-        array $not_any_tags = array(),
-        array $not_all_tags = array())
+    public function getFilteredMultimediaObjectsWithTags(array $any_tags = array(), array $all_tags = array(), array $not_any_tags = array(), array $not_all_tags = array())
     {
+        throw new \Exception('PMK2.5 PHP7 use service');
         $r = array();
-
         foreach ($this->multimedia_objects as $mmo) {
             if ($any_tags && !$mmo->containsAnyTag($any_tags)) {
                 continue;
@@ -893,154 +1029,44 @@ class Series
     }
 
     /**
-     * Add pic.
+     * Set textindex.
      *
-     * @param Pic $pic
+     * @param array $textindex
      */
-    public function addPic(Pic $pic)
+    public function setTextIndex($textindex)
     {
-        $this->pics->add($pic);
+        $this->textindex = $textindex;
     }
 
     /**
-     * Remove pic.
+     * Get textindex.
      *
-     * @param Pic $pic
+     *
+     * @return array
      */
-    public function removePic(Pic $pic)
+    public function getTextIndex()
     {
-        $this->pics->removeElement($pic);
-        $this->pics = new ArrayCollection(array_values($this->pics->toArray()));
+        return $this->textindex;
     }
 
     /**
-     * Remove pic by id.
+     * Set secondarytextindex.
      *
-     * @param string $picId
+     * @param array $secondarytextindex
      */
-    public function removePicById($picId)
+    public function setSecondaryTextIndex($secondarytextindex)
     {
-        $this->pics = $this->pics->filter(function ($pic) use ($picId) {
-            return $pic->getId() !== $picId;
-        });
-        $this->pics = new ArrayCollection(array_values($this->pics->toArray()));
+        $this->secondarytextindex = $secondarytextindex;
     }
 
     /**
-     * Up pic by id.
+     * Get secondarytextindex.
      *
-     * @param string $picId
+     *
+     * @return array
      */
-    public function upPicById($picId)
+    public function getSecondaryTextIndex()
     {
-        $this->reorderPicById($picId, true);
-    }
-
-    /**
-     * Down pic by id.
-     *
-     * @param string $picId
-     */
-    public function downPicById($picId)
-    {
-        $this->reorderPicById($picId, false);
-    }
-
-    /**
-     * Reorder pic by id.
-     *
-     * @param string $picId
-     * @param bool   $up
-     */
-    private function reorderPicById($picId, $up = true)
-    {
-        $snapshot = array_values($this->pics->toArray());
-        $this->pics->clear();
-
-        $out = array();
-        foreach ($snapshot as $key => $pic) {
-            if ($pic->getId() === $picId) {
-                $out[($key * 10) + ($up ? -11 : 11) ] = $pic;
-            } else {
-                $out[$key * 10] = $pic;
-            }
-        }
-
-        ksort($out);
-        foreach ($out as $pic) {
-            $this->pics->add($pic);
-        }
-    }
-
-    /**
-     * Contains pic.
-     *
-     * @param Pic $pic
-     *
-     * @return bool
-     */
-    public function containsPic(Pic $pic)
-    {
-        return $this->pics->contains($pic);
-    }
-
-    /**
-     * Get pics.
-     *
-     * @return ArrayCollection
-     */
-    public function getPics()
-    {
-        return $this->pics;
-    }
-
-    /**
-     * Get first pic, null if none.
-     *
-     * @return Pic
-     */
-    public function getPic()
-    {
-        return $this->pics->get(0);
-    }
-
-    /**
-     * Get pic by id.
-     *
-     * @param $picId
-     *
-     * @return Pic|null
-     */
-    public function getPicById($picId)
-    {
-        foreach ($this->pics as $pic) {
-            if ($pic->getId() == $picId) {
-                return $pic;
-            }
-        }
-
-        return;
-    }
-
-    /**
-     * DEPRECATED: Use PicService, function getFirstUrlPic($object, $absolute, $hd).
-     *
-     * Get first pic url
-     *
-     * @param $default string url returned if series without pics
-     *
-     * @return string
-     */
-    public function getFirstUrlPic($default = '')
-    {
-        $url = $default;
-        foreach ($this->pics as $pic) {
-            if (null !== $pic->getUrl()) {
-                $url = $pic->getUrl();
-                break;
-            }
-        }
-
-        return $url;
+        return $this->secondarytextindex;
     }
 }

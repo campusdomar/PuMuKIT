@@ -25,6 +25,10 @@ class SeriesController extends AdminController implements NewAdminController
     /**
      * Overwrite to search criteria with date.
      *
+     * @param Request $request
+     *
+     * @return array
+     *
      * @Template
      */
     public function indexAction(Request $request)
@@ -53,6 +57,10 @@ class SeriesController extends AdminController implements NewAdminController
     /**
      * List action.
      *
+     * @param Request $request
+     *
+     * @return array
+     *
      * @Template
      */
     public function listAction(Request $request)
@@ -67,6 +75,10 @@ class SeriesController extends AdminController implements NewAdminController
 
     /**
      * Create new resource.
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
      */
     public function createAction(Request $request)
     {
@@ -78,7 +90,55 @@ class SeriesController extends AdminController implements NewAdminController
     }
 
     /**
+     * @param $id
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     *
+     * @throws \Exception
+     */
+    public function cloneAction($id)
+    {
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $translator = $this->get('translator');
+
+        $series = $dm->getRepository('PumukitSchemaBundle:Series')->findOneBy(array('_id' => new \MongoId($id)));
+        if (!$series) {
+            throw new \Exception($translator->trans('No series found with ID').' '.$id);
+        }
+
+        $factoryService = $this->get('pumukitschema.factory');
+
+        try {
+            $factoryService->cloneSeries($series);
+
+            return $this->redirectToRoute('pumukitnewadmin_series_list');
+        } catch (\Exception $exception) {
+            throw new \Exception($translator->trans('Error while cloning series ').$exception->getMessage());
+        }
+    }
+
+    /**
+     * @param Series $resource
+     *
+     * @return array
+     *
+     * @Template
+     */
+    public function linksAction(Series $resource)
+    {
+        return array(
+            'series' => $resource,
+        );
+    }
+
+    /**
      * Display the form for editing or update the resource.
+     *
+     * @param Request $request
+     *
+     * @return Response
+     *
+     * @throws \Exception
      */
     public function updateAction(Request $request)
     {
@@ -105,7 +165,8 @@ class SeriesController extends AdminController implements NewAdminController
             $criteria = $this->getCriteria($config);
             $resources = $this->getResources($request, $config, $criteria, $resource->getId());
 
-            return $this->render('PumukitNewAdminBundle:Series:list.html.twig',
+            return $this->render(
+                'PumukitNewAdminBundle:Series:list.html.twig',
                                  array('series' => $resources)
                                  );
         }
@@ -144,15 +205,15 @@ class SeriesController extends AdminController implements NewAdminController
         $pubDecisionsTags = $factoryService->getTagsByCod('PUBDECISIONS', true);
 
         //These fields are form fields that are rendered separately, so they should be 'excluded' from the generic foreach.
-        //FIXME: There is a cleaner approach FOR SURE.
         $exclude_fields = array();
-        $show_later_fields = array('pumukitnewadmin_series_i18n_header', 'pumukitnewadmin_series_i18n_footer', 'pumukitnewadmin_series_i18n_line2', 'pumukitnewadmin_series_template');
+        $show_later_fields = array('pumukitnewadmin_series_i18n_header', 'pumukitnewadmin_series_i18n_footer', 'pumukitnewadmin_series_i18n_line2', 'pumukitnewadmin_series_template', 'pumukitnewadmin_series_sorting', 'pumukitnewadmin_series_series_style');
         $showSeriesTypeTab = $this->container->hasParameter('pumukit2.use_series_channels') && $this->container->getParameter('pumukit2.use_series_channels');
         if (!$showSeriesTypeTab) {
             $exclude_fields[] = 'pumukitnewadmin_series_series_type';
         }
 
-        return $this->render('PumukitNewAdminBundle:Series:update.html.twig',
+        return $this->render(
+            'PumukitNewAdminBundle:Series:update.html.twig',
                              array(
                                    'series' => $resource,
                                    'form' => $form->createView(),
@@ -174,7 +235,7 @@ class SeriesController extends AdminController implements NewAdminController
     /**
      * @param Request $request
      *
-     * @return RedirectResponse
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function deleteAction(Request $request)
     {
@@ -216,6 +277,10 @@ class SeriesController extends AdminController implements NewAdminController
 
     /**
      * Generate Magic Url action.
+     *
+     * @param Request $request
+     *
+     * @return Response
      */
     public function generateMagicUrlAction(Request $request)
     {
@@ -229,6 +294,10 @@ class SeriesController extends AdminController implements NewAdminController
     /**
      * Batch delete action
      * Overwrite to delete multimedia objects inside series.
+     *
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function batchDeleteAction(Request $request)
     {
@@ -240,6 +309,7 @@ class SeriesController extends AdminController implements NewAdminController
             $ids = json_decode($ids, true);
         }
 
+        $deleteSeriesCount = 0;
         foreach ($ids as $id) {
             $series = $this->find($id);
             if (!$this->isUserAllowedToDelete($series)) {
@@ -262,9 +332,14 @@ class SeriesController extends AdminController implements NewAdminController
 
             try {
                 $factoryService->deleteSeries($series);
+                ++$deleteSeriesCount;
             } catch (\Exception $e) {
                 return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
             }
+        }
+
+        if (0 == $deleteSeriesCount) {
+            return new Response('0 series deleted', Response::HTTP_BAD_REQUEST);
         }
 
         return $this->redirect($this->generateUrl('pumukitnewadmin_series_list', array()));
@@ -272,6 +347,10 @@ class SeriesController extends AdminController implements NewAdminController
 
     /**
      * Batch invert announce selected.
+     *
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function invertAnnounceAction(Request $request)
     {
@@ -299,6 +378,10 @@ class SeriesController extends AdminController implements NewAdminController
     /**
      * Change publication form.
      *
+     * @param Request $request
+     *
+     * @return array
+     *
      * @Template("PumukitNewAdminBundle:Series:changepub.html.twig")
      */
     public function changePubAction(Request $request)
@@ -313,6 +396,12 @@ class SeriesController extends AdminController implements NewAdminController
 
         $pubChannels = $this->get('pumukitschema.factory')->getTagsByCod('PUBCHANNELS', true);
 
+        foreach ($pubChannels as $key => $pubTag) {
+            if ($pubTag->getProperty('hide_in_tag_group')) {
+                unset($pubChannels[$key]);
+            }
+        }
+
         return array(
                      'series' => $series,
                      'mm_status' => $mmStatus,
@@ -322,6 +411,10 @@ class SeriesController extends AdminController implements NewAdminController
 
     /**
      * Update publication form.
+     *
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function updatePubAction(Request $request)
     {
@@ -339,23 +432,56 @@ class SeriesController extends AdminController implements NewAdminController
 
     /**
      * Gets the criteria values.
+     *
+     * @param $config
+     *
+     * @return array
      */
     public function getCriteria($config)
     {
-        $criteria = $this->getRequest()->get('criteria', array());
+        $request = $this->container->get('request_stack')->getCurrentRequest();
+        $criteria = $request->get('criteria', array());
+
+        if ($request->query->has('empty_series') || $this->get('session')->has('admin/series/empty_series')) {
+            $this->get('session')->set('admin/series/empty_series', true);
+            $dm = $this->get('doctrine_mongodb')->getManager();
+            $mmObjColl = $dm->getDocumentCollection('PumukitSchemaBundle:MultimediaObject');
+            $pipeline = array(
+                array('$group' => array('_id' => '$series', 'count' => array('$sum' => 1))),
+                array('$match' => array('count' => 1)),
+            );
+            $allSeries = $mmObjColl->aggregate($pipeline, array('cursor' => array()))->toArray();
+            $emptySeries = array();
+            foreach ($allSeries as $series) {
+                $emptySeries[] = $series['_id'];
+            }
+        }
+
+        if ($request->query->has('empty_series') || $this->get('session')->has('admin/series/empty_series')) {
+            $criteria['playlist.multimedia_objects'] = array('$size' => 0);
+            $criteria = array_merge($criteria, array('_id' => array('$in' => array_values($emptySeries))));
+            $this->get('session')->set('admin/series/criteria', $criteria);
+        }
 
         if (array_key_exists('reset', $criteria)) {
             $this->get('session')->remove('admin/series/criteria');
+            $this->get('session')->remove('admin/series/empty_series');
         } elseif ($criteria) {
             $this->get('session')->set('admin/series/criteria', $criteria);
         }
+
         $criteria = $this->get('session')->get('admin/series/criteria', array());
 
-        $new_criteria = $this->get('pumukitnewadmin.series_search')->processCriteria($criteria, true);
+        $new_criteria = $this->get('pumukitnewadmin.series_search')->processCriteria($criteria, true, $request->getLocale());
 
         return $new_criteria;
     }
 
+    /**
+     * @param Request $request
+     *
+     * @return array
+     */
     private function getSorting(Request $request)
     {
         $session = $this->get('session');
@@ -368,7 +494,7 @@ class SeriesController extends AdminController implements NewAdminController
         $value = $session->get('admin/series/type', 'desc');
         $key = $session->get('admin/series/sort', 'public_date');
 
-        if ($key == 'title') {
+        if ('title' == $key) {
             $key .= '.'.$request->getLocale();
         }
 
@@ -377,6 +503,13 @@ class SeriesController extends AdminController implements NewAdminController
 
     /**
      * Gets the list of resources according to a criteria.
+     *
+     * @param Request $request
+     * @param         $config
+     * @param         $criteria
+     * @param null    $selectedSeriesId
+     *
+     * @return array|mixed|Pagerfanta
      */
     public function getResources(Request $request, $config, $criteria, $selectedSeriesId = null)
     {
@@ -402,7 +535,11 @@ class SeriesController extends AdminController implements NewAdminController
             }
 
             if ($request->get('page', null)) {
-                $session->set($session_namespace.'/page', $request->get('page', 1));
+                $page = (int) $request->get('page', 1);
+                if ($page < 1) {
+                    $page = 1;
+                }
+                $session->set($session_namespace.'/page', $page);
             }
 
             if ($request->get('paginate', null)) {
@@ -410,21 +547,27 @@ class SeriesController extends AdminController implements NewAdminController
             }
 
             if ($selectedSeriesId) {
-                $newSeries = $this->get('doctrine_mongodb.odm.document_manager')->getRepository('PumukitSchemaBundle:Series')->find($selectedSeriesId);
                 $adapter = $resources->getAdapter();
                 $returnedSeries = $adapter->getSlice(0, $adapter->getNbResults());
                 $position = 1;
+                $findSerie = false;
                 foreach ($returnedSeries as $series) {
                     if ($selectedSeriesId == $series->getId()) {
+                        $findSerie = true;
                         break;
                     }
                     ++$position;
                 }
+
                 $maxPerPage = $session->get($session_namespace.'/paginate', 10);
                 $page = intval(ceil($position / $maxPerPage));
+                if (!$findSerie) {
+                    $page = 1;
+                }
             } else {
                 $page = $session->get($session_namespace.'/page', 1);
             }
+
             $resources
                 ->setMaxPerPage($session->get($session_namespace.'/paginate', 10))
                 ->setNormalizeOutOfRangePages(true)
@@ -440,6 +583,8 @@ class SeriesController extends AdminController implements NewAdminController
 
     /**
      * Modify Multimedia Objects status.
+     *
+     * @param $values
      */
     private function modifyMultimediaObjectsStatus($values)
     {
@@ -448,34 +593,35 @@ class SeriesController extends AdminController implements NewAdminController
         $repoTags = $dm->getRepository('PumukitSchemaBundle:Tag');
         $tagService = $this->get('pumukitschema.tag');
 
+        $executeFlush = false;
         foreach ($values as $id => $value) {
             $mm = $repo->find($id);
             if ($mm) {
                 if ($this->isGranted(Permission::CHANGE_MMOBJECT_PUBCHANNEL)) {
                     foreach ($value['channels'] as $channelId => $mustContainsTag) {
                         $mustContainsTag = ('true' == $mustContainsTag);
-                        $dm->clear(); //See #12692
                         $tag = $repoTags->find($channelId);
-                        $mm = $repo->find($id);
                         if (!$this->isGranted(Permission::getRoleTagDisableForPubChannel($tag->getCod()))) {
                             if ($mustContainsTag && (!($mm->containsTag($tag)))) {
-                                $tagAdded = $tagService->addTag($mm, $tag);
+                                $tagAdded = $tagService->addTag($mm, $tag, false);
+                                $executeFlush = true;
                             } elseif ((!($mustContainsTag)) && $mm->containsTag($tag)) {
-                                $tagAdded = $tagService->removeTag($mm, $tag);
+                                $tagAdded = $tagService->removeTag($mm, $tag, false);
+                                $executeFlush = true;
                             }
                         }
                     }
                 }
 
-                if (
-                    $this->isGranted(Permission::CHANGE_MMOBJECT_STATUS) &&
-                    $value['status'] != $mm->getStatus()
-                ) {
+                if ($this->isGranted(Permission::CHANGE_MMOBJECT_STATUS) && $value['status'] != $mm->getStatus()) {
                     $mm->setStatus($value['status']);
-                    $dm->persist($mm);
-                    $dm->flush();
+                    $executeFlush = true;
                 }
             }
+        }
+
+        if ($executeFlush) {
+            $dm->flush();
         }
     }
 
@@ -484,7 +630,6 @@ class SeriesController extends AdminController implements NewAdminController
      * reorder series when sort is multimedia_objects.
      *
      * @param ArrayCollection $resources
-     * @param string          $type      'asc'|'desc'
      *
      * @return array $series
      */
@@ -540,6 +685,10 @@ class SeriesController extends AdminController implements NewAdminController
 
     /**
      * Helper for the menu search form.
+     *
+     * @param Request $req
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function searchAction(Request $req)
     {
@@ -552,9 +701,13 @@ class SeriesController extends AdminController implements NewAdminController
     /**
      * Returns true if the user has enough permissions to delete the $resource passed.
      *
-     * This function will always return true if the user the MODIFY_ONWER permission. Otherwise,
+     * This function will always return true if the user has the MODIFY_ONWER permission. Otherwise,
      * it checks if it is the owner of the object (and there are no other owners) and returns false if not.
      * Since this is a series, that means it will check every object for ownerships.
+     *
+     * @param Series $series
+     *
+     * @return bool
      */
     protected function isUserAllowedToDelete(Series $series)
     {
@@ -566,14 +719,27 @@ class SeriesController extends AdminController implements NewAdminController
             if (!$person) {
                 return false;
             }
-            $mmobjRepo = $this->get('doctrine_mongodb.odm.document_manager')
-                              ->getRepository('PumukitSchemaBundle:MultimediaObject');
+            $dm = $this->get('doctrine_mongodb.odm.document_manager');
+
+            $enableFilter = false;
+            if ($dm->getFilterCollection()->isEnabled('backoffice')) {
+                $enableFilter = true;
+                $filter = $dm->getFilterCollection()->disable('backoffice');
+            }
+            $mmobjRepo = $dm->getRepository('PumukitSchemaBundle:MultimediaObject');
             $allMmobjs = $mmobjRepo->createStandardQueryBuilder()->field('series')->equals($series->getId())->getQuery()->execute();
             foreach ($allMmobjs as $resource) {
                 if (!$resource->containsPersonWithRole($person, $role) ||
                    count($resource->getPeopleByRole($role, true)) > 1) {
+                    if ($enableFilter) {
+                        $filter = $dm->getFilterCollection()->enable('backoffice');
+                    }
+
                     return false;
                 }
+            }
+            if ($enableFilter) {
+                $filter = $dm->getFilterCollection()->enable('backoffice');
             }
         }
 
@@ -583,13 +749,16 @@ class SeriesController extends AdminController implements NewAdminController
     /**
      * Update Broadcast Action.
      *
+     * @param Series  $series
+     * @param Request $request
+     *
+     * @return array|JsonResponse
+     *
      * @ParamConverter("series", class="PumukitSchemaBundle:Series", options={"id" = "id"})
      * @Template("PumukitNewAdminBundle:Series:updatebroadcast.html.twig")
      */
     public function updateBroadcastAction(Series $series, Request $request)
     {
-        $translator = $this->get('translator');
-        $locale = $request->getLocale();
         $dm = $this->get('doctrine_mongodb.odm.document_manager');
         $mmRepo = $dm->getRepository('PumukitSchemaBundle:MultimediaObject');
         $broadcasts = $this->get('pumukitschema.embeddedbroadcast')->getAllTypes();
@@ -598,10 +767,21 @@ class SeriesController extends AdminController implements NewAdminController
         $embeddedBroadcast = false;
         $sameBroadcast = $seriesService->sameEmbeddedBroadcast($series);
         $firstFound = $this->getFirstMultimediaObject($series);
+
+        $multimediaObjects = $mmRepo->findBySeries($series);
+
         if ($sameBroadcast && $firstFound) {
             $embeddedBroadcast = $firstFound->getEmbeddedBroadcast();
         }
         if (($request->isMethod('PUT') || $request->isMethod('POST'))) {
+            if ($request->request->has('ids')) {
+                $ids = $request->get('ids');
+                $multimediaObjects = $mmRepo
+                     ->createStandardQueryBuilder()
+                     ->field('_id')->in($ids)
+                     ->getQuery()->execute();
+            }
+
             try {
                 $type = $request->get('type', null);
                 $password = $request->get('password', null);
@@ -613,9 +793,18 @@ class SeriesController extends AdminController implements NewAdminController
                 if ('string' === gettype($deleteGroups)) {
                     $deleteGroups = json_decode($deleteGroups, true);
                 }
-                $multimediaObjects = $mmRepo->findBySeries($series);
+
                 foreach ($multimediaObjects as $multimediaObject) {
-                    $this->modifyBroadcastGroups($multimediaObject, $type, $password, $addGroups, $deleteGroups, false);
+                    if (!$multimediaObject->islive()) {
+                        $this->modifyBroadcastGroups(
+                            $multimediaObject,
+                            $type,
+                            $password,
+                            $addGroups,
+                            $deleteGroups,
+                            false
+                        );
+                    }
                 }
                 $dm->flush();
             } catch (\Exception $e) {
@@ -630,16 +819,21 @@ class SeriesController extends AdminController implements NewAdminController
         }
 
         return array(
-                     'series' => $series,
-                     'broadcasts' => $broadcasts,
-                     'groups' => $allGroups,
-                     'sameBroadcast' => $sameBroadcast,
-                     'embeddedBroadcast' => $embeddedBroadcast,
-                     );
+                'series' => $series,
+                'broadcasts' => $broadcasts,
+                'groups' => $allGroups,
+                'sameBroadcast' => $sameBroadcast,
+                'embeddedBroadcast' => $embeddedBroadcast,
+                'multimediaObjects' => $mmRepo->findBySeries($series),
+        );
     }
 
     /**
      * List the properties of a series in a modal.
+     *
+     * @param Series $series
+     *
+     * @return array
      *
      * @Template
      */
@@ -664,9 +858,9 @@ class SeriesController extends AdminController implements NewAdminController
         $groupRepo = $dm->getRepository('PumukitSchemaBundle:Group');
         $embeddedBroadcastService = $this->get('pumukitschema.embeddedbroadcast');
         $embeddedBroadcastService->updateTypeAndName($type, $multimediaObject, false);
-        if ($type === EmbeddedBroadcast::TYPE_PASSWORD) {
+        if (EmbeddedBroadcast::TYPE_PASSWORD === $type) {
             $embeddedBroadcastService->updatePassword($password, $multimediaObject, false);
-        } elseif ($type === EmbeddedBroadcast::TYPE_GROUPS) {
+        } elseif (EmbeddedBroadcast::TYPE_GROUPS === $type) {
             $index = 3;
             foreach ($addGroups as $addGroup) {
                 $groupId = explode('_', $addGroup)[$index];
@@ -688,6 +882,9 @@ class SeriesController extends AdminController implements NewAdminController
         }
     }
 
+    /**
+     * @param Series $series
+     */
     private function getFirstMultimediaObject(Series $series)
     {
         $dm = $this->get('doctrine_mongodb.odm.document_manager');

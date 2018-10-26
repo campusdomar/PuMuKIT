@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file source-language="en" target-language="ca" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
     <body>
       <trans-unit id="490aa6e856ccf208a054389e47ce0d06" resname="Id">
         <source>Id</source>
@@ -65,6 +68,22 @@
       <trans-unit id="4acd6f830ae820b400fa57ff7c5a8a69" resname="Job Id">
         <source>Job Id</source>
         <target xml:lang="ca" state="needs-translation">Job Id</target>
+      </trans-unit>
+      <trans-unit id="ce21470ab49d1d1976bc3dc72438c183" resname="Metadata">
+        <source>Metadata</source>
+        <target xml:lang="ca" state="needs-translation">Metadata</target>
+      </trans-unit>
+      <trans-unit id="6544bf0080fae39fefe95d729bf175f4" resname="Multimedia Object Title">
+        <source>Multimedia Object Title</source>
+        <target xml:lang="ca" state="needs-translation">Multimedia Object Title</target>
+      </trans-unit>
+      <trans-unit id="d3a7a1dacbd10db0bed5401db874ac12" resname="Series Id">
+        <source>Series Id</source>
+        <target xml:lang="ca" state="needs-translation">Series Id</target>
+      </trans-unit>
+      <trans-unit id="8bc8df68c1bbcb7463b2b309430e77e8" resname="Series Title">
+        <source>Series Title</source>
+        <target xml:lang="ca" state="needs-translation">Series Title</target>
       </trans-unit>
     </body>
   </file>

@@ -21,6 +21,10 @@ class DefaultController extends Controller
     const SERIES_LIMIT = 30;
 
     /**
+     * @param Request $request
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     *
      * @Template()
      */
     public function licenseAction(Request $request)
@@ -53,6 +57,10 @@ class DefaultController extends Controller
     }
 
     /**
+     * @param Request $request
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     *
      * @Template()
      */
     public function seriesAction(Request $request)
@@ -68,37 +76,38 @@ class DefaultController extends Controller
         $mandatoryTitle = $this->getParameter('pumukit_wizard.mandatory_title') ? 1 : 0;
         $reuseSeries = $this->getParameter('pumukit_wizard.reuse_series');
         $userSeries = array();
+
         if ($reuseSeries) {
-            $locale = $request->getLocale();
-            if ($locale) {
-                $sort = array('title.'.$locale => 1);
-            } else {
-                $sort = array('title' => 1);
-            }
-            $limit = self::SERIES_LIMIT;
-            /* $limit = 30; */
-            $seriesService = $this->get('pumukitschema.series');
             $user = $this->getUser();
             $reuseAdminSeries = $this->getParameter('pumukit_wizard.reuse_admin_series');
-            $personalScopeRoleCode = $this->getParameter('pumukitschema.personal_scope_role_code');
-            $userSeries = $seriesService->getSeriesOfUser($user, $reuseAdminSeries, $personalScopeRoleCode, $sort, $limit);
+            $dm = $this->get('doctrine_mongodb.odm.document_manager');
+            $userSeries = $dm->getRepository('PumukitSchemaBundle:Series')->findUserSeries($user, $reuseAdminSeries);
+
+            usort($userSeries, function ($a, $b) use ($request) {
+                return strcmp($a['_id']['title'][$request->getLocale()], $b['_id']['title'][$request->getLocale()]);
+            });
         }
         $showTags = $this->container->getParameter('pumukit_wizard.show_tags', false);
         $showObjectLicense = $this->container->getParameter('pumukit_wizard.show_object_license', false);
 
         return array(
-                     'form_data' => $formData,
-                     'license_enable' => $licenseService->isEnabled(),
-                     'mandatory_title' => $mandatoryTitle,
-                     'reuse_series' => $reuseSeries,
-                     'same_series' => $sameSeries,
-                     'user_series' => $userSeries,
-                     'show_tags' => $showTags,
-                     'show_object_license' => $showObjectLicense,
+            'form_data' => $formData,
+            'license_enable' => $licenseService->isEnabled(),
+            'mandatory_title' => $mandatoryTitle,
+            'reuse_series' => $reuseSeries,
+            'same_series' => $sameSeries,
+            'user_series' => $userSeries,
+            'show_tags' => $showTags,
+            'show_object_license' => $showObjectLicense,
         );
     }
 
     /**
+     * @param         $id
+     * @param Request $request
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     *
      * @Template()
      */
     public function typeAction($id, Request $request)
@@ -115,7 +124,7 @@ class DefaultController extends Controller
             $id = $formData['series']['reuse']['id'];
             $formData['series']['id'] = $id;
         } elseif ($newSeries && isset($formData['series']['id'])) {
-            if (!$id || ($id === 'null')) {
+            if (!$id || ('null' === $id)) {
                 $id = null;
                 $formData['series']['id'] = null;
                 $formData['series']['reuse']['id'] = null;
@@ -143,18 +152,22 @@ class DefaultController extends Controller
         $showObjectLicense = $this->container->getParameter('pumukit_wizard.show_object_license', false);
 
         return array(
-                     'series_id' => $id,
-                     'form_data' => $formData,
-                     'show_series' => $showSeries,
-                     'license_enable' => $licenseService->isEnabled(),
-                     'same_series' => $sameSeries,
-                     'show_tags' => $showTags,
-                     'show_object_license' => $showObjectLicense,
-                    );
+            'series_id' => $id,
+            'form_data' => $formData,
+            'show_series' => $showSeries,
+            'license_enable' => $licenseService->isEnabled(),
+            'same_series' => $sameSeries,
+            'show_tags' => $showTags,
+            'show_object_license' => $showObjectLicense,
+        );
     }
 
     /**
-     * Option action.
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     *
+     * Option action
      */
     public function optionAction(Request $request)
     {
@@ -174,6 +187,10 @@ class DefaultController extends Controller
     }
 
     /**
+     * @param Request $request
+     *
+     * @return array
+     *
      * @Template()
      */
     public function multimediaobjectAction(Request $request)
@@ -229,20 +246,24 @@ class DefaultController extends Controller
         $mandatoryTitle = $this->getParameter('pumukit_wizard.mandatory_title') ? 1 : 0;
 
         return array(
-                     'form_data' => $formData,
-                     'license_enable' => $licenseService->isEnabled(),
-                     'show_tags' => $showTags,
-                     'available_tags' => $availableTags,
-                     'show_object_license' => $showObjectLicense,
-                     'object_default_license' => $objectDefaultLicense,
-                     'object_available_licenses' => $objectAvailableLicenses,
-                     'mandatory_title' => $mandatoryTitle,
-                     'same_series' => $sameSeries,
-                     'show_series' => $showSeries,
+            'form_data' => $formData,
+            'license_enable' => $licenseService->isEnabled(),
+            'show_tags' => $showTags,
+            'available_tags' => $availableTags,
+            'show_object_license' => $showObjectLicense,
+            'object_default_license' => $objectDefaultLicense,
+            'object_available_licenses' => $objectAvailableLicenses,
+            'mandatory_title' => $mandatoryTitle,
+            'same_series' => $sameSeries,
+            'show_series' => $showSeries,
         );
     }
 
     /**
+     * @param Request $request
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     *
      * @Template()
      */
     public function trackAction(Request $request)
@@ -261,26 +282,38 @@ class DefaultController extends Controller
         $factoryService = $this->get('pumukitschema.factory');
         $pubChannelsTags = $factoryService->getTagsByCod('PUBCHANNELS', true);
 
+        foreach ($pubChannelsTags as $key => $pubTag) {
+            if ($pubTag->getProperty('hide_in_tag_group')) {
+                unset($pubChannelsTags[$key]);
+            }
+        }
+
         $languages = CustomLanguageType::getLanguageNames($this->container->getParameter('pumukit2.customlanguages'), $this->get('translator'));
 
         $showTags = $this->container->getParameter('pumukit_wizard.show_tags', false);
         $showObjectLicense = $this->container->getParameter('pumukit_wizard.show_object_license', false);
 
         return array(
-                     'form_data' => $formData,
-                     'master_profiles' => $masterProfiles,
-                     'pub_channels' => $pubChannelsTags,
-                     'languages' => $languages,
-                     'license_enable' => $licenseService->isEnabled(),
-                     'show_tags' => $showTags,
-                     'show_object_license' => $showObjectLicense,
-                     'same_series' => $sameSeries,
-                     'show_series' => $showSeries,
-                     );
+            'form_data' => $formData,
+            'master_profiles' => $masterProfiles,
+            'pub_channels' => $pubChannelsTags,
+            'languages' => $languages,
+            'license_enable' => $licenseService->isEnabled(),
+            'show_tags' => $showTags,
+            'show_object_license' => $showObjectLicense,
+            'same_series' => $sameSeries,
+            'show_series' => $showSeries,
+        );
     }
 
     /**
      * Upload action.
+     *
+     * @param Request $request
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     *
+     * @throws \Exception
      *
      * @Template()
      */
@@ -315,13 +348,13 @@ class DefaultController extends Controller
             $typeData = $this->getKeyData('type', $formData);
             $trackData = $this->getKeyData('track', $formData);
 
-            if ($this->isGranted('ROLE_SCOPE_GLOBAL')) {
+            if (!$this->isGranted('ROLE_DISABLED_WIZARD_TRACK_PROFILES')) {
                 $profile = $this->getKeyData('profile', $trackData, null);
             } else {
                 $profile = $this->get('pumukitencoder.profile')->getDefaultMasterProfile();
             }
             if (!$profile) {
-                throw \Exception('Not exists master profile');
+                throw new \Exception('Not exists master profile');
             }
 
             $priority = $this->getKeyData('priority', $trackData, 2);
@@ -375,7 +408,7 @@ class DefaultController extends Controller
 
                     if ($showObjectLicense) {
                         $license = $this->getKeyData('license', $formData['multimediaobject']);
-                        if ($license && ($license !== '0')) {
+                        if ($license && ('0' !== $license)) {
                             $multimediaObject = $this->setData($multimediaObject, $formData['multimediaobject'], array('license'));
                         }
                     }
@@ -384,13 +417,31 @@ class DefaultController extends Controller
 
                     if ('file' === $filetype) {
                         $selectedPath = $request->get('resource');
-                        $multimediaObject = $jobService->createTrackFromLocalHardDrive($multimediaObject, $request->files->get('resource'), $profile, $priority, $language, $description,
-                                                                                       array(), $duration, JobService::ADD_JOB_NOT_CHECKS);
+                        $multimediaObject = $jobService->createTrackFromLocalHardDrive(
+                            $multimediaObject,
+                            $request->files->get('resource'),
+                            $profile,
+                            $priority,
+                            $language,
+                            $description,
+                            array(),
+                            $duration,
+                            JobService::ADD_JOB_NOT_CHECKS
+                        );
                     } elseif ('inbox' === $filetype) {
                         $this->denyAccessUnlessGranted(Permission::ACCESS_INBOX);
                         $selectedPath = $request->get('file');
-                        $multimediaObject = $jobService->createTrackFromInboxOnServer($multimediaObject, $request->get('file'), $profile, $priority, $language, $description,
-                                                                                      array(), $duration, JobService::ADD_JOB_NOT_CHECKS);
+                        $multimediaObject = $jobService->createTrackFromInboxOnServer(
+                            $multimediaObject,
+                            $request->get('file'),
+                            $profile,
+                            $priority,
+                            $language,
+                            $description,
+                            array(),
+                            $duration,
+                            JobService::ADD_JOB_NOT_CHECKS
+                        );
                     }
 
                     if ($multimediaObject && $pubchannel) {
@@ -401,7 +452,7 @@ class DefaultController extends Controller
 
                     if ($showTags) {
                         $tagCode = $this->getKeyData('tag', $formData['multimediaobject']);
-                        if ($tagCode != '0') {
+                        if ('0' != $tagCode) {
                             $this->addTagToMultimediaObjectByCode($multimediaObject, $tagCode);
                         }
                     }
@@ -410,6 +461,9 @@ class DefaultController extends Controller
                     $series = $this->getSeries($seriesData);
                     $selectedPath = $request->get('file');
                     $finder = new Finder();
+                    if (!$this->getParameter('pumukit2.inbox_depth')) {
+                        $finder->depth('== 0');
+                    }
                     $finder->files()->in($selectedPath);
                     foreach ($finder as $f) {
                         $filePath = $f->getRealpath();
@@ -442,30 +496,31 @@ class DefaultController extends Controller
                 $message = preg_replace("/\r|\n/", '', $e->getMessage());
 
                 return array(
-                             'uploaded' => 'failed',
-                             'message' => $message,
-                             'option' => $option,
-                             'seriesId' => $seriesId,
-                             'mmId' => null,
-                             'show_series' => $showSeries,
-                             'same_series' => $sameSeries,
-                             );
+                    'uploaded' => 'failed',
+                    'message' => $message,
+                    'option' => $option,
+                    'seriesId' => $seriesId,
+                    'mmId' => null,
+                    'show_series' => $showSeries,
+                    'same_series' => $sameSeries,
+                );
             }
         } else {
             // TODO THROW EXCEPTION OR RENDER SPECIFIC TEMPLATE WITH MESSAGE
             return array(
-                         'uploaded' => 'failed',
-                         'message' => 'No data received',
-                         'option' => $option,
-                         'seriesId' => $seriesId,
-                         'mmId' => null,
-                         'show_series' => $showSeries,
-                         'same_series' => $sameSeries,
-                         );
+                'uploaded' => 'failed',
+                'message' => 'No data received',
+                'option' => null,
+                'seriesId' => $seriesId,
+                'mmId' => null,
+                'show_series' => $showSeries,
+                'same_series' => $sameSeries,
+            );
         }
 
         if ($series) {
             $seriesId = $series->getId();
+            $this->get('pumukitschema.sorted_multimedia_object')->reorder($series);
         } else {
             $seriesId = null;
         }
@@ -476,17 +531,21 @@ class DefaultController extends Controller
         }
 
         return array(
-                     'uploaded' => 'success',
-                     'message' => 'Track(s) added',
-                     'option' => $option,
-                     'seriesId' => $seriesId,
-                     'mmId' => $mmId,
-                     'show_series' => $showSeries,
-                     'same_series' => $sameSeries,
-                     );
+            'uploaded' => 'success',
+            'message' => 'Track(s) added',
+            'option' => $option,
+            'seriesId' => $seriesId,
+            'mmId' => $mmId,
+            'show_series' => $showSeries,
+            'same_series' => $sameSeries,
+        );
     }
 
     /**
+     * @param Request $request
+     *
+     * @return array
+     *
      * @Template()
      */
     public function endAction(Request $request)
@@ -505,17 +564,21 @@ class DefaultController extends Controller
         $sameSeries = $request->get('same_series', false);
 
         return array(
-                     'message' => 'success it seems',
-                     'series' => $series,
-                     'mm' => $multimediaObject,
-                     'option' => $option,
-                     'show_series' => $showSeries,
-                     'license_enabled' => $licenseEnabled,
-                     'same_series' => $sameSeries,
-                     );
+            'message' => 'success it seems',
+            'series' => $series,
+            'mm' => $multimediaObject,
+            'option' => $option,
+            'show_series' => $showSeries,
+            'license_enabled' => $licenseEnabled,
+            'same_series' => $sameSeries,
+        );
     }
 
     /**
+     * @param Request $request
+     *
+     * @return array
+     *
      * @Template()
      */
     public function errorAction(Request $request)
@@ -528,15 +591,19 @@ class DefaultController extends Controller
         $sameSeries = $request->get('same_series', false);
 
         return array(
-                     'series' => $series,
-                     'message' => $errorMessage,
-                     'option' => $option,
-                     'show_series' => $showSeries,
-                     'same_series' => $sameSeries,
-                     );
+            'series' => $series,
+            'message' => $errorMessage,
+            'option' => $option,
+            'show_series' => $showSeries,
+            'same_series' => $sameSeries,
+        );
     }
 
     /**
+     * @param Request $request
+     *
+     * @return array
+     *
      * @Template()
      */
     public function stepsAction(Request $request)
@@ -549,16 +616,22 @@ class DefaultController extends Controller
         $sameSeries = $request->get('same_series', false);
 
         return array(
-                     'step' => $step,
-                     'option' => $option,
-                     'show_series' => $showSeries,
-                     'show_license' => $showLicense,
-                     'same_series' => $sameSeries,
-                     );
+            'step' => $step,
+            'option' => $option,
+            'show_series' => $showSeries,
+            'show_license' => $showLicense,
+            'same_series' => $sameSeries,
+        );
     }
 
     /**
      * Get key data.
+     *
+     * @param       $key
+     * @param       $formData
+     * @param array $default
+     *
+     * @return array
      */
     private function getKeyData($key, $formData, $default = array())
     {
@@ -567,6 +640,10 @@ class DefaultController extends Controller
 
     /**
      * Get series (new or existing one).
+     *
+     * @param array $seriesData
+     *
+     * @return mixed|Series|void
      */
     private function getSeries($seriesData = array())
     {
@@ -584,6 +661,10 @@ class DefaultController extends Controller
 
     /**
      * Create Series.
+     *
+     * @param array $seriesData
+     *
+     * @return mixed|Series|void
      */
     private function createSeries($seriesData = array())
     {
@@ -607,6 +688,11 @@ class DefaultController extends Controller
 
     /**
      * Create Multimedia Object.
+     *
+     * @param $mmData
+     * @param $series
+     *
+     * @return mixed|MultimediaObject|void
      */
     private function createMultimediaObject($mmData, $series)
     {
@@ -627,6 +713,11 @@ class DefaultController extends Controller
 
     /**
      * Add Tag to Multimedia Object by Code.
+     *
+     * @param MultimediaObject $multimediaObject
+     * @param                  $tagCode
+     *
+     * @return array
      */
     private function addTagToMultimediaObjectByCode(MultimediaObject $multimediaObject, $tagCode)
     {
@@ -650,6 +741,12 @@ class DefaultController extends Controller
 
     /**
      * Set data.
+     *
+     * @param $resource
+     * @param $resourceData
+     * @param $keys
+     *
+     * @return mixed
      */
     private function setData($resource, $resourceData, $keys)
     {
@@ -672,10 +769,12 @@ class DefaultController extends Controller
 
     /**
      * Remove Invalid Multimedia Object.
+     *
+     * @param MultimediaObject $multimediaObject
+     * @param Series           $series
      */
     private function removeInvalidMultimediaObject(MultimediaObject $multimediaObject, Series $series)
     {
-        $series->removeMultimediaObject($multimediaObject);
         $dm = $this->get('doctrine_mongodb.odm.document_manager');
         $dm->remove($multimediaObject);
         $dm->flush();
@@ -684,6 +783,13 @@ class DefaultController extends Controller
     /**
      * Get default field values in data
      * for those important fields that can not be empty.
+     *
+     * @param array  $resourceData
+     * @param string $fieldName
+     * @param string $defaultValue
+     * @param bool   $isI18nField
+     *
+     * @return array
      */
     private function getDefaultFieldValuesInData($resourceData = array(), $fieldName = '', $defaultValue = '', $isI18nField = false)
     {
@@ -705,6 +811,10 @@ class DefaultController extends Controller
     /**
      * Get uppercase field name
      * Converts something like 'i18n_title' into 'I18nTitle'.
+     *
+     * @param string $key
+     *
+     * @return string
      */
     private function getUpperFieldName($key = '')
     {
@@ -718,6 +828,10 @@ class DefaultController extends Controller
 
     /**
      * Find Series in Repository.
+     *
+     * @param $id
+     *
+     * @return mixed
      */
     private function findSeriesById($id)
     {
@@ -729,6 +843,11 @@ class DefaultController extends Controller
 
     /**
      * Complete Form with Series metadata.
+     *
+     * @param        $formData
+     * @param Series $series
+     *
+     * @return array
      */
     private function completeFormWithSeries($formData, Series $series)
     {
@@ -748,6 +867,11 @@ class DefaultController extends Controller
 
     /**
      * Get Same Series value.
+     *
+     * @param array $formData
+     * @param bool  $sameSeriesFromRequest
+     *
+     * @return bool
      */
     private function getSameSeriesValue($formData = array(), $sameSeriesFromRequest = false)
     {

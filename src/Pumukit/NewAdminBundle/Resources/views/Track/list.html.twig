@@ -1,3 +1,4 @@
+{% set need_reload_status = false %}
 <table><tbody>
   {% if app.user and is_granted(constant('Pumukit\\SchemaBundle\\Security\\Permission::ACCESS_MULTIMEDIA_SERIES')) %}
   {% for job in jobs %}
@@ -18,6 +19,10 @@
            onclick="$('#tracks_mms_{{ mm.Id }}').load('{{ path('pumukitnewadmin_track_delete_job', {'mmId': mm.Id, 'jobId': job.id, 'preview': 1}) }}', {'_method': 'DELETE'}); return false;">
             <i class="mdi-content-clear"></i>
         </a>
+        {% endif %}
+
+        {% if not job.isExecuted() %}
+            {% set need_reload_status = true %}
         {% endif %}
 
         <small>{{ job.getStatusText() }}</small>
@@ -108,7 +113,7 @@
       </td>
       {% else %}
       <td>
-         <a data-toggle="modal" data-backdrop="static" data-target="#myModal" href="{{ path('pumukitnewadmin_track_play', {'id': track.id, 'mmId': mm.id}) }}">
+         <a data-toggle="modal" data-backdrop="static" data-target="#myModal" href="{{ path('pumukitnewadmin_track_play', {'id': track.id, 'mmId': mm.id}) }}" title="{% trans %}Play track{% endtrans %}">
           <i class="mdi-av-play-arrow"></i>
         </a>
       </td>
@@ -136,20 +141,64 @@
          - {{ (track.getSize() / 1048576)|number_format(2) }} MB
          {% if track.getWidth() and track.getHeight() %}- {{ track.getWidth() }}x{{ track.getHeight() }}{% endif %}
          {% if track.getHide() %}<span class="label label-default">{% trans %}hidden{% endtrans %}</span></i>{% endif %}
-         {% for tag in track.getTags() if tag[0:8] != "profile:" and tag[0:11] != "pumukit1id:" %}
+         {% for tag in track.getTags() if tag[0:8] != "profile:" and tag[0:11] != "pumukit1id:" and tag[0:8] != "ENCODED_" %}
            <span class="label label-primary">{{ tag }}</span>
          {% endfor %}
+          {% if not track.getAllowDownload() %}
+              <span class="label label-default">{% trans %}No downloadable{% endtrans %}</span>
+          {% endif %}
       </td>
     </tr>
   {% endfor %}
   {% if mm.getProperty('opencast') and opencast_exists %}
      {% render(controller('PumukitOpencastBundle:MultimediaObject:index', {'id': mm.id })) %}
   {% endif %}
+
   {% if app.user and is_granted(constant('Pumukit\\SchemaBundle\\Security\\Permission::ACCESS_ADVANCED_UPLOAD')) %}
-  <tr>
-    <td><ul><li></li></ul></td>
-    <td colspan="11"><a data-toggle="modal" data-backdrop="static" data-target="#myModal" href="{{ path('pumukitnewadmin_track_create', {'id': mm.id}) }}">{% trans %}New master{% endtrans %}...</a></td>
-  </tr>
+
+      {% if mm.properties['externalplayer'] is not defined or mm.properties['externalplayer'] == '' %}
+          <tr>
+              <td><ul><li></li></ul></td>
+              <td colspan="11"><a data-toggle="modal" data-backdrop="static" data-target="#myModal" href="{{ path('pumukitnewadmin_track_create', {'id': mm.id}) }}">{% trans %}New master{% endtrans %}...</a></td>
+          </tr>
+          {% if mm.tracks|length == 0 and is_granted('ROLE_SUPER_ADMIN') %}
+              <tr>
+                  <td><ul><li></li></ul></td>
+                  <td colspan="11">
+                      <a href="{{ path('pumukitnewadmin_mms_listexternalproperties', {'id': mm.id}) }}" data-toggle="modal" data-backdrop="static" data-target="#myModal">
+                        {% trans %}New video external{% endtrans %}...
+                      </a>
+                  </td>
+              </tr>
+          {% endif %}
+      {% else %}
+            <tr>
+                <td><ul><li></li></ul></td>
+                <td>
+                    <a href="{{ path('pumukitnewadmin_mms_listexternalproperties', {'id': mm.id}) }}" title="{% trans %}Edit{% endtrans %}" data-toggle="modal" data-backdrop="static" data-dismiss="modal" data-target="#myModal">
+                        <i class="mdi-editor-mode-edit"></i>
+                    </a>
+                </td>
+                {% if is_granted('ROLE_SUPER_ADMIN') %}
+                <td>
+                    <a href="#" title="{% trans %}Delete{% endtrans %}" onclick="window.submit_delete_external_video('{{ mm.id }}'); return false;">
+                        <i class="mdi-content-clear"></i>
+                    </a>
+                </td>
+                {% endif %}
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td colspan="8">
+                    <strong>{% trans %}External video{% endtrans %}: </strong> {{ mm.properties['externalplayer'] }}
+                </td>
+            </tr>
+      {% endif %}
   {% else %}
     {% if 0 == jobs|length and 0 == tracks|length and (not mm.getProperty('opencast') or not opencast_exists) and not is_granted(constant('Pumukit\\SchemaBundle\\Security\\Permission::ACCESS_ADVANCED_UPLOAD')) %}
     <tr>
@@ -176,7 +225,7 @@
 </script>
 {% endif %}
 
-{% if jobs|length != 0 %}
+{% if need_reload_status %}
 <script type="text/javascript">
   {% if 'XMLHttpRequest' == app.request.headers.get('X-Requested-With')  %}
   $('#table_mms_status_wrapper_{{ mm.id }}').html('<i class="mdi-navigation-refresh pmk-job-animate table_mms_job_animate" data-toggle="tooltip" data-placement="right" title="{% spaceless %}

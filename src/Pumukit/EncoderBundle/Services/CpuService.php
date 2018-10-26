@@ -30,28 +30,23 @@ class CpuService
     /**
      * Get available free cpus.
      */
-    public function getFreeCpu($type = null)
+    public function getFreeCpu($profile = null)
     {
         $executingJobs = $this->jobRepo->findWithStatus(array(Job::STATUS_EXECUTING));
 
         $freeCpus = array();
         foreach ($this->cpus as $name => $cpu) {
-            if ($this->isInMaintenance($name)) {
+            $jobs = $this->getRunningJobs($name, $executingJobs);
+
+            if ($this->isInMaintenance($name) || $jobs >= $cpu['max'] || !$this->isCompatible($cpu, $profile)) {
                 continue;
             }
-            $busy = 0;
-            foreach ($executingJobs as $job) {
-                if ($name === $job->getCpu()) {
-                    ++$busy;
-                }
-            }
-            if (($busy < $cpu['max']) && (($cpu['type'] == $type) || (null == $type))) {
-                $freeCpus[] = array(
-                                    'name' => $name,
-                                    'busy' => $busy,
-                                    'max' => $cpu['max'],
-                                    );
-            }
+
+            $freeCpus[] = array(
+                'name' => $name,
+                'jobs' => $jobs,
+                'max' => $cpu['max'],
+            );
         }
 
         return $this->getOptimalCpuName($freeCpus);
@@ -98,9 +93,9 @@ class CpuService
                 $optimalCpu = $cpu;
                 continue;
             }
-            if (($cpu['busy'] / $cpu['max']) < ($optimalCpu['busy'] / $optimalCpu['max'])) {
+            if (($cpu['jobs'] / $cpu['max']) < ($optimalCpu['jobs'] / $optimalCpu['max'])) {
                 $optimalCpu = $cpu;
-            } elseif (($cpu['busy'] === 0) && ($optimalCpu['busy'] === 0) && ($cpu['max'] > $optimalCpu['max'])) {
+            } elseif ((0 === $cpu['jobs']) && (0 === $optimalCpu['jobs']) && ($cpu['max'] > $optimalCpu['max'])) {
                 $optimalCpu = $cpu;
             }
         }
@@ -118,7 +113,7 @@ class CpuService
             $cpuStatus = new CpuStatus();
             $cpuStatus->setName($cpuName);
             $cpuStatus->setStatus(CpuStatus::STATUS_MAINTENANCE);
-        } elseif ($cpuStatus->getStatus() != CpuStatus::STATUS_MAINTENANCE) {
+        } elseif (CpuStatus::STATUS_MAINTENANCE != $cpuStatus->getStatus()) {
             $cpuStatus->setStatus(CpuStatus::STATUS_MAINTENANCE);
         }
         $this->dm->persist($cpuStatus);
@@ -142,11 +137,28 @@ class CpuService
     public function isInMaintenance($cpuName)
     {
         $cpuStatus = $this->cpuRepo->findOneBy(array('name' => $cpuName));
-        if ($cpuStatus && $cpuStatus->getStatus() == CpuStatus::STATUS_MAINTENANCE) {
+        if ($cpuStatus && CpuStatus::STATUS_MAINTENANCE == $cpuStatus->getStatus()) {
             return true;
         } else {
             return false;
         }
+    }
+
+    private function getRunningJobs($cpuName, $allRunningJobs)
+    {
+        $jobs = 0;
+        foreach ($allRunningJobs as $job) {
+            if ($cpuName === $job->getCpu()) {
+                ++$jobs;
+            }
+        }
+
+        return $jobs;
+    }
+
+    public function isCompatible($cpu, $profile)
+    {
+        return null === $profile || empty($cpu['profiles']) || in_array($profile, $cpu['profiles']);
     }
 
     public function getCpuNamesInMaintenanceMode()

@@ -1,0 +1,86 @@
+<div class="well">
+    <div class="row">
+        <div class="col-md-12">
+            <p><strong>{% trans %}Filter by{% endtrans %}:</strong></p>
+            <ul class="list-unstyled">
+                <li>
+                    - <a class="filterSearchEvents" data-type="now" href="#">{% trans %}Live events{% endtrans %}</a>
+                </li>
+                <li>
+                    - <a class="filterSearchEvents" data-type="future" href="#">{% trans %}Future events{% endtrans %}</a>
+                </li>
+                <li>
+                    - <a class="filterSearchEvents" data-type="today" href="#">{% trans %}Today events list{% endtrans %}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <form id="filter_events" class="form" onsubmit="$('#list_events').load('{{ path('pumukit_new_admin_live_event_list') }}', $(this).serialize()); return false;" action="{{ path('pumukit_new_admin_live_event_list') }}" method="GET">
+        <fieldset>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="panel-title">
+                        <i class="mdi-navigation-menu pull-right"></i>
+                        {% trans %}Search{% endtrans %}
+                    </h2>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label for="name" class="control-label">{% trans %}Name{% endtrans %}:</label>
+                        <div>
+                            {% set criteria = app.session.get('admin/live/event/dataForm')|default('') %}
+                            <input type="text" class="reset form-control" name="criteria[name]" id="filters_name" value="{{ criteria['name']|default("") }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="date" class="control-label">{% trans %}Date{% endtrans %}:</label>
+                        <div>
+                            {% trans %}From{% endtrans %}:
+                            <input type="date" class="form-control" name="criteria[date][from]" id="filters_date_from"
+                            {% if criteria['date'] is defined and criteria['date']['from'] is not empty %}
+                                value="{{ criteria['date']['from'] }}"
+                            {% endif %}>
+                            <br/>
+                            {% trans %}To{% endtrans %}:
+                            <input type="date" class="form-control" name="criteria[date][to]" id="filters_date_to"
+                            {% if criteria['date'] is defined and criteria['date']['to'] is not empty %}
+                                value="{{ criteria['date']['to'] }}"
+                            {% endif %}>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <div class="text-right">
+            <input type="button" class="btn btn-default btn-raised resetSession" value="{% trans %}reset{% endtrans %}">
+            <input type="submit" name="filter" value="{% trans %}filter{% endtrans %}" class="btn btn-pumukit btn-raised">
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+    $('.filterSearchEvents').on('click', function(event) {
+        event.preventDefault();
+        var url = "{{ path('pumukit_new_admin_live_event_list', {'type' : '__type__'}) }}";
+        url = url.replace('__type__', $(this).data('type'));
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function(response){
+                $('#list_events').html(response);
+            }
+        });
+    });
+
+    $('.resetSession').on('click', function(event) {
+        event.preventDefault();
+        $('#filter_events')[0].reset();
+        $.ajax({
+            url: "{{ path('pumukit_newadmin_live_events_reset_session') }}",
+            method: 'GET',
+            success: function(response){
+                $('#list_events').load("{{ path('pumukit_new_admin_live_event_list') }}");
+            }
+        });
+    })
+</script>

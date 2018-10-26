@@ -29,49 +29,49 @@ class Element
     /**
      * @var array
      *
-     * @MongoDB\Collection
+     * @MongoDB\Field(type="collection")
      */
     private $tags;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $url;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $path;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $mime_type;
 
     /**
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $size;
 
     /**
      * @var bool
      *
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $hide = false;
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $description = array('en' => '');
 
@@ -161,7 +161,7 @@ class Element
     {
         $tag = array_search($tag, $this->tags, true);
 
-        if ($tag !== false) {
+        if (false !== $tag) {
             unset($this->tags[$tag]);
 
             return true;
@@ -203,7 +203,7 @@ class Element
      */
     public function containsAnyTag(array $tags)
     {
-        return count(array_intersect($tags, $this->tags)) != 0;
+        return 0 != count(array_intersect($tags, $this->tags));
     }
 
     /**
@@ -307,6 +307,16 @@ class Element
     }
 
     /**
+     * Get hide.
+     *
+     * @return bool
+     */
+    public function isHide()
+    {
+        return $this->hide;
+    }
+
+    /**
      * Set description.
      *
      * @param text        $description
@@ -314,7 +324,7 @@ class Element
      */
     public function setDescription($description, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->description[$locale] = $description;
@@ -329,7 +339,7 @@ class Element
      */
     public function getDescription($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->description[$locale])) {

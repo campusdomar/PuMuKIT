@@ -5,7 +5,8 @@ This is the Opencast Bundle Configuration Guide. Check our [README](README.md) t
 ## Index
 
 1. [Parameters](#1-parameters)
-2. [Cron tool](#2-cron-tool)
+2. [Opencast Export To PuMuKIT Workflow](#2-opencast-export-to-pumukit-workflow)
+3. [Cron tool](#-cron-tool)
 
 ## 1. Parameters
 
@@ -27,6 +28,8 @@ pumukit_opencast:
         profile: sbs
         use_flavour: true
         flavour: composition/delivery
+    error_if_file_not_exist: true
+    sync_series_with_opencast: false
     url_mapping:
         -
           url: 'http://demo.opencast.org/static/engage-player/'
@@ -43,6 +46,7 @@ Mandatory:
    - `player` is the Opencast player URL or path (default `/engage/ui/watch.html`). Use `/engage/theodul/ui/core.html` for Opencast 2.x and `/paella/ui/watch.html` if [paella player](http://paellaplayer.upv.es/) is being used.
 
 Optional:
+   - `default_tag_imported` set code of tag that you want to set when imports an mmo to PuMuKIT2 from Opencast.
    - `use_redirect` when set to false, an Opencast video will be displayed inside an iframe into PuMuKIT. Default value: true, the Opencast video is displayed on the Opencast server.
    - `batchimport_inverted` when set to true, the Opencast videos will be imported with presentation and presented inverted, i.e. switching positions. Default value: false.
    - `show_importer_tab` when set to false, the Opencast Importer Tab will not be shown. Useful when the importation is done using batch import command. Default value: true.
@@ -53,14 +57,48 @@ Optional:
       - `profile` is the profile name to generate the side by side video. Mandatory if `generate_sbs` is set to true.
       - `use_flavour` when set to true, it will use a Track with given below flavour as side by side track. Default value: false.
       - `flavour` is the name of the flavour of an Opencast track to be used as side by side track in PuMuKIT. Default value: composition/delivery.
+   - `error_if_file_not_exist` throw an error if the track file doesn't exist or it is not accessible using the url mapping info. Default value: true.
+   - `sync_series_with_opencast` If true, the PuMuKIT series will be syncronized against Opencast. Default value: false
    - `url_mappging` is a list of url-path mappging used to generate the side by side video. Mandatory if `generate_sbs` is set to true.
       - `url` is the internal URL of the Opencast Matterhorn installation, used by Matterhorn to locate services running on the instance and for inter-node communication in distributed setups involving more than one Matterhorn node (org.opencastproject.server.url).
       - `path` is the directory where the system will store its processed files (including temporary files). This directory should be persistent between reboots (i.e., not /tmp) (org.opencastproject.storage.dir).
 
 For more info about Opencast Matterhorn parameters go to [Opencast Documentation](https://bitbucket.org/opencast-community/matterhorn/src/d9890525acc0c14ee20b2523da4873551c6a91f2/etc/config.properties?at=master)
 
+## 2. Opencast Export to PuMuKIT Workflow
 
-## 2. Cron tool
+To automate the process to import your Opencast events to PuMuKIT, the best option is to include a post-mediapackage operation on your Opencast workflow.
+
+In order to do this:
+
+1. Create a new user with the "Access API" permission.
+2. Include a post operation using the following format at the end of the Opencast workflows on which you want to publish videos to PuMuKIT:
+You'll need to change some configuration values with those from your environment:
+* url: Replace "pumukit-host" with the domain name of your PuMuKIT deployment
+* auth.username: Replace "user_import" with the username from Step 1
+* auth.password: Replace "password_import" with the password from Step 1
+```
+    <!-- Publish to PuMuKIT -->
+    <operation
+      id="post-mediapackage"
+      max-attempts="2"
+      exception-handler-workflow="ng-partial-error"
+      description="Publishing to PuMuKIT">
+      <configurations>
+        <configuration key="url">https://pumukit-host/api/opencast/import_event</configuration>
+        <configuration key="format">json</configuration>
+        <configuration key="debug">no</configuration>
+        <configuration key="mediapackage.type">search</configuration>
+        <configuration key="auth.enabled">yes</configuration>
+        <configuration key="auth.username">user_import</configuration>
+        <configuration key="auth.password">password_import</configuration>
+      </configurations>
+    </operation>
+```
+For more information about Workflows, check the Administration Guide for your Opencast version: https://docs.opencast.org/
+
+
+## 3. Cron tool
 
 List of PuMuKIT commands that must be configured with the cron tool.
 
@@ -95,8 +133,11 @@ The recommendation on a production environment is to run commands every day, e.g
 The `pumukit:opencast:workflow:stop` console command allows to stop all Opencast succeeded workflows of
 a removed media package.
 
-If the `delete_archive_mediapackage` parameter is set to true, there is no need to add this command to
-the crontab configuration.
+If the `delete_archive_mediapackage` parameter is set to `false`, there is no need to add this command to
+the crontab configuration as media packages won't be removed in Opencast.
+
+If the `delete_archive_mediapackage` parameter is set to `true`, and you want to delete all Opencast
+succeeded workflows of a removed media package, you must add this command to the crontab configuration.
 
 Configure cron to execute this command periodically.
 

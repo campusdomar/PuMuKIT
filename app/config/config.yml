@@ -2,7 +2,7 @@ imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
     - { resource: doctrine_extensions.yml }
-    - { resource: @PumukitNewAdminBundle/Resources/config/config.yml }
+    - { resource: '@PumukitNewAdminBundle/Resources/config/config.yml' }
     - { resource: parameters_deploy.yml, ignore_errors: true }
     - { resource: encoder.yml }
 
@@ -96,3 +96,6 @@ mobile_detect:
         mobile: ~
         tablet: ~
     switch_device_view: ~
+
+vipx_bot_detect:
+    metadata_file: extended.yml

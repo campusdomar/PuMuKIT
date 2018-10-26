@@ -3,14 +3,15 @@
 {% render(controller('PumukitWizardBundle:Default:steps', {'step': -1, 'option': 'single', 'show_series': show_series, 'same_series': same_series})) %}
 <div class="well">
   {% if same_series %}
-  <form id="pumukitwizard_license_form" autocomplete="off"
+  <form id="pumukitwizard_license_form"
         action="{{ path('pumukitwizard_default_type', {'id': form_data.series.id}) }}" method="POST">
   {% else %}
-  <form id="pumukitwizard_license_form" autocomplete="off"
+  <form id="pumukitwizard_license_form"
         action="{{ path('pumukitwizard_default_series') }}" method="POST">
   {% endif %}
     {% include 'PumukitWizardBundle:Default:hidden.html.twig' with {'step': 'license'} %}
     <fieldset class="well">
+      <legend hidden>{% trans %}License{% endtrans %}</legend>
       <div class="col-md-12">
         <div class="form-group" id="pumukitwizard_license_text">
           <label for="pumukitwizard_license_accept" class="control-label">{% trans %}License{% endtrans %}:</label>

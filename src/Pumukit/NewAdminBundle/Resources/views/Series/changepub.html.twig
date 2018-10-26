@@ -6,9 +6,10 @@
 
 <div class="modal-body">
   {% if app.user and is_granted(constant('Pumukit\\SchemaBundle\\Security\\Permission::ACCESS_MULTIMEDIA_SERIES')) %}
-  <form autocomplete="off" onsubmit="window.submit_series_change_pub(); return false;"
+  <form onsubmit="window.submit_series_change_pub(); return false;"
         action="{{ path('pumukitnewadmin_series_updatepub') }}" method="POST">
     <fieldset>
+      <legend hidden>{% trans %}change status of multimedia objects inside the series{% endtrans %}</legend>
       <div class="form-group">
         <label for="mm" class="control-label">{% trans %}Multimedia Objects{% endtrans %}:</label>
         <div>
@@ -66,7 +67,7 @@
                 {% endfor %}
               </tr>
 
-              {% for mm in series.getMultimediaObjects() %}
+              {% for mm in series.getMultimediaObjects() if mm.islive == false %}
               <tr {{ (mm.status == mm_status.published) ? '' : ' style="background-color: rgb(242, 242, 242)" ' }}>
                 <td>
                   <div class="checkbox">
@@ -123,8 +124,8 @@
           </div>
         </div>
         <div style="text-align: right">{% trans %}Select{% endtrans %}:
-          <a href="#" onclick="window.click_changepub_selection($(this), false)">{% trans %}nothing{% endtrans %}</a>
-          <a href="#" onclick="window.click_changepub_selection($(this), true)">{% trans %}all{% endtrans %}</a>
+          <a href="#" onclick="window.click_changepub_selection($(this), false); return false;">{% trans %}nothing{% endtrans %}</a>
+          <a href="#" onclick="window.click_changepub_selection($(this), true); return false;">{% trans %}all{% endtrans %}</a>
         </div>
       </div>
     </fieldset>

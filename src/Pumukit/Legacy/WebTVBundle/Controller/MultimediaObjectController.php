@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Track;
 use Pumukit\SchemaBundle\Document\Broadcast;
@@ -49,10 +48,12 @@ class MultimediaObjectController extends Controller
 
         $this->updateBreadcrumbs($multimediaObject);
 
-        return array('autostart' => $request->query->get('autostart', 'true'),
-                   'intro' => $this->getIntro($request->query->get('intro')),
-                   'multimediaObject' => $multimediaObject,
-                   'track' => $track, );
+        return array(
+            'autostart' => $request->query->get('autostart', 'true'),
+            'intro' => $this->get('pumukit_baseplayer.intro')->getIntro($request->query->get('intro')),
+            'multimediaObject' => $multimediaObject,
+            'track' => $track,
+        );
     }
 
     /**
@@ -77,10 +78,12 @@ class MultimediaObjectController extends Controller
             return $this->redirect($track->getUrl());
         }
 
-        return array('autostart' => $request->query->get('autostart', 'true'),
-                     'intro' => $this->getIntro($request->query->get('intro')),
-                     'multimediaObject' => $multimediaObject,
-                     'track' => $track, );
+        return array(
+            'autostart' => $request->query->get('autostart', 'true'),
+            'intro' => $this->get('pumukit_baseplayer.intro')->getIntro($request->query->get('intro')),
+            'multimediaObject' => $multimediaObject,
+            'track' => $track,
+        );
     }
 
     /**
@@ -94,8 +97,8 @@ class MultimediaObjectController extends Controller
             if ($mmobjService->hasPlayableResource($multimediaObject) && Broadcast::BROADCAST_TYPE_PUB === $multimediaObject->getBroadcast()->getBroadcastTypeId()) {
                 return $this->redirect($this->generateUrl('pumukit_webtv_multimediaobject_index', array('id' => $multimediaObject->getId())));
             }
-        } elseif (($multimediaObject->getStatus() != MultimediaObject::STATUS_PUBLISHED
-                 && $multimediaObject->getStatus() != MultimediaObject::STATUS_HIDE
+        } elseif ((MultimediaObject::STATUS_PUBLISHED != $multimediaObject->getStatus()
+                 && MultimediaObject::STATUS_HIDE != $multimediaObject->getStatus()
                  ) || !$multimediaObject->containsTagWithCod('PUCHWEBTV')) {
             return $this->render('PumukitWebTVBundle:Index:404notfound.html.twig');
         }
@@ -119,11 +122,13 @@ class MultimediaObjectController extends Controller
 
         $this->updateBreadcrumbs($multimediaObject);
 
-        return array('autostart' => $request->query->get('autostart', 'true'),
-                     'intro' => $this->getIntro($request->query->get('intro')),
-                     'multimediaObject' => $multimediaObject,
-                     'track' => $track,
-                     'magic_url' => true, );
+        return array(
+            'autostart' => $request->query->get('autostart', 'true'),
+            'intro' => $this->get('pumukit_baseplayer.intro')->getIntro($request->query->get('intro')),
+            'multimediaObject' => $multimediaObject,
+            'track' => $track,
+            'magic_url' => true,
+        );
     }
 
     /**
@@ -132,7 +137,10 @@ class MultimediaObjectController extends Controller
     public function seriesAction(MultimediaObject $multimediaObject)
     {
         $series = $multimediaObject->getSeries();
-        $multimediaObjects = $series->getMultimediaObjects();
+        $seriesRepo = $this
+                 ->get('doctrine_mongodb.odm.document_manager')
+                 ->getRepository('PumukitSchemaBundle:Series');
+        $multimediaObjects = $seriesRepo->getMultimediaObjects($series);
 
         $tagRepo = $this
         ->get('doctrine_mongodb.odm.document_manager')
@@ -161,21 +169,6 @@ class MultimediaObjectController extends Controller
 
         return array('multimediaObjects' => $relatedMms,
                    'unescoTag' => $unescoTag, );
-    }
-
-    protected function getIntro($queryIntro = false)
-    {
-        $hasIntro = $this->container->hasParameter('pumukit2.intro');
-
-        if ($queryIntro && filter_var($queryIntro, FILTER_VALIDATE_URL)) {
-            $intro = $queryIntro;
-        } elseif ($hasIntro) {
-            $intro = $this->container->getParameter('pumukit2.intro');
-        } else {
-            $intro = false;
-        }
-
-        return $intro;
     }
 
     protected function incNumView(MultimediaObject $multimediaObject, Track $track = null)

@@ -27,6 +27,7 @@ class Configuration implements ConfigurationInterface
         $this->addCpusSection($rootNode);
         $this->addProfilesSection($rootNode);
         $this->addThumbnailSection($rootNode);
+        $this->addTargetDefaultProfiles($rootNode);
 
         return $treeBuilder;
     }
@@ -36,7 +37,7 @@ class Configuration implements ConfigurationInterface
      *
      * @param ArrayNodeDefinition $node
      */
-    public function addProfilesSection(ArrayNodeDefinition $node)
+    public static function addProfilesSection(ArrayNodeDefinition $node)
     {
         $node
             ->children()
@@ -45,6 +46,8 @@ class Configuration implements ConfigurationInterface
                     ->useAttributeAsKey('name')
                     ->prototype('array')
                         ->children()
+                            ->booleanNode('generate_pic')->defaultValue(true)
+                                ->info('When false, mmobj pics will not be generated from tracks generated using this profile')->end()
                             ->booleanNode('nocheckduration')->defaultValue(false)
                                 ->info('When true, the usual duration checks are not performed on this profile.')->end()
                             ->booleanNode('display')->defaultValue(false)
@@ -53,6 +56,8 @@ class Configuration implements ConfigurationInterface
                                 ->info('Shown in wizard')->end()
                             ->booleanNode('master')->defaultValue(true)
                                 ->info('The track is master copy')->end()
+                            ->booleanNode('downloadable')->defaultValue(false)
+                                ->info('The track generated is downloadable')->end()
                             //Used in JobGeneratorListener
                             ->scalarNode('target')->defaultValue('')
                                 ->info('Profile is used to generate a new track when a multimedia object is tagged with a publication channel tag name with this value. List of names')->end()
@@ -139,6 +144,17 @@ class Configuration implements ConfigurationInterface
                             ->info('Specifies the user to log in as on the remote encoder host')->end()
                             ->scalarNode('description')->defaultValue('')
                             ->info('Encoder host description')->end()
+                            ->arrayNode('profiles')
+                                ->info('Array of profiles. If set, only the profiles listed will be transcoded here')
+                                //TODO: Use this from Symfony 3.3 onwards ->beforeNormalization()->castToArray()
+                                ->beforeNormalization()
+                                    ->ifString()
+                                    ->then(function ($v) {
+                                        return array($v);
+                                    })
+                                ->end()
+                                ->prototype('scalar')
+                            ->end()
                         ->end()
                     ->end()
                 ->end()
@@ -166,5 +182,29 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
         ;
+    }
+
+    /**
+     * Adds `target_default_profiles` section.
+     *
+     * @param ArrayNodeDefinition $node
+     */
+    public function addTargetDefaultProfiles(ArrayNodeDefinition $node)
+    {
+        $node
+             ->children()
+                 ->arrayNode('target_default_profiles')
+                    ->normalizeKeys(false)
+                    ->useAttributeAsKey('name')
+                    ->prototype('array')
+                     ->children()
+                        ->scalarNode('audio')->defaultValue('')
+                            ->info('Default profile (or profiles) for an audio track')->end()
+                        ->scalarNode('video')->defaultValue('')
+                            ->info('Default profile (or profiles) for a video track')->end()
+                     ->end()
+                 ->end()
+             ->end()
+         ;
     }
 }

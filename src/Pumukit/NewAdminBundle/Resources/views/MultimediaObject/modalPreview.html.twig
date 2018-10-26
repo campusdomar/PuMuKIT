@@ -4,21 +4,31 @@
 </div>
 <div class="modal-body">
   <fieldset>
+    <legend hidden>{% trans %}Multimedia object preview{% endtrans %}</legend>
     <div>
+    <div class="embed-responsive embed-responsive-16by9">
       {% if not is_playable %}
         <span class="alert alert-dismissable alert-warning">
           {% trans with {'%title%': multimediaObject.title} %}The multimedia object '%title%' is not playable{% endtrans %}.
         </span>
-      {% else %}
-        <iframe src="{{ url('pumukit_videoplayer_index', {'id': multimediaObject.id}) }}"
-                id="paellaiframe_{{ multimediaObject.id }}"
-                frameborder="0"
-                border="0"
-                width="100%"
-                height="500px"
-                scrolling="no"
-                allowfullscreen>
-        </iframe>
+      {% elseif multimediaObject.getProperty('externalplayer') %}
+          <iframe src="{{ multimediaObject.getProperty('externalplayer') }}" width="100%" class="embed-responsive-item" frameborder="0" allowfullscreen></iframe>
+      {% else%}
+          <iframe src="{{ url('pumukit_videoplayer_index', {'id': multimediaObject.id}) }}"
+                  id="paellaiframe_{{ multimediaObject.id }}"
+                  frameborder="0"
+                  border="0"
+                  width="100%"
+                  class="embed-responsive-item"
+                  scrolling="no"
+                  allowfullscreen>
+          </iframe>
+          <script type="text/javascript">
+              $('#myModal').one('hide.bs.modal', function (e) {
+                  var paellaiframe = document.getElementById('paellaiframe_{{ multimediaObject.id }}');
+                  if (paellaiframe) paellaiframe.parentNode.removeChild(paellaiframe);
+              })
+          </script>
       {% endif %}
     </div>
   </fieldset>
@@ -26,9 +36,3 @@
     <button type="button" class="btn btn-default btn-raised" data-dismiss="modal">{% trans %}Close{% endtrans %}</button>
   </div>
 </div>
-<script type="text/javascript">
- $('#myModal').one('hide.bs.modal', function (e) {
-     var paellaiframe = document.getElementById('paellaiframe_{{ multimediaObject.id }}');
-     if (paellaiframe) paellaiframe.parentNode.removeChild(paellaiframe);
- })
-</script>

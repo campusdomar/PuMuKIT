@@ -38,6 +38,12 @@ pumukitnewadmin_mms_update_pub:
     defaults:
         _controller: pumukitnewadmin.controller.mms:updatepubAction
 
+pumukitnewadmin_mms_update_social:
+    pattern: /{id}/update/social
+    methods: [POST]
+    defaults:
+        _controller: pumukitnewadmin.controller.mms:updatesocialAction
+
 pumukitnewadmin_mms_batch_delete:
     pattern: /batch_delete
     methods: [DELETE]
@@ -215,6 +221,18 @@ pumukitnewadmin_mms_updatebroadcast:
     defaults:
         _controller: pumukitnewadmin.controller.mms:updateBroadcastAction
 
+pumukitnewadmin_mms_sync_metadata:
+    pattern: /{id}/sync/metadata
+    methods: [GET, POST]
+    defaults:
+        _controller: pumukitnewadmin.controller.mms:modalSyncMedatadaAction
+
+pumukitnewadmin_mms_update_sync_metadata:
+    pattern: /{id}/update/sync/metadata
+    methods: [GET, POST]
+    defaults:
+        _controller: pumukitnewadmin.controller.mms:updateMultimediaObjectSyncAction
+
 pumukitnewadmin_mms_user_last_relation:
     pattern: /user/lastrelation
     methods: [POST]
@@ -226,6 +244,18 @@ pumukitnewadmin_mms_listproperties:
     methods: [GET]
     defaults:
         _controller: pumukitnewadmin.controller.mms:listPropertiesAction
+
+pumukitnewadmin_mms_listexternalproperties:
+    pattern: /{id}/listexternalplayer
+    methods: [GET, POST]
+    defaults:
+        _controller: pumukitnewadmin.controller.mms:listExternalPlayerAction
+
+pumukitnewadmin_mms_delete_listexternalproperties:
+    pattern: /{id}/deleteexternalvideo
+    methods: [DELETE]
+    defaults:
+        _controller: pumukitnewadmin.controller.mms:deleteExternalPropertyAction
 
 pumukitnewadmin_mms_modal_preview:
     pattern: /{id}/modalpreview
@@ -246,3 +276,9 @@ pumukitnewadmin_mms_listall:
     methods: [GET, POST]
     defaults:
         _controller: pumukitnewadmin.controller.mms:listAllAction
+
+pumukitnewadmin_mms_updateProperty:
+    pattern: /{id}/updateProperty
+    methods: [GET, POST]
+    defaults:
+        _controller: pumukitnewadmin.controller.mms:updatePropertyAction

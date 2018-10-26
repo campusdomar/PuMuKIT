@@ -1,0 +1,177 @@
+<div class="well">
+    <table class="table  table-striped">
+        <thead>
+        <tr>
+            <th id="th-checkbox" width="1%">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" onclick="window.click_checkbox_all('events', this.checked)">
+                    </label>
+                </div>
+            </th>
+            <th id="th-icons" width="1%">&nbsp;</th>
+            <th id="th-videos-vod" width="8%">{% trans %}Videos VOD{% endtrans %}</th>
+            <th id="th-image" width="3%">{% trans %}Img{% endtrans %}</th>
+            <th id="th-title">
+                <a href="#" class="sort_field" data-type="embeddedEvent.name">
+                    {% trans %}Event name{% endtrans %}
+                    {% if app.session.get('admin/live/event/sort/field') is not null and app.session.get('admin/live/event/sort/field') is not empty %}
+                        {% set type = app.session.get('admin/live/event/sort/field')|split('.') %}
+                        {% if type[1] is defined and 'name' == type[1] %}
+                            {{ app.session.get('admin/live/event/sort/type')=='desc'?'&#x25BE;':'&#x25B4;' }}
+                        {% endif %}
+                    {% endif %}
+                </a>
+            </th>
+
+            <th id="th-number-sessions" width="12%">{% trans %}Sessions number{% endtrans %}</th>
+            <th id="th-create-date" width="12%">
+                <a href="#" class="sort_field" data-type="_id">
+                {% if app.session.get('admin/live/event/sort/field') is not null and app.session.get('admin/live/event/sort/field') is not empty %}
+                    {% if '_id' == app.session.get('admin/live/event/sort/field') %}
+                        {{ app.session.get('admin/live/event/sort/type')=='desc'?'&#x25BE;':'&#x25B4;' }}
+                    {% endif %}
+                {% endif %}
+                {% trans %}Create date{% endtrans %}
+                </a>
+            </th>
+            <th id="th-date" width="12%">
+                <a href="#" class="sort_field" data-type="embeddedEvent.embeddedEventSession.start">
+                    {% trans %}Broadcasting date{% endtrans %}
+                    {% if app.session.get('admin/live/event/sort/field') is not null and app.session.get('admin/live/event/sort/field') is not empty %}
+                        {% if 'embeddedEvent.embeddedEventSession.start' == app.session.get('admin/live/event/sort/field') %}
+                            {{ app.session.get('admin/live/event/sort/type')=='desc'?'&#x25BE;':'&#x25B4;' }}
+                        {% endif %}
+                    {% endif %}
+                </a>
+            </th>
+            <th id="th-public" width="2%">{% trans %}Public{% endtrans %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for multimediaObject in multimediaObjects %}
+            {% set series = multimediaObject.getSeries() %}
+            {% set loadPath = path('pumukit_new_admin_live_event_edit', {'id': multimediaObject.id} ) %}
+            {% set showPath = path('pumukit_new_admin_live_event_show', {'id': multimediaObject.id} ) %}
+            <tr {% if app.request.session.has('admin/live/event/id') and app.request.session.get('admin/live/event/id') == multimediaObject.getId() %}class="success"{% endif %}>
+                <td headers="th-checkbox" width="1%">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="events_checkbox" name="events_checkbox[]" value="{{ multimediaObject.getId() }}">
+                        </label>
+                    </div>
+                </td>
+                <td headers="th-icons" width="1%">
+                    {% include 'PumukitNewAdminBundle:LiveEvent:updatemenu.html.twig' %}
+                </td>
+                <td headers="th-videos-vod" width="12%">
+                    <a href="{{ path('pumukitnewadmin_mms_index', {'id' : series.getId() }) }}" title="{% trans %}Videos VOD{% endtrans %}">
+                        {{ series|count_multimedia_objects }} {% trans %} videos{% endtrans %}
+                    </a>
+                </td>
+                <td headers="th-image" style="cursor: pointer" width="3%" onclick="click_fila_edit_urls('events', this, '{{ showPath }}', '{{ loadPath }}')"  id="event_{{ multimediaObject.getId() }}">
+                    {% include "PumukitNewAdminBundle:Misc:img_list.html.twig" with {'object' : multimediaObject, 'type' : 'event'} %}
+                </td>
+                <td headers="th-title" style="cursor: pointer" onclick="click_fila_edit_urls('events', this, '{{ showPath  }}', '{{ loadPath }}')">
+                    {{ multimediaObject.getEmbeddedEvent().getName(app.request.getLocale()) }}
+                </td>
+                <td headers="th-number-sessions" width="8%">
+                    {{ multimediaObject.getEmbeddedEvent().getEmbeddedEventSession() | length }} {% trans %} sessions{% endtrans %}
+                </td>
+                <td headers="th-create-date">
+                    {{ date_from_mongo_id(multimediaObject) | localizeddate('medium', 'none') }}
+                </td>
+                <td headers="th-date" width="12%">
+                    {% set session = multimediaObject|next_session_event %}
+                    {% if session %}
+                        {{ session[0].getStart() | localizeddate('medium', 'none') }}
+                    {% else %}
+                        {% trans %}No future sessions{% endtrans %}
+                    {% endif %}
+                </td>
+                <td headers="th-public" width="2%">{{ multimediaObject.getEmbeddedEvent().display ? 'Yes' : 'No' }}</td>
+            </tr>
+        {% endfor %}
+        {% if (multimediaObjects.currentPageResults|length) < 10 %}
+            {% for i in (multimediaObjects.currentPageResults|length) .. 9 %}
+                <tr>
+                    <td colspan="9">&nbsp;</td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="9" class="foot-td">
+                    <div class="row">
+                        <div class="col-md-8">
+                            {{ multimediaObjects|length }} {% trans %}Live events{% endtrans %}
+                            {% if app.session.get('admin/live/event/criteria')|length > 1%}
+                                <a title="{% trans %}Cancel current search{% endtrans %}" style="color:blue; font-weight:normal;" href="#" onclick="$('.resetSession').click(); return false;">{% trans %}Cancel search{% endtrans %}</a>
+                           {% endif %}
+                       </div>
+                       <div class="col-md-4 text-right">
+                            <div class="pagerfanta">
+                                {{ pagerfanta(multimediaObjects, 'twitter_bootstrap3', {"css_container_class": "pagination pagination-sm", "next_message": "&raquo;", "prev_message": "&laquo;", "routeName": "pumukit_new_admin_live_event_index"}) }}
+
+                                <input title="{% trans %}Go to page{% endtrans %}" type="number"
+                                       style="width: 25px;text-align:center;cursor:pointer;"
+                                       value="{{ multimediaObjects.getCurrentPage() }}"
+                                       onchange="window.location.search = '?page=' + this.value; return false;" />
+                            </div>
+                       </div>
+                    </div>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<script type="text/javascript">
+    $(function(){
+        var mmo = "{{ app.session.get('admin/live/event/id') }}";
+        var url = "{{ path('pumukit_new_admin_live_event_edit', {'id': '__id__'}) }}";
+        var showUrl = "{{ path('pumukit_new_admin_live_event_show', {'id': '__id__'}) }}";
+        if(mmo) {
+            url = url.replace('__id__', mmo);
+            showUrl = showUrl.replace('__id__', mmo);
+            if (mmo != $('#inputMMId').val()) {
+                $('#edit_events').load(url);
+            }
+            $('#preview_events').load(showUrl);
+        }
+    });
+
+    $('.event_option').on('click', function (event) {
+        event.preventDefault();
+        $.ajax({
+            url: $(this).data('href'),
+            method: 'POST',
+            success: function (response) {
+                var mm = "{{ path('pumukit_new_admin_live_event_list') }}";
+                $('#list_events').load(mm);
+                success(response.status);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                no_success(jqXHR.responseJSON.status);
+            }
+        });
+        return false;
+    });
+
+    $('.sort_field').on('click', function(event) {
+        event.preventDefault();
+        $.ajax({
+            url: "{{ path('pumukit_new_admin_live_event_set_sorting') }}",
+            method: 'POST',
+            data: {
+                'field' : $(this).data('type')
+            },
+            success: function () {
+                var mm = "{{ path('pumukit_new_admin_live_event_list') }}";
+                $('#list_events').load(mm);
+            }
+        });
+        return false;
+    })
+</script>

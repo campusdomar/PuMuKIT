@@ -12,16 +12,14 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 class Material extends Element
 {
     /**
-     * @var string
-     *
-     * @MongoDB\Raw
+     * @var array
+     * @MongoDB\Field(type="raw")
      */
     private $name = array('en' => '');
 
     /**
      * @var string
-     *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $language;
 
@@ -33,7 +31,7 @@ class Material extends Element
      */
     public function setName($name, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->getLocale();
         }
         $this->name[$locale] = $name;
@@ -48,7 +46,7 @@ class Material extends Element
      */
     public function getName($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->getLocale();
         }
         if (!isset($this->name[$locale])) {

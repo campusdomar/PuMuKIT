@@ -7,7 +7,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\NewAdminBundle\Form\Type\PlaylistType;
 
@@ -216,7 +215,7 @@ class PlaylistController extends CollectionController
         }
         $criteria = $this->get('session')->get('admin/playlist/criteria', array());
 
-        $new_criteria = $this->get('pumukitnewadmin.series_search')->processCriteria($criteria, true);
+        $new_criteria = $this->get('pumukitnewadmin.series_search')->processCriteria($criteria, true, $request->getLocale());
 
         return $new_criteria;
     }
@@ -236,7 +235,7 @@ class PlaylistController extends CollectionController
         $value = $session->get('admin/playlist/type', 'desc');
         $key = $session->get('admin/playlist/sort', 'public_date');
 
-        if ($key == 'title') {
+        if ('title' == $key) {
             $key .= '.'.$request->getLocale();
         }
 

@@ -4,6 +4,7 @@ namespace Pumukit\NewAdminBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 /**
@@ -64,7 +65,6 @@ class LiveController extends AdminController implements NewAdminController
         $session_namespace = 'admin/live';
 
         $newLiveId = $request->get('newLiveId');
-        $page = $session->get($session_namespace.'/page', 1);
 
         if ($config->isPaginated()) {
             $resources = $this
@@ -74,6 +74,7 @@ class LiveController extends AdminController implements NewAdminController
             if ($request->get('page', null)) {
                 $session->set($session_namespace.'/page', $request->get('page', 1));
             }
+            $page = $session->get($session_namespace.'/page', 1);
 
             if ($request->get('paginate', null)) {
                 $session->set($session_namespace.'/paginate', $request->get('paginate', 10));
@@ -95,5 +96,84 @@ class LiveController extends AdminController implements NewAdminController
         }
 
         return $resources;
+    }
+
+    /**
+     * Delete action.
+     */
+    public function deleteAction(Request $request)
+    {
+        $config = $this->getConfiguration();
+        $resource = $this->findOr404($request);
+        $resourceId = $resource->getId();
+        $resourceName = $config->getResourceName();
+
+        $dm = $this->container->get('doctrine_mongodb')->getManager();
+
+        $liveEvents = $dm->getRepository('PumukitSchemaBundle:MultimediaObject')->findOneBy(array('embeddedEvent.live.$id' => new \MongoId($resourceId)));
+        if ($liveEvents) {
+            return $this->redirect($this->generateUrl('pumukitnewadmin_'.$resourceName.'_list'));
+        }
+
+        if ($resourceId === $this->get('session')->get('admin/'.$resourceName.'/id')) {
+            $this->get('session')->remove('admin/'.$resourceName.'/id');
+        }
+
+        $dm->remove($resource);
+        $dm->flush();
+
+        return $this->redirect($this->generateUrl('pumukitnewadmin_'.$resourceName.'_list'));
+    }
+
+    public function batchDeleteAction(Request $request)
+    {
+        $translator = $this->get('translator');
+
+        $ids = $this->getRequest()->get('ids');
+
+        if ('string' === gettype($ids)) {
+            $ids = json_decode($ids, true);
+        }
+
+        $config = $this->getConfiguration();
+        $resourceName = $config->getResourceName();
+
+        $aResult = $this->checkEmptyChannels($ids);
+        if (!$aResult['emptyChannels']) {
+            return new Response($translator->trans('There are associated events on channel id'.$aResult['channelId']), Response::HTTP_BAD_REQUEST);
+        }
+
+        $factory = $this->get('pumukitschema.factory');
+        foreach ($ids as $id) {
+            $resource = $this->find($id);
+
+            try {
+                $factory->deleteResource($resource);
+            } catch (\Exception $e) {
+                return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+            }
+            if ($id === $this->get('session')->get('admin/'.$resourceName.'/id')) {
+                $this->get('session')->remove('admin/'.$resourceName.'/id');
+            }
+        }
+
+        return $this->redirect($this->generateUrl('pumukitnewadmin_'.$resourceName.'_list'));
+    }
+
+    private function checkEmptyChannels($ids)
+    {
+        $emptyChannels = true;
+        $dm = $this->container->get('doctrine_mongodb')->getManager();
+
+        foreach ($ids as $id) {
+            $liveEvents = $dm->getRepository('PumukitSchemaBundle:MultimediaObject')->findOneBy(array('embeddedEvent.live.$id' => new \MongoId($id)));
+            if ($liveEvents) {
+                $emptyChannels = false;
+                $channelId = $id;
+                break;
+            }
+        }
+
+        return array('emptyChannels' => $emptyChannels, 'channelId' => $channelId);
     }
 }

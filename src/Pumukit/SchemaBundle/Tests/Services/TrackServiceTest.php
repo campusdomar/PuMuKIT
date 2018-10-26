@@ -4,9 +4,9 @@ namespace Pumukit\SchemaBundle\Tests\Services;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\SchemaBundle\Document\Track;
-use Pumukit\SchemaBundle\Services\FactoryService;
 use Pumukit\SchemaBundle\Services\TrackService;
 use Pumukit\EncoderBundle\Services\ProfileService;
+use Pumukit\EncoderBundle\Services\CpuService;
 use Pumukit\EncoderBundle\Document\Job;
 
 class TrackServiceTest extends WebTestCase
@@ -274,7 +274,7 @@ class TrackServiceTest extends WebTestCase
                                                        'framerate' => '25/1',
                                                        'channels' => 1,
                                                        'audio' => false,
-                                                       'bat' => 'avconv -y -i "{{input}}" -acodec libvo_aacenc -vcodec libx264 -preset slow -crf 15 -threads 0 "{{output}}"',
+                                                       'bat' => 'ffmpeg -y -i "{{input}}" -acodec aac -vcodec libx264 -preset slow -crf 15 -threads 0 "{{output}}"',
                                                        'streamserver' => array(
                                                                                'type' => ProfileService::STREAMSERVER_STORE,
                                                                                'host' => '192.168.5.125',
@@ -283,7 +283,7 @@ class TrackServiceTest extends WebTestCase
                                                                                'dir_out' => __DIR__.'/../Resources/dir_out',
                                                                                'url_out' => 'http://localhost:8000/downloads/',
                                                                                ),
-                                                       'app' => 'avconv',
+                                                       'app' => 'ffmpeg',
                                                        'rel_duration_size' => 1,
                                                        'rel_duration_trans' => 1,
                                                        ),

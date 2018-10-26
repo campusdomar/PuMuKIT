@@ -12,20 +12,20 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Live
 {
-    const LIVE_TYPE_FMS = 'FMS';
-    const LIVE_TYPE_WMS = 'WMS';
+    const LIVE_TYPE_WOWZA = 'WOWZA';
+    const LIVE_TYPE_AMS = 'AMS';
+    const LIVE_TYPE_FMS = 'FMS'; //Kept for backwards compatibility
+    const LIVE_TYPE_WMS = 'WMS'; //Kept for backwards compatibility
 
     /**
      * @var int
-     *
      * @MongoDB\Id
      */
     private $id;
 
     /**
      * @var string
-     *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      * @Assert\NotBlank()
      * @Assert\Url(protocols= {"rtmpt", "rtmp", "http", "mms", "rtp", "https"})
      */
@@ -33,87 +33,75 @@ class Live
 
     /**
      * @var string
-     *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $passwd;
 
     /**
      * @var int
-     *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
-    private $live_type = self::LIVE_TYPE_FMS;
+    private $live_type = self::LIVE_TYPE_WOWZA;
 
     /**
      * @var int
-     *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $width = 720;
 
     /**
      * @var int
-     *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $height = 576;
 
     /**
      * @var string
-     *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $qualities;
 
     /**
      * @var string
-     *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $ip_source;
 
     /**
      * @var string
-     *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      * @Assert\NotBlank()
      */
     private $source_name;
 
     /**
      * @var bool
-     *
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $index_play = false;
 
     /**
      * @var bool
-     *
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $broadcasting = false;
 
     /**
      * @var bool
-     *
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $debug = false;
 
     /**
      * @var string
-     *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      * @Assert\NotBlank()
      */
     private $name = array('en' => '');
 
     /**
      * @var string
-     *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $description = array('en' => '');
 
@@ -203,11 +191,16 @@ class Live
     }
 
     /**
-     * @Assert\True(message = "Live type not valid")
+     * @Assert\IsTrue(message = "Live type not valid")
      */
     public function isValidLiveType()
     {
-        return in_array($this->live_type, array(self::LIVE_TYPE_WMS, self::LIVE_TYPE_FMS));
+        return in_array($this->live_type, array(
+            self::LIVE_TYPE_WOWZA,
+            self::LIVE_TYPE_AMS,
+            self::LIVE_TYPE_WMS,
+            self::LIVE_TYPE_FMS,
+        ));
     }
 
     /**
@@ -373,11 +366,12 @@ class Live
     /**
      * Set name.
      *
-     * @param string $name
+     * @param             $name
+     * @param string|null $locale
      */
     public function setName($name, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->name[$locale] = $name;
@@ -386,11 +380,13 @@ class Live
     /**
      * Get name.
      *
+     * @param string|null $locale
+     *
      * @return string
      */
     public function getName($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->name[$locale])) {
@@ -413,7 +409,7 @@ class Live
     /**
      * Get i18n name.
      *
-     * @return array
+     * @return string
      */
     public function getI18nName()
     {
@@ -424,10 +420,11 @@ class Live
      * Set description.
      *
      * @param string $description
+     * @param null   $locale
      */
     public function setDescription($description, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->description[$locale] = $description;
@@ -436,11 +433,13 @@ class Live
     /**
      * Get description.
      *
+     * @param null $locale
+     *
      * @return string
      */
     public function getDescription($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->description[$locale])) {
@@ -463,7 +462,7 @@ class Live
     /**
      * Get I18n description.
      *
-     * @return array
+     * @return string
      */
     public function getI18nDescription()
     {
@@ -510,8 +509,10 @@ class Live
      */
     public function getResolution()
     {
-        return array('width' => $this->width,
-                     'height' => $this->height, );
+        return array(
+            'width' => $this->width,
+            'height' => $this->height,
+        );
     }
 
     /**
@@ -525,5 +526,15 @@ class Live
             $this->width = $resolution['width'];
             $this->height = $resolution['height'];
         }
+    }
+
+    /**
+     * Return short info about the live channel to use as choice label.
+     *
+     * @return string
+     */
+    public function getInfo()
+    {
+        return sprintf('%s (%s/%s)', $this->getName(), $this->getUrl(), $this->getSourceName());
     }
 }

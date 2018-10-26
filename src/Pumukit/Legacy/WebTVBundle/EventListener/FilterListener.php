@@ -22,7 +22,7 @@ class FilterListener
         $req = $event->getRequest();
         $routeParams = $req->attributes->get('_route_params');
 
-        if ($event->getRequestType() === HttpKernelInterface::MASTER_REQUEST
+        if (HttpKernelInterface::MASTER_REQUEST === $event->getRequestType()
         && (false !== strpos($req->attributes->get('_controller'), 'WebTVBundle'))
         && (!isset($routeParams['filter']) || $routeParams['filter'])) {
             $filter = $this->dm->getFilterCollection()->enable('frontend');
@@ -45,7 +45,7 @@ class FilterListener
     {
         $broadcastRepo = $this->dm->getRepository('PumukitSchemaBundle:Broadcast');
         $privateBroadcastIds = $broadcastRepo->findDistinctIdsByBroadcastTypeId(Broadcast::BROADCAST_TYPE_PRI);
-        if (null != $privateBroadcastIds) {
+        if (null !== $privateBroadcastIds) {
             return $privateBroadcastIds->toArray();
         }
 
@@ -55,7 +55,7 @@ class FilterListener
     private function getBroadcastCriteria()
     {
         $privateBroadcastIds = $this->getPrivateBroadcastIds();
-        if (null != $privateBroadcastIds) {
+        if (null !== $privateBroadcastIds) {
             return array('$nin' => $privateBroadcastIds);
         }
 

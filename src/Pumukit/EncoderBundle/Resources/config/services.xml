@@ -6,7 +6,7 @@
 
     <parameters>
         <parameter key="pumukit.picextractor.command.ffmpeg">ffmpeg -ss {{ss}} -y -i "{{input}}" -r 1 -vframes 1 -s {{size}} -f image2 "{{output}}"</parameter>
-        <parameter key="pumukit.picextractor.command.libav">avconv -ss {{ss}} -y -i "{{input}}" -r 1 -vframes 1 -s {{size}} -f image2 "{{output}}"</parameter>
+        <parameter key="pumukit.picextractor.command.libav">ffmpeg -ss {{ss}} -y -i "{{input}}" -r 1 -vframes 1 -s {{size}} -f image2 "{{output}}"</parameter>
         <parameter key="pumukit.picextractor.command">%pumukit.picextractor.command.libav%</parameter>
     </parameters>
 
@@ -19,6 +19,7 @@
         <service id="pumukitencoder.profile" class="Pumukit\EncoderBundle\Services\ProfileService">
             <argument>%pumukitencode.profilelist%</argument>
             <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+            <argument>%pumukitencode.target_default_profiles%</argument>
         </service>
 
         <service id="pumukitencoder.job" class="Pumukit\EncoderBundle\Services\JobService">
@@ -33,6 +34,7 @@
             <argument type="service" id="pumukitencoder.mmpropertyjob"/>
             <argument>%kernel.environment%</argument>
             <argument>%pumukit2.tmp%</argument>
+            <argument>%pumukit2.inbox%</argument>
             <tag name="monolog.logger" channel="encoder"/>
         </service>
 
@@ -48,6 +50,11 @@
             <argument>%pumukit2.uploads_dir%/pic</argument>
             <argument>%pumukit2.uploads_url%/pic</argument>
             <argument>%pumukit.picextractor.command%</argument>
+        </service>
+
+        <service id="pumukitencoder.pic" class="Pumukit\EncoderBundle\Services\PicService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+            <argument type="service" id="pumukitschema.mmspic"/>
         </service>
 
         <service id="pumukitencoder.remove" class="Pumukit\EncoderBundle\EventListener\RemoveListener">

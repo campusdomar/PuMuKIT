@@ -22,56 +22,56 @@ class Event
     /**
      * @var Live
      *
-     * @MongoDB\ReferenceOne(targetDocument="Live")
+     * @MongoDB\ReferenceOne(targetDocument="Live", cascade={"persist"})
      */
     private $live;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $name;
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $description = array('en' => '');
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $place;
 
     /**
      * @var datetime
      *
-     * @MongoDB\Date
+     * @MongoDB\Field(type="date")
      */
     private $date;
 
     /**
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $duration = 60;
 
     /**
      * @var bool
      *
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $display = true;
 
     /**
      * @var bool
      *
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $create_serial = true;
 
@@ -152,7 +152,7 @@ class Event
      */
     public function setDescription($description, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->description[$locale] = $description;
@@ -165,7 +165,7 @@ class Event
      */
     public function getDescription($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->description[$locale])) {

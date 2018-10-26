@@ -33,21 +33,21 @@ class EmbeddedBroadcast
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $name = self::NAME_PUBLIC;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $type = self::TYPE_PUBLIC;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $password;
 
@@ -190,7 +190,7 @@ class EmbeddedBroadcast
     {
         $groups = $this->getGroups();
         $groupsDescription = '';
-        if (($this->getType() === self::TYPE_GROUPS) && ($groups)) {
+        if ((self::TYPE_GROUPS === $this->getType()) && ($groups)) {
             $groupsDescription = ': ';
             foreach ($groups as $group) {
                 $groupsDescription .= $group->getName();
@@ -204,7 +204,7 @@ class EmbeddedBroadcast
     }
 
     /**
-     * @Assert\True(message = "Password required if not public")
+     * @Assert\IsTrue(message = "Password required if not public")
      */
     public function isPasswordValid()
     {

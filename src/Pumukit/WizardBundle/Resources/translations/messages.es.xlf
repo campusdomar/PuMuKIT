@@ -186,7 +186,10 @@
       </trans-unit>
       <trans-unit id="02552d3c116b8a96f9ff0001b6ae661c" resname="Under">
         <source>Under</source>
-        <target xml:lang="es-ES" state="translated">Bajo</target>
+        <target xml:lang="es-ES" state="translated">Menor de</target>
+        <alt-trans>
+          <target xml:lang="es-ES">Bajo</target>
+        </alt-trans>
       </trans-unit>
       <trans-unit id="46b5f8c58b679b4243cbdb5749642c86" resname="Progress">
         <source>Progress</source>
@@ -278,7 +281,10 @@
       </trans-unit>
       <trans-unit id="29d271e331716d9ff2243f12ee3f8404" resname="Select a tag...">
         <source>Select a tag...</source>
-        <target xml:lang="es-ES" state="translated">Selecione una categoría...</target>
+        <target xml:lang="es-ES" state="translated">Seleccione una categoría...</target>
+        <alt-trans>
+          <target xml:lang="es-ES">Selecione una categoría...</target>
+        </alt-trans>
       </trans-unit>
       <trans-unit id="d6119981b8a25ac77c76304c50cfc39b" resname="Select a license...">
         <source>Select a license...</source>
@@ -319,6 +325,26 @@
       <trans-unit id="03c2e7e41ffc181a4e84080b4710e81e" resname="New">
         <source>New</source>
         <target xml:lang="es-ES" state="translated">Nuevo</target>
+      </trans-unit>
+      <trans-unit id="5d2fda977ed0be40ee5c8293be11bb3e" resname="ERROR!!">
+        <source>ERROR!!</source>
+        <target xml:lang="es-ES" state="translated">ERROR!!</target>
+      </trans-unit>
+      <trans-unit id="d4c841f869c6570cbb747ede7870a916" resname="There was an error:">
+        <source>There was an error:</source>
+        <target xml:lang="es-ES" state="translated">Se ha producido un error:</target>
+      </trans-unit>
+      <trans-unit id="a2a86c91777e281aab7ce50c73e186e2" resname="Series title">
+        <source>Series title</source>
+        <target xml:lang="es-ES" state="translated">Título de la serie</target>
+      </trans-unit>
+      <trans-unit id="ffeed24e8e4fd763c1d0d02c6e5d6e15" resname="Upload file">
+        <source>Upload file</source>
+        <target xml:lang="es-ES" state="translated">Subir archivo</target>
+      </trans-unit>
+      <trans-unit id="09038ef8099e1bea60c8397ce2ec6db9" resname="Multimedia Object title">
+        <source>Multimedia Object title</source>
+        <target xml:lang="es-ES" state="translated">Título del Objeto Multimedia</target>
       </trans-unit>
     </body>
   </file>

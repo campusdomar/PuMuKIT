@@ -10,11 +10,13 @@ use Pumukit\SchemaBundle\Services\PermissionProfileService;
 use Pumukit\SchemaBundle\Document\User;
 use Pumukit\SchemaBundle\Document\Group;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class LDAPUserService
 {
     const EDU_PERSON_AFFILIATION = 'edupersonaffiliation';
     const IRISCLASSIFCODE = 'irisclassifcode';
+    const ORIGIN = 'ldap';
 
     protected $dm;
     protected $userService;
@@ -22,6 +24,17 @@ class LDAPUserService
     protected $permissionProfile;
     protected $logger;
 
+    /**
+     * LDAPUserService constructor.
+     *
+     * @param DocumentManager          $documentManager
+     * @param UserService              $userService
+     * @param PersonService            $personService
+     * @param LDAPService              $LDAPService
+     * @param PermissionProfileService $permissionProfile
+     * @param GroupService             $groupService
+     * @param LoggerInterface          $logger
+     */
     public function __construct(DocumentManager $documentManager, UserService $userService, PersonService $personService, LDAPService $LDAPService, PermissionProfileService $permissionProfile, GroupService $groupService, LoggerInterface $logger)
     {
         $this->dm = $documentManager;
@@ -33,6 +46,14 @@ class LDAPUserService
         $this->logger = $logger;
     }
 
+    /**
+     * @param $info
+     * @param $username
+     *
+     * @return mixed|object|User
+     *
+     * @throws \Exception
+     */
     public function createUser($info, $username)
     {
         if (!isset($username)) {
@@ -44,17 +65,38 @@ class LDAPUserService
             try {
                 $user = $this->newUser($info, $username);
             } catch (\Exception $e) {
-                throw  $e;
+                throw new AuthenticationException($e->getMessage());
+            }
+        } elseif ($info['mail'][0] !== $user->getEmail() || $info['cn'][0] !== $user->getFullname()) {
+            try {
+                $user = $this->updateUser($info, $user);
+            } catch (\Exception $e) {
+                throw new AuthenticationException($e->getMessage());
             }
         }
+        $this->updateGroups($info, $user);
         $this->promoteUser($info, $user);
 
         return $user;
     }
 
-    private function newUser($info, $username)
+    /**
+     * @param $info
+     * @param $username
+     *
+     * @return object|User
+     */
+    protected function newUser($info, $username)
     {
-        $user = new User();
+        $email = $this->getEmail($info);
+
+        $user = $this->dm->getRepository('PumukitSchemaBundle:User')->findOneBy(array('email' => $email));
+        if (count($user) <= 0) {
+            $user = new User();
+            $user->setEmail($email);
+        } else {
+            throw new AuthenticationException('Duplicated email key');
+        }
 
         if (isset($info['mail'][0])) {
             $user->setEmail($info['mail'][0]);
@@ -68,47 +110,23 @@ class LDAPUserService
 
         $permissionProfile = $this->permissionProfileService->getByName('Viewer');
         $user->setPermissionProfile($permissionProfile);
-        $user->setOrigin('ldap');
+        $user->setOrigin(self::ORIGIN);
         $user->setEnabled(true);
 
         $this->userService->create($user);
         $this->personService->referencePersonIntoUser($user);
 
-        if (isset($info[self::EDU_PERSON_AFFILIATION][0])) {
-            foreach ($info[self::EDU_PERSON_AFFILIATION] as $key => $value) {
-                if ('count' !== $key) {
-                    try {
-                        $group = $this->getGroup($value, self::EDU_PERSON_AFFILIATION);
-                        $this->userService->addGroup($group, $user, true, false);
-                        $this->logger->info(__CLASS__.' ['.__FUNCTION__.'] '.'Added Group: '.$group->getName());
-                    } catch (\ErrorException $e) {
-                        $this->logger->info(__CLASS__.' ['.__FUNCTION__.'] '.'Invalid Group '.$value.': '.$e->getMessage());
-                    } catch (\Exception $e) {
-                        $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.'Error on adding Group '.$value.': '.$e->getMessage());
-                    }
-                }
-            }
-        }
-
-        if (isset($info[self::IRISCLASSIFCODE][0])) {
-            foreach ($info[self::IRISCLASSIFCODE] as $key => $value) {
-                if ('count' !== $key) {
-                    try {
-                        $group = $this->getGroup($value, self::IRISCLASSIFCODE);
-                        $this->userService->addGroup($group, $user, true, false);
-                        $this->logger->info(__CLASS__.' ['.__FUNCTION__.'] '.'Added Group: '.$group->getName());
-                    } catch (\ErrorException $e) {
-                        $this->logger->info(__CLASS__.' ['.__FUNCTION__.'] '.'Invalid Group '.$value.': '.$e->getMessage());
-                    } catch (\Exception $e) {
-                        $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.'Error on adding Group '.$value.': '.$e->getMessage());
-                    }
-                }
-            }
-        }
-
         return $user;
     }
 
+    /**
+     * @param      $key
+     * @param null $type
+     *
+     * @return Group
+     *
+     * @throws \Exception
+     */
     protected function getGroup($key, $type = null)
     {
         $cleanKey = $this->getGroupKey($key, $type);
@@ -121,26 +139,47 @@ class LDAPUserService
         $group = new Group();
         $group->setKey($cleanKey);
         $group->setName($cleanName);
-        $group->setOrigin('ldap');
+        $group->setOrigin(self::ORIGIN);
         $this->groupService->create($group);
 
         return $group;
     }
 
+    /**
+     * @param      $key
+     * @param null $type
+     *
+     * @return null|string|string[]
+     */
     protected function getGroupKey($key, $type = null)
     {
         return preg_replace('/\W/', '', $key);
     }
 
+    /**
+     * @param      $key
+     * @param null $type
+     *
+     * @return mixed
+     */
     protected function getGroupName($key, $type = null)
     {
         return $key;
     }
 
-    private function promoteUser($info, $user)
+    /**
+     * @param $info
+     * @param $user
+     *
+     * @throws \Exception
+     */
+    protected function promoteUser($info, $user)
     {
         $permissionProfileAutoPub = $this->permissionProfileService->getByName('Auto Publisher');
         $permissionProfileAdmin = $this->permissionProfileService->getByName('Administrator');
+        $permissionProfileIngestor = $this->permissionProfileService->getByName('Ingestor');
+        $permissionProfilePublisher = $this->permissionProfileService->getByName('Publisher');
+        $permissionProfileViewer = $this->permissionProfileService->getByName('Viewer');
 
         if ($this->isAutoPub($info, $user->getUsername())) {
             $user->setPermissionProfile($permissionProfileAutoPub);
@@ -151,15 +190,178 @@ class LDAPUserService
             $user->setPermissionProfile($permissionProfileAdmin);
             $this->userService->update($user, true, false);
         }
+
+        if ($this->isIngestor($info, $user->getUsername())) {
+            $user->setPermissionProfile($permissionProfileIngestor);
+            $this->userService->update($user, true, false);
+        }
+
+        if ($this->isPublisher($info, $user->getUsername())) {
+            $user->setPermissionProfile($permissionProfilePublisher);
+            $this->userService->update($user, true, false);
+        }
+
+        if ($this->isViewer($info, $user->getUsername())) {
+            $user->setPermissionProfile($permissionProfileViewer);
+            $this->userService->update($user, true, false);
+        }
     }
 
+    /**
+     * @param $info
+     * @param $user
+     *
+     * @return mixed
+     */
+    protected function updateGroups($info, $user)
+    {
+        $aGroups = array();
+        if (isset($info[self::EDU_PERSON_AFFILIATION][0])) {
+            foreach ($info[self::EDU_PERSON_AFFILIATION] as $key => $value) {
+                if ('count' !== $key) {
+                    try {
+                        $group = $this->getGroup($value, self::EDU_PERSON_AFFILIATION);
+                        $this->userService->addGroup($group, $user, true, false);
+                        $aGroups[] = $group->getKey();
+                        $this->logger->info(__CLASS__.' ['.__FUNCTION__.'] '.'Added Group: '.$group->getName());
+                    } catch (\ErrorException $e) {
+                        $this->logger->info(
+                            __CLASS__.' ['.__FUNCTION__.'] '.'Invalid Group '.$value.': '.$e->getMessage()
+                        );
+                    } catch (\Exception $e) {
+                        $this->logger->error(
+                            __CLASS__.' ['.__FUNCTION__.'] '.'Error on adding Group '.$value.': '.$e->getMessage()
+                        );
+                    }
+                }
+            }
+        }
+
+        if (isset($info[self::IRISCLASSIFCODE][0])) {
+            foreach ($info[self::IRISCLASSIFCODE] as $key => $value) {
+                if ('count' !== $key) {
+                    try {
+                        $group = $this->getGroup($value, self::IRISCLASSIFCODE);
+                        $this->userService->addGroup($group, $user, true, false);
+                        $aGroups[] = $group->getKey();
+                        $this->logger->info(__CLASS__.' ['.__FUNCTION__.'] '.'Added Group: '.$group->getName());
+                    } catch (\ErrorException $e) {
+                        $this->logger->info(
+                            __CLASS__.' ['.__FUNCTION__.'] '.'Invalid Group '.$value.': '.$e->getMessage()
+                        );
+                    } catch (\Exception $e) {
+                        $this->logger->error(
+                            __CLASS__.' ['.__FUNCTION__.'] '.'Error on adding Group '.$value.': '.$e->getMessage()
+                        );
+                    }
+                }
+            }
+        }
+
+        foreach ($user->getGroups() as $group) {
+            if (self::ORIGIN === $group->getOrigin()) {
+                if (!in_array($group->getKey(), $aGroups)) {
+                    try {
+                        $this->userService->deleteGroup($group, $user, true, false);
+                    } catch (\Exception $e) {
+                        $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.'Delete group '.$group->getKey().' from user  : '.$e->getMessage());
+                    }
+                }
+            }
+        }
+
+        return $user;
+    }
+
+    /**
+     * @param $info
+     * @param $user
+     *
+     * @return mixed
+     *
+     * @throws \Exception
+     */
+    protected function updateUser($info, $user)
+    {
+        if (isset($info['mail'][0])) {
+            $user->setEmail($info['mail'][0]);
+        }
+
+        if (isset($info['cn'][0])) {
+            $user->setFullname($info['cn'][0]);
+        }
+
+        $this->userService->update($user, true, false);
+
+        return $user;
+    }
+
+    /**
+     * @param $info
+     * @param $username
+     *
+     * @return bool
+     */
     protected function isAutoPub($info, $username)
     {
         return false;
     }
 
+    /**
+     * @param $info
+     * @param $username
+     *
+     * @return bool
+     */
     protected function isAdmin($info, $username)
     {
         return false;
+    }
+
+    /**
+     * @param $info
+     * @param $username
+     *
+     * @return bool
+     */
+    protected function isIngestor($info, $username)
+    {
+        return false;
+    }
+
+    /**
+     * @param $info
+     * @param $username
+     *
+     * @return bool
+     */
+    protected function isPublisher($info, $username)
+    {
+        return false;
+    }
+
+    /**
+     * @param $info
+     * @param $username
+     *
+     * @return bool
+     */
+    protected function isViewer($info, $username)
+    {
+        return false;
+    }
+
+    /**
+     * @param $info
+     *
+     * @return mixed
+     */
+    public function getEmail($info)
+    {
+        if (isset($info['mail'][0])) {
+            return $info['mail'][0];
+        } else {
+            throw new AuthenticationException('Missing LDAP attribute email');
+        }
     }
 }

@@ -29,16 +29,20 @@ class SeriesController extends Controller implements WebTVController
 
         $this->updateBreadcrumbs($series);
 
-        return array('series' => $series,
-        'multimediaObjects' => $pagerfanta, );
+        return array(
+            'series' => $series,
+            'multimediaObjects' => $pagerfanta,
+        );
     }
 
     /**
-     * @Route("/series/magic/{secret}", name="pumukit_webtv_series_magicindex", defaults={"show_hide":true, "broadcast":false, "track":false})
+     * @Route("/series/magic/{secret}", name="pumukit_webtv_series_magicindex", defaults={"show_hide":true, "broadcast":false})
      * @Template("PumukitWebTVBundle:Series:index.html.twig")
      */
     public function magicIndexAction(Series $series, Request $request)
     {
+        $request->attributes->set('noindex', true);
+
         $mmobjRepo = $this
           ->get('doctrine_mongodb.odm.document_manager')
           ->getRepository('PumukitSchemaBundle:MultimediaObject');
@@ -49,9 +53,11 @@ class SeriesController extends Controller implements WebTVController
 
         $this->updateBreadcrumbs($series);
 
-        return array('series' => $series,
-                   'multimediaObjects' => $pagerfanta,
-                   'magic_url' => true, );
+        return array(
+            'series' => $series,
+            'multimediaObjects' => $pagerfanta,
+            'magic_url' => true,
+        );
     }
 
     private function updateBreadcrumbs(Series $series)

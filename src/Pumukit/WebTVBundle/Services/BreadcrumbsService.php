@@ -41,7 +41,7 @@ class BreadcrumbsService
             $this->session->set('breadcrumbs/routeParameters', array());
         }
         $this->breadcrumbs = array();
-        if ($this->parentWeb !== null) {
+        if (null !== $this->parentWeb) {
             $this->breadcrumbs = array(array('title' => $this->parentWeb['title'], 'link' => $this->parentWeb['url']));
         }
         $this->breadcrumbs[] = array('title' => $this->homeTitle, 'link' => $this->router->generate('pumukit_webtv_index_index'));
@@ -53,7 +53,7 @@ class BreadcrumbsService
         $this->session->set('breadcrumbs/routeName', $this->allRoute);
         $this->session->set('breadcrumbs/routeParameters', array());
         $this->breadcrumbs = array();
-        if ($this->parentWeb !== null) {
+        if (null !== $this->parentWeb) {
             $this->breadcrumbs = array(array('title' => $this->parentWeb['title'], 'link' => $this->parentWeb['url']));
         }
         $this->breadcrumbs[] = array('title' => $this->homeTitle, 'link' => $this->router->generate('pumukit_webtv_index_index'));
@@ -79,23 +79,46 @@ class BreadcrumbsService
                  $this->session->get('breadcrumbs/routeParameters', array()));
         }
 
-        $this->add($series->getTitle(), 'pumukit_webtv_series_index', array('id' => $series->getId()));
+        if (!$series->isHide()) {
+            $this->add($series->getTitle(), 'pumukit_webtv_series_index', array('id' => $series->getId()));
+        }
     }
 
     public function addMultimediaObject(MultimediaObject $multimediaObject)
     {
         $this->addSeries($multimediaObject->getSeries());
-        $this->add($multimediaObject->getTitle(), 'pumukit_webtv_multimediaobject_index', array('id' => $multimediaObject->getId()));
+
+        $title = $multimediaObject->getTitle();
+        if ($multimediaObject->isPublished()) {
+            $routeName = 'pumukit_webtv_multimediaobject_index';
+            $routeParameters = array('id' => $multimediaObject->getId());
+        } else {
+            $routeName = 'pumukit_webtv_multimediaobject_magicindex';
+            $routeParameters = array('secret' => $multimediaObject->getSecret());
+        }
+
+        $this->add($title, $routeName, $routeParameters);
     }
 
     public function add($title, $routeName, array $routeParameters = array())
     {
-        $this->breadcrumbs[] = array('title' => $title,
-                                 'link' => $this->router->generate($routeName, $routeParameters), );
+        $this->breadcrumbs[] = array(
+            'title' => $title,
+            'link' => $this->router->generate($routeName, $routeParameters),
+        );
     }
 
     public function getBreadcrumbs()
     {
         return $this->breadcrumbs;
+    }
+
+    public function setTitle($title)
+    {
+        if ((null !== $this->parentWeb) && (isset($this->breadcrumbs[1]['title']))) {
+            $this->breadcrumbs[1]['title'] = $title;
+        } else {
+            $this->breadcrumbs[0]['title'] = $title;
+        }
     }
 }

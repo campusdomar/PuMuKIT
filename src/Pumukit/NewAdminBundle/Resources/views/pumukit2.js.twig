@@ -50,7 +50,15 @@ window.submit_delete_live = function(id)
     if (window.confirm("{% trans %}Are you sure you want to delete this live channel?{% endtrans %}")){
         var url = "{{ path('pumukitnewadmin_live_delete', {'id': '__id__'})|raw }}";
         var message = '{% trans %}Live channel successfully deleted.{% endtrans %}';
-        $('#list_lives').load(url.replace('__id__', id), {'_method': 'DELETE'}, function(){success(message)});
+        $('#list_lives').load(url.replace('__id__', id), {'_method': 'DELETE'}, function(response){
+            if(response) {
+                var message = '{% trans %}Delete error. Live channel channel is associated to live event.{% endtrans %}';
+                no_success(message);
+                $('#list_lives').load("{{ path('pumukitnewadmin_live_list') }}");
+            } else {
+                success(message);
+            }
+        });
     }
 }
 
@@ -156,6 +164,17 @@ window.submit_clone_mms = function(id)
         var message = '{% trans %}Multimedia Object successfully cloned.{% endtrans %}';
         $('#list_mms').load(url.replace('__id__', id), {'_method': 'POST'}, function(){
             success(message)
+        });
+    }
+}
+
+window.submit_clone_series = function(id)
+{
+    if (window.confirm("{% trans %}Are you sure you want to clone this series?{% endtrans %}")){
+        var url = "{{ path('pumukitnewadmin_series_clone', {'id': '__id__'})|raw }}";
+        var message = '{% trans %}Series successfully cloned.{% endtrans %}';
+        $('#list_series').load(url.replace('__id__', id), {'_method': 'POST'}, function(){
+            success(message);
         });
     }
 }
@@ -380,6 +399,15 @@ window.delete_mmspic = function(id, resourceId) {
     }
 }
 
+window.delete_eventspic = function(id, resourceId) {
+    if (window.confirm('{% trans %}Are you sure you want to delete this event poster?{% endtrans %}')) {
+        var url = '{{ path('pumukitnewadmin_mmspic_delete', {'id': '___id___', 'is_event_poster': true})|raw }}';
+        var div_id = '#pic_events___resourceId__';
+        div_id = div_id.replace('__resourceId__', resourceId);
+        $(div_id).load(url.replace('___id___', id), {'_method': 'DELETE'}, function(){success('{% trans %}Event poster removed.{% endtrans %}');});
+    }
+}
+
 window.up_mmspic = function(id, resourceId) {
     var url = '{{ path('pumukitnewadmin_mmspic_up', {'id': '___id___'})|raw }}';
     var div_id = '#pic_mms___resourceId__';
@@ -421,6 +449,17 @@ window.submit_delete_material = function(id, mmId)
     }
 }
 
+window.submit_delete_external_video = function(id)
+{
+    if (window.confirm('{% trans %}Are you sure you want to delete this external video?{% endtrans %}')){
+        var url = "{{ path('pumukitnewadmin_mms_delete_listexternalproperties', {'id': '__id__'})|raw }}";
+        url = url.replace('__id__', id);
+        var div_id = '#tracks_mms___mmId__';
+        div_id = div_id.replace('__mmId__', id);
+        $(div_id).load(url, {'_method': 'DELETE'}, function(){success('{% trans %}External video successfully deleted.{% endtrans %}')});
+    }
+}
+
 window.submit_delete_track = function(id, mmId, seriesId)
 {
     if (window.confirm('{% trans %}Are you sure you want to delete this track?{% endtrans %}')){
@@ -430,14 +469,19 @@ window.submit_delete_track = function(id, mmId, seriesId)
         var div_id = '#tracks_mms___mmId__';
         div_id = div_id.replace('__mmId__', mmId);
         $(div_id).load(url, {'_method': 'DELETE'}, function(){
-            var listUrl = "{{ path('pumukitnewadmin_mms_list', {'seriesId': '__seriesId__'})|raw }}";
-            listUrl = listUrl.replace('__seriesId__', seriesId);
-            $('#list_mms').load(listUrl, {'_method': 'POST'});
+            update_list(seriesId);
             var showUrl = "{{ path('pumukitnewadmin_mms_show', {'id': '__id__'})|raw }}";
             showUrl = showUrl.replace('__id__', mmId);
             $('#preview_mm').load(showUrl, {'_method': 'POST'});
         });
     }
+}
+
+window.update_list = function(seriesId)
+{
+    var listUrl = "{{ path('pumukitnewadmin_mms_list', {'seriesId': '__seriesId__'})|raw }}";
+    listUrl = listUrl.replace('__seriesId__', seriesId);
+    $('#list_mms').load(listUrl, {'_method': 'POST'});
 }
 
 window.extract_pic = function(trackId, mmId, numframe)
@@ -512,6 +556,21 @@ window.click_checkbox_all = function(element, value)
 window.click_checkbox_changepub_all = function(element, value)
 {
   $('input.checkbox_change_pub_mms').prop('checked', value);
+}
+
+window.click_checkbox_change_pub_mms = function()
+{
+  if ($('input.checkbox_change_pub_mms:checked').length == $('input.checkbox_change_pub_mms').length ) {
+    $('#warning_modify_series').show();
+  } else {
+    $('#warning_modify_series').hide();
+  }
+
+  if ($('input.checkbox_change_pub_mms:checked').length == 0 ) {
+    document.getElementById('pumukitnewadmin_series_broadcast_updategroup_submit').disabled = true;
+  } else {
+    document.getElementById('pumukitnewadmin_series_broadcast_updategroup_submit').disabled = false;
+  }
 }
 
 window.click_changepub_selection = function(element, value)
@@ -744,21 +803,29 @@ window.change_select = function(element, selector, pluralName, seriesId)
             );
         break;
 */
+    case 'order_manual':
+        var route = '{{ path('pumukitnewadmin_mms_reorder', {'seriesId': '__seriesId__', 'sorting': 0, 'fieldName': 'rank', 'order': 'asc'})|raw }}';
+        $('#list_'+element+'s').load(route.replace('__seriesId__', seriesId), {'_method': 'POST'}, function(){sort_optiont_change('order_manual');});
+        break;
     case 'order_rec_date_asc':
-        var route = '{{ path('pumukitnewadmin_mms_reorder', {'seriesId': '__seriesId__', 'fieldName': 'record_date', 'order': 'asc'})|raw }}';
-        $('#list_'+element+'s').load(route.replace('__seriesId__', seriesId), {'_method': 'POST'});
+        var route = '{{ path('pumukitnewadmin_mms_reorder', {'seriesId': '__seriesId__', 'sorting': 4, 'fieldName': 'record_date', 'order': 'asc'})|raw }}';
+        $('#list_'+element+'s').load(route.replace('__seriesId__', seriesId), {'_method': 'POST'}, function(){sort_optiont_change('order_rec_date_asc');});
         break;
     case 'order_rec_date_desc':
-        var route = '{{ path('pumukitnewadmin_mms_reorder', {'seriesId': '__seriesId__', 'fieldName': 'record_date', 'order': 'desc'})|raw }}';
-        $('#list_'+element+'s').load(route.replace('__seriesId__', seriesId), {'_method': 'POST'});
+        var route = '{{ path('pumukitnewadmin_mms_reorder', {'seriesId': '__seriesId__', 'sorting': 3, 'fieldName': 'record_date', 'order': 'desc'})|raw }}';
+        $('#list_'+element+'s').load(route.replace('__seriesId__', seriesId), {'_method': 'POST'}, function(){sort_optiont_change('order_rec_date_desc');});
         break;
     case 'order_pub_date_asc':
-        var route = '{{ path('pumukitnewadmin_mms_reorder', {'seriesId': '__seriesId__', 'fieldName': 'public_date', 'order': 'asc'})|raw }}';
-        $('#list_'+element+'s').load(route.replace('__seriesId__', seriesId), {'_method': 'POST'});
+        var route = '{{ path('pumukitnewadmin_mms_reorder', {'seriesId': '__seriesId__', 'sorting': 1, 'fieldName': 'public_date', 'order': 'asc'})|raw }}';
+        $('#list_'+element+'s').load(route.replace('__seriesId__', seriesId), {'_method': 'POST'}, function(){sort_optiont_change('order_pub_date_asc');});
         break;
     case 'order_pub_date_desc':
-        var route = '{{ path('pumukitnewadmin_mms_reorder', {'seriesId': '__seriesId__', 'fieldName': 'public_date', 'order': 'desc'})|raw }}';
-        $('#list_'+element+'s').load(route.replace('__seriesId__', seriesId), {'_method': 'POST'});
+        var route = '{{ path('pumukitnewadmin_mms_reorder', {'seriesId': '__seriesId__', 'sorting': 2, 'fieldName': 'public_date', 'order': 'desc'})|raw }}';
+        $('#list_'+element+'s').load(route.replace('__seriesId__', seriesId), {'_method': 'POST'}, function(){sort_optiont_change('order_pub_date_desc');});
+        break;
+    case 'order_abc':
+        var route = '{{ path('pumukitnewadmin_mms_reorder', {'seriesId': '__seriesId__', 'sorting': 5, 'fieldName': 'title.es', 'order': 'asc'})|raw }}';
+        $('#list_'+element+'s').load(route.replace('__seriesId__', seriesId), {'_method': 'POST'}, function(){sort_optiont_change('order_abc');});
         break;
     case 'cut_mm':
         var ids = [];
@@ -942,6 +1009,18 @@ window.change_select = function(element, selector, pluralName, seriesId)
 }
 
 
+
+function sort_optiont_change(target_val)
+{
+  e = $("#options_mms option[data-type='sort'][data-active='1']");
+  e[0].dataset.active = '0';
+  e.text(e.text().replace("{% trans %}(active){% endtrans %}", ''))
+  e = $("#options_mms option[data-type='sort'][value='" + target_val + "']");
+  e[0].dataset.active = '1';
+  e.text(e.text() + "{% trans %}(active){% endtrans %}");
+
+}
+
 /**
  * Tag tree functions
  */
@@ -970,7 +1049,7 @@ function toggle_tree_tag(element, id, mm_id, tag_id, tag_cod)
     parent.addClass("expanded").removeClass("collapsed");
   } else {
     if (parent.hasClass("expanded")) {
-      parent.removeClass("searchresult")
+      parent.removeClass("searchresult");
       $(".c_" + tag_cod).hide();
       $(".c_" + tag_cod+".expanded").removeClass("expanded").addClass("collapsed");
       parent.removeClass("expanded").addClass("collapsed");
@@ -1185,8 +1264,12 @@ procesaReset = function(){
 }
 
 /**
- * Global Ajax Event Handlers
+ * Global Ajax Event Handlers and Config
  */
+$.ajaxSetup({
+  cache: true
+});
+
 $(document).ajaxSuccess(function() {
   $.material.init();
   $("body").tooltip({
@@ -1207,8 +1290,14 @@ $(document).ajaxError(function(event, xhr, settings) {
 $(function() {
   $.material.init();
 
-  $('body').on('hidden.bs.modal', '.modal', function () {
-    $(this).removeData('bs.modal');
+  $('body').on('hidden.bs.modal', '.pmk-modal', function () {
+    $(this).removeData('bs.modal').find('.modal-content').html('');
+  });
+
+  $('body').on('shown.bs.modal loaded.bs.modal', '.pmk-modal', function () {
+    if ($('.modal.fade.in:focus').length != 0) {
+      $(this).find('input:text').first().focus();
+    }
   });
 
   init_tabs();
@@ -1309,14 +1398,13 @@ $(function() {
 
 
   {% if is_naked() %}
-  var naked_modal_handler = function (e) {
-     var top = e.relatedTarget.getBoundingClientRect().top - 50 - $('.modal-content:visible').height();
-     if (top > 26) {
-         $('.modal-dialog:visible').css("margin", top + "px auto 30px")
-     }else {
-         $('.modal-dialog:visible').css("margin", "26px auto 30px")
-     }
-  };
+    var naked_modal_handler = function (e) {
+      var modal_dialog = $(e.currentTarget).find('.modal-dialog');
+      var clicked_link = e.relatedTarget;
+      var modal_top = clicked_link.getBoundingClientRect().top - 50 - modal_dialog.height();
+      if (modal_top < 26) modal_top = 26;
+      modal_dialog.css("margin", modal_top +"px auto 30px");
+    };
 
   $('#myModal').on('shown.bs.modal', naked_modal_handler);
   $('#myAuxModal').on('shown.bs.modal', naked_modal_handler);
@@ -1396,6 +1484,35 @@ $(document).on('click', '#pumukitnewadmin_series_multimedia_objects_sort_not_sel
         var route = "{{ path('pumukitnewadmin_series_list', {'sorting': {'multimedia_objects': 'asc'}})|raw }}";
     }
     $('#list_series').load(route, {'_method':'POST'});
+    return false;
+});
+
+$(document).on('click', '#pumukitnewadmin_person_post_sort_selected', function(){
+    var inputRawId = $('#inputRawId').val();
+    var type = $('#pumukitnewadmin_person_sort_change_type').val();
+    var locale = "{{ app.request.getLocale() }}";
+    if (inputRawId) {
+        var route = "{{ path('pumukitnewadmin_person_list', {'selectedPersonId': '__inputRawId__', 'sorting': {'post.__lang__': '__type__'}})|raw }}";
+        route = route.replace('__inputRawId__', inputRawId);
+    } else {
+        var route = "{{ path('pumukitnewadmin_person_list', {'sorting': {'post.__lang__': '__type__'}})|raw }}";
+    }
+    route = route.replace('__lang__', locale);
+    $('#list_people').load(route.replace('__type__', type), {'_method':'POST'});
+    return false;
+});
+
+$(document).on('click', '#pumukitnewadmin_person_post_sort_not_selected', function(){
+    var inputRawId = $('#inputRawId').val();
+    var locale = "{{ app.request.getLocale() }}";
+    if (inputRawId) {
+        var route = "{{ path('pumukitnewadmin_person_list', {'selectedPersonId': '__inputRawId__', 'sorting': {'post': 'asc'}})|raw }}";
+        route = route.replace('__inputRawId__', inputRawId);
+    } else {
+        var route = "{{ path('pumukitnewadmin_person_list', {'sorting': {'post.__lang__': 'asc'}})|raw }}";
+    }
+    route = route.replace('__lang__', locale);
+    $('#list_people').load(route, {'_method':'POST'});
     return false;
 });
 
@@ -1760,7 +1877,7 @@ window.fileServerTree = function(element, type, dir, num, input)
                            ((file.content) ? ' [' + (file.content) + ' video(s)]' : '') +
                            '</span></a>';
                     if(type == 'dir') {
-                        links += '<a style="color:blue; text-decoration: underline" class="list-group-item element" href="#" onclick="fileServerSelect(this, \'' + file.path + '\');">' +
+                        links += '<a style="color:blue; text-decoration: underline" class="list-group-item element ' + baseelement.data('path') + ' p_' + baseelement.data('hash') + '" href="#" onclick="fileServerSelect(this, \'' + file.path + '\');">' +
                                  '<span style="padding-left: ' + (10 *num)  + 'px"><i class="mdi- tag_icon"></i></span>' +
                                  '{% trans %}This directory{% endtrans %}' +
                                  '</a>';
@@ -2074,6 +2191,14 @@ $(document).on('submit', '#pumukitnewadmin_seriestype_create_form', function() {
     return false;
 });
 
+function checkRecordDateAndPublicDate(recordDate, publicDate) {
+    if (publicDate.getTime() < recordDate.getTime()){
+        var message = '{% trans %}Multimedia Object saved ERROR: Publication Date can not be lower than Recording Date.{% endtrans %}';
+        no_success(message);
+        return false;
+    }
+}
+
 $(document).on('submit', '#pumukitnewadmin_mms_updatemeta_form', function(event){
     $('#remember_save_mm').hide();
 
@@ -2083,14 +2208,10 @@ $(document).on('submit', '#pumukitnewadmin_mms_updatemeta_form', function(event)
     var publicDate = new Date(publicDateVal);
     var recordDate = new Date(recordDateVal);
 
-    if (publicDate.getTime() < recordDate.getTime()){
-        var message = '{% trans %}Multimedia Object saved ERROR: Publication Date can not be lower than Recording Date.{% endtrans %}';
-        no_success(message);
-        return false;
-    }
+    checkRecordDateAndPublicDate(recordDate, publicDate);
 
     var route = '{{ path('pumukitnewadmin_mms_update_meta', {'id': '__mmId__'}) }}';
-    var mmId = $('#id').val();
+    var mmId = $('#mm_id_meta').val();
 
     route = route.replace('__mmId__', mmId);
 
@@ -2105,6 +2226,7 @@ $(document).on('submit', '#pumukitnewadmin_mms_updatemeta_form', function(event)
             success: function(response){
                                         $('#list_mms').html(response);
                                         $('#preview_mm').load(showRoute);
+                                        $('#inputMMTitle').val($('#pumukitnewadmin_mms_meta_i18n_title_{{ app.request.getLocale() }}').val());
                                         var message = '{% trans %}Multimedia Object saved OK{% endtrans %}';
                                         success(message);
                                         }
@@ -2114,13 +2236,13 @@ $(document).on('submit', '#pumukitnewadmin_mms_updatemeta_form', function(event)
 });
 
 $(document).on('change', "*[id^='pumukitnewadmin_series_']", function(e){
-    if (e.target.value != e.target.defaultValue){
+    if ('checkbox' == e.target.type || e.target.value != e.target.defaultValue) {
         $('#remember_save_series').css('display', 'inline-block');
     }
 });
 
 $(document).on('change', "*[id^='pumukitnewadmin_mms_meta_']", function(e){
-    if (e.target.value != e.target.defaultValue){
+    if ('checkbox' == e.target.type || e.target.value != e.target.defaultValue) {
         $('#remember_save_mm').css('display', 'inline-block');
     }
 });
@@ -2483,6 +2605,69 @@ function select_group(element)
   return false;
 }
 
+function add_group_user(group_id, group_key, group_name, group_origin, user_origin, reset) {
+
+    create_element_group_in_add_groups_user(group_id, group_key, group_name, group_origin, user_origin);
+    var element_to_delete = "#delete_group_" + group_id;
+
+    delete_element_group_from_select(element_to_delete);
+}
+
+function create_element_group_in_add_groups_user(group_id, group_key, group_name, group_origin, user_origin) {
+
+    var item_id = 'id="add_group_' + group_id;
+    var add_groups_list = $('#add_groups');
+
+    var local_origin = '{{ constant('Pumukit\\SchemaBundle\\Document\\Group::ORIGIN_LOCAL')}}';
+    if ((group_origin == local_origin) || ((group_origin != local_origin) && user_origin == local_origin)) {
+        var item_class = 'class="list-group-item add-group-item pumukitnewadmin-trim-row"';
+        var item_onclick = 'onclick="return select_group(this);"';
+        var item_ondblclick = 'ondblclick="delete_group_user(\''+group_id+'\', \''+group_key+'\', \''+group_name+'\', \''+group_origin+'\', \''+user_origin+'\');"';
+    } else {
+        var item_class = 'class="list-group-item disabled-group-item pumukitnewadmin-trim-row"';
+        var item_onclick = 'onclick="return false;"';
+        var item_ondblclick = 'ondblclick="window.alert(\'External defined groups. Contact your directory service administrator to change membership.\');"';
+    }
+
+    var item_text = '<a href="#" '+item_class+' '+item_onclick+' '+item_ondblclick+' '+item_id+'"><i class="mdi-social-group"></i> ' + group_name + '</a>';
+    {% if app.user and is_granted(constant('Pumukit\\SchemaBundle\\Security\\Permission::SHOW_CODES')) %}
+        item_text = '<a href="#" '+item_class+' '+item_onclick+' '+item_ondblclick+' '+item_id+'"><i class="mdi-social-group"></i> '+group_key+' - '+group_name+' - ('+group_origin+')</a>';
+    {% endif %}
+    add_groups_list.append(item_text);
+}
+
+function delete_group_user(group_id, group_key, group_name, group_origin, user_origin, reset) {
+
+    create_element_group_in_delete_groups_user(group_id, group_key, group_name, group_origin, user_origin);
+
+    var element_to_delete = "#add_group_" + group_id;
+    delete_element_group_from_select(element_to_delete);
+}
+
+function create_element_group_in_delete_groups_user(group_id, group_key, group_name, group_origin, user_origin) {
+
+    var local_origin = '{{ constant('Pumukit\\SchemaBundle\\Document\\Group::ORIGIN_LOCAL')}}';
+    var item_id = 'id="delete_group_' + group_id;
+    var delete_groups_list = $('#delete_groups');
+
+    if ((group_origin == local_origin) || ((group_origin != local_origin) && user_origin == local_origin)) {
+        var item_class = 'class="list-group-item delete-group-item pumukitnewadmin-trim-row"';
+        var item_onclick = 'onclick="return select_group(this);"';
+        var item_ondblclick = 'ondblclick="add_group_user(\'' + group_id + '\', \'' + group_key + '\', \'' + group_name + '\', \'' + group_origin + '\', \'' + user_origin + '\');"';
+    } else {
+        var item_class = 'class="list-group-item disabled-group-item pumukitnewadmin-trim-row"';
+        var item_onclick = 'onclick="return false;"';
+        var item_ondblclick = 'ondblclick="window.alert(\'External defined groups. Contact your directory service administrator to change membership.\');"';
+    }
+
+    var item_text = '<a href="#" '+item_class+' '+item_onclick+' '+item_ondblclick+' '+item_id+'"><i class="mdi-social-group"></i> ' + group_name + '</a>';
+    {% if app.user and is_granted(constant('Pumukit\\SchemaBundle\\Security\\Permission::SHOW_CODES')) %}
+        var item_text = '<a href="#" '+item_class+' '+item_onclick+' '+item_ondblclick+' '+item_id+'"><i class="mdi-social-group"></i> '+group_key+' - '+group_name+' - ('+group_origin+')</a>';
+    {% endif %}
+    delete_groups_list.append(item_text);
+}
+
+
 function add_group(group_id, group_key, group_name, group_origin, resource, reset)
 {
     reset = typeof reset !== 'undefined' ? reset : false;
@@ -2565,7 +2750,7 @@ function create_element_group_in_add_groups(group_id, group_key, group_name, gro
 function create_element_group_in_delete_groups(group_id, group_key, group_name, group_origin, resource) {
     var local_origin = '{{ constant('Pumukit\\SchemaBundle\\Document\\Group::ORIGIN_LOCAL')}}';
     var can_modify_groups = $('#can_modify_groups').val();
-    if ((group_origin == local_origin) || (resource != "user")) {
+    if ((group_origin == local_origin) || (resource != "user")){
         if (resource == "user") {
             var item_id = 'id="delete_group_' + group_id;
             var item_class = 'class="list-group-item delete-group-item pumukitnewadmin-trim-row"';
@@ -2637,19 +2822,20 @@ $(document).on('click', '#pumukitnewadmin_user_groups_reset', function() {
         success: function(response){
             var addGroups = response.add;
             var deleteGroups = response.delete;
+            var userData = response.userOrigin;
             $('#add_groups').empty();
             $('#delete_groups').empty();
             for (var group_id in addGroups) {
                 var group_key = addGroups[group_id].key;
                 var group_name = addGroups[group_id].name;
                 var group_origin = addGroups[group_id].origin;
-                add_group(group_id, group_key, group_name, group_origin, 'user', true);
+                add_group_user(group_id, group_key, group_name, group_origin, userData, true);
             }
             for (var group_id in deleteGroups) {
                 var group_key = deleteGroups[group_id].key;
                 var group_name = deleteGroups[group_id].name;
                 var group_origin = deleteGroups[group_id].origin;
-                delete_group(group_id, group_key, group_name, group_origin, 'user', true);
+                delete_group_user(group_id, group_key, group_name, group_origin, userData, true);
             }
         }
     });
@@ -2685,12 +2871,12 @@ function pumukitnewadmin_mm_updategroup_submit(mm_id, template) {
 }
 
 $(document).on('click', '#pumukitnewadmin_mm_updategroup_submit', function() {
-    var mm_id = $('#mm_id').val();
+    var mm_id = $('#mm_id_ownerrelation').val();
     pumukitnewadmin_mm_updategroup_submit(mm_id, '');
 });
 
 $(document).on('click', '#pumukitnewadmin_mm_template_updategroup_submit', function() {
-    var mm_id = $('#mm_id').val();
+    var mm_id = $('#mm_id_ownerrelation').val();
     pumukitnewadmin_mm_updategroup_submit(mm_id, '_template');
 });
 
@@ -2727,13 +2913,13 @@ function pumukitnewadmin_mm_updategroup_reset(mm_id, template, resource) {
 }
 
 $(document).on('click', '#pumukitnewadmin_mm_updategroup_reset', function() {
-    var mm_id = $('#mm_id').val();
+    var mm_id = $('#mm_id_ownerrelation').val();
     var resource = 'mm';
     pumukitnewadmin_mm_updategroup_reset(mm_id, '', resource);
 });
 
 $(document).on('click', '#pumukitnewadmin_mm_template_updategroup_reset', function() {
-    var mm_id = $('#mm_id').val();
+    var mm_id = $('#mm_id_ownerrelation').val();
     var resource = 'mm_template';
     pumukitnewadmin_mm_updategroup_reset(mm_id, '_template', resource);
 });
@@ -2836,10 +3022,19 @@ $(document).on('submit', '#pumukitnewadmin_series_updatebroadcast_submit', funct
     $('a.delete-broadcast-group-item').each(function(){
         deleteGroups.push($(this).attr("id"));
     });
+
+    var values = [];
+    $('.checkbox_change_pub_mms:checked').each(function(){
+        var $this = $(this);
+        var mmId = $this.attr("id");
+        values.push(mmId);
+    });
+    if (values.size == 0) return false;
+
     $.ajax({
         url: route.replace('__seriesId__', seriesId),
         type: 'POST',
-        data: {'type': broadcast_type, 'password': password, 'addGroups': addGroups, 'deleteGroups': deleteGroups},
+        data: {'ids': values, 'type': broadcast_type, 'password': password, 'addGroups': addGroups, 'deleteGroups': deleteGroups},
         error: function (jqXHR, textStatus, errorThrown) {
             no_success(errorThrown + ': ' + jqXHR.responseText);
         },
@@ -3168,6 +3363,32 @@ $(document).on('click', '#pumukitnewadmin_mmo_record_date_sort_not_selected', fu
         route = route.replace('__inputROId__', inputROId);
     } else {
         var route = "{{ path('pumukitnewadmin_mms_listall', {'sorting': {'record_date': 'asc'}})|raw }}";
+    }
+    $('#list_mms').load(route, {'_method':'POST'});
+    return false;
+});
+
+
+$(document).on('click', '#pumukitnewadmin_mmo_duration_sort_selected', function(){
+    var inputROId = $('#inputROId').val();
+    var type = $('#pumukitnewadmin_mmo_sort_change_type').val();
+    if (inputROId) {
+        var route = "{{ path('pumukitnewadmin_mms_listall', {'selectedSeriesId': '__inputROId__', 'sorting': {'duration': '__type__'}})|raw }}";
+        route = route.replace('__inputROId__', inputROId);
+    } else {
+        var route = "{{ path('pumukitnewadmin_mms_listall', {'sorting': {'duration': '__type__'}})|raw }}";
+    }
+    $('#list_mms').load(route.replace('__type__', type), {'_method':'POST'});
+    return false;
+});
+
+$(document).on('click', '#pumukitnewadmin_mmo_duration_sort_not_selected', function(){
+    var inputROId = $('#inputROId').val();
+    if (inputROId) {
+        var route = "{{ path('pumukitnewadmin_mms_listall', {'selectedSeriesId': '__inputROId__', 'sorting': {'duration': 'asc'}})|raw }}";
+        route = route.replace('__inputROId__', inputROId);
+    } else {
+        var route = "{{ path('pumukitnewadmin_mms_listall', {'sorting': {'duration': 'asc'}})|raw }}";
     }
     $('#list_mms').load(route, {'_method':'POST'});
     return false;

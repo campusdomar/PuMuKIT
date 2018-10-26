@@ -75,9 +75,9 @@ class PicExtractorService
 
         $num_frames = $track->getNumFrames();
 
-        if ((is_null($numframe) || ($num_frames == 0))) {
+        if ((is_null($numframe) || (0 == $num_frames))) {
             $num = 125 * (count($multimediaObject->getPics())) + 1;
-        } elseif (substr($numframe, -1, 1) === '%') {
+        } elseif ('%' === substr($numframe, -1, 1)) {
             $num = intval($numframe) * $num_frames / 100;
         } else {
             $num = intval($numframe);
@@ -100,8 +100,7 @@ class PicExtractorService
      */
     private function createPic(MultimediaObject $multimediaObject, Track $track, $frame = 25)
     {
-        $currentDir = 'series/'.$multimediaObject->getSeries()->getId().'/video/'.$multimediaObject->getId();
-        $absCurrentDir = $this->targetPath.'/'.$currentDir;
+        $absCurrentDir = $this->mmsPicService->getTargetPath($multimediaObject);
 
         $fs = new Filesystem();
         $fs->mkdir($absCurrentDir);
@@ -140,8 +139,7 @@ class PicExtractorService
             throw new \RuntimeException($process->getErrorOutput());
         }
 
-        //log $process->getOutput()
-        $picUrl = $this->targetUrl.'/'.$currentDir.'/'.$picFileName;
+        $picUrl = $this->mmsPicService->getTargetUrl($multimediaObject).'/'.$picFileName;
         $picPath = $absCurrentDir.'/'.$picFileName;
         if (file_exists($picPath)) {
             $multimediaObject = $this->mmsPicService->addPicUrl($multimediaObject, $picUrl);

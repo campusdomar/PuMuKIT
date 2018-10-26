@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file source-language="en" target-language="es-ES" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
     <body>
       <trans-unit id="a09db87872b455033c3903d60d4cf0fd" resname="Current live event">
         <source>Current live event</source>
@@ -57,6 +60,106 @@
       <trans-unit id="86e281242526ed976357d768570b4f7e" resname="The Flash Plugin needs to be installed. JWPlayer needs minimum Flash version 10.1.82.76 to stream.">
         <source>The Flash Plugin needs to be installed. JWPlayer needs minimum Flash version 10.1.82.76 to stream.</source>
         <target xml:lang="es-ES" state="translated">Es necesario instalar el plugin Flash. JWPlayer necesita al menos la versión 10.1.82.76 de Flash para reproducir.</target>
+      </trans-unit>
+      <trans-unit id="d56cc3fe0db39a01db08f43f90eef01d" resname="The event has not been held yet">
+        <source>The event has not been held yet</source>
+        <target xml:lang="es-ES" state="translated">El evento aún no se ha celebrado</target>
+      </trans-unit>
+      <trans-unit id="6cb2e290e1fbd2f5e3fdedb555b3ae69" resname="The event has already been held">
+        <source>The event has already been held</source>
+        <target xml:lang="es-ES" state="translated">El evento ya se ha celebrado</target>
+      </trans-unit>
+      <trans-unit id="955ad3298db330b5ee880c2c9e6f23a0" resname="Live">
+        <source>Live</source>
+        <target xml:lang="es-ES" state="translated">Directos</target>
+      </trans-unit>
+      <trans-unit id="5ab88857f33f829648393a4f0cdfab8f" resname="Private Video">
+        <source>Private Video</source>
+        <target xml:lang="es-ES" state="translated">Vídeo privado</target>
+      </trans-unit>
+      <trans-unit id="e01c294e24ff18aa879b207078fed4c4" resname="This video is private with restricted access">
+        <source>This video is private with restricted access</source>
+        <target xml:lang="es-ES" state="translated">Este vídeo es privado con acceso restringido</target>
+      </trans-unit>
+      <trans-unit id="a9217438f67c281903d6925f2da1d3b5" resname="Enter a valid password to watch it">
+        <source>Enter a valid password to watch it</source>
+        <target xml:lang="es-ES" state="translated">Introduzca una contraseña válida para verlo</target>
+      </trans-unit>
+      <trans-unit id="535a02388a6f1638b53d0f5552be8e50" resname="Introduce a password">
+        <source>Introduce a password</source>
+        <target xml:lang="es-ES" state="translated">Introduce la contraseña</target>
+      </trans-unit>
+      <trans-unit id="f1bc76917b4b9eefae0a2c2f249eae3e" resname="Password is not valid">
+        <source>Password is not valid</source>
+        <target xml:lang="es-ES" state="translated">Contraseña no válida</target>
+      </trans-unit>
+      <trans-unit id="3bbbad631029e3575da7a151bba4f37c" resname="Log In">
+        <source>Log In</source>
+        <target xml:lang="es-ES" state="translated">Iniciar sesión</target>
+      </trans-unit>
+      <trans-unit id="85eba6875ff4050ab452daf774d472f9" resname="Enter pass">
+        <source>Enter pass</source>
+        <target xml:lang="es-ES" state="translated">Introduce la contraseña</target>
+      </trans-unit>
+      <trans-unit id="6d1169d8724055e3ac0db023a31112b0" resname="New contact from live event">
+        <source>New contact from live event</source>
+        <target xml:lang="es-ES" state="translated">Nuevo contacto desde directo</target>
+      </trans-unit>
+      <trans-unit id="44fdec47036f482b68b748f9d786801b" resname="days">
+        <source>days</source>
+        <target xml:lang="es-ES" state="translated">días</target>
+      </trans-unit>
+      <trans-unit id="f15c1cae7882448b3fb0404682e17e61" resname="Content">
+        <source>Content</source>
+        <target xml:lang="es-ES" state="translated">Contenido</target>
+      </trans-unit>
+      <trans-unit id="354a63f6238072439da28c8b5ac3b265" resname="Obsolete browser">
+        <source>Obsolete browser</source>
+        <target xml:lang="es-ES" state="translated">Navegador obsoleto</target>
+      </trans-unit>
+      <trans-unit id="a025e05161bb17cbab898f0e77b09a2b" resname="Iframe">
+        <source>Iframe</source>
+        <target xml:lang="es-ES" state="translated">Iframe</target>
+      </trans-unit>
+      <trans-unit id="eb42ae8f1d7f9a8fd41de416e1815ec0" resname="Media Thumbnail">
+        <source>Media Thumbnail</source>
+        <target xml:lang="es-ES" state="translated">Miniatura</target>
+      </trans-unit>
+      <trans-unit id="0726dd84c9bfbd2d3432d8cedc42e3eb" resname="There aren't events at this moment">
+        <source>There aren't events at this moment</source>
+        <target xml:lang="es-ES" state="translated">No hay eventos en este momento.</target>
+      </trans-unit>
+      <trans-unit id="572743c5198afb6ae40cdcfbfa4a97ec" resname="email send">
+        <source>email send</source>
+        <target xml:lang="es-ES" state="translated">email enviado</target>
+      </trans-unit>
+      <trans-unit id="f904fa91eb58b7c4d3675b9062db3be1" resname="please verify form data">
+        <source>please verify form data</source>
+        <target xml:lang="es-ES" state="translated">por favor, revisa los datos del formulario</target>
+      </trans-unit>
+      <trans-unit id="9b8262bc7fb8041b6b73488feb3472ca" resname="Event chat">
+        <source>Event chat</source>
+        <target xml:lang="es-ES" state="translated">Chat del evento</target>
+      </trans-unit>
+      <trans-unit id="49ee3087348e8d44e1feda1917443987" resname="Name">
+        <source>Name</source>
+        <target xml:lang="es-ES" state="translated">Nombre</target>
+      </trans-unit>
+      <trans-unit id="744bb349653a2001187d48840da8051a" resname="Name cannot be empty">
+        <source>Name cannot be empty</source>
+        <target xml:lang="es-ES" state="translated">El nombre no puede estar vacío</target>
+      </trans-unit>
+      <trans-unit id="4c2a8fe7eaf24721cc7a9f0175115bd4" resname="Message">
+        <source>Message</source>
+        <target xml:lang="es-ES" state="translated">Mensaje</target>
+      </trans-unit>
+      <trans-unit id="9b6449cd47c236450bbc9ccf0a358a56" resname="Sorry but there was an error">
+        <source>Sorry but there was an error</source>
+        <target xml:lang="es-ES" state="translated">Lo sentimos, pero hubo un error</target>
+      </trans-unit>
+      <trans-unit id="cd8a74815a738bc4e89ef73f49bf5e16" resname="Chat icon">
+        <source>Chat icon</source>
+        <target xml:lang="es-ES" state="translated">Icono de chat</target>
       </trans-unit>
     </body>
   </file>

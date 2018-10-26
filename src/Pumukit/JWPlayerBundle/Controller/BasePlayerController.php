@@ -7,7 +7,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Pumukit\SchemaBundle\Document\Track;
 use Pumukit\CoreBundle\Controller\PersonalController;
 use Pumukit\BasePlayerBundle\Controller\BasePlayerController as BasePlayerControllero;
 
@@ -38,26 +37,33 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
             return $this->redirect($track->getUrl());
         }
 
-        return array('autostart' => $request->query->get('autostart', 'false'),
-                     'intro' => $this->getIntro($request->query->get('intro')),
-                     'multimediaObject' => $multimediaObject,
-                     'object' => $multimediaObject,
-                     'track' => $track, );
+        if ($url = $multimediaObject->getProperty('externalplayer')) {
+            return $this->redirect($url);
+        }
+
+        return array(
+            'autostart' => $request->query->get('autostart', 'false'),
+            'intro' => $this->get('pumukit_baseplayer.intro')->getIntroForMultimediaObject($request->query->get('intro'), $multimediaObject->getProperty('intro')),
+            'multimediaObject' => $multimediaObject,
+            'object' => $multimediaObject,
+            'when_dispatch_view_event' => $this->container->getParameter('pumukitplayer.when_dispatch_view_event'),
+            'track' => $track,
+        );
     }
 
     /**
      * @Route("/videoplayer/magic/{secret}", name="pumukit_videoplayer_magicindex", defaults={"show_hide": true, "no_channels": true} )
      * @Template("PumukitJWPlayerBundle:JWPlayer:player.html.twig")
      */
-    public function magicIndexAction(MultimediaObject $multimediaObject, Request $request)
+    public function magicAction(MultimediaObject $multimediaObject, Request $request)
     {
         $mmobjService = $this->get('pumukitschema.multimedia_object');
         if ($mmobjService->isPublished($multimediaObject, 'PUCHWEBTV')) {
             if ($mmobjService->hasPlayableResource($multimediaObject) && $multimediaObject->isPublicEmbeddedBroadcast()) {
-                return $this->redirect($this->generateUrl('pumukit_webtv_multimediaobject_index', array('id' => $multimediaObject->getId())));
+                return $this->redirect($this->generateUrl('pumukit_videoplayer_index', array('id' => $multimediaObject->getId())));
             }
-        } elseif (($multimediaObject->getStatus() != MultimediaObject::STATUS_PUBLISHED
-                 && $multimediaObject->getStatus() != MultimediaObject::STATUS_HIDE
+        } elseif ((MultimediaObject::STATUS_PUBLISHED != $multimediaObject->getStatus()
+                 && MultimediaObject::STATUS_HIDE != $multimediaObject->getStatus()
                  ) || !$multimediaObject->containsTagWithCod('PUCHWEBTV')) {
             return $this->render('PumukitWebTVBundle:Index:404notfound.html.twig');
         }
@@ -77,12 +83,19 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
             return $this->redirect($track->getUrl());
         }
 
-        return array('autostart' => $request->query->get('autostart', 'false'),
-                     'intro' => $this->getIntro($request->query->get('intro')),
-                     'multimediaObject' => $multimediaObject,
-                     'object' => $multimediaObject,
-                     'track' => $track,
-                     'magic_url' => true, );
+        if ($url = $multimediaObject->getProperty('externalplayer')) {
+            return $this->redirect($url);
+        }
+
+        return array(
+            'autostart' => $request->query->get('autostart', 'false'),
+            'intro' => $this->get('pumukit_baseplayer.intro')->getIntroForMultimediaObject($request->query->get('intro'), $multimediaObject->getProperty('intro')),
+            'multimediaObject' => $multimediaObject,
+            'object' => $multimediaObject,
+            'when_dispatch_view_event' => $this->container->getParameter('pumukitplayer.when_dispatch_view_event'),
+            'track' => $track,
+            'magic_url' => true,
+        );
     }
 
     /**
@@ -100,10 +113,12 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
 
         $this->dispatchViewEvent($multimediaObject);
 
-        return array('intro' => $this->getIntro($request->query->get('intro')),
-                     'multimediaObject' => $multimediaObject,
-                     'object' => $multimediaObject,
-                     'is_mobile_device' => $isMobileDevice,
-                     'is_old_browser' => $isOldBrowser, );
+        return array(
+            'intro' => $this->get('pumukit_baseplayer.intro')->getIntroForMultimediaObject($request->query->get('intro'), $multimediaObject->getProperty('intro')),
+            'multimediaObject' => $multimediaObject,
+            'object' => $multimediaObject,
+            'is_mobile_device' => $isMobileDevice,
+            'is_old_browser' => $isOldBrowser,
+        );
     }
 }

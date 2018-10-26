@@ -11,12 +11,8 @@ use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\PermissionProfile;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
-/**
- * @Security("is_granted('ROLE_ACCESS_EDIT_PLAYLIST')")
- */
 class PlaylistMultimediaObjectController extends Controller
 {
     /**
@@ -209,10 +205,14 @@ class PlaylistMultimediaObjectController extends Controller
     {
         $this->enableFilter();
         $value = $request->query->get('search', '');
-        $criteria = array('$text' => array('$search' => $value));
+
+        $criteria = array('search' => $value);
+        $criteria = $this->get('pumukitnewadmin.multimedia_object_search')->processMMOCriteria($criteria, $request->getLocale());
+
         $queryBuilder = $this->get('doctrine_mongodb.odm.document_manager')->getRepository('PumukitSchemaBundle:MultimediaObject')->createStandardQueryBuilder();
         $criteria = array_merge($queryBuilder->getQueryArray(), $criteria);
         $queryBuilder->setQueryArray($criteria);
+        $queryBuilder->sortMeta('score', 'textScore');
         $adapter = new DoctrineODMMongoDBAdapter($queryBuilder);
         $mmobjs = new Pagerfanta($adapter);
         $mmobjs->setMaxPerPage($mmobjs->getNbResults() ?: 1);
@@ -252,10 +252,6 @@ class PlaylistMultimediaObjectController extends Controller
         if (!$mmobjIds) {
             throw $this->createNotFoundException();
         }
-        //Sanity check. (May be remove if we want to mix series and playlists in the future.)
-        if ($playlist->getType() != Series::TYPE_PLAYLIST) {
-            throw $this->createNotFoundException();
-        }
 
         if ('string' === gettype($mmobjIds)) {
             $mmobjIds = json_decode($mmobjIds, true);
@@ -270,8 +266,8 @@ class PlaylistMultimediaObjectController extends Controller
             }
             $playlist->getPlaylist()->addMultimediaObject($mmobj);
             $dm->persist($playlist);
-            $dm->flush();
         }
+        $dm->flush();
 
         return $this->redirect($this->generateUrl('pumukitnewadmin_playlistmms_list', array('id' => $playlist->getId())));
     }
@@ -280,10 +276,6 @@ class PlaylistMultimediaObjectController extends Controller
     {
         $mmobjIds = $request->query->get('ids', '');
         if (!$mmobjIds) {
-            throw $this->createNotFoundException();
-        }
-        //Sanity check. (May be remove if we want to mix series and playlists in the future.)
-        if ($playlist->getType() != Series::TYPE_PLAYLIST) {
             throw $this->createNotFoundException();
         }
 
@@ -314,6 +306,9 @@ class PlaylistMultimediaObjectController extends Controller
         if (!$request->query->has('mm_id')) {
             throw new \Exception('The request is missing the \'mm_id\' parameter');
         }
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $mmobjRepo = $dm->getRepository('PumukitSchemaBundle:MultimediaObject');
 
         $playlistEmbed = $series->getPlaylist();
         $mmobjId = $request->query->get('mm_id');
@@ -397,7 +392,7 @@ class PlaylistMultimediaObjectController extends Controller
         $filter = $dm->getFilterCollection()->enable('personal');
         $person = $this->get('pumukitschema.person')->getPersonFromLoggedInUser($user);
         $people = array();
-        if ((null != $person) && (null != ($roleCode = $this->get('pumukitschema.person')->getPersonalScopeRoleCode()))) {
+        if ((null !== $person) && (null !== ($roleCode = $this->get('pumukitschema.person')->getPersonalScopeRoleCode()))) {
             $people['$elemMatch'] = array();
             $people['$elemMatch']['people._id'] = new \MongoId($person->getId());
             $people['$elemMatch']['cod'] = $roleCode;

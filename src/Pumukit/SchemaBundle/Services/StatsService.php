@@ -7,7 +7,8 @@ use Doctrine\ODM\MongoDB\DocumentManager;
 class StatsService
 {
     private $dm;
-    private $repo;
+    private $repoMmobj;
+    private $repoSeries;
 
     public function __construct(DocumentManager $documentManager)
     {
@@ -58,13 +59,16 @@ class StatsService
                 $mongoProjectDate[] = 'H';
                 $mongoProjectDate[] = array('$substr' => array($dateField, 0, 2));
                 $mongoProjectDate[] = 'T';
+                // no break
             case 'day':
                 $mongoProjectDate[] = array('$substr' => array($dateField, 8, 2));
                 $mongoProjectDate[] = '-';
+                // no break
             default: //If it doesn't exists, it's 'month'
             case 'month':
                 $mongoProjectDate[] = array('$substr' => array($dateField, 5, 2));
                 $mongoProjectDate[] = '-';
+                // no break
             case 'year':
                 $mongoProjectDate[] = array('$substr' => array($dateField, 0, 4));
                 break;
@@ -93,8 +97,9 @@ class StatsService
         $fromMongoDate = new \MongoDate($fromDate->format('U'), $fromDate->format('u'));
         $toMongoDate = new \MongoDate($toDate->format('U'), $toDate->format('u'));
 
-        $pipeline[] = array('$match' => array_merge($matchExtra, array($dateName => array('$gte' => $fromMongoDate,
-                                                                                          '$lte' => $toMongoDate, ))),
+        $pipeline[] = array('$match' => array_merge(
+            $matchExtra,
+            array($dateName => array('$gte' => $fromMongoDate, '$lte' => $toMongoDate))),
         );
         $mongoProjectDate = $this->getMongoProjectDateArray($groupBy, '$'.$dateName);
         $pipeline[] = array('$project' => array('date' => $mongoProjectDate, 'duration' => '$duration'));
@@ -102,7 +107,7 @@ class StatsService
         $pipeline[] = array('$sort' => array('_id' => $sort));
         $pipeline[] = array('$skip' => $page * $limit);
         $pipeline[] = array('$limit' => $limit);
-        $aggregation = $dmColl->aggregate($pipeline);
+        $aggregation = $dmColl->aggregate($pipeline, array('cursor' => array()));
 
         return $aggregation;
     }

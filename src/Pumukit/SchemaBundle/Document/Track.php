@@ -14,77 +14,84 @@ class Track extends Element
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $language;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $acodec;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $vcodec;
 
     /**
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $bitrate;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $framerate;
 
     /**
      * @var bool
      *
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $only_audio;
 
     /**
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $channels;
 
     /**
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $duration = 0;
 
     /**
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $width;
 
     /**
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $height;
 
     /**
+     * @var bool
+     *
+     * @MongoDB\Field(type="boolean")
+     */
+    private $allowDownload = false;
+
+    /**
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      * @MongoDB\Increment
      */
     private $numview;
@@ -382,14 +389,34 @@ class Track extends Element
     }
 
     /**
+     * Set allowDownload.
+     *
+     * @param bool $allowDownload
+     */
+    public function setAllowDownload($allowDownload)
+    {
+        $this->allowDownload = $allowDownload;
+    }
+
+    /**
+     * Get allowDownload.
+     */
+    public function getAllowDownload()
+    {
+        return $this->allowDownload;
+    }
+
+    /**
      * Get Resolution.
      *
      * @return array
      */
     public function getResolution()
     {
-        return array('width' => $this->width,
-                     'height' => $this->height, );
+        return array(
+            'width' => $this->width,
+            'height' => $this->height,
+        );
     }
 
     /**
@@ -450,5 +477,21 @@ class Track extends Element
     public function isMaster()
     {
         return $this->containsTag('master');
+    }
+
+    /**
+     * Return the profiles used to generate the track.
+     *
+     * @return string|null
+     */
+    public function getProfileName()
+    {
+        foreach ($this->getTags() as $tag) {
+            if (0 === strpos($tag, 'profile:')) {
+                return substr($tag, 8);
+            }
+        }
+
+        return null;
     }
 }

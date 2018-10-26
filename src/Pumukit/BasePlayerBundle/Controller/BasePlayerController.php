@@ -11,15 +11,19 @@ use Pumukit\BasePlayerBundle\Event\ViewedEvent;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
-class BasePlayerController extends Controller
+abstract class BasePlayerController extends Controller
 {
     /**
      * @Route("/videoplayer/{id}", name="pumukit_videoplayer_index" )
      * @Template()
      */
-    public function indexAction(MultimediaObject $multimediaObject, Request $request)
-    {
-    }
+    abstract public function indexAction(MultimediaObject $multimediaObject, Request $request);
+
+    /**
+     * @Route("/videoplayer/magic/{secret}", name="pumukit_videoplayer_magicindex")
+     * @Template()
+     */
+    abstract public function magicAction(MultimediaObject $multimediaObject, Request $request);
 
     protected function dispatchViewEvent(MultimediaObject $multimediaObject, Track $track = null)
     {
@@ -27,23 +31,8 @@ class BasePlayerController extends Controller
         $this->get('event_dispatcher')->dispatch(BasePlayerEvents::MULTIMEDIAOBJECT_VIEW, $event);
     }
 
-    protected function getIntro($queryIntro = false)
-    {
-        $hasIntro = $this->container->hasParameter('pumukit2.intro');
-
-        if ($queryIntro && filter_var($queryIntro, FILTER_VALIDATE_URL)) {
-            $intro = $queryIntro;
-        } elseif ($hasIntro) {
-            $intro = $this->container->getParameter('pumukit2.intro');
-        } else {
-            $intro = false;
-        }
-
-        return $intro;
-    }
-
     /**
-     * @deprecated Will be removed in version 2.4.x
+     * @deprecated Will be removed in version 2.5.x
      *             Use lines in this function instead
      */
     protected function testBroadcast(MultimediaObject $multimediaObject, Request $request)
@@ -52,5 +41,14 @@ class BasePlayerController extends Controller
         $password = $request->get('broadcast_password');
 
         return $embeddedBroadcastService->canUserPlayMultimediaObject($multimediaObject, $this->getUser(), $password);
+    }
+
+    /**
+     * @deprecated Will be removed in version 2.5.x
+     *             Use lines in this function instead
+     */
+    protected function getIntro($queryIntro = false)
+    {
+        return $this->get('pumukit_baseplayer.intro')->getIntro($queryIntro);
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Pumukit\OpencastBundle\DependencyInjection;
 
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -32,6 +34,15 @@ class PumukitOpencastExtension extends Extension
                     $config['host']));
             }
 
+            foreach ($config['url_mapping'] as $m) {
+                if (!realpath($m['path'])) {
+                    throw new \RuntimeException(sprintf(
+                        'The "%s" directory does not exist. Check "pumukit_opencast.url_mapping".',
+                        $m['path']
+                    ));
+                }
+            }
+
             $container
               ->register('pumukit_opencast.client', "Pumukit\OpencastBundle\Services\ClientService")
               ->addArgument($config['host'])
@@ -55,7 +66,15 @@ class PumukitOpencastExtension extends Extension
               ->addArgument(new Reference('pumukitschema.multimedia_object'))
               ->addArgument($config['sbs'])
               ->addArgument($config['url_mapping'])
-              ->addArgument(array('opencast_host' => $config['host'], 'opencast_username' => $config['username'], 'opencast_password' => $config['password']));
+              ->addArgument(array('opencast_host' => $config['host'], 'opencast_username' => $config['username'], 'opencast_password' => $config['password']))
+              ->addArgument($config['error_if_file_not_exist']);
+
+            $container
+              ->register('pumukit_opencast.series_importer', "Pumukit\OpencastBundle\Services\SeriesImportService")
+              ->addArgument(new Reference('doctrine_mongodb.odm.document_manager'))
+              ->addArgument(new Reference('pumukitschema.factory'))
+              ->addArgument(new Reference('pumukit_opencast.client'))
+              ->addArgument(new Parameter('pumukit2.locales'));
 
             $container
               ->register('pumukit_opencast.import', "Pumukit\OpencastBundle\Services\OpencastImportService")
@@ -67,7 +86,9 @@ class PumukitOpencastExtension extends Extension
               ->addArgument(new Reference('pumukit_opencast.client'))
               ->addArgument(new Reference('pumukit_opencast.job'))
               ->addArgument(new Reference('pumukit.inspection'))
-              ->addArgument(new Parameter('pumukit2.locales'));
+              ->addArgument(new Parameter('pumukit2.locales'))
+              ->addArgument(new Parameter('pumukit_opencast.default_tag_imported'))
+              ->addArgument(new Reference('pumukit_opencast.series_importer'));
 
             $container
               ->register('pumukit_opencast.workflow', "Pumukit\OpencastBundle\Services\WorkflowService")
@@ -107,10 +128,20 @@ class PumukitOpencastExtension extends Extension
         }
 
         $container->setParameter('pumukit_opencast.scheduler_on_menu', $config['scheduler_on_menu']);
+        $container->setParameter('pumukit_opencast.host', $config['host']);
         $container->setParameter('pumukit_opencast.dashboard_on_menu', $config['dashboard_on_menu']);
+        $container->setParameter('pumukit_opencast.default_tag_imported', $config['default_tag_imported']);
 
         $permissions = array(array('role' => 'ROLE_ACCESS_IMPORTER', 'description' => 'Access Importer'));
         $newPermissions = array_merge($container->getParameter('pumukitschema.external_permissions'), $permissions);
         $container->setParameter('pumukitschema.external_permissions', $newPermissions);
+
+        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('services.xml');
+
+        if ($config['sync_series_with_opencast']) {
+            $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+            $loader->load('serieslistener.xml');
+        }
     }
 }

@@ -33,17 +33,20 @@ class MediaLibraryController extends Controller implements WebTVController
         $numberCols = $this->container->getParameter('columns_objs_catalogue');
         $hasCatalogueThumbnails = $this->container->getParameter('catalogue_thumbnails');
 
+        $aggregatedNumMmobjs = $series_repo->countMmobjsBySeries();
+
         switch ($sort) {
             case 'alphabetically':
                 $sortField = 'title.'.$request->getLocale();
                 $series = $series_repo->findBy($criteria, array($sortField => 1));
+
                 foreach ($series as $serie) {
-                    $num_mm = $this->get('doctrine_mongodb')->getRepository('PumukitSchemaBundle:MultimediaObject')->countInSeries($serie);
-                    if ($num_mm < 1) {
+                    if (!isset($aggregatedNumMmobjs[$serie->getId()])) {
                         continue;
                     }
-                    $key = substr($serie->getTitle(), 0, 1);
-                    if (!isset($result[ $key ])) {
+
+                    $key = mb_substr(trim($serie->getTitle()), 0, 1, 'UTF-8');
+                    if (!isset($result[$key])) {
                         $result[$key] = array();
                     }
                     $result[$key][] = $serie;
@@ -52,17 +55,31 @@ class MediaLibraryController extends Controller implements WebTVController
             case 'date':
                 $sortField = 'public_date';
                 $series = $series_repo->findBy($criteria, array($sortField => -1));
+
                 foreach ($series as $serie) {
-                    $num_mm = $this->get('doctrine_mongodb')->getRepository('PumukitSchemaBundle:MultimediaObject')->countInSeries($serie);
-                    if ($num_mm < 1) {
+                    if (!isset($aggregatedNumMmobjs[$serie->getId()])) {
                         continue;
                     }
+
                     $key = $serie->getPublicDate()->format('m/Y');
-                    if (!isset($result[ $key ])) {
-                        $result[ $key ] = array();
+                    if (!isset($result[$key])) {
+                        $result[$key] = array();
                     }
-                    $result[ $key ][] = $serie;
+
+                    $title = $serie->getTitle();
+                    if (!isset($result[$key][$title])) {
+                        $result[$key][$title] = $serie;
+                    } else {
+                        $result[$key][$title.rand()] = $serie;
+                    }
                 }
+
+                array_walk($result, function (&$e, $key) {
+                    ksort($e);
+
+                    return array_values($e);
+                });
+
                 break;
             case 'tags':
                 $p_cod = $request->query->get('p_tag', false);
@@ -78,7 +95,8 @@ class MediaLibraryController extends Controller implements WebTVController
                     }
                     $key = $tag->getTitle();
 
-                    $seriesQB = $series_repo->createBuilderWithTag($tag, array('public_date' => -1));
+                    $sortField = 'title.'.$request->getLocale();
+                    $seriesQB = $series_repo->createBuilderWithTag($tag, array($sortField => 1));
                     if ($criteria) {
                         $seriesQB->addAnd($criteria);
                     }
@@ -87,20 +105,28 @@ class MediaLibraryController extends Controller implements WebTVController
                     if (!$series) {
                         continue;
                     }
+
                     foreach ($series as $serie) {
-                        $num_mm = $this->get('doctrine_mongodb')->getRepository('PumukitSchemaBundle:MultimediaObject')->countInSeries($serie);
-                        if ($num_mm < 1) {
+                        if (!isset($aggregatedNumMmobjs[$serie->getId()])) {
                             continue;
                         }
-                        if (!isset($result[ $key ])) {
-                            $result[ $key ] = array();
+
+                        if (!isset($result[$key])) {
+                            $result[$key] = array();
                         }
-                        $result[ $key ][] = $serie;
+                        $result[$key][] = $serie;
                     }
                 }
                 break;
         }
 
-        return array('objects' => $result, 'sort' => $sort, 'tags' => $selectionTags, 'number_cols' => $numberCols, 'catalogue_thumbnails' => $hasCatalogueThumbnails);
+        return array(
+            'objects' => $result,
+            'sort' => $sort,
+            'tags' => $selectionTags,
+            'number_cols' => $numberCols,
+            'catalogue_thumbnails' => $hasCatalogueThumbnails,
+            'aggregated_num_mmobjs' => $aggregatedNumMmobjs,
+        );
     }
 }

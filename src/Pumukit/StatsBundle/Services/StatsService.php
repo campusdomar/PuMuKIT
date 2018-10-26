@@ -3,18 +3,23 @@
 namespace Pumukit\StatsBundle\Services;
 
 use Doctrine\ODM\MongoDB\DocumentManager;
-use Pumukit\StatsBundle\Document\ViewsLog;
 
 class StatsService
 {
     private $dm;
     private $repo;
+    private $repoSeries;
 
-    public function __construct(DocumentManager $documentManager)
+    private $collectionName;
+    private $sumValue;
+
+    public function __construct(DocumentManager $documentManager, $useAggregation = false)
     {
         $this->dm = $documentManager;
         $this->repo = $this->dm->getRepository('PumukitSchemaBundle:MultimediaObject');
         $this->repoSeries = $this->dm->getRepository('PumukitSchemaBundle:Series');
+        $this->collectionName = $useAggregation ? 'PumukitStatsBundle:ViewsAggregation' : 'PumukitStatsBundle:ViewsLog';
+        $this->sumValue = $useAggregation ? '$numView' : 1;
     }
 
     public function doGetMostViewed(array $criteria = array(), $days = 30, $limit = 3)
@@ -22,16 +27,16 @@ class StatsService
         $ids = array();
         $fromDate = new \DateTime(sprintf('-%s days', $days));
         $fromMongoDate = new \MongoDate($fromDate->format('U'), $fromDate->format('u'));
-        $viewsLogColl = $this->dm->getDocumentCollection('PumukitStatsBundle:ViewsLog');
+        $viewsLogColl = $this->dm->getDocumentCollection($this->collectionName);
 
         $pipeline = array(
             array('$match' => array('date' => array('$gte' => $fromMongoDate))),
-            array('$group' => array('_id' => '$multimediaObject', 'numView' => array('$sum' => 1))),
+            array('$group' => array('_id' => '$multimediaObject', 'numView' => array('$sum' => $this->sumValue))),
             array('$sort' => array('numView' => -1)),
             array('$limit' => $limit * 2), //Get more elements due to tags post-filter.
         );
 
-        $aggregation = $viewsLogColl->aggregate($pipeline);
+        $aggregation = $viewsLogColl->aggregate($pipeline, array('cursor' => array()));
 
         $mostViewed = array();
 
@@ -81,7 +86,7 @@ class StatsService
     {
         $ids = array();
 
-        $viewsLogColl = $this->dm->getDocumentCollection('PumukitStatsBundle:ViewsLog');
+        $viewsLogColl = $this->dm->getDocumentCollection($this->collectionName);
 
         $matchExtra = array();
         $mmobjIds = $this->getMmobjIdsWithCriteria($criteria);
@@ -91,10 +96,10 @@ class StatsService
 
         $pipeline = array();
         $pipeline = $this->aggrPipeAddMatch($options['from_date'], $options['to_date'], $matchExtra);
-        $pipeline[] = array('$group' => array('_id' => '$multimediaObject', 'numView' => array('$sum' => 1)));
+        $pipeline[] = array('$group' => array('_id' => '$multimediaObject', 'numView' => array('$sum' => $this->sumValue)));
         $pipeline[] = array('$sort' => array('numView' => $options['sort']));
 
-        $aggregation = $viewsLogColl->aggregate($pipeline);
+        $aggregation = $viewsLogColl->aggregate($pipeline, array('cursor' => array()));
 
         $totalInAggegation = count($aggregation);
         $total = count($mmobjIds);
@@ -113,7 +118,7 @@ class StatsService
 
         //Add mmobj with zero views
         if (count($aggregation) < $options['limit']) {
-            if (count($aggregation) == 0) {
+            if (0 == count($aggregation)) {
                 $max = min((1 + $options['page']) * $options['limit'], $total);
                 for ($i = ($options['page'] * $options['limit']); $i < $max; ++$i) {
                     $multimediaObject = $this->repo->find($mmobjIds[$i - $totalInAggegation]);
@@ -149,7 +154,7 @@ class StatsService
     public function getSeriesMostViewedByRange(array $criteria = array(), array $options = array())
     {
         $ids = array();
-        $viewsLogColl = $this->dm->getDocumentCollection('PumukitStatsBundle:ViewsLog');
+        $viewsLogColl = $this->dm->getDocumentCollection($this->collectionName);
 
         $matchExtra = array();
 
@@ -160,10 +165,10 @@ class StatsService
 
         $pipeline = array();
         $pipeline = $this->aggrPipeAddMatch($options['from_date'], $options['to_date'], $matchExtra);
-        $pipeline[] = array('$group' => array('_id' => '$series', 'numView' => array('$sum' => 1)));
+        $pipeline[] = array('$group' => array('_id' => '$series', 'numView' => array('$sum' => $this->sumValue)));
         $pipeline[] = array('$sort' => array('numView' => $options['sort']));
 
-        $aggregation = $viewsLogColl->aggregate($pipeline);
+        $aggregation = $viewsLogColl->aggregate($pipeline, array('cursor' => array()));
 
         $totalInAggegation = count($aggregation);
         $total = count($seriesIds);
@@ -182,7 +187,7 @@ class StatsService
 
         //Add series with zero views
         if (count($aggregation) < $options['limit']) {
-            if (count($aggregation) == 0) {
+            if (0 == count($aggregation)) {
                 $max = min((1 + $options['page']) * $options['limit'], $total);
                 for ($i = ($options['page'] * $options['limit']); $i < $max; ++$i) {
                     $series = $this->repoSeries->find($seriesIds[$i - $totalInAggegation]);
@@ -244,7 +249,7 @@ class StatsService
      */
     public function getGroupedByAggrPipeline($options = array(), $matchExtra = array())
     {
-        $viewsLogColl = $this->dm->getDocumentCollection('PumukitStatsBundle:ViewsLog');
+        $viewsLogColl = $this->dm->getDocumentCollection($this->collectionName);
         $options = $this->parseOptions($options);
 
         if (!$matchExtra) {
@@ -262,7 +267,7 @@ class StatsService
         $pipeline = $this->aggrPipeAddProjectGroupDate($pipeline, $options['group_by']);
         $pipeline[] = array('$sort' => array('_id' => $options['sort']));
 
-        $aggregation = $viewsLogColl->aggregate($pipeline);
+        $aggregation = $viewsLogColl->aggregate($pipeline, array('cursor' => array()));
 
         $total = count($aggregation);
         $aggregation = $this->getPagedAggregation($aggregation->toArray(), $options['page'], $options['limit']);
@@ -275,8 +280,7 @@ class StatsService
      */
     private function aggrPipeAddMatch(\DateTime $fromDate = null, \DateTime $toDate = null, $matchExtra = array(), $pipeline = array())
     {
-
-      //$filterMath = $this->dm->getFilterCollection()->getFilterCriteria($this->repo->getClassMetadata());
+        //$filterMath = $this->dm->getFilterCollection()->getFilterCriteria($this->repo->getClassMetadata());
 
         $date = array();
         if ($fromDate) {
@@ -293,7 +297,7 @@ class StatsService
 
         if (count($matchExtra) > 0 || count($date) > 0) {
             //$pipeline[] = array('$match' => array_merge($filterMath, $matchExtra, $date));
-          $pipeline[] = array('$match' => array_merge($matchExtra, $date));
+            $pipeline[] = array('$match' => array_merge($matchExtra, $date));
         }
 
         return $pipeline;
@@ -306,9 +310,13 @@ class StatsService
     private function aggrPipeAddProjectGroupDate($pipeline, $groupBy)
     {
         $mongoProjectDate = $this->getMongoProjectDateArray($groupBy);
-        $pipeline[] = array('$project' => array('date' => $mongoProjectDate));
+        if ('$numView' == $this->sumValue) {
+            $pipeline[] = array('$project' => array('numView' => '$numView', 'date' => $mongoProjectDate));
+        } else {
+            $pipeline[] = array('$project' => array('date' => $mongoProjectDate));
+        }
         $pipeline[] = array('$group' => array('_id' => '$date',
-                                              'numView' => array('$sum' => 1), ),
+                                              'numView' => array('$sum' => $this->sumValue), ),
         );
 
         return $pipeline;
@@ -320,25 +328,22 @@ class StatsService
      */
     private function getMongoProjectDateArray($groupBy, $dateField = '$date')
     {
-        $mongoProjectDate = array();
-        switch ($groupBy) {
-            case 'hour':
-                $mongoProjectDate[] = 'H';
-                $mongoProjectDate[] = array('$substr' => array($dateField, 0, 2));
-                $mongoProjectDate[] = 'T';
-            case 'day':
-                $mongoProjectDate[] = array('$substr' => array($dateField, 8, 2));
-                $mongoProjectDate[] = '-';
-            default: //If it doesn't exists, it's 'month'
-            case 'month':
-                $mongoProjectDate[] = array('$substr' => array($dateField, 5, 2));
-                $mongoProjectDate[] = '-';
-            case 'year':
-                $mongoProjectDate[] = array('$substr' => array($dateField, 0, 4));
-                break;
-        }
+        $formats = array(
+            'hour' => '%Y-%m-%dT%HH',
+            'day' => '%Y-%m-%d',
+            'month' => '%Y-%m',
+            'year' => '%Y',
+        );
 
-        return array('$concat' => array_reverse($mongoProjectDate));
+        $format = $groupBy && isset($formats[$groupBy]) ? $formats[$groupBy] : $formats['month'];
+
+        return array(
+            '$dateToString' => array(
+                'format' => $format,
+                'date' => $dateField,
+                // New in MongoDB version 3.6
+                //'timezone' => date_default_timezone_get(),
+        ), );
     }
 
     /**
@@ -395,5 +400,49 @@ class StatsService
         $offset = $page * $limit;
 
         return array_splice($aggregation, $offset, $limit);
+    }
+
+    /**
+     * Using the aggregation framework create ViewsAggregation collection from ViewsLog.
+     *
+     * Used by PumukitAggregateCommand
+     */
+    public function aggregateViewsLog()
+    {
+        $viewsLogColl = $this->dm->getDocumentCollection('PumukitStatsBundle:ViewsLog');
+
+        $pipeline = array(
+            array(
+                '$group' => array(
+                    '_id' => array(
+                        'mm' => '$multimediaObject',
+                        'day' => array(
+                            '$dateToString' => array(
+                                'format' => '%Y-%m-%d',
+                                'date' => '$date',
+                                // New in MongoDB version 3.6
+                                //'timezone' => date_default_timezone_get(),
+                            ),
+                        ),
+                    ),
+                    'multimediaObject' => array('$first' => '$multimediaObject'),
+                    'series' => array('$first' => '$series'),
+                    'date' => array('$first' => '$date'),
+                    'numView' => array('$sum' => 1),
+                ),
+            ),
+            array(
+                '$project' => array(
+                    '_id' => 0,
+                    'multimediaObject' => 1,
+                    'series' => 1,
+                    'date' => 1,
+                    'numView' => 1,
+                ),
+            ),
+            array('$out' => 'ViewsAggregation'),
+        );
+
+        $viewsLogColl->aggregate($pipeline, array('cursor' => array()));
     }
 }

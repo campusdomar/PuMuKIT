@@ -1,12 +1,9 @@
 <?php
 
-namespace Pumukit\EncoderBundle\Tests\Services;
+namespace Pumukit\EncoderBundle\Tests\Funcional;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Pumukit\EncoderBundle\Document\Job;
 use Pumukit\EncoderBundle\Services\JobService;
-use Pumukit\EncoderBundle\Services\ProfileService;
-use Pumukit\EncoderBundle\Services\CpuService;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
 use Symfony\Bridge\Monolog\Logger;
@@ -46,7 +43,8 @@ class FuncionalTest extends WebTestCase
         $this->dm->getDocumentCollection('PumukitSchemaBundle:Series')->remove(array());
         $this->dm->flush();
 
-        $dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
+        $dispatcher = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')
+                    ->getMock();
         $logger = new Logger('job_service_test_logger');
         $logger->pushHandler(new StreamHandler(realpath(__DIR__.'/../Resources').'/encoder_test.log', Logger::WARNING));
         $this->jobService = new JobService($this->dm, $this->profileService, $this->cpuService,
@@ -69,7 +67,6 @@ class FuncionalTest extends WebTestCase
 
     private function createMultimediaObjectAssignedToSeries($title, Series $series)
     {
-        $rank = 1;
         $status = MultimediaObject::STATUS_PUBLISHED;
         $record_date = new \DateTime();
         $public_date = new \DateTime();

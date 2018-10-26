@@ -8,7 +8,6 @@ use Pumukit\SchemaBundle\Services\TrackService;
 use Pumukit\SchemaBundle\Services\TagService;
 use Pumukit\SchemaBundle\Services\MultimediaObjectService;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\Track;
 use Pumukit\SchemaBundle\Document\Pic;
 use Pumukit\SchemaBundle\Document\User;
@@ -25,8 +24,10 @@ class OpencastImportService
     private $opencastService;
     private $inspectionService;
     private $otherLocales;
+    private $defaultTagImported;
+    private $seriesImportService;
 
-    public function __construct(DocumentManager $documentManager, FactoryService $factoryService, TrackService $trackService, TagService $tagService, MultimediaObjectService $mmsService, ClientService $opencastClient, OpencastService $opencastService, InspectionServiceInterface $inspectionService, array $otherLocales = array())
+    public function __construct(DocumentManager $documentManager, FactoryService $factoryService, TrackService $trackService, TagService $tagService, MultimediaObjectService $mmsService, ClientService $opencastClient, OpencastService $opencastService, InspectionServiceInterface $inspectionService, array $otherLocales, $defaultTagImported, SeriesImportService $seriesImportService)
     {
         $this->opencastClient = $opencastClient;
         $this->dm = $documentManager;
@@ -37,6 +38,8 @@ class OpencastImportService
         $this->opencastService = $opencastService;
         $this->inspectionService = $inspectionService;
         $this->otherLocales = $otherLocales;
+        $this->defaultTagImported = $defaultTagImported;
+        $this->seriesImportService = $seriesImportService;
     }
 
     /**
@@ -53,18 +56,23 @@ class OpencastImportService
     public function importRecording($opencastId, $invert = false, User $loggedInUser = null)
     {
         $mediaPackage = $this->opencastClient->getMediaPackage($opencastId);
+        $this->importRecordingFromMediaPackage($mediaPackage, $invert, $loggedInUser);
+    }
 
-        $seriesRepo = $this->dm->getRepository('PumukitSchemaBundle:Series');
-
-        $seriesOpencastId = $this->getMediaPackageField($mediaPackage, 'series');
-        if ($seriesOpencastId) {
-            $series = $seriesRepo->findOneBy(array('properties.opencast' => $seriesOpencastId));
-        } else {
-            $series = $seriesRepo->findOneBy(array('properties.opencast' => 'default'));
-        }
-        if (!$series) {
-            $series = $this->importSeries($mediaPackage, $loggedInUser);
-        }
+    /**
+     * Import recording given a mediaPackage.
+     *
+     * Given a media package
+     * create a multimedia object
+     * with the media package metadata
+     *
+     * @param array     $mediaPackage
+     * @param bool      $invert
+     * @param User|null $loggedInUser
+     */
+    public function importRecordingFromMediaPackage($mediaPackage, $invert = false, User $loggedInUser = null)
+    {
+        $series = $this->seriesImportService->importSeries($mediaPackage, $loggedInUser);
 
         $onemultimediaobjects = null;
         $multimediaobjectsRepo = $this->dm->getRepository('PumukitSchemaBundle:MultimediaObject');
@@ -73,7 +81,7 @@ class OpencastImportService
             $onemultimediaobjects = $multimediaobjectsRepo->findOneBy(array('properties.opencast' => $mediaPackageId));
         }
 
-        if (null == $onemultimediaobjects) {
+        if (null === $onemultimediaobjects) {
             $multimediaObject = $this->factoryService->createMultimediaObject($series, true, $loggedInUser);
             $multimediaObject->setSeries($series);
 
@@ -85,7 +93,7 @@ class OpencastImportService
             $properties = $this->getMediaPackageField($mediaPackage, 'id');
             if ($properties) {
                 $multimediaObject->setProperty('opencast', $properties);
-                $multimediaObject->setProperty('opencasturl', $this->opencastClient->getPlayerUrl().'?id='.$properties);
+                $multimediaObject->setProperty('opencasturl', $this->opencastClient->getPlayerUrl().'?mode=embed&id='.$properties);
             }
             $multimediaObject->setProperty('opencastinvert', boolval($invert));
 
@@ -94,12 +102,8 @@ class OpencastImportService
                 $multimediaObject->setRecordDate($recDate);
             }
 
-            $language = $this->getMediaPackageField($mediaPackage, 'language');
-            if ($language) {
-                $multimediaObject->setProperty('opencastlanguage', strtolower($language));
-            } else {
-                $multimediaObject->setProperty('opencastlanguage', \Locale::getDefault());
-            }
+            $language = $this->getMediaPackageLanguage($mediaPackage);
+            $multimediaObject->setProperty('opencastlanguage', $language);
 
             foreach ($this->otherLocales as $locale) {
                 $multimediaObject->setTitle($title, $locale);
@@ -109,7 +113,8 @@ class OpencastImportService
             $tracks = $this->getMediaPackageField($media, 'track');
             if (isset($tracks[0])) {
                 // NOTE: Multiple tracks
-                for ($i = 0; $i < count($tracks); ++$i) {
+                $limit = count($tracks);
+                for ($i = 0; $i < $limit; ++$i) {
                     $track = $this->createTrackFromMediaPackage($mediaPackage, $multimediaObject, $i);
                 }
             } else {
@@ -120,7 +125,8 @@ class OpencastImportService
             $attachments = $this->getMediaPackageField($mediaPackage, 'attachments');
             $attachment = $this->getMediaPackageField($attachments, 'attachment');
             if (isset($attachment[0])) {
-                for ($j = 0; $j < count($attachment); ++$j) {
+                $limit = count($attachment);
+                for ($j = 0; $j < $limit; ++$j) {
                     $multimediaObject = $this->createPicFromAttachment($attachment, $multimediaObject, $j);
                 }
             } else {
@@ -128,7 +134,7 @@ class OpencastImportService
             }
 
             $tagRepo = $this->dm->getRepository('PumukitSchemaBundle:Tag');
-            $opencastTag = $tagRepo->findOneByCod('TECHOPENCAST');
+            $opencastTag = $tagRepo->findOneByCod($this->defaultTagImported);
             if ($opencastTag) {
                 $tagService = $this->tagService;
                 $tagAdded = $tagService->addTagToMultimediaObject($multimediaObject, $opencastTag->getId());
@@ -137,44 +143,16 @@ class OpencastImportService
             $multimediaObject = $this->mmsService->updateMultimediaObject($multimediaObject);
 
             if ($track) {
-                $opencastUrls = $this->getOpencastUrls($opencastId);
+                $opencastUrls = $this->getOpencastUrls($mediaPackageId);
                 $this->opencastService->genAutoSbs($multimediaObject, $opencastUrls);
             }
         }
     }
 
-    private function importSeries($mediaPackage, User $loggedInUser = null)
-    {
-        $publicDate = new \DateTime('now');
-
-        $seriesOpencastId = $this->getMediaPackageField($mediaPackage, 'series');
-        if ($seriesOpencastId) {
-            $title = $this->getMediaPackageField($mediaPackage, 'seriestitle');
-            $properties = $seriesOpencastId;
-        } else {
-            $title = 'MediaPackages without series';
-            $properties = 'default';
-        }
-
-        $series = $this->factoryService->createSeries($loggedInUser);
-        $series->setPublicDate($publicDate);
-        $series->setTitle($title);
-        foreach ($this->otherLocales as $locale) {
-            $series->setTitle($title, $locale);
-        }
-
-        $series->setProperty('opencast', $properties);
-
-        $this->dm->persist($series);
-        $this->dm->flush();
-
-        return $series;
-    }
-
     public function getOpencastUrls($opencastId = '')
     {
         $opencastUrls = array();
-        if (null != $opencastId) {
+        if (null !== $opencastId) {
             try {
                 $archiveMediaPackage = $this->opencastClient->getMediapackageFromArchive($opencastId);
             } catch (\Exception $e) {
@@ -185,7 +163,8 @@ class OpencastImportService
             $tracks = $this->getMediaPackageField($media, 'track');
             if (isset($tracks[0])) {
                 // NOTE: Multiple tracks
-                for ($i = 0; $i < count($tracks); ++$i) {
+                $limit = count($tracks);
+                for ($i = 0; $i < $limit; ++$i) {
                     $track = $tracks[$i];
                     $opencastUrls = $this->addOpencastUrl($opencastUrls, $track);
                 }
@@ -232,21 +211,20 @@ class OpencastImportService
                 $opencastTrack = $tracks[$index];
             }
         } else {
-            return null;
+            throw new \Exception(sprintf("No media track info in MP '%s'", $multimediaObject->getProperty('opencast')));
         }
 
         $track = new Track();
 
-        $language = $this->getMediaPackageField($mediaPackage, 'language');
-        if ($language) {
-            $track->setLanguage(strtolower($language));
-        }
+        $language = $this->getMediaPackageLanguage($mediaPackage);
+        $track->setLanguage($language);
 
         $tagsArray = $this->getMediaPackageField($opencastTrack, 'tags');
         $tags = $this->getMediaPackageField($tagsArray, 'tag');
         if (isset($tags[0])) {
             // NOTE: Multiple tags
-            for ($i = 0; $i < count($tags); ++$i) {
+            $limit = count($tags);
+            for ($i = 0; $i < $limit; ++$i) {
                 $track = $this->addTagToTrack($tags, $track, $i);
             }
         } else {
@@ -322,7 +300,7 @@ class OpencastImportService
                 $itemAttachment = $attachment[$index];
             }
             $type = $this->getMediaPackageField($itemAttachment, 'type');
-            if ($type == 'presenter/search+preview') {
+            if ('presenter/search+preview' == $type) {
                 $tags = $this->getMediaPackageField($itemAttachment, 'tags');
                 $url = $this->getMediaPackageField($itemAttachment, 'url');
                 if ($tags || $url) {
@@ -357,5 +335,18 @@ class OpencastImportService
         }
 
         return $track;
+    }
+
+    private function getMediaPackageLanguage($mediaPackage)
+    {
+        $language = $this->getMediaPackageField($mediaPackage, 'language');
+        if ($language) {
+            $parsedLocale = \Locale::parseLocale($language);
+            if (in_array($parsedLocale['language'], $this->otherLocales)) {
+                return $parsedLocale['language'];
+            }
+        }
+
+        return  \Locale::getDefault();
     }
 }

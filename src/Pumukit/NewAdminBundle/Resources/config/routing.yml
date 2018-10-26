@@ -18,6 +18,16 @@ pumukitnewadmin_js:
         sharedAge:    86400
         _format: js
 
+pumukitnewadmin_locale_js:
+    pattern: /admin/pumukit2.{_locale}.js
+    methods: [GET]
+    defaults:
+        _controller: FrameworkBundle:Template:template
+        template: 'PumukitNewAdminBundle::pumukit2.js.twig'
+        maxAge:       86400
+        sharedAge:    86400
+        _format: js
+
 pumukitnewadmin_css:
     pattern: /admin/pumukit2.css
     methods: [GET]
@@ -122,11 +132,11 @@ pumukitnewadmin_live:
     prefix: /admin/live
 
 pumukitnewadmin_event:
-    resource: @PumukitNewAdminBundle/Resources/config/routes/event.yml
+    resource: @PumukitNewAdminBundle/Resources/config/routes/legacyevent.yml
     prefix: /admin/event
 
 pumukitnewadmin_eventpic:
-    resource: @PumukitNewAdminBundle/Resources/config/routes/eventpic.yml
+    resource: @PumukitNewAdminBundle/Resources/config/routes/legacyeventpic.yml
     prefix: /admin/eventpic
 
 pumukitnewadmin_permission_profile:

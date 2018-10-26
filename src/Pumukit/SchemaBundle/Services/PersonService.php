@@ -146,17 +146,20 @@ class PersonService
     {
         $role = $this->saveRole($role);
 
-        foreach ($this->repoMmobj->findByRoleId($role->getId()) as $mmobj) {
-            foreach ($mmobj->getRoles() as $embeddedRole) {
-                if ($role->getId() === $embeddedRole->getId()) {
-                    $embeddedRole = $this->updateEmbeddedRole($role, $embeddedRole);
-                    $this->dm->persist($mmobj);
-                    foreach ($embeddedRole->getPeople() as $embeddedPerson) {
-                        $this->dispatcher->dispatchUpdate($mmobj, $embeddedPerson, $embeddedRole);
-                    }
-                }
-            }
-        }
+        $qb = $this->dm->createQueryBuilder('PumukitSchemaBundle:MultimediaObject');
+
+        $query = $qb
+            ->update()
+            ->multiple(true)
+            ->field('people._id')->equals(new \MongoId($role->getId()))
+            ->field('people.$.cod')->set($role->getCod())
+            ->field('people.$.xml')->set($role->getXml())
+            ->field('people.$.display')->set($role->getDisplay())
+            ->field('people.$.name')->set($role->getI18nName())
+            ->field('people.$.text')->set($role->getI18nText())
+            ->getQuery();
+        $query->execute();
+
         $this->dm->flush();
 
         return $role;
@@ -177,7 +180,7 @@ class PersonService
         $seriesCollection = new ArrayCollection();
         $count = 0;
         foreach ($mmobjs as $mmobj) {
-            if ($limit !== 0) {
+            if (0 !== $limit) {
                 if ($count === $limit) {
                     break;
                 }
@@ -185,8 +188,8 @@ class PersonService
             $oneseries = $mmobj->getSeries();
             if (!$seriesCollection->contains($oneseries)) {
                 $seriesCollection->add($oneseries);
+                ++$count;
             }
-            ++$count;
         }
 
         return $seriesCollection;
@@ -206,7 +209,7 @@ class PersonService
         $this->dm->persist($person);
         $multimediaObject->addPersonWithRole($person, $role);
         $role->increaseNumberPeopleInMultimediaObject();
-        if ($this->addUserAsPerson && ($this->personalScopeRoleCode === $role->getCod()) && (null != $person->getUser())) {
+        if ($this->addUserAsPerson && ($this->personalScopeRoleCode === $role->getCod()) && (null !== $person->getUser())) {
             $this->userService->addOwnerUserToMultimediaObject($multimediaObject, $person->getUser(), false);
         }
         $this->dm->persist($multimediaObject);
@@ -228,11 +231,19 @@ class PersonService
      *
      * @param string $name
      * @param array  $exclude
+     * @param bool   $checkAccents
      *
      * @return ArrayCollection
      */
-    public function autoCompletePeopleByName($name, array $exclude = array())
+    public function autoCompletePeopleByName($name, array $exclude = array(), $checkAccents = false)
     {
+        if ($checkAccents) {
+            //Wating for Mongo 3.4 and https://docs.mongodb.com/manual/reference/collation/
+            $from = array('a', 'e', 'i', 'o', 'u');
+            $to = array('[aá]', '[eé]', '[ií]', '[oó]', '[uú]');
+            $name = str_replace($from, $to, $name);
+        }
+
         $qb = $this->repoPerson->createQueryBuilder()
             ->field('name')->equals(new \MongoRegex('/'.$name.'/i'));
 
@@ -294,7 +305,7 @@ class PersonService
         $hasBeenRemoved = $multimediaObject->removePersonWithRole($person, $role);
         if ($hasBeenRemoved) {
             $role->decreaseNumberPeopleInMultimediaObject();
-            if ($this->addUserAsPerson && ($this->personalScopeRoleCode === $role->getCod()) && (null != $person->getUser())) {
+            if ($this->addUserAsPerson && ($this->personalScopeRoleCode === $role->getCod()) && (null !== $person->getUser())) {
                 $this->userService->removeOwnerUserFromMultimediaObject($multimediaObject, $person->getUser(), false);
             }
         }
@@ -316,7 +327,7 @@ class PersonService
             throw new \Exception("Couldn't remove Person with id ".$person->getId().'. There are multimedia objects with this person');
         }
 
-        if ((null != $user = $person->getUser()) && !$deleteFromUser) {
+        if ((null !== $user = $person->getUser()) && !$deleteFromUser) {
             throw new \Exception('Could not remove Person with id "'.$person->getId().'". There is an User with id "'.$user->getId().'" and usernname "'.$user->getUsername().'" referenced. Delete the user to delete this Person.');
         }
 
@@ -335,7 +346,7 @@ class PersonService
             foreach ($mmobj->getRoles() as $embeddedRole) {
                 if ($mmobj->containsPersonWithRole($person, $embeddedRole)) {
                     if (!($mmobj->removePersonWithRole($person, $embeddedRole))) {
-                        throw new \Expection('There was an error removing person '.$person->getId().' with role '.$role->getCod().' in multimedia object '.$multimediaObject->getId());
+                        throw new \Exception('There was an error removing person '.$person->getId().' with role '.$role->getCod().' in multimedia object '.$multimediaObject->getId());
                     }
                     $this->dispatcher->dispatchDelete($mmobj, $person, $embeddedRole);
                 }
@@ -368,7 +379,7 @@ class PersonService
      */
     public function referencePersonIntoUser(User $user)
     {
-        if ($this->addUserAsPerson && (null == $person = $user->getPerson())) {
+        if ($this->addUserAsPerson && (null === $person = $user->getPerson())) {
             $person = $this->createFromUser($user);
 
             $user->setPerson($person);
@@ -395,8 +406,8 @@ class PersonService
      */
     public function getPersonFromLoggedInUser(User $loggedInUser = null)
     {
-        if (null != $loggedInUser) {
-            if (null == $person = $loggedInUser->getPerson()) {
+        if (null !== $loggedInUser) {
+            if (null === $person = $loggedInUser->getPerson()) {
                 $loggedInUser = $this->referencePersonIntoUser($loggedInUser);
                 $person = $loggedInUser->getPerson();
             }
@@ -419,7 +430,7 @@ class PersonService
     public function getPersonalScopeRole()
     {
         $personalScopeRole = $this->dm->getRepository('PumukitSchemaBundle:Role')->findOneByCod($this->personalScopeRoleCode);
-        if ($this->addUserAsPerson && (null == $personalScopeRole)) {
+        if ($this->addUserAsPerson && (null === $personalScopeRole)) {
             throw new \Exception('Invalid Personal Scope Role Code: "'.$this->personalScopeRoleCode
                                  .'". There is no Role with this data. '
                                  .'Change it on parameters.yml or use default value by deleting '
@@ -453,8 +464,14 @@ class PersonService
      */
     private function createFromUser(User $user)
     {
-        if ($person = $this->repoPerson->findOneByEmail($user->getEmail())) {
-            return $person;
+        if ($user->getEmail()) {
+            if ($person = $this->repoPerson->findOneByEmail($user->getEmail())) {
+                return $person;
+            }
+        } else {
+            if ($person = $this->repoPerson->findOneByEmail('')) {
+                return $person;
+            }
         }
 
         $person = new Person();

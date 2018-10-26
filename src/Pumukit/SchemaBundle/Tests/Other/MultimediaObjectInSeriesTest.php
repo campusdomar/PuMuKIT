@@ -10,7 +10,6 @@
 namespace Pumukit\SchemaBundle\Tests\Other;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 
 class MultimediaObjectInSeriesTest extends WebTestCase
 {
@@ -51,7 +50,7 @@ class MultimediaObjectInSeriesTest extends WebTestCase
 
         $this->factoryService->createMultimediaObject($series);
 
-        $coll_mms = $series->getMultimediaObjects();
+        $coll_mms = $this->seriesRepo->getMultimediaObjects($series);
 
         //echo "Assert\n";
         $this->assertEquals(1, count($coll_mms));
@@ -60,7 +59,7 @@ class MultimediaObjectInSeriesTest extends WebTestCase
         $i = 0;
         foreach ($coll_mms as $mm) {
             ++$i;
-          //echo "\t - ", $mm->getId(), "\n";
+            //echo "\t - ", $mm->getId(), "\n";
         }
         $this->assertEquals(1, $i);
     }
@@ -77,7 +76,7 @@ class MultimediaObjectInSeriesTest extends WebTestCase
 
         $i = 0;
         foreach ($this->seriesRepo->findAll() as $s) {
-            foreach ($s->getMultimediaObjects() as $mm) {
+            foreach ($this->seriesRepo->getMultimediaObjects($s) as $mm) {
                 ++$i;
             }
         }

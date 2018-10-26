@@ -15,7 +15,7 @@ class JobGeneratorListener
     private $dm;
     private $logger;
     private $jobService;
-    private $profileService;
+    private $profiles;
 
     public function __construct(DocumentManager $documentManager, JobService $jobService, ProfileService $profileService, LoggerInterface $logger)
     {
@@ -23,6 +23,7 @@ class JobGeneratorListener
         $this->jobService = $jobService;
         $this->logger = $logger;
         $this->profiles = $profileService->getProfiles();
+        $this->profileService = $profileService;
     }
 
     public function onJobSuccess(JobEvent $event)
@@ -37,7 +38,16 @@ class JobGeneratorListener
 
     private function checkMultimediaObject(MultimediaObject $multimediaObject)
     {
-        $master = $multimediaObject->getTrackWithTag('master');
+        // Only for objects with master
+        $master = $multimediaObject->getMaster(false);
+        if (!$master) {
+            return;
+        }
+
+        // Only for non multi-stream objects
+        if ($multimediaObject->isMultistream()) {
+            return;
+        }
 
         $repository = $this->dm->getRepository('PumukitSchemaBundle:Tag');
         $tag = $repository->findOneByCod('PUBCHANNELS');
@@ -45,10 +55,19 @@ class JobGeneratorListener
             return;
         }
 
+        $profileName = $master->getProfileName();
+        if (!$profileName || !isset($this->profiles[$profileName])) {
+            return;
+        }
+        $profile = $this->profiles[$profileName];
+
+        //NOTE: See TTK-7482
         foreach ($tag->getChildren() as $pubchannel) {
-            if (($multimediaObject->containsTag($pubchannel))
-               && ($master)) {
-                $this->generateJobs($multimediaObject, $pubchannel->getCod());
+            if ($multimediaObject->containsTag($pubchannel)) {
+                if (!$master->containsTag('ENCODED_'.$pubchannel->getCod()) && false === strpos($profile['target'], $pubchannel->getCod())) {
+                    $master->addTag('ENCODED_'.$pubchannel->getCod());
+                    $this->generateJobs($multimediaObject, $pubchannel->getCod());
+                }
             }
         }
     }
@@ -59,6 +78,8 @@ class JobGeneratorListener
     private function generateJobs(MultimediaObject $multimediaObject, $pubChannelCod)
     {
         $jobs = array();
+        $default_profiles = $this->profileService->getDefaultProfiles();
+
         foreach ($this->profiles as $targetProfile => $profile) {
             $targets = $this->getTargets($profile['target']);
 
@@ -68,6 +89,18 @@ class JobGeneratorListener
                                             'because it already contains a track created with this profile',
                                             $targetProfile, $multimediaObject->getId()));
                 continue;
+            }
+
+            if (0 !== count($default_profiles)) {
+                if (!isset($default_profiles[$pubChannelCod])) {
+                    continue;
+                }
+                if (!$multimediaObject->isOnlyAudio() && false === strpos($default_profiles[$pubChannelCod]['video'], $targetProfile)) {
+                    continue;
+                }
+                if ($multimediaObject->isOnlyAudio() && false === strpos($default_profiles[$pubChannelCod]['audio'], $targetProfile)) {
+                    continue;
+                }
             }
 
             if ((in_array($pubChannelCod, $targets['standard']))
@@ -90,11 +123,11 @@ class JobGeneratorListener
             }
 
             if (in_array($pubChannelCod, $targets['force'])) {
-                if ($multimediaObject->isOnlyAudio() && !$profile['audio']) {
+                /*if ($multimediaObject->isOnlyAudio() && !$profile['audio']) {
                     $this->logger->info(sprintf("JobGeneratorListener can't create a new job (%s) for multimedia object %s using forced target, because a video profile can't be created from an audio",
                                                 $targetProfile, $multimediaObject->getId()));
                     continue;
-                }
+                }*/
 
                 $master = $multimediaObject->getTrackWithTag('master');
                 $this->logger->info(sprintf('JobGeneratorListener creates new job (%s) for multimedia object %s using forced target', $targetProfile, $multimediaObject->getId()));
@@ -116,7 +149,7 @@ class JobGeneratorListener
         $return = array('standard' => array(), 'force' => array());
 
         foreach (array_filter(preg_split('/[,\s]+/', $targets)) as $target) {
-            if (substr($target, -1) == '*') {
+            if ('*' == substr($target, -1)) {
                 $return['force'][] = substr($target, 0, -1);
             } else {
                 $return['standard'][] = $target;

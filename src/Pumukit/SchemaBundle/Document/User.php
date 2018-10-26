@@ -26,26 +26,26 @@ class User extends BaseUser
     protected $id;
 
     /**
-     * @MongoDB\ReferenceOne(targetDocument="PermissionProfile", simple=true)
+     * @MongoDB\ReferenceOne(targetDocument="PermissionProfile", simple=true, cascade={"persist"})
      */
     private $permissionProfile;
 
     /**
-     * @MongoDB\ReferenceOne(targetDocument="Person", inversedBy="user", simple=true)
+     * @MongoDB\ReferenceOne(targetDocument="Person", inversedBy="user", simple=true, cascade={"persist"})
      */
     private $person;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     protected $fullname;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     protected $origin = self::ORIGIN_LOCAL;
 
@@ -63,7 +63,7 @@ class User extends BaseUser
     {
         $this->groups = new ArrayCollection();
         parent::__construct();
-        if (false == $genUserSalt) {
+        if (false === $genUserSalt) {
             $this->salt = '';
         }
     }
@@ -207,7 +207,6 @@ class User extends BaseUser
      */
     public function getGroupsIds()
     {
-
         // Performance boost (Don't repeat it, only if it's exceptionally necesary)
         if ($this->groups instanceof \Doctrine\ODM\MongoDB\PersistentCollection && !$this->groups->isDirty()) {
             //See PersistentCollection class (coll + mongoData)

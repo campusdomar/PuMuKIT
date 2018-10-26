@@ -38,7 +38,7 @@ class PermissionServiceTest extends WebTestCase
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException \RuntimeException
      * @expectedExceptionMessage The permission with role 'ROLE_FOUR' is duplicated. Please check the configuration.
      */
     public function testConstructorDuplicatedRoleException()
@@ -49,10 +49,11 @@ class PermissionServiceTest extends WebTestCase
             'description' => 'Access Four',
         );
         $permissionService = new PermissionService($this->dm, $externalPermissions);
+        $permissionService->getAllPermissionValues();
     }
 
     /**
-     * @expectedException UnexpectedValueException
+     * @expectedException \UnexpectedValueException
      * @expectedExceptionMessage Invalid permission: "INVALID_NAME". Permission must start with "ROLE_".
      */
     public function testConstructorRoleNameException()
@@ -63,6 +64,7 @@ class PermissionServiceTest extends WebTestCase
             'description' => 'Invalid Name',
         );
         $permissionService = new PermissionService($this->dm, $externalPermissions);
+        $permissionService->getAllPermissionValues();
     }
 
     public function testGetLocalPermissions()
@@ -133,7 +135,7 @@ class PermissionServiceTest extends WebTestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage The permission with role 'ROLE_DOESNTEXIST' does not exist in the configuration
      */
     public function testGetDependenciesByScopeInvalidPermission()
@@ -144,7 +146,7 @@ class PermissionServiceTest extends WebTestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage The scope 'NO_SCOPE' is not a valid scope (SCOPE_GLOBAL or SCOPE_PERSONAL)
      */
     public function testGetDependenciesByScopeInvalidScope()
@@ -155,7 +157,7 @@ class PermissionServiceTest extends WebTestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage The permission with role 'ROLE_DEPENDENCY' does not exist in the configuration
      */
     public function testGetDependenciesByScopeInvalidDependency()
@@ -171,21 +173,23 @@ class PermissionServiceTest extends WebTestCase
         $externalPermissions = $this->getExternalPermissions();
         $externalPermissions[] = $erroringPermission;
         $permissionService = new PermissionService($this->dm, $externalPermissions);
+        $permissionService->getAllPermissionValues();
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      * @expectedExceptionMessage Permission must start with "ROLE_"
      */
     public function testExceptionRole()
     {
         $externalPermissions = array(
-                                     array(
-                                           'role' => 'NOT_VALID',
-                                           'description' => 'Not valid',
-                                           ),
-                                     );
+            array(
+                'role' => 'NOT_VALID',
+                'description' => 'Not valid',
+            ),
+        );
         $permissionService = new PermissionService($this->dm, $externalPermissions);
+        $permissionService->getAllPermissionValues();
     }
 
     private function getExternalPermissions()

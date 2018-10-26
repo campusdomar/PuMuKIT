@@ -35,9 +35,7 @@ class ClientService
      * @param bool            $manageOpencastUsers
      * @param LoggerInterface $logger
      */
-    public function __construct($url = '', $user = '', $passwd = '', $player = '/engage/ui/watch.html', $scheduler = '/admin/index.html#/recordings', $dashboard = '/dashboard/index.html',
-                                $deleteArchiveMediaPackage = false, $deletionWorkflowName = 'delete-archive', $manageOpencastUsers = false, $insecure = false, $adminUrl = null,
-                                LoggerInterface $logger = null, RoleHierarchy $roleHierarchy = null)
+    public function __construct($url = '', $user = '', $passwd = '', $player = '/engage/ui/watch.html', $scheduler = '/admin/index.html#/recordings', $dashboard = '/dashboard/index.html', $deleteArchiveMediaPackage = false, $deletionWorkflowName = 'delete-archive', $manageOpencastUsers = false, $insecure = false, $adminUrl = null, LoggerInterface $logger = null, RoleHierarchy $roleHierarchy = null)
     {
         $this->logger = $logger;
 
@@ -95,14 +93,12 @@ class ClientService
             return $this->adminUrl;
         }
 
-        $output = $this->request('/services/available.json?serviceType=org.opencastproject.episode');
+        $output = $this->request('/info/components.json');
         $decode = $this->decodeJson($output['var']);
-        if (isset($decode['services'])) {
-            if (isset($decode['services']['service'])) {
-                if (isset($decode['services']['service']['host'])) {
-                    $this->adminUrl = $decode['services']['service']['host'];
-                }
-            }
+
+        if (isset($decode['admin']) &&
+            filter_var($decode['admin'], FILTER_VALIDATE_URL)) {
+            $this->adminUrl = $decode['admin'];
         }
 
         return $this->adminUrl;
@@ -144,14 +140,14 @@ class ClientService
     {
         $output = $this->request('/search/episode.json?'.($query ? 'q='.urlencode($query).'&' : '').'limit='.$limit.'&offset='.$offset);
 
-        if ($output['status'] !== 200) {
+        if (200 !== $output['status']) {
             return false;
         }
         $decode = $this->decodeJson($output['var']);
 
         $return = array(0, array());
 
-        if ($decode['search-results']['total'] == 0) {
+        if (0 == $decode['search-results']['total']) {
             return $return;
         }
 
@@ -179,18 +175,45 @@ class ClientService
     {
         $output = $this->request('/search/episode.json?id='.$id);
 
-        if ($output['status'] !== 200) {
+        if (200 !== $output['status']) {
             return false;
         }
         $decode = $this->decodeJson($output['var']);
 
-        if ($decode['search-results']['total'] == 0) {
+        if (0 == $decode['search-results']['total']) {
             return;
         }
         if ($decode['search-results']['limit'] > 1) {
             return $decode['search-results']['result'][0]['mediapackage'];
         } else {
             return $decode['search-results']['result']['mediapackage'];
+        }
+    }
+
+    /**
+     * Get full media package
+     * from given id.
+     *
+     * @param string $id
+     *
+     * @return array
+     */
+    public function getFullMediapackage($id)
+    {
+        $output = $this->request('/search/episode.json?id='.$id);
+
+        if (200 !== $output['status']) {
+            return false;
+        }
+        $decode = $this->decodeJson($output['var']);
+
+        if (0 == $decode['search-results']['total']) {
+            return;
+        }
+        if ($decode['search-results']['limit'] > 1) {
+            return $decode['search-results']['result'][0];
+        } else {
+            return $decode['search-results']['result'];
         }
     }
 
@@ -206,12 +229,16 @@ class ClientService
     {
         $output = $this->request('/episode/episode.json?id='.$id, array(), 'GET', true);
 
-        if ($output['status'] !== 200) {
-            return false;
+        if (200 !== $output['status']) {
+            $output = $this->request('/archive/episode.json?id='.$id, array(), 'GET', true);
+
+            if (200 !== $output['status']) {
+                return false;
+            }
         }
         $decode = $this->decodeJson($output['var']);
 
-        if ($decode['search-results']['total'] == 0) {
+        if (0 == $decode['search-results']['total']) {
             return;
         }
         if ($decode['search-results']['limit'] > 1) {
@@ -256,7 +283,7 @@ class ClientService
 
         $output = $this->request($request, $parameters, 'POST', true);
 
-        if ($output['status'] !== 204) {
+        if (204 !== $output['status']) {
             return false;
         }
 
@@ -274,7 +301,7 @@ class ClientService
 
         $output = $this->request($request, array(), 'GET', true);
 
-        if ($output['status'] !== 200) {
+        if (200 !== $output['status']) {
             return false;
         }
 
@@ -297,7 +324,7 @@ class ClientService
 
         $output = $this->request($request, array(), 'GET', true);
 
-        if ($output['status'] !== 200) {
+        if (200 !== $output['status']) {
             return false;
         }
 
@@ -320,7 +347,7 @@ class ClientService
                 $request = '/workflow/stop';
                 $params = array('id' => $workflow['id']);
                 $output = $this->request($request, $params, 'POST', true);
-                if ($output['status'] !== 200) {
+                if (200 !== $output['status']) {
                     return false;
                 }
 
@@ -422,6 +449,115 @@ class ClientService
     }
 
     /**
+     * Updates the Opencast series metadata.
+     *
+     * Updates the Opencast series metadata based on the associated PuMuKIT series. If
+     * the Opencast series does not exist, it creates a new Opencast series and updates
+     * the Opencast id on the PuMuKIT series.
+     *
+     * @param Series $series
+     *
+     * @return array
+     */
+    public function updateOpencastSeries($series)
+    {
+        $seriesOpencastId = $series->getProperty('opencast');
+        if (null === $seriesOpencastId) {
+            throw new \Exception('Error trying to update an Opencast series. Error: No opencast ID', 404);
+        }
+        $metadata = array(
+            array(
+                'id' => 'title',
+                'value' => $series->getTitle(),
+            ),
+            array(
+                'id' => 'description',
+                'value' => $series->getDescription(),
+            ),
+        );
+        //There is an Opencast API error. The 'type' parameter should be taken from the form,
+        //  but it is taken from the query. Added 'type' in both ways for good measure.
+        $type = 'dublincore/series';
+        $params = array(
+            'metadata' => json_encode($metadata),
+            'type' => $type,
+        );
+        $requestUrl = "/api/series/$seriesOpencastId/metadata";
+        $requestUrl .= "?type=$type";
+        $output = $this->request($requestUrl, $params, 'PUT', true);
+        if (200 !== $output['status']) {
+            throw new \Exception('Error trying to update an Opencast series metadata. Error '.$output['status'].':  '.$output['error'].' : '.$output['var'], $output['status']);
+        }
+
+        return $output;
+    }
+
+    /**
+     * Creates an Opencast series.
+     *
+     * Creates an Opencast series and associates it to the PuMuKIT series.
+     * The Opencast series metadata is taken from the PuMuKIT series.
+     *
+     * @param Series $series
+     *
+     * @return array
+     */
+    public function createOpencastSeries($series)
+    {
+        $metadata = array(
+            array(
+                'flavor' => 'dublincore/series',
+                'fields' => array(
+                    array(
+                        'id' => 'title',
+                        'value' => $series->getTitle(),
+                    ),
+                    array(
+                        'id' => 'description',
+                        'value' => $series->getDescription(),
+                    ),
+                ),
+            ),
+        );
+        $acl = array();
+        $params = array(
+            'metadata' => json_encode($metadata),
+            'acl' => json_encode($acl),
+        );
+        $requestUrl = '/api/series';
+        $output = $this->request($requestUrl, $params, 'POST', true);
+        if (201 !== $output['status']) {
+            throw new \Exception('Error trying to create an Opencast series. Error '.$output['status'].':  "'.$output['error'].' : '.$output['var'], $output['status']);
+        }
+
+        return $output;
+    }
+
+    /**
+     * Deletes an Opencast series.
+     *
+     * Deletes the Opencast series metadata associated to the PuMuKIT series.
+     *
+     * @param Series $series
+     *
+     * @return array
+     */
+    public function deleteOpencastSeries($series)
+    {
+        $seriesOpencastId = $series->getProperty('opencast');
+        if (null === $seriesOpencastId) {
+            return;
+        }
+        $requestUrl = "/api/series/$seriesOpencastId";
+        $output = $this->request($requestUrl, array(), 'DELETE', true);
+        if (204 !== $output['status']) {
+            throw new \Exception('Error trying to delete an Opencast series. Error '.$output['status'].':  "'.$output['error'].' : '.$output['var'], $output['status']);
+        }
+
+        return $output;
+    }
+
+    /**
      * Request.
      *
      * Makes a given request (path)
@@ -482,13 +618,13 @@ class ClientService
         curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($request, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($request, CURLOPT_CONNECTTIMEOUT, 1);
-        curl_setopt($request, CURLOPT_TIMEOUT, 1);
+        curl_setopt($request, CURLOPT_TIMEOUT, 10);
 
         if ($this->insecure) {
             curl_setopt($request, CURLOPT_SSL_VERIFYPEER, false);
         }
 
-        if ($this->user != '') {
+        if ('' != $this->user) {
             curl_setopt($request, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);
             curl_setopt($request, CURLOPT_USERPWD, $this->user.':'.$this->passwd);
             curl_setopt($request, CURLOPT_HTTPHEADER, $header);
@@ -501,7 +637,7 @@ class ClientService
 
         curl_close($request);
 
-        if ($method == 'GET') {
+        if ('GET' == $method) {
             if (200 != $output['status']) {
                 $this->logger->addError(__CLASS__.'['.__FUNCTION__.'](line '.__LINE__
                                       .') Error ('.$output['status'].') Processing Request : '.$requestUrl.'.');
@@ -544,5 +680,29 @@ class ClientService
         }
 
         return '["'.implode('","', $roles).'"]';
+    }
+
+    public function getSpatialField($url)
+    {
+        if (0 === strpos($url, $this->url)) {
+            $path = parse_url($url, PHP_URL_PATH);
+            if (!$path) {
+                return null;
+            }
+            $response = $this->request($path);
+        } else {
+            $response = array('var' => file_get_contents($url));
+        }
+
+        $start = strrpos($response['var'], '<dcterms:spatial>');
+        $end = strrpos($response['var'], '</dcterms:spatial>');
+
+        if ((false !== $start) && (false !== $end)) {
+            $start += strlen('<dcterms:spatial>');
+
+            return substr($response['var'], $start, $end - $start);
+        }
+
+        return null;
     }
 }

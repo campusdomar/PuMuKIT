@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file source-language="en" target-language="es-ES" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
     <body>
       <trans-unit id="b900119b283c0339c634733d27d98912" resname="Health Sciences" approved="yes">
         <source>Health Sciences</source>
@@ -208,7 +211,10 @@
       </trans-unit>
       <trans-unit id="2d31a9042ca0f50dce8ae60553645e5d" resname="Most viewed">
         <source>Most viewed</source>
-        <target xml:lang="es-ES" state="translated">Más Vistos</target>
+        <target xml:lang="es-ES" state="translated">Más vistos</target>
+        <alt-trans>
+          <target xml:lang="es-ES">Más Vistos</target>
+        </alt-trans>
       </trans-unit>
       <trans-unit id="945d258623dcac0fa86586d6a0056452" resname="Recently added">
         <source>Recently added</source>
@@ -418,11 +424,17 @@
       </trans-unit>
       <trans-unit id="bb6e3e7941f7c00d905c3f11b602dec4" resname="Multimedia objects with tag: %title%">
         <source>Multimedia objects with tag: %title%</source>
-        <target xml:lang="es-ES" state="translated">Objetos multimedia con etiqueta: %title%</target>
+        <target xml:lang="es-ES" state="translated">Objetos multimedia con categoría: %title%</target>
+        <alt-trans>
+          <target xml:lang="es-ES">Objetos multimedia con etiqueta: %title%</target>
+        </alt-trans>
       </trans-unit>
       <trans-unit id="a3546e4e0fce18914e4fc2a38c0a0bc0" resname="Series with tag: %title%">
         <source>Series with tag: %title%</source>
-        <target xml:lang="es-ES" state="translated">Series con etiqueta: %title%</target>
+        <target xml:lang="es-ES" state="translated">Series con categoría: %title%</target>
+        <alt-trans>
+          <target xml:lang="es-ES">Series con etiqueta: %title%</target>
+        </alt-trans>
       </trans-unit>
       <trans-unit id="e2687632d3f5cb6e7d6c8078d92296c9" resname="Spanish Sign Language">
         <source>Spanish Sign Language</source>
@@ -443,6 +455,138 @@
       <trans-unit id="61e5b3c8bc5458843025de98edf999aa" resname="i18n.one.Series">
         <source>i18n.one.Series</source>
         <target xml:lang="es-ES" state="translated">Serie</target>
+      </trans-unit>
+      <trans-unit id="a4d3b161ce1309df1c4e25df28694b7b" resname="Submit">
+        <source>Submit</source>
+        <target xml:lang="es-ES" state="translated">Enviar</target>
+      </trans-unit>
+      <trans-unit id="8c2857a9ad1d8f31659e35e904e20fa6" resname="Logo">
+        <source>Logo</source>
+        <target xml:lang="es-ES" state="translated">Imagen</target>
+      </trans-unit>
+      <trans-unit id="94966d90747b97d1f0f206c98a8b1ac3" resname="Send">
+        <source>Send</source>
+        <target xml:lang="es-ES" state="translated">Enviar</target>
+      </trans-unit>
+      <trans-unit id="87f9f735a1d36793ceaecd4e47124b63" resname="Events">
+        <source>Events</source>
+        <target xml:lang="es-ES" state="translated">Eventos</target>
+      </trans-unit>
+      <trans-unit id="161f25f9025f957f236bd529f7d1eb38" resname="Starts">
+        <source>Starts</source>
+        <target xml:lang="es-ES" state="translated">Comienzo</target>
+      </trans-unit>
+      <trans-unit id="8425cc8cae1477d22d87e3ec59ec9326" resname="Next session">
+        <source>Next session</source>
+        <target xml:lang="es-ES" state="translated">Próxima sesión</target>
+      </trans-unit>
+      <trans-unit id="e12167aa0a7698e6ebc92b4ce3909b53" resname="To">
+        <source>To</source>
+        <target xml:lang="es-ES" state="translated">a</target>
+      </trans-unit>
+      <trans-unit id="6ce3bdc39e544725038e0e87b771db1e" resname="Questions">
+        <source>Questions</source>
+        <target xml:lang="es-ES" state="translated">Consultas</target>
+      </trans-unit>
+      <trans-unit id="a4a7f7bd7fe3e8f903979f1bea6bf9b3" resname="Download this audio">
+        <source>Download this audio</source>
+        <target xml:lang="es-ES" state="translated">Descargar este audio</target>
+      </trans-unit>
+      <trans-unit id="176ee76a868757e0c2058ad60d9d7514" resname="Download this video">
+        <source>Download this video</source>
+        <target xml:lang="es-ES" state="translated">Descargar este vídeo</target>
+      </trans-unit>
+      <trans-unit id="b3950900a4184826e146e7dd6daa3946" resname="Live events">
+        <source>Live events</source>
+        <target xml:lang="es-ES" state="translated">Eventos en Directo</target>
+      </trans-unit>
+      <trans-unit id="625501b6af2270f63b11f383be3dcb70" resname="No live events now.">
+        <source>No live events now.</source>
+        <target xml:lang="es-ES" state="translated">No hay eventos en directo ahora.</target>
+      </trans-unit>
+      <trans-unit id="1f9d00c3d18f41c15788bfa93efc9cfe" resname="There are no scheduled live events. You will find ended live events in the series catalogue or through the media portal search.">
+        <source>There are no scheduled live events. You will find ended live events in the series catalogue or through the media portal search.</source>
+        <target xml:lang="es-ES" state="translated">No hay ningún evento en directo programado. Puede localizar eventos en directo finalizados en el catálogo de series o a través del buscador del portal.</target>
+      </trans-unit>
+      <trans-unit id="b658acd7298e4f58058387dbbc4b327d" resname="This page isn't available. Sorry about that.">
+        <source>This page isn't available. Sorry about that.</source>
+        <target xml:lang="es-ES" state="translated">Esta página no se encuentra disponible. Sentimos las molestias.</target>
+      </trans-unit>
+      <trans-unit id="795a273f05736cc8c7b77d3a88bc9bee" resname="Try searching for something else:">
+        <source>Try searching for something else:</source>
+        <target xml:lang="es-ES" state="translated">Intente usar otros criterios de búsqueda:</target>
+      </trans-unit>
+      <trans-unit id="8cf04a9734132302f96da8e113e80ce5" resname="Home">
+        <source>Home</source>
+        <target xml:lang="es-ES" state="translated">Inicio</target>
+      </trans-unit>
+      <trans-unit id="aaf40ad2ab7b5e9a1f5a19c78b6c5bc4" resname="By subject catalogue">
+        <source>By subject catalogue</source>
+        <target xml:lang="es-ES" state="translated">Catálogo por categorías</target>
+      </trans-unit>
+      <trans-unit id="50c60ac437e4d4ef19c77bdca5bbcf3b" resname="University">
+        <source>University</source>
+        <target xml:lang="es-ES" state="translated">Universidad</target>
+      </trans-unit>
+      <trans-unit id="d6e6cb19e3b9c02f89d6cd54cfa7c613" resname="Business">
+        <source>Business</source>
+        <target xml:lang="es-ES" state="translated">Negocios</target>
+      </trans-unit>
+      <trans-unit id="ebad4be1614b6dfe62375ab4bf370622" resname="Natural Sciences">
+        <source>Natural Sciences</source>
+        <target xml:lang="es-ES" state="translated">Ciencias Naturales</target>
+      </trans-unit>
+      <trans-unit id="a5e73d8e9203cea937ad6205c80036f2" resname="Health &amp; Medicine">
+        <source>Health &amp; Medicine</source>
+        <target xml:lang="es-ES" state="translated">Salud &amp; Medicina</target>
+      </trans-unit>
+      <trans-unit id="81588d326cebe6416d3904db93603af1" resname="Law">
+        <source>Law</source>
+        <target xml:lang="es-ES" state="translated">Derecho</target>
+      </trans-unit>
+      <trans-unit id="95948e3320f29c1714d31c3070d1f61b" resname="Social Matters &amp; Education">
+        <source>Social Matters &amp; Education</source>
+        <target xml:lang="es-ES" state="translated">Aspectos Sociales &amp; Educación</target>
+      </trans-unit>
+      <trans-unit id="8b2f77e9a7ad8522b915e52c0ec86cbc" resname="Subjects">
+        <source>Subjects</source>
+        <target xml:lang="es-ES" state="translated">Temas</target>
+      </trans-unit>
+      <trans-unit id="fecc878b1691c7658927cc6bb866bfe0" resname="Now events">
+        <source>Now events</source>
+        <target xml:lang="es-ES" state="translated">Eventos emitiendo ahora</target>
+      </trans-unit>
+      <trans-unit id="60b31b4777e7a98ed15e070053c72e9a" resname="Today events">
+        <source>Today events</source>
+        <target xml:lang="es-ES" state="translated">Eventos hoy</target>
+      </trans-unit>
+      <trans-unit id="bd883caf9d4d144e6c67349123b13937" resname="Future events">
+        <source>Future events</source>
+        <target xml:lang="es-ES" state="translated">Eventos futuros</target>
+      </trans-unit>
+      <trans-unit id="eb42ae8f1d7f9a8fd41de416e1815ec0" resname="Media Thumbnail">
+        <source>Media Thumbnail</source>
+        <target xml:lang="es-ES" state="translated">Miniatura</target>
+      </trans-unit>
+      <trans-unit id="e6b391a8d2c4d45902a23a8b6585703d" resname="URL">
+        <source>URL</source>
+        <target xml:lang="es-ES" state="translated">URL</target>
+      </trans-unit>
+      <trans-unit id="a025e05161bb17cbab898f0e77b09a2b" resname="Iframe">
+        <source>Iframe</source>
+        <target xml:lang="es-ES" state="translated">Iframe</target>
+      </trans-unit>
+      <trans-unit id="b63043e9e02fa37368bfb402813c5caf" resname="Twitter icon">
+        <source>Twitter icon</source>
+        <target xml:lang="es-ES" state="translated">Icono de Twitter</target>
+      </trans-unit>
+      <trans-unit id="a14fa2166ed698f3d04061f57e5ab9b9" resname="loading">
+        <source>loading</source>
+        <target xml:lang="es-ES" state="translated">cargando</target>
+      </trans-unit>
+      <trans-unit id="004b3a52924c1c8012893ca4ed30ddc7" resname="There are no multimedia objects">
+        <source>There are no multimedia objects</source>
+        <target>No hay objetos multimedia</target>
       </trans-unit>
     </body>
   </file>

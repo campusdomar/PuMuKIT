@@ -8,6 +8,7 @@ use Symfony\Component\Security\Core\SecurityContext;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Services\PersonService;
 use Pumukit\SchemaBundle\Document\PermissionProfile;
+use Pumukit\SchemaBundle\Document\Person;
 use Pumukit\SchemaBundle\Document\User;
 use Pumukit\CoreBundle\Controller\AdminController;
 use Pumukit\CoreBundle\Controller\WebTVController;
@@ -74,7 +75,7 @@ class FilterListener
     private function getPeopleMongoQuery(Person $person = null)
     {
         $people = array();
-        if ((null != $person) && (null != ($roleCode = $this->personService->getPersonalScopeRoleCode()))) {
+        if ((null !== $person) && (null !== ($roleCode = $this->personService->getPersonalScopeRoleCode()))) {
             $people['$elemMatch'] = array();
             $people['$elemMatch']['people._id'] = new \MongoId($person->getId());
             $people['$elemMatch']['cod'] = $roleCode;
@@ -88,7 +89,7 @@ class FilterListener
      */
     private function getLoggedInUser()
     {
-        if (null != $token = $this->securityContext->getToken()) {
+        if (null !== $token = $this->securityContext->getToken()) {
             $user = $token->getUser();
             if ($user instanceof User) {
                 return $user;
@@ -148,19 +149,19 @@ class FilterListener
 
         $person = $this->personService->getPersonFromLoggedInUser($loggedInUser);
 
-        if (null != $people = $this->getPeopleMongoQuery($person)) {
+        if (null !== $people = $this->getPeopleMongoQuery($person)) {
             $filter->setParameter('people', $people);
         }
 
-        if (null != $person) {
+        if (null !== $person) {
             $filter->setParameter('person_id', $person->getId());
         }
 
-        if (null != $roleCode = $this->personService->getPersonalScopeRoleCode()) {
+        if (null !== $roleCode = $this->personService->getPersonalScopeRoleCode()) {
             $filter->setParameter('role_code', $roleCode);
         }
 
-        if (null != $groups = $this->getGroupsMongoQuery($loggedInUser)) {
+        if (null !== $groups = $this->getGroupsMongoQuery($loggedInUser)) {
             $filter->setParameter('groups', $groups);
         }
         $filter->setParameter('series_groups', $loggedInUser->getGroupsIds());
@@ -190,13 +191,13 @@ class FilterListener
         $filter = $this->dm->getFilterCollection()->enable('personal');
 
         $groups = array();
-        if (null != $loggedInUser) {
+        if (null !== $loggedInUser) {
             $groups['$in'] = $loggedInUser->getGroupsIds();
             $filter->setParameter('groups', $groups);
         }
 
         $person = $this->personService->getPersonFromLoggedInUser($loggedInUser);
-        if ((null != $person) && (null != ($roleCode = $this->personService->getPersonalScopeRoleCode()))) {
+        if ((null !== $person) && (null !== ($roleCode = $this->personService->getPersonalScopeRoleCode()))) {
             $people = [
                 '$elemMatch' => [
                     'people._id' => new \MongoId($person->getId()),
@@ -212,6 +213,8 @@ class FilterListener
     {
         if (isset($routeParams['show_hide']) && $routeParams['show_hide']) {
             $filter->setParameter('status', array('$in' => array(MultimediaObject::STATUS_PUBLISHED, MultimediaObject::STATUS_HIDE)));
+        } elseif (isset($routeParams['show_block']) && $routeParams['show_block']) {
+            $filter->setParameter('status', array('$in' => array(MultimediaObject::STATUS_PUBLISHED, MultimediaObject::STATUS_HIDE, MultimediaObject::STATUS_BLOCKED)));
         } else {
             $filter->setParameter('status', MultimediaObject::STATUS_PUBLISHED);
         }

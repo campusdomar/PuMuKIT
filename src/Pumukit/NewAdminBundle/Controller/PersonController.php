@@ -252,7 +252,7 @@ class PersonController extends AdminController implements NewAdminController
 
                 return new Response($textStatus, 409);
             }
-            if ($owner === 'owner') {
+            if ('owner' === $owner) {
                 $twigTemplate = 'PumukitNewAdminBundle:MultimediaObject:listownerrelation.html.twig';
             } else {
                 $twigTemplate = 'PumukitNewAdminBundle:Person:listrelation.html.twig';
@@ -313,7 +313,7 @@ class PersonController extends AdminController implements NewAdminController
 
                 $template = $multimediaObject->isPrototype() ? '_template' : '';
 
-                if ($owner === 'owner') {
+                if ('owner' === $owner) {
                     $twigTemplate = 'PumukitNewAdminBundle:MultimediaObject:listownerrelation.html.twig';
                 } else {
                     $twigTemplate = 'PumukitNewAdminBundle:Person:listrelation.html.twig';
@@ -380,7 +380,7 @@ class PersonController extends AdminController implements NewAdminController
             $template = '_template';
         }
         $owner = $request->get('owner', false);
-        if ($owner === 'owner') {
+        if ('owner' === $owner) {
             $twigTemplate = 'PumukitNewAdminBundle:MultimediaObject:listownerrelation.html.twig';
         } else {
             $twigTemplate = 'PumukitNewAdminBundle:Person:listrelation.html.twig';
@@ -412,7 +412,7 @@ class PersonController extends AdminController implements NewAdminController
         foreach ($excludedPeople as $person) {
             $excludedPeopleIds[] = new \MongoId($person->getId());
         }
-        $people = $personService->autoCompletePeopleByName($name, $excludedPeopleIds);
+        $people = $personService->autoCompletePeopleByName($name, $excludedPeopleIds, true);
 
         $out = [];
         foreach ($people as $p) {
@@ -449,7 +449,7 @@ class PersonController extends AdminController implements NewAdminController
             $template = '_template';
         }
         $owner = $request->get('owner', false);
-        if ($owner === 'owner') {
+        if ('owner' === $owner) {
             $twigTemplate = 'PumukitNewAdminBundle:MultimediaObject:listownerrelation.html.twig';
         } else {
             $twigTemplate = 'PumukitNewAdminBundle:Person:listrelation.html.twig';
@@ -487,7 +487,7 @@ class PersonController extends AdminController implements NewAdminController
             $template = '_template';
         }
         $owner = $request->get('owner', false);
-        if ($owner === 'owner') {
+        if ('owner' === $owner) {
             $twigTemplate = 'PumukitNewAdminBundle:MultimediaObject:listownerrelation.html.twig';
         } else {
             $twigTemplate = 'PumukitNewAdminBundle:Person:listrelation.html.twig';
@@ -532,7 +532,7 @@ class PersonController extends AdminController implements NewAdminController
         if (MultimediaObject::STATUS_PROTOTYPE === $multimediaObject->getStatus()) {
             $template = '_template';
         }
-        if ($owner === 'owner') {
+        if ('owner' === $owner) {
             $twigTemplate = 'PumukitNewAdminBundle:MultimediaObject:listownerrelation.html.twig';
         } else {
             $twigTemplate = 'PumukitNewAdminBundle:Person:listrelation.html.twig';
@@ -551,6 +551,7 @@ class PersonController extends AdminController implements NewAdminController
     /**
      * Delete Person.
      *
+     * @Security("is_granted('ROLE_SCOPE_GLOBAL')")
      * @Template("PumukitNewAdminBundle:Person:list.html")
      */
     public function deleteAction(Request $request)
@@ -574,6 +575,8 @@ class PersonController extends AdminController implements NewAdminController
     /**
      * Batch delete Person
      * Overwrite to use PersonService.
+     *
+     * @Security("is_granted('ROLE_SCOPE_GLOBAL')")
      */
     public function batchDeleteAction(Request $request)
     {
@@ -585,6 +588,16 @@ class PersonController extends AdminController implements NewAdminController
 
         $personService = $this->get('pumukitschema.person');
         $translator = $this->get('translator');
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $mmRepo = $dm->getRepository('PumukitSchemaBundle:MultimediaObject');
+
+        foreach ($ids as $id) {
+            $person = $this->find($id);
+            if (0 !== count($mmRepo->findByPersonId($person->getId()))) {
+                return new Response($translator->trans("Can not delete Person '").$person->getName()."'. ", Response::HTTP_BAD_REQUEST);
+            }
+        }
+
         foreach ($ids as $id) {
             $person = $this->find($id);
             try {

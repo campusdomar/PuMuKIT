@@ -28,7 +28,7 @@ class Tag
      *
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      * @MongoDB\Increment
      */
     private $number_multimedia_objects = 0;
@@ -36,28 +36,28 @@ class Tag
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $title = array('en' => '');
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $description = array('en' => '');
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $slug;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      * @MongoDB\UniqueIndex(order="asc")
      * @Assert\Regex("/^\w*$/")
      * @Gedmo\TreePathSource
@@ -69,14 +69,14 @@ class Tag
     /**
      * @var bool
      *
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $metatag = false;
 
     /**
      * @var bool
      *
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $display = false;
 
@@ -91,20 +91,21 @@ class Tag
     /**
      * @var date
      *
-     * @MongoDB\Date
+     * @MongoDB\Field(type="date")
      */
     private $created;
 
     /**
      * @var date
      *
-     * @MongoDB\Date
+     * @MongoDB\Field(type="date")
      */
     private $updated;
 
     /**
      * @Gedmo\TreeParent
-     * @MongoDB\ReferenceOne(targetDocument="Tag", inversedBy="children")
+     * @MongoDB\ReferenceOne(targetDocument="Tag", inversedBy="children", cascade={"persist"})
+     * @MongoDB\Index
      */
     private $parent;
 
@@ -118,7 +119,7 @@ class Tag
      *
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      * @MongoDB\Increment
      */
     private $number_children = 0;
@@ -164,7 +165,7 @@ class Tag
      */
     public function setTitle($title, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->title[$locale] = $title;
@@ -179,7 +180,7 @@ class Tag
      */
     public function getTitle($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->title[$locale])) {
@@ -217,7 +218,7 @@ class Tag
      */
     public function setDescription($description, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->description[$locale] = $description;
@@ -232,7 +233,7 @@ class Tag
      */
     public function getDescription($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->description[$locale])) {
@@ -540,6 +541,18 @@ class Tag
     }
 
     /**
+     * Returns true if given node is descendant of tag or the same.
+     *
+     * @param EmbeddedTag|Tag $tag
+     *
+     * @return bool
+     */
+    public function equalsOrDescendantOf($tag)
+    {
+        return substr($this->getPath(), 0, strlen($tag->getPath())) === $tag->getPath();
+    }
+
+    /**
      * Returns true if given node cod is descendant of tag.
      *
      * @param EmbeddedTag|Tag $tag
@@ -551,11 +564,11 @@ class Tag
         if ($tagCod == $this->getCod()) {
             return false;
         }
-        if (strpos($this->getPath(), sprintf('%s|', $tagCod)) === 0) {
+        if (0 === strpos($this->getPath(), sprintf('%s|', $tagCod))) {
             return true;
         }
 
-        return strpos($this->getPath(), sprintf('|%s|', $tagCod)) === false ? false : true;
+        return false === strpos($this->getPath(), sprintf('|%s|', $tagCod)) ? false : true;
     }
 
     /**

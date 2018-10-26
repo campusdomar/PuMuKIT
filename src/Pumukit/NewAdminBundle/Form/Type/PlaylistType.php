@@ -11,6 +11,7 @@ class PlaylistType extends AbstractType
 {
     private $translator;
     private $locale;
+    private $disablePudenew;
 
     public function __construct(TranslatorInterface $translator, $locale = 'en', $disablePudenew = true)
     {
@@ -23,15 +24,18 @@ class PlaylistType extends AbstractType
     {
         $builder
             ->add('i18n_title', 'texti18n',
-                  array('label' => $this->translator->trans('Title', array(), null, $this->locale)))
+                  array(
+                        'attr' => array('aria-label' => $this->translator->trans('Title', array(), null, $this->locale)),
+                        'label' => $this->translator->trans('Title', array(), null, $this->locale), ))
             ->add('i18n_description', 'textareai18n',
                   array(
                         'required' => false,
-                        'attr' => array('style' => 'resize:vertical;'),
+                        'attr' => array('style' => 'resize:vertical;', 'aria-label' => $this->translator->trans('Description', array(), null, $this->locale)),
                         'label' => $this->translator->trans('Description', array(), null, $this->locale), ))
             ->add('i18n_keyword', 'texti18n',
                   array(
                         'required' => false,
+                        'attr' => array('aria-label' => $this->translator->trans('Keywords', array(), null, $this->locale)),
                         'label' => $this->translator->trans('Keywords', array(), null, $this->locale), ));
     }
 

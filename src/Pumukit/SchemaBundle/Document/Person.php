@@ -22,21 +22,21 @@ class Person
     protected $id;
 
     /**
-     * @MongoDB\ReferenceOne(targetDocument="User", inversedBy="person", simple=true)
+     * @MongoDB\ReferenceOne(targetDocument="User", inversedBy="person", simple=true, cascade={"persist"})
      */
     private $user;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     protected $name;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      * @Assert\Email
      */
     protected $email;
@@ -44,7 +44,7 @@ class Person
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      * //@Assert\Url('http', 'https', 'ftp')
      */
     protected $web;
@@ -52,35 +52,35 @@ class Person
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     protected $phone;
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     protected $honorific = array('en' => '');
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     protected $firm = array('en' => '');
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     protected $post = array('en' => '');
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     protected $bio = array('en' => '');
 
@@ -209,7 +209,7 @@ class Person
      */
     public function setHonorific($honorific, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->honorific[$locale] = $honorific;
@@ -224,7 +224,7 @@ class Person
      */
     public function getHonorific($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->honorific[$locale])) {
@@ -258,7 +258,7 @@ class Person
      */
     public function setFirm($firm, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->firm[$locale] = $firm;
@@ -273,7 +273,7 @@ class Person
      */
     public function getFirm($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->firm[$locale])) {
@@ -307,7 +307,7 @@ class Person
      */
     public function setPost($post, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->post[$locale] = $post;
@@ -322,7 +322,7 @@ class Person
      */
     public function getPost($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->post[$locale])) {
@@ -356,7 +356,7 @@ class Person
      */
     public function setBio($bio, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->bio[$locale] = $bio;
@@ -371,7 +371,7 @@ class Person
      */
     public function getBio($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->bio[$locale])) {
@@ -446,13 +446,20 @@ class Person
      *
      * Returns strings with person info:
      * Firm, Post and Bio separated by commas
+     * or without Bio if param is false
+     *
+     * @param bool $withBio
      *
      * @return string
      */
-    public function getInfo()
+    public function getInfo($withBio = true)
     {
-        $aux = array($this->getPost(), $this->getFirm(), $this->getBio());
-        $aux = array_filter($aux, create_function('$a', 'return (!is_null($a)&&(""!=$a));'));
+        $aux = $withBio ?
+             array($this->getPost(), $this->getFirm(), $this->getBio()) :
+             array($this->getPost(), $this->getFirm());
+        $aux = array_filter($aux, function ($a) {
+            return !is_null($a) && ('' != $a);
+        });
 
         return implode(', ', $aux);
     }

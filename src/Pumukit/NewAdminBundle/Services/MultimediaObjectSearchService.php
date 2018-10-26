@@ -4,31 +4,45 @@ namespace Pumukit\NewAdminBundle\Services;
 
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Utils\Mongo\TextIndexUtils;
 
 class MultimediaObjectSearchService
 {
     private $dm;
 
+    /**
+     * MultimediaObjectSearchService constructor.
+     *
+     * @param DocumentManager $documentManager
+     */
     public function __construct(DocumentManager $documentManager)
     {
         $this->dm = $documentManager;
     }
 
-    public function processMMOCriteria($reqCriteria)
+    /**
+     * @param $reqCriteria
+     * @param $locale
+     *
+     * @return array
+     */
+    public function processMMOCriteria($reqCriteria, $locale = 'en')
     {
         $new_criteria = array('status' => array('$ne' => MultimediaObject::STATUS_PROTOTYPE));
         $bAnnounce = '';
         $bChannel = '';
         $bPerson = false;
         $bRole = false;
+        $bStatus = false;
         $personName = '';
         $roleCode = '';
 
         foreach ($reqCriteria as $property => $value) {
             if (('search' === $property) && ('' !== $value)) {
-                $new_criteria['$or'] = array(
-                    array('_id' => array('$in' => array($value))),
-                    array('$text' => array('$search' => $value)),
+                $new_criteria['$or'] = $this->getSearchCriteria(
+                    $value,
+                    array(array('_id' => array('$in' => array($value)))),
+                    $locale
                 );
             } elseif (('person_name' === $property) && ('' !== $value)) {
                 $personName = $value;
@@ -49,8 +63,13 @@ class MultimediaObjectSearchService
                 }
             } elseif (('date' === $property) && ('' !== $value)) {
                 $new_criteria += $this->processDates($value);
+            } elseif (('status' === $property) && ('' !== $value)) {
+                $bStatus = true;
+                $aStatus = $value;
             }
         }
+
+        $new_criteria['islive'] = false;
 
         if ('' !== $bAnnounce) {
             if (('' !== $bChannel) && $bChannel && $bAnnounce) {
@@ -66,8 +85,22 @@ class MultimediaObjectSearchService
             $new_criteria += array('$and' => array(array('tags.cod' => $sChannelValue)));
         }
 
+        if ($bStatus) {
+            if (!empty($aStatus)) {
+                $aStatus = array_map('intval', $aStatus);
+                $new_criteria['status'] += array('$in' => $aStatus);
+            }
+        }
+
         if ($bPerson && $bRole && $personName && $roleCode) {
-            $isMongoId = \MongoId::isValid($personName);
+            $isMongoId = true;
+            try {
+                new \MongoId($personName);
+            } catch (\Exception $exception) {
+                $isMongoId = false;
+            }
+            // Only in Mongo 1.5.0
+            //$isMongoId = \MongoId::isValid($personName);
             if ($isMongoId) {
                 $peopleCriteria = new \MongoId($personName);
                 $new_criteria['people'] = array('$elemMatch' => array('cod' => $roleCode, 'people._id' => $peopleCriteria));
@@ -76,7 +109,14 @@ class MultimediaObjectSearchService
                 $new_criteria['people'] = array('$elemMatch' => array('cod' => $roleCode, 'people.name' => $peopleCriteria));
             }
         } elseif ($bPerson && !$bRole && $personName) {
-            $isMongoId = \MongoId::isValid($personName);
+            $isMongoId = true;
+            try {
+                new \MongoId($personName);
+            } catch (\Exception $exception) {
+                $isMongoId = false;
+            }
+            // Only in Mongo 1.5.0
+            // $isMongoId = \MongoId::isValid($personName);
             if ($isMongoId) {
                 $peopleCriteria = new \MongoId($personName);
                 $new_criteria += array('people.people._id' => $peopleCriteria);
@@ -91,6 +131,11 @@ class MultimediaObjectSearchService
         return $new_criteria;
     }
 
+    /**
+     * @param $value
+     *
+     * @return array
+     */
     private function processDates($value)
     {
         $criteria = array();
@@ -111,5 +156,51 @@ class MultimediaObjectSearchService
         }
 
         return $criteria;
+    }
+
+    /**
+     * @param       $text
+     * @param array $base
+     * @param       $locale
+     *
+     * @return array
+     */
+    private function getSearchCriteria($text, array $base = array(), $locale = 'en')
+    {
+        $text = trim($text);
+        if ((false !== strpos($text, '*')) && (false === strpos($text, ' '))) {
+            $text = str_replace('*', '.*', $text);
+            $mRegex = new \MongoRegex("/$text/i");
+            $base[] = array(('title.'.$locale) => $mRegex);
+            $base[] = array('people.people.name' => $mRegex);
+        } else {
+            $base[] = array('$text' => array(
+                '$search' => TextIndexUtils::cleanTextIndex($text),
+                '$language' => TextIndexUtils::getCloseLanguage($locale),
+            ));
+        }
+
+        return $base;
+    }
+
+    /**
+     * @param $text
+     * @param $queryBuilder
+     * @param $locale
+     */
+    public function completeSearchQueryBuilder($text, $queryBuilder, $locale = 'en')
+    {
+        $text = trim($text);
+        if ((false !== strpos($text, '*')) && (false === strpos($text, ' '))) {
+            $text = str_replace('*', '.*', $text);
+            $mRegex = new \MongoRegex("/$text/i");
+            $queryBuilder->addOr($queryBuilder->expr()->field('title.'.$locale)->equals($mRegex));
+            $queryBuilder->addOr($queryBuilder->expr()->field('people.people.name')->equals($mRegex));
+        } else {
+            $queryBuilder->field('$text')->equals(array(
+                '$search' => TextIndexUtils::cleanTextIndex($text),
+                '$language' => TextIndexUtils::getCloseLanguage($locale),
+            ));
+        }
     }
 }

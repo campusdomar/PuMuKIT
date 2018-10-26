@@ -38,7 +38,7 @@ class Broadcast
     /**
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      * @MongoDB\Increment
      */
     private $number_multimedia_objects = 0;
@@ -46,7 +46,7 @@ class Broadcast
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      * @MongoDB\UniqueIndex(safe=1)
      */
     private $name;
@@ -54,28 +54,28 @@ class Broadcast
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $broadcast_type_id = self::BROADCAST_TYPE_PUB;
 
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $passwd;
 
     /**
      * @var bool
      *
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $default_sel = false;
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $description = array('en' => '');
 
@@ -241,7 +241,7 @@ class Broadcast
      */
     public function setDescription($description, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->description[$locale] = $description;
@@ -256,7 +256,7 @@ class Broadcast
      */
     public function getDescription($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->description[$locale])) {
@@ -328,7 +328,7 @@ class Broadcast
     }
 
     /**
-     * @Assert\True(message = "Password required if not public")
+     * @Assert\IsTrue(message = "Password required if not public")
      */
     public function isPasswordValid()
     {

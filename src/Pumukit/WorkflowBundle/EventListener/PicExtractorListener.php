@@ -23,7 +23,7 @@ class PicExtractorListener
     private $autoExtractPic;
     private $audioPicCopy;
 
-    public function __construct(DocumentManager $documentManager, MultimediaObjectPicService $mmsPicService, PicExtractorService $picExtractorService, LoggerInterface $logger, $autoExtractPic = true)
+    public function __construct(DocumentManager $documentManager, MultimediaObjectPicService $mmsPicService, PicExtractorService $picExtractorService, LoggerInterface $logger, $profileService, $autoExtractPic = true)
     {
         $this->dm = $documentManager;
         $this->mmsPicService = $mmsPicService;
@@ -34,15 +34,31 @@ class PicExtractorListener
         $this->audioPicCopy = $this->resourcesDir.'/sound_bn_copy.png';
         $this->defaultAudioPicOriginalName = 'sound_bn.png';
         $this->autoExtractPic = $autoExtractPic;
+        $this->profileService = $profileService;
     }
 
     public function onJobSuccess(JobEvent $event)
     {
+        $profileName = $event->getJob()->getProfile(); //TODO: This function should be called "getProfileName".
+        $profile = $this->profileService->getProfile($profileName);
+        $generatePic = $profile['generate_pic'];
+
+        if (!$generatePic) {
+            return;
+        }
+
+        $SEMKey = 1234568;
+        $seg = sem_get($SEMKey, 1, 0666, -1);
+        sem_acquire($seg);
         $this->generatePic($event->getMultimediaObject(), $event->getTrack());
+
+        sem_release($seg);
     }
 
     private function generatePic(MultimediaObject $multimediaObject, Track $track)
     {
+        $this->dm->refresh($multimediaObject);
+
         if ($multimediaObject->getPics()->isEmpty() && $this->autoExtractPic) {
             try {
                 if ($multimediaObject->isOnlyAudio() || $track->isOnlyAudio()) {
@@ -72,7 +88,7 @@ class PicExtractorListener
             return false;
         }
         $multimediaObject = $this->mmsPicService->addPicFile($multimediaObject, $picFile);
-        if ($multimediaObject !== null) {
+        if (null !== $multimediaObject) {
             if ($multimediaObject instanceof MultimediaObject) {
                 $this->logger->info(__CLASS__.'['.__FUNCTION__.'] '
                                     .'Extracted pic from track '.

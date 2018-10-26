@@ -1,0 +1,66 @@
+{% set criteria = false %}
+{% if app.request.session.has('UNESCO/form') %}
+    {% set criteria = app.request.session.get('UNESCO/form') %}
+{% endif %}
+
+<div class="well">
+    <div class="row">
+
+        <form id="myForm" class="unesco_form" name="advance_form" method="POST" action="{{ path('pumukitnewadmin_unesco_list') }}">
+            <div class="col-xs-12">
+                <div id="basic_form">
+                    {% include 'PumukitNewAdminBundle:UNESCO:basic_form.html.twig' %}
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="advance_form collapse {% if app.request.session.get('UNESCO/formbasic') is same as(false) %}in{% endif %}" id="collapseAdvanceForm">
+                    {% include 'PumukitNewAdminBundle:UNESCO:advance_form.html.twig' %}
+                </div>
+            </div>
+
+            <div class="col-xs-12">
+                <img id="unesco_form_loader"
+                     alt="{% trans %}Spinner{% endtrans %}"
+                     src="{{ asset('bundles/pumukitnewadmin/images/admin/load/spinner.gif')}}"
+                     style="width:36px; opacity:0; float:right; margin-right: 62px; margin-top: -10px;"/>
+
+                <a class="unescoResetForm" href="#">{% trans %}Reset{% endtrans %}</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $('.unesco_form').on('submit',function(event) {
+        event.preventDefault();
+        $('#unesco_form_loader').css('opacity', 1);
+        $.ajax({
+            url: '{{ path('pumukitnewadmin_unesco_addcriteria') }}',
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function (response) {
+                $('#list_mms').load("{{ path('pumukitnewadmin_unesco_list') }}", function() {
+                $('#unesco_form_loader').css('opacity', 0);
+                if($('tr.success input.mm_checkbox').length > 0) {
+                    var id = $('tr.success input.mm_checkbox').data('id');
+                    var path = "{{ path('pumukit_new_admin_unesco_edit', {'id' : '__ID__'}) }}";
+                    path = path.replace('__ID__', id);
+                    $('#edit_mms').load(path);
+
+                    var url = "{{ path('pumukitnewadmin_unesco_show', {'id' : '__ID__'}) }}";
+                    url = url.replace('__ID__', id);
+                    $('#preview_mms').load(url);
+                } else {
+                    $('#edit_mms').html('');
+                    $('#preview_mms').load("{{ path('pumukitnewadmin_unesco_show') }}");
+                }});
+            },
+            error: function (response) {
+                no_success('error');
+            }
+        });
+        return false;
+    });
+
+</script>

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file source-language="en" target-language="eu" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
     <body>
       <trans-unit id="ccc3ab201e088eb8a2c4ae2d14beeb4d" resname="Opencast Importer">
         <source>Opencast Importer</source>
@@ -50,7 +53,10 @@
       </trans-unit>
       <trans-unit id="9d948e617b083222afc868add2f50ec2" resname="Series">
         <source>Series</source>
-        <target xml:lang="eu" state="translated">Telesailak</target>
+        <target xml:lang="eu" state="translated">Serieak</target>
+        <alt-trans>
+          <target xml:lang="eu">Telesailak</target>
+        </alt-trans>
       </trans-unit>
       <trans-unit id="e02d2ae03de9d493df2b6b2d2813d302" resname="Duration">
         <source>Duration</source>
@@ -108,7 +114,10 @@
       </trans-unit>
       <trans-unit id="ea4788705e6873b424c65e91c2846b19" resname="Cancel">
         <source>Cancel</source>
-        <target xml:lang="eu" state="translated">Ezerestatu</target>
+        <target xml:lang="eu" state="translated">Ezeztatu</target>
+        <alt-trans>
+          <target xml:lang="eu">Ezerestatu</target>
+        </alt-trans>
       </trans-unit>
       <trans-unit id="63ca19d0f7bd43783e79c5ff2e2a7b4a" resname="{0} users|{1} mediaPackages|]1,Inf] Media Packages">
         <source>{0} users|{1} mediaPackages|]1,Inf] Media Packages</source>
@@ -199,6 +208,10 @@
         <alt-trans>
           <target xml:lang="eu">Pista actualizada correctamente.</target>
         </alt-trans>
+      </trans-unit>
+      <trans-unit id="8112b5a95e74fc08c9aa975f6ac02fcb" resname="{0} Media Packages |{1} Media Package|]1,Inf] Media Packages">
+        <source>{0} Media Packages |{1} Media Package|]1,Inf] Media Packages</source>
+        <target xml:lang="eu" state="needs-translation">{0} Media Packages |{1} Media Package|]1,Inf] Media Packages</target>
       </trans-unit>
     </body>
   </file>

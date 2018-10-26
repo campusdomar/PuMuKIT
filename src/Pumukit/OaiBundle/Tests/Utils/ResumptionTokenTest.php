@@ -1,10 +1,11 @@
 <?php
 
-namespace Pumukit\OaiBundle\Test\Utils;
+namespace Pumukit\OaiBundle\Tests\Utils;
 
 use Pumukit\OaiBundle\Utils\ResumptionToken;
+use PHPUnit\Framework\TestCase;
 
-class ResumptionTokenTest extends \PHPUnit_Framework_TestCase
+class ResumptionTokenTest extends TestCase
 {
     public function testConstructAndGetter()
     {
@@ -31,7 +32,7 @@ class ResumptionTokenTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Pumukit\OaiBundle\Utils\ResumptionTokenException
+     * @expectedException \Pumukit\OaiBundle\Utils\ResumptionTokenException
      */
     public function testInvalidDecode()
     {

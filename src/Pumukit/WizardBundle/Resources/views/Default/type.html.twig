@@ -2,10 +2,11 @@
 {% block wizard_body %}
 {% render(controller('PumukitWizardBundle:Default:steps', {'step': 1, 'option': 'single', 'show_series': show_series, 'same_series': same_series})) %}
 <div class="well">
-  <form id="pumukitwizard_type_form" autocomplete="off"
+  <form id="pumukitwizard_type_form"
         action="{{ path('pumukitwizard_default_option') }}" method="POST">
     {% include 'PumukitWizardBundle:Default:hidden.html.twig' with {'step': 'type'} %}
     <fieldset class="well">
+      <legend hidden>{% trans %}Type{% endtrans %}</legend>
       <div class="form-group" id="pumukitwizard_type_option">
         <label for="pumukitwizard_type_option" class="control-label">{% trans %}Type{% endtrans %}</label>
         {% if form_data.type is defined %}

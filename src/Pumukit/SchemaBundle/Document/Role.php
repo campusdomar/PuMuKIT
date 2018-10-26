@@ -18,7 +18,7 @@ class Role
     /**
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      * @MongoDB\UniqueIndex(safe=1)
      */
     private $cod = '0';
@@ -26,7 +26,8 @@ class Role
     /**
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
+     * @MongoDB\Index
      * @Gedmo\SortablePosition
      */
     private $rank;
@@ -34,45 +35,46 @@ class Role
     /**
      * @var int
      *
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      * @MongoDB\Increment
      */
     private $number_people_in_multimedia_object = 0;
 
     /**
      * See European Broadcasting Union Role Codes.
+     * https://www.ebu.ch/metadata/cs/web/ebu_RoleCodeCS_p.xml.htm.
      *
      * @var string
      *
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $xml;
 
     /**
      * @var bool
      *
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $display = true;
 
     /**
      * @var bool
      *
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $readOnly = false;
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $name = array('en' => '');
 
     /**
      * @var string
      *
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $text = array('en' => '');
 
@@ -209,7 +211,7 @@ class Role
      */
     public function setName($name, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->name[$locale] = $name;
@@ -224,7 +226,7 @@ class Role
      */
     public function getName($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->name[$locale])) {
@@ -262,7 +264,7 @@ class Role
      */
     public function setText($text, $locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         $this->text[$locale] = $text;
@@ -277,7 +279,7 @@ class Role
      */
     public function getText($locale = null)
     {
-        if ($locale == null) {
+        if (null === $locale) {
             $locale = $this->locale;
         }
         if (!isset($this->text[$locale])) {

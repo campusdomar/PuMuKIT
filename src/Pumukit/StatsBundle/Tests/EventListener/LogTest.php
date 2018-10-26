@@ -4,7 +4,6 @@ namespace Pumukit\StatsBundle\Tests\EventListener;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Track;
 use Pumukit\StatsBundle\EventListener\Log;
 use Pumukit\BasePlayerBundle\Event\ViewedEvent;
@@ -51,7 +50,8 @@ class LogTest extends WebTestCase
     private function createMockRequestStack()
     {
         $request = Request::create('/');
-        $requestStack = $this->getMock('Symfony\Component\HttpFoundation\RequestStack', array(), array(), '', false);
+        $requestStack = $this->getMockBuilder('Symfony\Component\HttpFoundation\RequestStack', array(), array(), '', false)
+                      ->getMock();
         $requestStack->expects($this->once())->method('getMasterRequest')->will($this->returnValue($request));
 
         return $requestStack;

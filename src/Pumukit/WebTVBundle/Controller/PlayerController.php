@@ -14,17 +14,6 @@ class PlayerController extends Controller implements WebTVController
         $breadcrumbs->addMultimediaObject($multimediaObject);
     }
 
-    protected function getIntro($queryIntro = false)
-    {
-        $intro = $this->container->getParameter('pumukit2.intro');
-
-        if ($queryIntro && filter_var($queryIntro, FILTER_VALIDATE_URL)) {
-            $intro = $queryIntro;
-        }
-
-        return $intro;
-    }
-
     protected function getChapterMarks(MultimediaObject $multimediaObject)
     {
         //Get editor chapters for the editor template.
@@ -56,9 +45,11 @@ class PlayerController extends Controller implements WebTVController
                 foreach ($marks['marks'] as $chapt) {
                     $time = $chapt['s'];
                     if ($trimming['start'] <= $time && $trimming['end'] >= $time) {
-                        $editorChapters[] = array('title' => $chapt['name'],
-                                                  'real_time' => $time,
-                                                  'time_to_show' => $time - $trimming['start'], );
+                        $editorChapters[] = array(
+                            'title' => $chapt['name'],
+                            'real_time' => $time,
+                            'time_to_show' => $time - $trimming['start'],
+                        );
                     }
                 }
             }

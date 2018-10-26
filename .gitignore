@@ -12,6 +12,7 @@
 /app/Resources/*
 !/app/Resources/views
 !/app/Resources/FOSUserBundle
+!/app/Resources/WhiteOctoberPagerfantaBundle
 !/app/Resources/TwigBundle
 /app/bootstrap.php.cache
 /app/cache/*
@@ -24,6 +25,5 @@
 /bin/
 /composer.phar
 *~
-*.swp
 \#*\#
 TAGS
