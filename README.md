@@ -1,4 +1,4 @@
-PuMuKIT-2 [![Build Status](https://travis-ci.org/campusdomar/PuMuKIT2.svg?branch=2.4.x)](https://travis-ci.org/campusdomar/PuMuKIT2) [![](https://dockerbuildbadges.quelltext.eu/status.svg?organization=pnieto&repository=pumukit2)](https://hub.docker.com/r/pnieto/pumukit2/builds/)
+PuMuKIT-2 [![Build Status](https://travis-ci.org/campusdomar/PuMuKIT2.svg?branch=2.4.x)](https://travis-ci.org/campusdomar/PuMuKIT2) [![](https://dockerbuildbadges.quelltext.eu/status.svg?organization=teltek&repository=pumukit)](https://hub.docker.com/r/teltek/pumukit/builds/)
 =========
 
 PuMuKIT-2 is an Open Source Video Platform that provides unparalleled organization, flexibility, accessibility, and scalability.
