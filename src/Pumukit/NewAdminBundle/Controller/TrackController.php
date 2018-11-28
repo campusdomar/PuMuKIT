@@ -68,19 +68,14 @@ class TrackController extends Controller implements NewAdminController
             } elseif (($request->get('file', null)) && ('inbox' == $request->get('file_type'))) {
                 $multimediaObject = $jobService->createTrackFromInboxOnServer($multimediaObject, $request->get('file'), $profile, $priority, $language, $description);
             }
+            throw new \Exception('PHP ERROR: No file nor inbox');
         } catch (\Exception $e) {
-            return array(
-                'mm' => $multimediaObject,
-                'uploaded' => 'failed',
-                'message' => 'The file is not a valid video or audio file',
-            );
+            throw new \Exception('PHP ERROR: File is not a valid video or audio file');
         }
 
-        return array(
-            'mm' => $multimediaObject,
-            'uploaded' => 'success',
-            'message' => 'New Track added.',
-        );
+        var_dump($request->files->get('resource'));
+        var_dump($request->get('file', null));exit;
+        return $this->redirect($this->generateUrl('pumukitnewadmin_track_list', array('reload_links' => true, 'id' => $multimediaObject->getId())));
     }
 
     /**

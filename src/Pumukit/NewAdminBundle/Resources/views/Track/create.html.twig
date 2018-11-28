@@ -5,11 +5,40 @@
 <div class="modal-body">
   {% if app.user and is_granted(constant('Pumukit\\SchemaBundle\\Security\\Permission::ACCESS_MULTIMEDIA_SERIES')) %}
   {% form_theme form 'PumukitNewAdminBundle:Themes:fields.html.twig' %}
-  <form method="post" target="iframeUpload"
+  <form method="post"
+        onsubmit="
+{# https://gitlab.teltek.es/pumukit2/personalrecorderbundle/blob/master/Resources/src/Recorder.js#L483 #}
+
+                  $(this).find(':submit').prop('disabled', true);
+                  $('#myModal').modal('hide');
+
+                  var fd = new FormData(this);
+
+                  $.ajax({
+                          url: this.action,
+                          method: 'POST',
+                          data: fd,
+                          cache: false,
+                          processData: false,
+                          contentType: false,
+                          success: function(response, textStatus, jqXHR){
+                              debugger;
+
+                              $('#tracks_mms_{{ mm.id }}').html(response);
+
+                              success('New Track added.');
+                          },
+                          error: function(jqXHR, textStatus, errorThrown){
+                              no_success('New Track added.');
+                          }
+                  });
+
+
+console.log(this.action);
+return false;
+"
         action="{{ path('pumukitnewadmin_track_upload', {'id': mm.id}) }}"
         enctype="multipart/form-data" name="formulario">
-    <iframe id="iframeUpload" name="iframeUpload" style="display:none" src=""></iframe>
-
     <fieldset>
 
       {{ form_row(form["i18n_description"]) }}
