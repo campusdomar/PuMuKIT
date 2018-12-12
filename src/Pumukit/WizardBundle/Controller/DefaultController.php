@@ -369,7 +369,7 @@ class DefaultController extends Controller
             $typeData = $this->getKeyData('type', $formData);
             $trackData = $this->getKeyData('track', $formData);
 
-            if (!$this->isGranted('ROLE_DISABLED_WIZARD_TRACK_PROFILES')) {
+            if (!$this->isGranted('ROLE_DISABLED_WIZARD_TRACK_PROFILES') || $this->isGranted('ROLE_SUPER_ADMIN')) {
                 $profile = $this->getKeyData('profile', $trackData, null);
             } else {
                 $profile = $this->get('pumukitencoder.profile')->getDefaultMasterProfile();
