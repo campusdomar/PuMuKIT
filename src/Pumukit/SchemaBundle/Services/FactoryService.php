@@ -225,14 +225,12 @@ class FactoryService
             }
         }
 
+        $this->generateNumericalIDMultimediaObject($mm);
         $mm = $this->addLoggedInUserAsPerson($mm, $loggedInUser);
 
         $this->dm->persist($mm);
         $this->dm->persist($series);
-        if ($flush) {
-            $this->dm->flush();
-            $this->generateNumericalIDMultimediaObject($mm);
-        }
+        $this->dm->flush();
 
         return $mm;
     }
