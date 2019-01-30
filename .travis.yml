@@ -34,13 +34,13 @@ before_script:
 script:
     - find src -type f -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
     - php bin/console lint:yaml src
-    - php bin/console lint:yaml app
+    - php bin/console lint:yaml config
     - php bin/console lint:twig src
-    - php bin/console lint:twig app
+    - php bin/console lint:twig config
     - ./bin/travis_checks/check_var_dumps
     - php bin/php-cs-fixer.phar fix src --rules=@Symfony --dry-run -v
     - php bin/phpstan.phar analyse -l 1 src
-    - php bin/phpunit -c app
+    - php bin/phpunit
     - php bin/console doctrine:mongodb:schema:create
     - php bin/console pumukit:init:repo all --force
 #    - php bin/console pumukit:init:example  --force

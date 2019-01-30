@@ -1,0 +1,24 @@
+doctrine_mongodb:
+    auto_generate_proxy_classes: '%kernel.debug%'
+    auto_generate_hydrator_classes: '%kernel.debug%'
+    connections:
+        default:
+            server: '%env(resolve:MONGODB_URL)%'
+            options: {}
+    default_database: '%env(resolve:MONGODB_DB)%'
+    document_managers:
+        default:
+            auto_mapping: true
+            filters:
+                frontend:
+                    class:     Pumukit\CoreBundle\Filter\WebTVFilter
+                    enabled:   false
+                channel:
+                    class:     Pumukit\CoreBundle\Filter\ChannelFilter
+                    enabled:   false
+                backoffice:
+                    class:     Pumukit\CoreBundle\Filter\AdminFilter
+                    enabled:   false
+                personal:
+                    class:     Pumukit\CoreBundle\Filter\PersonalFilter
+                    enabled:   false
