@@ -57,6 +57,14 @@ class MultimediaObject
     private $numerical_id;
 
     /**
+     * @var \DateTime
+     *
+     * @Gedmo\Timestampable(on="update")
+     * @MongoDB\Field(type="date")
+     */
+    private $update;
+
+    /**
      * @var bool
      * @MongoDB\Field(type="boolean")
      * @MongoDB\Index
