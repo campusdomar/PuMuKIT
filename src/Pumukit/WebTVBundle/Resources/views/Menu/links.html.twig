@@ -1,0 +1,18 @@
+<ul class="nav navbar-nav navbar-custom-links">
+    <li>
+        <a href="{{ path('homepage') }}">
+            {% trans %}Home{% endtrans %}
+        </a>
+    </li>
+    <li>
+        <a href="{{ path('pumukit_webtv_medialibrary_index') }}" title="{% trans %}Full catalogue{% endtrans %}">
+            {% trans %}Full Catalogue{% endtrans %}
+        </a>
+    </li>
+    {# NOTE: check if live events or basic events to set URL #}
+    <li>
+        <a href="{{ path('pumukit_webtv_uja_directo') }}" title="{% trans %}Live events{% endtrans %}">
+            {% trans %}Live events{% endtrans %}
+        </a>
+    </li>
+</ul>

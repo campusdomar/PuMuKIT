@@ -1,0 +1,23 @@
+<div class="col-xs-12 col-sm-4 col-md-3 image_representation">
+    <div class="thumbnail">
+        <a href="{{ path('pumukit_webtv_announces_latestuploads') }}" title="{% trans %}Latest Uploads{% endtrans %}">
+            <div class="series_image_group">
+                <div class="embed-responsive embed-responsive-16by9">
+                    <div class="embed-responsive-item text-center">
+                        <img src="{{ asset('bundles/pumukitwebtv/images/show_more.jpg') }}" class="img-responsive img_adapter_4_3" />
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div class="hover_series">
+                        {#<i class="fas fa-plus fa-4x"></i>#}
+                        <i class="fas fa-video"></i>
+                        <span class="series_count_mmobj">&nbsp;</span>
+                        <span class="series_count_text">
+                             {% trans %}Show more{% endtrans %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>

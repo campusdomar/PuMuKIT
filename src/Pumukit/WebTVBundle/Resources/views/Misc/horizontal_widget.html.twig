@@ -1,0 +1,25 @@
+{% if objects %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{{ title }}</h1>
+            <div class="row">
+                {% for object in objects %}
+                    {% if object.isCollection() %}
+                        {% include 'PumukitWebTVBundle:Misc:series.html.twig' %}
+                    {% else %}
+                        {% include 'PumukitWebTVBundle:Misc:multimediaobject.html.twig' %}
+                    {% endif %}
+                    {% if loop.index % 6 == 0 %}
+                        <div class="clearfix visible-md visible-lg"></div>
+                    {% elseif loop.index % 3 == 0 %}
+                        <div class="clearfix visible-sm"></div>
+                    {% endif %}
+                {% endfor %}
+
+                {% if show_more %}
+                    {% include 'PumukitWebTVBundle:Misc:show_more.html.twig' %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endif %}
