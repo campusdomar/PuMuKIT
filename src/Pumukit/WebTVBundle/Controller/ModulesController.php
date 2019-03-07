@@ -187,10 +187,24 @@ class ModulesController extends Controller implements WebTVController
         );
     }
 
+    /**
+     * This module represents old categories block of PuMuKIT. Remember fix responsive design ( depends of height of images ).
+     *
+     * @Template("PumukitWebTVBundle:Modules:widget_block_categories.html.twig")
+     *
+     * @return array
+     */
+    public function blockCategoriesAction()
+    {
+        return array();
+    }
+
     public static $menuResponse = null;
     private $menuTemplate = 'PumukitWebTVBundle:Modules:widget_menu.html.twig';
 
     /**
+     * This module represents old menu block of PuMuKIT ( vertical menu ). This design is just bootstrap panel example.
+     *
      * @Template("PumukitWebTVBundle:Modules:widget_menu.html.twig")
      *
      * @return null|Response
