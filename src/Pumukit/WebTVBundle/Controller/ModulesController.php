@@ -97,10 +97,22 @@ class ModulesController extends Controller implements WebTVController
     /**
      * @Template("PumukitWebTVBundle:Modules:widget_stats.html.twig")
      *
+     * @param Request $request
+     *
      * @return array
      */
-    public function statsAction()
+    public function statsAction(Request $request)
     {
+        $apcuKey = 'pumukit-stats-'.md5($request->getHost());
+        $apcuTTL = 3 * 60 * 60;
+
+        if (extension_loaded('apcu')) {
+            $counts = apcu_fetch($apcuKey);
+            if ($counts) {
+                return array('counts' => $counts);
+            }
+        }
+
         $mmRepo = $this->get('doctrine_mongodb')->getRepository('PumukitSchemaBundle:MultimediaObject');
         $seriesRepo = $this->get('doctrine_mongodb')->getRepository('PumukitSchemaBundle:series');
 
@@ -109,6 +121,10 @@ class ModulesController extends Controller implements WebTVController
             'mms' => $mmRepo->count(),
             'hours' => $mmRepo->countDuration(),
         );
+
+        if (extension_loaded('apcu')) {
+            apcu_store($apcuKey, $counts, $apcuTTL);
+        }
 
         return array('counts' => $counts);
     }
@@ -168,6 +184,59 @@ class ModulesController extends Controller implements WebTVController
             'objectsData' => $categories,
             'title' => $title,
             'class' => $class,
+        );
+    }
+
+    public static $menuResponse = null;
+    private $menuTemplate = 'PumukitWebTVBundle:Modules:widget_menu.html.twig';
+
+    /**
+     * @Template("PumukitWebTVBundle:Modules:widget_menu.html.twig")
+     *
+     * @return null|Response
+     *
+     * @throws \Exception
+     */
+    public function menuAction()
+    {
+        if (self::$menuResponse) {
+            return self::$menuResponse;
+        }
+
+        $params = $this->getMenuElements();
+
+        self::$menuResponse = $this->render($this->menuTemplate, $params);
+
+        return self::$menuResponse;
+    }
+
+    /**
+     * @return array
+     *
+     * @throws \Exception
+     */
+    private function getMenuElements()
+    {
+        $menuService = $this->get('pumukit_web_tv.menu_service');
+        list($events, $channels, $liveEventTypeSession) = $menuService->getMenuEventsElement();
+        $selected = $this->get('request_stack')->getMasterRequest()->get('_route');
+
+        $homeTitle = $this->container->getParameter('menu.home_title');
+        $announcesTitle = $this->container->getParameter('menu.announces_title');
+        $searchTitle = $this->container->getParameter('menu.search_title');
+        $catalogueTitle = $this->container->getParameter('menu.mediateca_title');
+        $categoriesTitle = $this->container->getParameter('menu.categories_title');
+
+        return array(
+            'events' => $events,
+            'channels' => $channels,
+            'type' => $liveEventTypeSession,
+            'menu_selected' => $selected,
+            'home_title' => $homeTitle,
+            'announces_title' => $announcesTitle,
+            'search_title' => $searchTitle,
+            'catalogue_title' => $catalogueTitle,
+            'categories_title' => $categoriesTitle,
         );
     }
 }

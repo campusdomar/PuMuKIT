@@ -48,5 +48,10 @@
             <argument type="service" id="router.request_context" on-invalid="ignore" />
             <tag name="twig.extension" />
         </service>
+        <service id="pumukit_web_tv.menu_service" class="Pumukit\WebTVBundle\Services\MenuService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager" />
+            <argument type="service" id="pumukitschema.eventsession" />
+            <argument>%pumukit_new_admin.advance_live_event%</argument>
+        </service>
     </services>
 </container>
