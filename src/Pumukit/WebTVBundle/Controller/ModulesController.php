@@ -16,9 +16,11 @@ class ModulesController extends Controller implements WebTVController
     /**
      * @Template("PumukitWebTVBundle:Modules:widget_media.html.twig")
      *
+     * @param string $design
+     *
      * @return array
      */
-    public function mostViewedAction()
+    public function mostViewedAction($design = 'horizontal')
     {
         $dm = $this->get('doctrine_mongodb')->getManager();
 
@@ -35,6 +37,7 @@ class ModulesController extends Controller implements WebTVController
         }
 
         return array(
+            'design' => $design,
             'objects' => $objects,
             'objectByCol' => $this->container->getParameter('mostviewed.objects_by_col'),
             'title' => $title,
@@ -47,9 +50,11 @@ class ModulesController extends Controller implements WebTVController
     /**
      * @Template("PumukitWebTVBundle:Modules:widget_media.html.twig")
      *
+     * @param string $design
+     *
      * @return array
      */
-    public function recentlyAddedAction()
+    public function recentlyAddedAction($design = 'horizontal')
     {
         $translator = $this->get('translator');
         $title = $translator->trans('Recently added');
@@ -60,6 +65,7 @@ class ModulesController extends Controller implements WebTVController
         $last = $this->get('pumukitschema.announce')->getLast($limit, $showPudenew);
 
         return array(
+            'design' => $design,
             'objects' => $last,
             'objectByCol' => $this->container->getParameter('recentlyadded.objects_by_col'),
             'title' => $title,
