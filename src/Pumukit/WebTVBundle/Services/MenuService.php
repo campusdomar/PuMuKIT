@@ -98,7 +98,7 @@ class MenuService
         return array(
             $menuEvents,
             array(),
-            true
+            true,
         );
     }
 
