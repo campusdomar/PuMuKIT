@@ -38,7 +38,11 @@
 <body class="{% block body_class %}{% endblock %}">
     {% block body_base %}
 
-        {% include 'PumukitWebTVBundle:Layout:template_header.html.twig' %}
+        {% if app.request.attributes.get('microsite_custom_header') %}
+            {% include app.request.attributes.get('microsite_custom_header') %}
+        {% else %}
+            {% include 'PumukitWebTVBundle:Layout:template_header.html.twig' %}
+        {% endif %}
 
         {% include 'PumukitWebTVBundle:Menu:template.html.twig' %}
 
