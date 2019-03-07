@@ -941,5 +941,33 @@ h1 small,h2 small,h3 small,h4 small,h5 small,h6 small,.h1 small,.h2 small,.h3 sm
     }
 }
 
+.legacy_thumbnail {
+    width: {{thumbnail_width + thumbnail_border*2}}px;
+    height: {{thumbnail_height + thumbnail_border*2}}px;
+}
+.legacy_thumbnail img.thumbnailimg{
+    max-width: {{thumbnail_width}}px;
+    max-height: {{thumbnail_height}}px;
+}
+
+.minithumbnail, .legacy_thumbnail {
+    float: left;
+    display: inline;
+    margin-bottom: 0px;
+    text-align: center;
+    border: 0;
+    border-radius: 0px;
+    box-shadow: 1px 1px 2px #666;
+    background: #F3F3F3;
+    padding: 2px;
+    z-index: 3;
+    position: relative;
+}
+
+.minithumbnail img.thumbnailimg, .legacy_thumbnail img.thumbnailimg{
+    margin: 0 auto;
+    display: inline-block;
+    vertical-align: middle;
+}
 {% endautoescape %}
 {% endblock %}
