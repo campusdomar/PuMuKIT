@@ -588,6 +588,10 @@
         <source>There are no multimedia objects</source>
         <target>No hay objetos multimedia</target>
       </trans-unit>
+      <trans-unit id="696e30f840c911e9b210d663bd873d93" resname="Most viewed on the last month">
+          <source>Most viewed on the last month</source>
+          <target>Más vistos en el último mes</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
