@@ -103,22 +103,10 @@ class ModulesController extends Controller implements WebTVController
     /**
      * @Template("PumukitWebTVBundle:Modules:widget_stats.html.twig")
      *
-     * @param Request $request
-     *
      * @return array
      */
-    public function statsAction(Request $request)
+    public function statsAction()
     {
-        $apcuKey = 'pumukit-stats-'.md5($request->getHost());
-        $apcuTTL = 3 * 60 * 60;
-
-        if (extension_loaded('apcu')) {
-            $counts = apcu_fetch($apcuKey);
-            if ($counts) {
-                return array('counts' => $counts);
-            }
-        }
-
         $mmRepo = $this->get('doctrine_mongodb')->getRepository('PumukitSchemaBundle:MultimediaObject');
         $seriesRepo = $this->get('doctrine_mongodb')->getRepository('PumukitSchemaBundle:series');
 
@@ -127,10 +115,6 @@ class ModulesController extends Controller implements WebTVController
             'mms' => $mmRepo->count(),
             'hours' => $mmRepo->countDuration(),
         );
-
-        if (extension_loaded('apcu')) {
-            apcu_store($apcuKey, $counts, $apcuTTL);
-        }
 
         return array('counts' => $counts);
     }
