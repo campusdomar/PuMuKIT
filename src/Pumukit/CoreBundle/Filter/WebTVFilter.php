@@ -5,6 +5,9 @@ namespace Pumukit\CoreBundle\Filter;
 use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
 use Doctrine\ODM\MongoDB\Query\Filter\BsonFilter;
 
+/**
+ * Class WebTVFilter.
+ */
 class WebTVFilter extends BsonFilter
 {
     /**
@@ -29,9 +32,42 @@ class WebTVFilter extends BsonFilter
      */
     protected function getMediaCriteria()
     {
-        $criteria = [
-            'ready' => true,
-        ];
+        $criteria = [];
+
+        if ($this->hasParameter('pub_channel_tag')) {
+            $criteria['tags.cod'] = $this->getParameter('pub_channel_tag');
+        }
+
+        if ($this->hasParameter('status')) {
+            $criteria['status'] = $this->getParameter('status');
+        }
+
+        if ($this->hasParameter('display_track_tag')) {
+            $criteria['$or'] = [
+                [
+                    'tracks' => [
+                        '$elemMatch' => [
+                            'tags' => $this->getParameter('display_track_tag'),
+                            'hide' => false,
+                        ],
+                    ],
+                    'properties.opencast' => [
+                        '$exists' => false,
+                    ],
+                ],
+                [
+                    'properties.opencast' => [
+                        '$exists' => true,
+                    ],
+                ],
+                [
+                    'properties.externalplayer' => [
+                        '$exists' => true,
+                        '$ne' => '',
+                    ],
+                ],
+            ];
+        }
 
         return $criteria;
     }
@@ -46,5 +82,15 @@ class WebTVFilter extends BsonFilter
         ];
 
         return $criteria;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return bool
+     */
+    private function hasParameter($name)
+    {
+        return isset($this->parameters[$name]);
     }
 }
