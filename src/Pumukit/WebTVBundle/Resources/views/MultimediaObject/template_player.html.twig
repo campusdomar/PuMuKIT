@@ -1,5 +1,11 @@
-{% if multimediaObject.getProperty('externalplayer') %}
-    <iframe src="{{ multimediaObject.getProperty('externalplayer') }}" width="100%" height="500px" frameborder="0"></iframe>
-{% else %}
+{% set type = multimediaObject.getType() %}
+
+{% if type == 0 %}
+    {{ "No video found"|trans }}
+{% elseif type in [1,2] %}
     {% include 'PumukitWebTVBundle:MultimediaObject:player.html.twig' with {'responsive': true} %}
+{% elseif type == 3 %}
+    <iframe src="{{ multimediaObject.getProperty('externalplayer') }}" width="100%" height="500px"></iframe>
+{% elseif type == 4 %}
+    {{ "Imagen para videoteca"|trans }}
 {% endif %}

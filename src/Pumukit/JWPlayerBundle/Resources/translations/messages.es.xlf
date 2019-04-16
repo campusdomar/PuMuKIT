@@ -34,6 +34,10 @@
           <target xml:lang="es-ES">Use &lt;a href="https://www.google.com/intl/es/chrome/browser/?hl=es" target="_blank" style="color: #FFF;"&gt;Google Chrome&lt;/a&gt; o &lt;a href="http://www.apple.com/es/safari/" target="_blank" style="color: #FFF;"&gt;Safari&lt;/a&gt; para mejorar su experiencia en el visionado de conferencias</target>
         </alt-trans>
       </trans-unit>
+      <trans-unit id="39a0422e605b11e9825bd663bd873d93" resname="Video is not available">
+        <source>Video is not available</source>
+        <target>El vídeo no está disponible</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

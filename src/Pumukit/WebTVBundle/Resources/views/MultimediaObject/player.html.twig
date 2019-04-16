@@ -15,7 +15,8 @@
 
 {% if magic_url is defined and magic_url %}
     {% set iframe_route = 'pumukit_videoplayer_magicindex' %}
-    {% set iframe_parameters = {'secret':multimediaObject.secret, 'autostart': autostart} | merge(app.request.query.all) %} {# Does adding the id as well break anything? If not, do a merge of secret instead#}
+    {% set iframe_parameters = {'secret':multimediaObject.secret, 'autostart': autostart} | merge(app.request.query.all) %}
+    {# Does adding the id as well break anything? If not, do a merge of secret instead#}
 {% elseif track is defined and track %}
     {% set iframe_parameters = iframe_parameters | merge({'track_id':track.id}) %}
 {% endif %}
@@ -30,5 +31,7 @@
         height="500px"
         scrolling="no"
         title="player"
-        allowfullscreen>
+        allowfullscreen
+        style="background-color:#000000;"
+>
 </iframe>
