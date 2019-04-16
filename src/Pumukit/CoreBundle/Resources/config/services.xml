@@ -17,6 +17,9 @@
         <service id="pumukitcore.filter" class="Pumukit\CoreBundle\EventListener\FilterListener">
             <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
             <argument type="service" id="pumukitcore.filter_service"/>
+            <argument type="service" id="pumukitschema.person"/>
+            <argument type="service" id="security.token_storage"/>
+            <argument>%pumukitschema.enable_add_user_as_person%</argument>
             <tag name="kernel.event_listener" event="kernel.controller"/>
         </service>
 
@@ -29,7 +32,7 @@
             <argument type="service" id="logger"/>
             <tag name="kernel.event_listener" event="console.exception"/>
         </service>
-
+        
         <service id="pumukitcore.filter_service" class="Pumukit\CoreBundle\Services\FilterService">
             <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
             <argument type="service" id="pumukitschema.person"/>
