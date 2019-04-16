@@ -32,6 +32,7 @@ class FilterListener
      */
     public function onKernelController(FilterControllerEvent $event)
     {
+        dump('xxxxxxxxxxX');
         $req = $event->getRequest();
         $routeParams = $req->attributes->get('_route_params');
         $isFilterActivated = (!isset($routeParams['filter']) || $routeParams['filter']);
@@ -43,7 +44,9 @@ class FilterListener
          * From Symfony Docs: http://symfony.com/doc/current/cookbook/event_dispatcher/before_after_filters.html
          */
         $controller = $event->getController();
+        dump($event->getController());
         if (!is_array($controller)) {
+            dump('fuera');
             return;
         }
 
@@ -53,9 +56,11 @@ class FilterListener
         if (($controller[0] instanceof WebTVControllerInterface /*deprecated*/ || $deprecatedCheck)
             && $isFilterActivated) {
             if ($this->dm->getFilterCollection()->isEnabled('frontend')) {
+                dump('esta activo el filtro');
                 return;
             }
 
+            dump('hola2');
             $filter = $this->dm->getFilterCollection()->enable('frontend');
 
             if (isset($routeParams['show_hide']) && $routeParams['show_hide']) {
@@ -78,6 +83,8 @@ class FilterListener
             }
 
             $filter->setParameter('islive', false);
+        } else {
+            dump('entra');
         }
     }
 }

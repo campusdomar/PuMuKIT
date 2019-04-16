@@ -7,39 +7,44 @@ use Doctrine\ODM\MongoDB\Query\Filter\BsonFilter;
 
 class WebTVFilter extends BsonFilter
 {
+    /**
+     * @param ClassMetadata $targetDocument
+     *
+     * @return array|void
+     */
     public function addFilterCriteria(ClassMetadata $targetDocument)
     {
         if ("Pumukit\SchemaBundle\Document\MultimediaObject" === $targetDocument->reflClass->name) {
-            return $this->getCriteria();
+            return $this->getMediaCriteria();
         }
         if ("Pumukit\SchemaBundle\Document\Series" === $targetDocument->reflClass->name) {
-            return array('hide' => false);
+            return $this->getSeriesCriteria();
         }
+
+        return;
     }
 
-    protected function getCriteria()
+    /**
+     * @return array
+     */
+    protected function getMediaCriteria()
     {
-        $criteria = array();
-
-        if ($this->hasParameter('pub_channel_tag')) {
-            $criteria['tags.cod'] = $this->getParameter('pub_channel_tag');
-        }
-        if ($this->hasParameter('status')) {
-            $criteria['status'] = $this->getParameter('status');
-        }
-        if ($this->hasParameter('display_track_tag')) {
-            $criteria['$or'] = array(
-                array('tracks' => array('$elemMatch' => array('tags' => $this->getParameter('display_track_tag'), 'hide' => false)), 'properties.opencast' => array('$exists' => false)),
-                array('properties.opencast' => array('$exists' => true)),
-                array('properties.externalplayer' => array('$exists' => true, '$ne' => '')),
-            );
-        }
+        $criteria = [
+            'ready' => true,
+        ];
 
         return $criteria;
     }
 
-    private function hasParameter($name)
+    /**
+     * @return array
+     */
+    protected function getSeriesCriteria()
     {
-        return isset($this->parameters[$name]);
+        $criteria = [
+            'hide' => false,
+        ];
+
+        return $criteria;
     }
 }

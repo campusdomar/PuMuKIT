@@ -27,17 +27,34 @@
         </h2>
     </div>
 
-    <div class="col-md-7 col-lg-8">
-        {% include 'PumukitWebTVBundle:Misc:magic_url_disclaimer.html.twig' %}
+    {% if multimediaObject.type == 4 %}
+        <div class="col-md-12">
+            <img alt="{% trans %}Photo{% endtrans %}" class="img-responsive" src="{{ multimediaObject|first_url_pic(true) }}" />
+        </div>
+        <div class="clearfix" style="margin-top:10px;">&nbsp;</div>
+        <style>
+            .zoom-photo:hover {
+                transform: scale(1.2);
+            }
+        </style>
+        {% for pic in multimediaObject.getPics() %}
+            <div class="col-md-2">
+                <img alt="{% trans %}Photo{% endtrans %}" class="img-responsive zoom-photo" src="{{ asset(pic.url) }}" />
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-md-7 col-lg-8">
+            {% include 'PumukitWebTVBundle:Misc:magic_url_disclaimer.html.twig' %}
 
-        {% include 'PumukitWebTVBundle:MultimediaObject:template_player.html.twig' %}
+            {% include 'PumukitWebTVBundle:MultimediaObject:template_player.html.twig' %}
 
-        {{ render(controller('PumukitWebTVBundle:MultimediaObject:multimediaInfo', {'multimediaObject': multimediaObject})) }}
-    </div>
+            {{ render(controller('PumukitWebTVBundle:MultimediaObject:multimediaInfo', {'multimediaObject': multimediaObject})) }}
+        </div>
 
     <div class="col-md-5 col-lg-4">
         {% include "PumukitWebTVBundle:MultimediaObject:template_suggest.html.twig" %}
     </div>
+    {% endif %}
 
     {% if cinema_mode is defined and cinema_mode %}
         <script>

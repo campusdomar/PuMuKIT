@@ -2,6 +2,7 @@
 
 namespace Pumukit\NewAdminBundle\Form\Type;
 
+use PhpParser\Node\Expr\AssignOp\Mul;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -31,6 +32,21 @@ class MultimediaObjectPubType extends AbstractType
                     'disabled' => $options['not_granted_change_status'],
                     'attr' => ['aria-label' => $this->translator->trans('Status', [], null, $this->locale)],
                     'label' => $this->translator->trans('Status', [], null, $this->locale),
+                ]
+            )
+            ->add(
+                'type',
+                ChoiceType::class,
+                [
+                    'choices' => [
+                        'Unknown' => MultimediaObject::TYPE_UNKNOWN,
+                        'Video' => MultimediaObject::TYPE_VIDEO,
+                        'Audio' => MultimediaObject::TYPE_AUDIO,
+                        'External' => MultimediaObject::TYPE_EXTERNAL,
+                        'Image' => MultimediaObject::TYPE_IMG,
+                    ],
+                    'attr' => ['aria-label' => $this->translator->trans('Type', [], null, $this->locale)],
+                    'label' => $this->translator->trans('Type', [], null, $this->locale),
                 ]
             );
     }

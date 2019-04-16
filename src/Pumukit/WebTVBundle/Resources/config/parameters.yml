@@ -20,7 +20,7 @@ parameters:
   show_latest_with_pudenew:  true                        # Set whether to use the PUDENEW tag for 'Recently Added' and 'Latest Uploads'
   use_record_date_announces: false                        # Use record_date instead of public_data in announce list
 
-  pumukit_web_tv.cinema_mode: true
+  pumukit_web_tv.cinema_mode: false
   pumukit_web_tv.breadcrumbs_all_title: 'All'
   pumukit_web_tv.breadcrumbs_all_route: 'pumukit_webtv_medialibrary_index'
 

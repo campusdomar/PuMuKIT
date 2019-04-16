@@ -48,12 +48,14 @@ class MultimediaObject
     const TYPE_VIDEO = 1;
     const TYPE_AUDIO = 2;
     const TYPE_EXTERNAL = 3;
+    const TYPE_IMG = 4;
 
     public static $typeTexts = array(
-        self::TYPE_UNKNOWN => '',
+        self::TYPE_UNKNOWN => 'Unknown',
         self::TYPE_VIDEO => 'Video',
         self::TYPE_AUDIO => 'Audio',
         self::TYPE_EXTERNAL => 'External',
+        self::TYPE_IMG => 'Image',
     );
     /**
      * @var int
@@ -83,6 +85,13 @@ class MultimediaObject
      * @MongoDB\Index
      */
     private $type;
+
+    /**
+     * @var bool
+     * @MongoDB\Field(type="boolean")
+     * @MongoDB\Index
+     */
+    private $ready;
 
     /**
      * @var string
@@ -410,6 +419,23 @@ class MultimediaObject
     {
         return $this->islive;
     }
+
+    /**
+     * @return bool
+     */
+    public function isReady(): bool
+    {
+        return $this->ready;
+    }
+
+    /**
+     * @param bool $ready
+     */
+    public function setReady(bool $ready): void
+    {
+        $this->ready = $ready;
+    }
+
 
     /**
      * Set type.

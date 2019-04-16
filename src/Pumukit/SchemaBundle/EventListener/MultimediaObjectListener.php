@@ -38,6 +38,7 @@ class MultimediaObjectListener
         $multimediaObject = $event->getMultimediaObject();
         $this->updateType($multimediaObject);
         $this->updateTextIndex($multimediaObject);
+        $this->updateReadyState($multimediaObject);
         $this->dm->flush();
     }
 
@@ -46,7 +47,7 @@ class MultimediaObjectListener
      */
     public function updateType($multimediaObject)
     {
-        if ($multimediaObject->getProperty('opencast')) {
+        /*if ($multimediaObject->getProperty('opencast')) {
             $multimediaObject->setType(MultimediaObject::TYPE_VIDEO);
         } elseif ($multimediaObject->getProperty('externalplayer')) {
             $multimediaObject->setType(MultimediaObject::TYPE_EXTERNAL);
@@ -58,7 +59,7 @@ class MultimediaObjectListener
             $multimediaObject->setType($this->getTracksType($otherTracks));
         } else {
             $multimediaObject->setType(MultimediaObject::TYPE_UNKNOWN);
-        }
+        }*/
     }
 
     /**
@@ -89,5 +90,10 @@ class MultimediaObjectListener
         }
         $multimediaObject->setTextIndex($textIndex);
         $multimediaObject->setSecondaryTextIndex($secondaryTextIndex);
+    }
+
+    public function updateReadyState(MultimediaObject $multimediaObject)
+    {
+        $multimediaObject->setReady(true);
     }
 }

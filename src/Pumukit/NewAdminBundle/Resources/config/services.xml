@@ -107,6 +107,10 @@
 
         <service id="pumukitnewadmin.translatecontroller" class="Pumukit\NewAdminBundle\Controller\TranslateController"/>
 
+        <service id="pumukitnewadmin.multimedia_object" class="Pumukit\NewAdminBundle\Services\MultimediaObjectService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
+        </service>
+
     </services>
 
 </container>

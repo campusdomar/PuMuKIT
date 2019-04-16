@@ -173,12 +173,12 @@ class FilterListener
     private function enableWebTVFilter($routeParams)
     {
         $filter = $this->dm->getFilterCollection()->enable('frontend');
-
-        $this->setParameters($filter, $routeParams);
+        $filter->setParameter('ready', true);
+        /*$this->setParameters($filter, $routeParams);
 
         if (!isset($routeParams['no_channels']) || !$routeParams['no_channels']) {
             $filter->setParameter('pub_channel_tag', 'PUCHWEBTV');
-        }
+        }*/
     }
 
     private function enablePersonalFilter($routeParams)
