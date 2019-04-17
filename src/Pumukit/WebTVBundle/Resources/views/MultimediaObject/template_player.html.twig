@@ -1,10 +1,1 @@
-{% set type = multimediaObject.getType() %}
-
-
-{% if type == 0 %}
-    {{ "No video found"|trans }}
-{% elseif type in [1,2,3] %}
-    {% include 'PumukitWebTVBundle:MultimediaObject:player.html.twig' with {'responsive': true } %}
-{% elseif type == 4 %}
-    {{ "Imagen para videoteca"|trans }}
-{% endif %}
+{% include 'PumukitWebTVBundle:MultimediaObject:player.html.twig' with {'responsive': true } %}
