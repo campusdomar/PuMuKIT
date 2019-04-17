@@ -1201,6 +1201,8 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             $multimediaObject->setProperty('externalplayer', $data['url']);
             $dm->flush();
 
+            $this->dispatchUpdate($multimediaObject);
+
             return $this->forward('PumukitNewAdminBundle:Track:list', array('multimediaObject' => $multimediaObject));
         }
 
