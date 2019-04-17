@@ -42,8 +42,10 @@
     {% endif %}
     <script type="text/javascript">
         function resizeDiv() {
-            document.getElementById('player1').style.width = window.document.documentElement.clientWidth + 'px';
-            document.getElementById('player1').style.height = window.document.documentElement.clientHeight + 'px';
+            if(document.getElementById('player1')) {
+                document.getElementById('player1').style.width = window.document.documentElement.clientWidth + 'px';
+                document.getElementById('player1').style.height = window.document.documentElement.clientHeight + 'px';
+            }
         }
 
         window.onresize = resizeDiv;

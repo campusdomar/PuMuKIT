@@ -6,6 +6,9 @@ use Symfony\Component\EventDispatcher\Event;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Track;
 
+/**
+ * Class ViewedEvent.
+ */
 class ViewedEvent extends Event
 {
     /**

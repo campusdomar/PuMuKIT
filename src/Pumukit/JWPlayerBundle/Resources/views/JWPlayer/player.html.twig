@@ -2,7 +2,7 @@
 
 {% block body_base %}
 
-    {% if track %}
+    {% if track is defined and track %}
         <video id="player1" controls></video>
         {% set captions = captions(multimediaObject) %}
         {% set captions_block %}
@@ -63,8 +63,10 @@
 
     <script type="text/javascript">
         window.onresize = function () {
-            document.getElementById('player1').style.width = window.document.documentElement.clientWidth + 'px';
-            document.getElementById('player1').style.height = window.document.documentElement.clientHeight + 'px';
+            if(document.getElementById('player1')) {
+                document.getElementById('player1').style.width = window.document.documentElement.clientWidth + 'px';
+                document.getElementById('player1').style.height = window.document.documentElement.clientHeight + 'px';
+            }
         }
     </script>
 {% endblock %}

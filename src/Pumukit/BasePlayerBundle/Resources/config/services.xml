@@ -29,5 +29,11 @@
 
         <service id="pumukit_baseplayer.useragent_parser" class="Pumukit\BasePlayerBundle\Services\UserAgentParserService">
         </service>
+
+        <service id="pumukit_baseplayer.player" class="Pumukit\BasePlayerBundle\Services\PlayerService">
+            <argument type="service" id="doctrine_mongodb.odm.document_manager" />
+            <argument type="service" id="pumukitschema.embeddedbroadcast" />
+            <argument type="service" id="pumukitschema.multimedia_object" />
+        </service>
     </services>
 </container>
