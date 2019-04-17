@@ -48,6 +48,8 @@
             {{ render(controller('PumukitWebTVBundle:Modules:breadcrumbs')) }}
         {% endif %}
 
+        {% block custom_body_block %}{% endblock %}
+
         <div class="container-fluid content-pmk">
             {% block body_without_container %}
                 <div class="container main-content">

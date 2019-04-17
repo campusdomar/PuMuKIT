@@ -48,12 +48,14 @@ class MultimediaObject
     const TYPE_VIDEO = 1;
     const TYPE_AUDIO = 2;
     const TYPE_EXTERNAL = 3;
+    const TYPE_IMAGE = 4;
 
     public static $typeTexts = array(
         self::TYPE_UNKNOWN => '',
         self::TYPE_VIDEO => 'Video',
         self::TYPE_AUDIO => 'Audio',
         self::TYPE_EXTERNAL => 'External',
+        self::TYPE_IMAGE => 'Image',
     );
     /**
      * @var int

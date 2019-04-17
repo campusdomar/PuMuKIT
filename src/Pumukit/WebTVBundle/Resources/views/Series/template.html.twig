@@ -13,6 +13,10 @@
 {% endblock %}
 
 {% block body %}
+
+    {{ render(controller("PumukitWebTVBundle:Series:lives", {'series' : series })) }}
+    {{ render(controller("PumukitWebTVBundle:Series:photos", {'series' : series })) }}
+
     {% set last_date = '' %}
     {% set last_subseriestitle = '' %}
     {% set template = series.getProperty('template')|default('date') %}

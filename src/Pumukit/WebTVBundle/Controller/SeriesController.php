@@ -11,6 +11,7 @@ use Pagerfanta\Pagerfanta;
 use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 
+
 /**
  * Class SeriesController.
  */
@@ -101,5 +102,49 @@ class SeriesController extends Controller implements WebTVControllerInterface
         $pagerfanta->setCurrentPage($page);
 
         return $pagerfanta;
+    }
+
+    /**
+     * @Template("PumukitWebTVBundle:Series:template_lives.html.twig")
+     *
+     * @param Request $request
+     * @param Series  $series
+     *
+     * @return array
+     */
+    public function livesAction(Request $request, Series $series)
+    {
+        $embeddedEventSessionService = $this->get('pumukitschema.eventsession');
+        $events = $embeddedEventSessionService->findWidgetEvents(null, 3);
+
+        $limitEvents = 3;
+
+        return array(
+            'events' => $events,
+            'limitEvents' => $limitEvents,
+        );
+    }
+
+    /**
+     * @Template("PumukitWebTVBundle:Series:template_photos.html.twig")
+     *
+     * @param Request $request
+     * @param Series  $series
+     *
+     * @return array
+     */
+    public function photosAction(Request $request, Series $series)
+    {
+        $dm = $this->get('doctrine.odm.mongodb.document_manager');
+        $objects = $dm->getRepository('PumukitSchemaBundle:MultimediaObject')->findBy(
+            [
+                'type' => MultimediaObject::TYPE_IMAGE,
+                'series' => $series->getId(),
+            ]
+        );
+
+        return [
+            'objects' => $objects
+        ];
     }
 }

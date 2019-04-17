@@ -1,0 +1,45 @@
+<div class="col-xs-12">
+    <h1>{{ "Lives"|trans }}</h1>
+</div>
+
+{#<div class="row">
+    {% set objectByCol = 4 %}
+    {% if objects %}
+        {% for object in objects %}
+            {% set event = object.getEmbeddedEvent() %}
+            {% set isIE = false %}
+            {% include('PumukitWebTVBundle:Live:Advance/liveplayer.html.twig') with {stretching: 'exactfit', aspectratio: '16:9'} %}
+            {% include "PumukitWebTVBundle:Resources:template_clearfix.html.twig" %}
+        {% endfor %}
+    {% endif %}
+</div>#}
+{% set alt = "At this time there aren't live broadcasts" %}
+{% set text = "THERE AREN'T NEXT LIVE EVENTS" %}
+{% if events %}
+    {% set text = "NEXT EVENTS" %}
+{% endif %}
+
+<div class="row panel_events">
+
+    <div class="col-xs-12 col-md-12">
+        {% if events %}
+            <div class="next_events_box">
+                <h4 class="next_events_box_title">{{ text|trans }}</h4>
+                {% for next in events %}
+
+                    {% set event = next['data'] %}
+                    {% set objectByCol = 3 %}
+                    {% set defaultPic = '' %}
+                    {% if loop.index <= limitEvents %}
+                        {% include 'PumukitWebTVBundle:Resources:template_event.html.twig' %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no_events">
+                <h4>{{ text|trans }}</h4>
+            </div>
+        {% endif %}
+    </div>
+</div>
+

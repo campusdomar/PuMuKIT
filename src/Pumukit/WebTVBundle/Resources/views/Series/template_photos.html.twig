@@ -1,0 +1,20 @@
+<style>
+    .photo-img { transition: all .2s ease-in-out; }
+    .photo-img:hover { transform: scale(1.1); }
+</style>
+
+<div class="col-xs-12">
+    <h1>{{ "Photos"|trans }}</h1>
+
+    <div class="row">
+        {% set objectByCol = 4 %}
+        {% for object in objects %}
+            <div class="{{ col_calculator(objectByCol) }} image_representation">
+                <a href="{{ path('pumukit_webtv_multimediaobject_index', {'id' : object.getId()}) }}">
+                    <img src="{{ object|first_url_pic() }}" class="img-responsive photo-img" />
+                </a>
+            </div>
+            {% include "PumukitWebTVBundle:Resources:template_clearfix.html.twig" %}
+        {% endfor %}
+    </div>
+</div>
