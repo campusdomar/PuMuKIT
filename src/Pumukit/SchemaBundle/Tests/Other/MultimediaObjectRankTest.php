@@ -120,7 +120,7 @@ class MultimediaObjectRankTest extends WebTestCase
     private function createMultimediaObjectAssignedToSeries($title, Series $series)
     {
         $rank = 1;
-        $status = MultimediaObject::STATUS_NEW;
+        $status = MultimediaObject::STATUS_BLOCKED;
         $record_date = new \DateTime();
         $public_date = new \DateTime();
         $subtitle = 'Subtitle';

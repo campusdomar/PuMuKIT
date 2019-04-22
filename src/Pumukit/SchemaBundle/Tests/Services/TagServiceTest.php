@@ -444,7 +444,7 @@ class TagServiceTest extends WebTestCase
     private function createMultimediaObject($title, $prototype = false)
     {
         $locale = 'en';
-        $status = $prototype ? MultimediaObject::STATUS_PROTOTYPE : MultimediaObject::STATUS_NEW;
+        $status = $prototype ? MultimediaObject::STATUS_PROTOTYPE : MultimediaObject::STATUS_BLOCKED;
         $record_date = new \DateTime();
         $public_date = new \DateTime();
         $subtitle = 'Subtitle paragraph';

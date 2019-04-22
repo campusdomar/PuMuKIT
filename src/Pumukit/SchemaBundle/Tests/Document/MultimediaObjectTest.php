@@ -141,7 +141,7 @@ class MultimediaObjectTest extends TestCase
     public function testDefaultState()
     {
         $mm = new MultimediaObject();
-        $this->assertEquals(MultimediaObject::STATUS_NEW, $mm->getStatus());
+        $this->assertEquals(MultimediaObject::STATUS_BLOCKED, $mm->getStatus());
     }
 
     public function testTracksInMultimediaObject()

@@ -165,7 +165,7 @@ class MultimediaObject
      * @var int
      * @MongoDB\Field(type="int")
      */
-    private $status = self::STATUS_NEW;
+    private $status = self::STATUS_BLOCKED;
 
     /**
      * @var \DateTime
