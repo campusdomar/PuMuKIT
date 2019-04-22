@@ -212,9 +212,9 @@ class FilterListener
     private function setParameters($filter, $routeParams)
     {
         if (isset($routeParams['show_hide']) && $routeParams['show_hide']) {
-            $filter->setParameter('status', array('$in' => array(MultimediaObject::STATUS_PUBLISHED, MultimediaObject::STATUS_HIDE)));
+            $filter->setParameter('status', array('$in' => array(MultimediaObject::STATUS_PUBLISHED, MultimediaObject::STATUS_HIDDEN)));
         } elseif (isset($routeParams['show_block']) && $routeParams['show_block']) {
-            $filter->setParameter('status', array('$in' => array(MultimediaObject::STATUS_PUBLISHED, MultimediaObject::STATUS_HIDE, MultimediaObject::STATUS_BLOCKED)));
+            $filter->setParameter('status', array('$in' => array(MultimediaObject::STATUS_PUBLISHED, MultimediaObject::STATUS_HIDDEN, MultimediaObject::STATUS_BLOCKED)));
         } else {
             $filter->setParameter('status', MultimediaObject::STATUS_PUBLISHED);
         }
