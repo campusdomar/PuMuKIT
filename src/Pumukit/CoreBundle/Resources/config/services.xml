@@ -32,7 +32,7 @@
             <argument type="service" id="logger"/>
             <tag name="kernel.event_listener" event="console.exception"/>
         </service>
-        
+
         <service id="pumukitcore.filter_service" class="Pumukit\CoreBundle\Services\FilterService">
             <argument type="service" id="doctrine_mongodb.odm.document_manager"/>
             <argument type="service" id="pumukitschema.person"/>

@@ -29,5 +29,8 @@
 
         <service id="pumukit_baseplayer.useragent_parser" class="Pumukit\BasePlayerBundle\Services\UserAgentParserService">
         </service>
+
+        <service id="pumukit_baseplayer.player" class="Pumukit\BasePlayerBundle\Services\PlayerService">
+        </service>
     </services>
 </container>

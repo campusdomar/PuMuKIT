@@ -1,0 +1,49 @@
+{% extends 'PumukitJWPlayerBundle:JWPlayer:index.html.twig' %}
+{% block body_base %}
+
+    <div class="jwplayer_date date">
+        {% if is_old_browser and not is_mobile_device %}
+            <div class="jwplayer_old_browser_message">
+                <img id="imagen_alert" alt="{% trans %}Obsolete browser{% endtrans %}" src="{{ asset('bundles/pumukitwebtv/images/obsolete.png') }}"/>
+                <span class="jwplayer_recommended">
+                    {% trans %}
+                        Use
+                        <a href="https://www.google.com/intl/es/chrome/browser/?hl=es" target="_blank">Google Chrome</a>
+                        or
+                        <a href="http://www.apple.com/es/safari/" target="_blank">Safari</a>
+                        to improve your experience in watching recorded lectures
+                    {% endtrans %}
+                </span>
+                <div>({% trans %}Web explorers with HTML5 and h.264 codec video support{% endtrans %})</div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div style="clear:both"></div>
+
+    <div id="pumukit_m_mmobj" class="pumukit_m">
+        {% if not multimediaObject.getProperty('opencasthide') %}
+            {% if multimediaObject.getProperty('opencast') is not empty %}
+                <iframe src="{{ iframeurl(multimediaObject, not is_old_browser, true) }}"
+                        id="mh_iframe"
+                        name="Opencast Matterhorn - Media Player"
+                        scrolling="no" frameborder="0" marginheight="0px" marginwidth="0px"
+                        webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen="true"
+                >
+                </iframe>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <script>
+        function blink_uno() {
+            document.getElementById('imagen_alert').style.visibility = 'visible';
+            setTimeout('blink_dos()', 1000);
+        }
+
+        function blink_dos() {
+            document.getElementById('imagen_alert').style.visibility = 'hidden';
+            setTimeout('blink_uno()', 1000);
+        }
+    </script>
+{% endblock %}

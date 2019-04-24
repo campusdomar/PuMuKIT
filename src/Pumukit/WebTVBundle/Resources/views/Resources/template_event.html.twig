@@ -3,13 +3,13 @@
 {% if event['event'].name is iterable %}
     {% set videoTitle = event['event'].name[app.request.getLocale()] | default('No title'|trans) %}
 {% else %}
-    {% set videoTitle = event['event'].getName(app.request.getLocale()) %}
+    {% set videoTitle = event['event'].getName(app.request.getLocale())| default('No title'|trans)  %}
 {% endif %}
 
 {% if event['event'].name is iterable %}
-    {% set videoDescription = event['event'].description[app.request.getLocale()] %}
+    {% set videoDescription = event['event'].description[app.request.getLocale()]|default() %}
 {% else %}
-    {% set videoDescription = event['event'].getDescription(app.request.getLocale()) %}
+    {% set videoDescription = event['event'].getDescription(app.request.getLocale())|default() %}
 {% endif %}
 
 {% if event['session'].getStart() is defined %}

@@ -705,6 +705,30 @@
         <source>video</source>
         <target state="translated">vídeo</target>
       </trans-unit>
+      <trans-unit id="2833df74666d11e9a9231681be663d3e" resname="Powered by">
+        <source>Powered by</source>
+        <target>Powered by</target>
+      </trans-unit>
+      <trans-unit id="5b2ed762666d11e9a9231681be663d3e" resname="Url track">
+        <source>Url track</source>
+        <target>Url del vídeo</target>
+      </trans-unit>
+      <trans-unit id="cc843290666d11e992291681be663d3e" resname="Sort by date">
+        <source>Sort by date</source>
+        <target>Ordenar por fecha</target>
+      </trans-unit>
+      <trans-unit id="cc84359c666d11e992291681be663d3e" resname="Sort alphabetically">
+        <source>Sort alphabetically</source>
+        <target>Ordenar alfabéticamente</target>
+      </trans-unit>
+      <trans-unit id="cc843772666d11e992291681be663d3e" resname="video">
+        <source>video</source>
+        <target>vídeo</target>
+      </trans-unit>
+      <trans-unit id="4c22d6dc666e11e9a9231681be663d3e" resname="Event pic">
+        <source>Event pic</source>
+        <target>Imagen del evento</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
