@@ -17,7 +17,7 @@ class PlaylistController extends BasePlaylistController
      * @Route("/playlist/magic/{secret}", name="pumukit_playlistplayer_magicindex", defaults={"show_hide": true, "no_channels": true} )
      * @Template("PumukitJWPlayerBundle:JWPlayer:player_playlist.html.twig")
      */
-    public function indexAction(Series $series, Request $request)
+    public function indexAction(Request $request, Series $series)
     {
         $playlistService = $this->get('pumukit_baseplayer.seriesplaylist');
         $dm = $this->get('doctrine_mongodb')->getManager();
