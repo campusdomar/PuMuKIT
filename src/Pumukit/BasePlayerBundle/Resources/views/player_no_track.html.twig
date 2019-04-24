@@ -1,0 +1,21 @@
+<link href="{{ asset('bundles/pumukitwebtv/css/font-awesome.min.css') }}" type="text/css" rel="stylesheet" media="screen"/>
+<style>
+    .player_not_found {
+        color:#d58512;
+        margin-top:20%;
+    }
+
+    .player_not_found h1, .player_not_found p {
+        text-align: center;
+    }
+</style>
+<div class="col-xs-12">
+    <div class="player_not_found">
+        <p>
+            <i class="fa fa-exclamation-triangle fa-4x"></i>
+        </p>
+        <h1>
+            {{ "Video is not available"|trans|upper }}
+        </h1>
+    </div>
+</div>

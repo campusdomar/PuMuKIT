@@ -123,6 +123,10 @@ class FilterService
                 '$in' => self::PUBLIC_STATUS,
             ]);
         }
+
+        if (!isset($routeParams['track']) || $routeParams['track']) {
+            $filter->setParameter('display_track_tag', 'display');
+        }
     }
 
     /**

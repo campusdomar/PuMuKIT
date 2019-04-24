@@ -38,7 +38,7 @@
             jwplayer('player1').resize(window.document.documentElement.clientWidth, window.document.documentElement.clientHeight);
         </script>
     {% else %}
-        {% include "PumukitJWPlayerBundle:JWPlayer:player_no_track.html.twig" %}
+        {% include "PumukitBasePlayerBundle::player_no_track.html.twig" %}
     {% endif %}
     <script type="text/javascript">
         function resizeDiv() {

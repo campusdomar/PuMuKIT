@@ -13,15 +13,15 @@ use Pumukit\BasePlayerBundle\Controller\BasePlayerController as BasePlayerContro
 class BasePlayerController extends BasePlayerControllero implements PersonalControllerInterface
 {
     /**
-     * @Route("/videoplayer/{id}", name="pumukit_videoplayer_index", defaults={"show_block": true, "no_channels": true})
+     * @Route("/videoplayer/{id}", name="pumukit_videoplayer_index", defaults={"show_block": true, "no_channels": true, "track": false})
      * @Template("PumukitJWPlayerBundle:JWPlayer:player.html.twig")
      *
-     * @param MultimediaObject $multimediaObject
      * @param Request          $request
+     * @param MultimediaObject $multimediaObject
      *
-     * @return array|bool|mixed|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return mixed|void
      */
-    public function indexAction(MultimediaObject $multimediaObject, Request $request)
+    public function indexAction(Request $request, MultimediaObject $multimediaObject)
     {
         $playerService = $this->get('pumukit_baseplayer.player');
         $canBeReproduced = $playerService->canBeReproduced($multimediaObject, false);
@@ -35,15 +35,15 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
     }
 
     /**
-     * @Route("/videoplayer/magic/{secret}", name="pumukit_videoplayer_magicindex", defaults={"show_block": true, "no_channels": true})
+     * @Route("/videoplayer/magic/{secret}", name="pumukit_videoplayer_magicindex", defaults={"show_block": true, "no_channels": true, "track": false})
      * @Template("PumukitJWPlayerBundle:JWPlayer:player.html.twig")
      *
-     * @param MultimediaObject $multimediaObject
      * @param Request          $request
+     * @param MultimediaObject $multimediaObject
      *
      * @return array|bool|mixed|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function magicAction(MultimediaObject $multimediaObject, Request $request)
+    public function magicAction(Request $request, MultimediaObject $multimediaObject)
     {
         $playerService = $this->get('pumukit_baseplayer.player');
         $canBeReproduced = $playerService->canBeReproduced($multimediaObject, true);
@@ -63,7 +63,7 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
      *
      * @return array|bool|\Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    private function doRender(Request $request, MultimediaObject $multimediaObject, $isMagicUrl = false)
+    public function doRender(Request $request, MultimediaObject $multimediaObject, $isMagicUrl = false)
     {
         $embeddedBroadcastService = $this->get('pumukitschema.embeddedbroadcast');
         $password = $request->get('broadcast_password');

@@ -17,7 +17,9 @@ class PlayerService
         if (MultimediaObject::TYPE_EXTERNAL === $multimediaObject->getType()) {
             return $this->canBeReproducedExternal($multimediaObject, $isMagicUrl);
         }
+
         $status = $multimediaObject->getStatus();
+
         $containsWebTV = $multimediaObject->containsTagWithCod('PUCHWEBTV');
         if ($isMagicUrl && in_array($status, [MultimediaObject::STATUS_PUBLISHED, MultimediaObject::STATUS_HIDDEN]) && $containsWebTV) {
             if ($multimediaObject->getDisplayTrack()) {

@@ -15,22 +15,22 @@ abstract class BasePlayerController extends Controller
     /**
      * @Route("/videoplayer/{id}", name="pumukit_videoplayer_index")
      *
-     * @param MultimediaObject $multimediaObject
      * @param Request          $request
+     * @param MultimediaObject $multimediaObject
      *
      * @return mixed
      */
-    abstract public function indexAction(MultimediaObject $multimediaObject, Request $request);
+    abstract public function indexAction(Request $request, MultimediaObject $multimediaObject);
 
     /**
      * @Route("/videoplayer/magic/{secret}", name="pumukit_videoplayer_magicindex")
      *
-     * @param MultimediaObject $multimediaObject
      * @param Request          $request
+     * @param MultimediaObject $multimediaObject
      *
      * @return mixed
      */
-    abstract public function magicAction(MultimediaObject $multimediaObject, Request $request);
+    abstract public function magicAction(Request $request, MultimediaObject $multimediaObject);
 
     /**
      * @param MultimediaObject $multimediaObject

@@ -14,10 +14,10 @@ abstract class BasePlaylistController extends Controller implements WebTVControl
      * @Route("/playlist/{id}", name="pumukit_playlistplayer_index", defaults={"no_channels": true} )
      * @Route("/playlist/magic/{secret}", name="pumukit_playlistplayer_magicindex", defaults={"show_hide": true, "no_channels": true})
      *
-     * @param Series  $series
      * @param Request $request
+     * @param Series  $series
      *
      * @return mixed
      */
-    abstract public function indexAction(Series $series, Request $request);
+    abstract public function indexAction(Request $request, Series $series);
 }
