@@ -334,10 +334,8 @@ class JobService
         if (false !== strpos($job->getPathIni(), $this->tmpPath)) {
             unlink($job->getPathIni());
         } elseif ($this->deleteInboxFiles) {
-            dump('entra');
             unlink($job->getPathIni());
         }
-        dump($this->deleteInboxFiles);
     }
 
     /**
