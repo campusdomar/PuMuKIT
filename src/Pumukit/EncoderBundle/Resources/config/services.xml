@@ -35,6 +35,7 @@
             <argument>%kernel.environment%</argument>
             <argument>%pumukit2.tmp%</argument>
             <argument>%pumukit2.inbox%</argument>
+            <argument>%pumukitencoder.delete_inbox_files%</argument>
             <tag name="monolog.logger" channel="encoder"/>
         </service>
 

@@ -39,11 +39,12 @@ class JobService
     private $tokenStorage;
     private $propService;
     private $inboxPath;
+    private $deleteInboxFiles;
 
     public function __construct(DocumentManager $documentManager, ProfileService $profileService, CpuService $cpuService,
                                 InspectionServiceInterface $inspectionService, EventDispatcherInterface $dispatcher, LoggerInterface $logger,
                                 TrackService $trackService, TokenStorage $tokenStorage, MultimediaObjectPropertyJobService $propService,
-                                $environment = 'dev', $tmpPath = null, $inboxPath = null)
+                                $environment = 'dev', $tmpPath = null, $inboxPath = null, $deleteInboxFiles = true)
     {
         $this->dm = $documentManager;
         $this->repo = $this->dm->getRepository('PumukitEncoderBundle:Job');
@@ -58,6 +59,7 @@ class JobService
         $this->dispatcher = $dispatcher;
         $this->environment = $environment;
         $this->propService = $propService;
+        $this->deleteInboxFiles = $deleteInboxFiles;
     }
 
     /**
@@ -331,9 +333,11 @@ class JobService
     {
         if (false !== strpos($job->getPathIni(), $this->tmpPath)) {
             unlink($job->getPathIni());
-        } elseif (false !== strpos($job->getPathIni(), $this->inboxPath)) {
+        } elseif ($this->deleteInboxFiles) {
+            dump('entra');
             unlink($job->getPathIni());
         }
+        dump($this->deleteInboxFiles);
     }
 
     /**

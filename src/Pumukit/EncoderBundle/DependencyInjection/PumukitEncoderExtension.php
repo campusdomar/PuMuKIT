@@ -33,5 +33,6 @@ class PumukitEncoderExtension extends Extension
         $container->setParameter('pumukitencode.target_default_profiles', $config['target_default_profiles']);
         $container->setParameter('pumukitencode.thumbnail.width', $config['thumbnail']['width']);
         $container->setParameter('pumukitencode.thumbnail.height', $config['thumbnail']['height']);
+        $container->setParameter('pumukitencoder.delete_inbox_files', $config['delete_inbox_files']);
     }
 }
