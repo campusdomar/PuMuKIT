@@ -12,7 +12,7 @@ class PersonalFilter extends WebTVFilter
             return $this->getMultimediaObjectCriteria();
         }
         if ("Pumukit\SchemaBundle\Document\Series" === $targetDocument->reflClass->name) {
-            return $this->getPersonalSeriesCriteria();
+            return $this->getSeriesCriteria();
         }
     }
 
