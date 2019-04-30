@@ -155,7 +155,7 @@ class EventsController extends Controller implements NewAdminController
         $eventPicDefault = $this->container->getParameter('pumukit_new_admin.advance_live_event_create_default_pic');
         $page = ($this->get('session')->get('admin/live/event/page')) ?: ($request->query->get('page') ?: 1);
 
-        $criteria['islive'] = true;
+        $criteria['type'] = MultimediaObject::TYPE_LIVE;
         if ($type) {
             $date = new \MongoDate();
             if ('now' === $type) {

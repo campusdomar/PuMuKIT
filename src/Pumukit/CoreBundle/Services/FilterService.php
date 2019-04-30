@@ -139,7 +139,7 @@ class FilterService
             $filter->setParameter('pub_channel_tag', 'PUCHWEBTV');
         }
 
-        $filter->setParameter('islive', false);
+        $filter->setParameter('type', ['$ne' => MultimediaObject::TYPE_LIVE]);
     }
 
     /**
