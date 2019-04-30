@@ -391,7 +391,7 @@ class MultimediaObject
      */
     public function isLive()
     {
-        return self::TYPE_LIVE === (bool) $this->type;
+        return self::TYPE_LIVE === $this->type;
     }
 
     /**
