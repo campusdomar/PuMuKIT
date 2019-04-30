@@ -36,7 +36,7 @@ class PersonalFilter extends WebTVFilter
         return $criteria;
     }
 
-    private function getPersonalSeriesCriteria()
+    protected function getSeriesCriteria()
     {
         $criteria = [];
         if (isset($this->parameters['person_id'], $this->parameters['role_code'], $this->parameters['series_groups'])) {
