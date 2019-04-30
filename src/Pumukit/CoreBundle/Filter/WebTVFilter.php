@@ -18,7 +18,7 @@ class WebTVFilter extends BsonFilter
     public function addFilterCriteria(ClassMetadata $targetDocument)
     {
         if ("Pumukit\SchemaBundle\Document\MultimediaObject" === $targetDocument->reflClass->name) {
-            return $this->getMediaCriteria();
+            return $this->getMultimediaObjectCriteria();
         }
         if ("Pumukit\SchemaBundle\Document\Series" === $targetDocument->reflClass->name) {
             return $this->getSeriesCriteria();
