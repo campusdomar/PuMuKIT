@@ -19,7 +19,7 @@ class PersonalFilter extends WebTVFilter
     private function getMultimediaObjectCriteria()
     {
         $criteria = [];
-        $criteria_portal = $this->getMediaCriteria();
+        $criteria_portal = parent::getMultimediaObjectCriteria();
         $criteria_backoffice = [];
         if (isset($this->parameters['people']) && isset($this->parameters['groups'])) {
             $criteria_backoffice['$or'] = [
