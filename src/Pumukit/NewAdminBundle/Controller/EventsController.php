@@ -99,7 +99,7 @@ class EventsController extends Controller implements NewAdminController
         }
 
         $multimediaObject = $factoryService->createMultimediaObject($series, true, $this->getUser());
-        $multimediaObject->setIsLive(true);
+        $multimediaObject->setType(MultimediaObject::TYPE_LIVE);
 
         $mmoPicService = $this->get('pumukitschema.mmspic');
 
@@ -382,7 +382,7 @@ class EventsController extends Controller implements NewAdminController
         $factoryService = $this->container->get('pumukitschema.factory');
 
         $cloneMultimediaObject = $factoryService->cloneMultimediaObject($multimediaObject);
-        $cloneMultimediaObject->setIsLive(true);
+        $cloneMultimediaObject->setType(MultimediaObject::TYPE_LIVE);
 
         $dm->persist($cloneMultimediaObject);
 
