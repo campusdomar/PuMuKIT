@@ -128,8 +128,8 @@ EOT
         $tagsInMMAggResult = $mmColl->aggregate(array(
             array('$match' => array(
                 'type' => ['$ne' => MultimediaObject::TYPE_LIVE],
-                'status' => array('$ne' => MultimediaObject::STATUS_PROTOTYPE
-                )
+                'status' => array('$ne' => MultimediaObject::STATUS_PROTOTYPE,
+                ),
             )),
             array('$project' => array('_id' => '$tags.cod')),
             array('$unwind' => '$_id'),

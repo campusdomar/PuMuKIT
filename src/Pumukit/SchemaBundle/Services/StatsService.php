@@ -26,7 +26,7 @@ class StatsService
         $pipeline = array();
         $criteria = array(
             'type' => ['$ne' => MultimediaObject::TYPE_LIVE],
-            'status' => array('$ne' => MultimediaObject::STATUS_PROTOTYPE)
+            'status' => array('$ne' => MultimediaObject::STATUS_PROTOTYPE),
         );
         $pipeline[] = array('$match' => $criteria);
 
