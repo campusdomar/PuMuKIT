@@ -37,7 +37,7 @@ class FilterListener
     public function onKernelController(FilterControllerEvent $event)
     {
         $canBeActivated = $this->filterService->checkFilterActivation($event);
-        if (!$canBeActivate) {
+        if (!$canBeActivated) {
             return;
         }
         list($controller, $routeParams) = $this->filterService->getEventData($event);
