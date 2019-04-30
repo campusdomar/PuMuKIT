@@ -95,7 +95,7 @@ class FilterListener
         if (!$loggedInUser) {
             return;
         }
-        if (!$this->dm->getFilterCollection()->isEnabled('personal')) {
+        if ($this->dm->getFilterCollection()->isEnabled('personal')) {
             return;
         }
         $filter = $this->dm->getFilterCollection()->enable('personal');
