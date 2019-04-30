@@ -30,7 +30,7 @@ class WebTVFilter extends BsonFilter
     /**
      * @return array
      */
-    protected function getMediaCriteria()
+    protected function getMultimediaObjectCriteria()
     {
         $criteria = [];
         if ($this->hasParameter('pub_channel_tag')) {
