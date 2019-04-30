@@ -16,7 +16,7 @@ class PersonalFilter extends WebTVFilter
         }
     }
 
-    private function getMultimediaObjectCriteria()
+    protected function getMultimediaObjectCriteria()
     {
         $criteria = [];
         $criteria_portal = parent::getMultimediaObjectCriteria();
