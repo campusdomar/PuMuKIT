@@ -111,6 +111,8 @@ class OpencastImportService
                 $multimediaObject->setProperty('paellalayout', 'slide_professor');
             }
 
+            $galicasterProperties = $this->opencastClient->getGalicasterProperties($mediaPackageId);
+            $multimediaObject->setProperty('galicaster', $galicasterProperties['galicaster']);
             $recDate = $this->getMediaPackageField($mediaPackage, 'start');
             if ($recDate) {
                 $multimediaObject->setRecordDate($recDate);

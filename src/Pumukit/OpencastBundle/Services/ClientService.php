@@ -891,7 +891,8 @@ class ClientService
             }
             $response = $this->request($path);
         } else {
-            $response = array('var' => file_get_contents($url));
+            $path = parse_url($url, PHP_URL_PATH);
+            $response = array('var' => file_get_contents($this->url.$path));
         }
 
         $start = strrpos($response['var'], '<dcterms:spatial>');
@@ -933,5 +934,38 @@ class ClientService
         }
 
         throw new \Exception("Cant't recognize ['rest'][0]['version'] from /info/components.json");
+    }
+
+    /**
+     *
+     * @return array
+     */
+    public function getGalicasterProperties($id)
+    {
+        $url = sprintf('/admin-ng/event/%s/asset/attachment/attachments.json', $id);
+        $output = $this->request($url);
+        if (!$output) {
+            throw new \Exception(sprintf('Can\'t access %s', $url));
+        }
+        $attachments = $this->decodeJson($output['var']);
+        $galicasterPropertiesUrl = null;
+        foreach ($attachments as $attachment){
+            if($attachment['id'] != 'galicaster-properties'){
+                continue;
+            }
+            $galicasterPropertiesUrl = $attachment['url'];
+            break;
+        }
+        if(!$galicasterPropertiesUrl){
+            throw new \Exception(sprintf('No \'galicaster-properties\' id exist on attachments list from %s', $url));
+        }
+        $propertiesUrl = parse_url($galicasterPropertiesUrl, PHP_URL_PATH);
+        $galicasterPropertiesUrl = $propertiesUrl;
+        $output = $this->request($galicasterPropertiesUrl);
+        if (!$output) {
+            throw new \Exception(sprintf('Can\'t access url for galicaster properties: %s', $galicasterPropertiesUrl));
+        }
+        $galicasterProperties = $this->decodeJson($output['var']);
+        return $galicasterProperties;
     }
 }
