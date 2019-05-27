@@ -119,6 +119,20 @@ class OpencastImportService
             $multimediaObject = $multimediaObjectRepo->find($multimediaObjectId);
         }
 
+        //We try to initialize the tracks before anything to prevent importing if any tracks have wrong data
+        $media = $this->getMediaPackageField($mediaPackage, 'media');
+        $opencastTracks = $this->getMediaPackageField($media, 'track');
+        $language = $this->getMediaPackageLanguage($mediaPackage);
+
+        if (!isset($opencastTracks[0])) {
+            // NOTE: Single track
+            $opencastTracks = array($opencastTracks);
+        }
+        $tracks = array();
+        foreach ($opencastTracks as $opencastTrack) {
+            $tracks[] = $this->createTrackFromOpencastTrack($opencastTrack, $language);
+        }
+
         // - If the id does not exist, create a new mmobj
         if (null === $multimediaObject) {
             $series = $this->seriesImportService->importSeries($mediaPackage, $loggedInUser);
@@ -151,6 +165,11 @@ class OpencastImportService
             }
         }
 
+        $multimediaObject->setProperty('opencastlanguage', $language);
+        foreach ($tracks as $track) {
+            $this->trackService->addTrackToMultimediaObject($multimediaObject, $track, false);
+        }
+
         if (isset($galicasterProperties['galicaster'])) {
             $multimediaObject->setProperty('galicaster', $galicasterProperties['galicaster']);
         }
@@ -174,22 +193,6 @@ class OpencastImportService
         $recDate = $this->getMediaPackageField($mediaPackage, 'start');
         if ($recDate) {
             $multimediaObject->setRecordDate($recDate);
-        }
-
-        $language = $this->getMediaPackageLanguage($mediaPackage);
-        $multimediaObject->setProperty('opencastlanguage', $language);
-
-        $media = $this->getMediaPackageField($mediaPackage, 'media');
-        $tracks = $this->getMediaPackageField($media, 'track');
-        if (isset($tracks[0])) {
-            // NOTE: Multiple tracks
-            $limit = count($tracks);
-            for ($i = 0; $i < $limit; ++$i) {
-                $track = $this->createTrackFromMediaPackage($mediaPackage, $multimediaObject, $i);
-            }
-        } else {
-            // NOTE: Single track
-            $track = $this->createTrackFromMediaPackage($mediaPackage, $multimediaObject);
         }
 
         $attachments = $this->getMediaPackageField($mediaPackage, 'attachments');
@@ -282,23 +285,30 @@ class OpencastImportService
         } else {
             throw new \Exception(sprintf("No media track info in MP '%s'", $multimediaObject->getProperty('opencast')));
         }
-
-        $track = new Track();
-
         $language = $this->getMediaPackageLanguage($mediaPackage, $defaultLanguage);
+
+        $track = $this->createTrackFromOpencastTrack($opencastTrack, $language, $trackTags);
+        $multimediaObject->setDuration($track->getDuration());
+        $this->trackService->addTrackToMultimediaObject($multimediaObject, $track, false);
+
+        return $track;
+    }
+
+    public function createTrackFromOpencastTrack($opencastTrack, $language, $trackTags = array('display'))
+    {
+        $track = new Track();
         $track->setLanguage($language);
 
         $tagsArray = $this->getMediaPackageField($opencastTrack, 'tags');
         $tags = $this->getMediaPackageField($tagsArray, 'tag');
-        if (isset($tags[0])) {
-            // NOTE: Multiple tags
-            $limit = count($tags);
-            for ($i = 0; $i < $limit; ++$i) {
-                $track = $this->addTagToTrack($tags, $track, $i);
-            }
-        } else {
+        if (!isset($tags[0])) {
             // NOTE: Single tag
-            $track = $this->addTagToTrack($tags, $track);
+            $tags = array($tags);
+        }
+
+        $limit = count($tags);
+        for ($i = 0; $i < $limit; ++$i) {
+            $track = $this->addTagToTrack($tags, $track, $i);
         }
 
         $url = $this->getMediaPackageField($opencastTrack, 'url');
@@ -355,10 +365,6 @@ class OpencastImportService
         if ($track->getPath()) {
             $this->inspectionService->autocompleteTrack($track);
         }
-
-        $multimediaObject->setDuration($track->getDuration());
-
-        $this->trackService->addTrackToMultimediaObject($multimediaObject, $track, false);
 
         return $track;
     }
