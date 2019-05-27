@@ -322,6 +322,7 @@ class ClientService
     {
         // NOTE: BC for OC 1.4 to 1.6
         $output = $this->request('/episode/episode.json?id='.$id, array(), 'GET', true);
+        // TODO: When the above url returns 404, THIS FAILS ALWAYS!! Since it's a GET request, the request() function throws an exception, and the lines below are never executed
         if (200 !== $output['status']) {
             // NOTE: BC for OC 2.x
             $output = $this->request('/archive/episode.json?id='.$id, array(), 'GET', true);
@@ -957,7 +958,8 @@ class ClientService
             break;
         }
         if(!$galicasterPropertiesUrl){
-            throw new \Exception(sprintf('No \'galicaster-properties\' id exist on attachments list from %s', $url));
+            $this->logger->warning(sprintf('No \'galicaster-properties\' id exist on attachments list from %s', $url));
+            return array();
         }
         $propertiesUrl = parse_url($galicasterPropertiesUrl, PHP_URL_PATH);
         $galicasterPropertiesUrl = $propertiesUrl;

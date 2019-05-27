@@ -3,6 +3,9 @@
 namespace Pumukit\OpencastBundle\Services;
 
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use Symfony\Component\Translation\TranslatorInterface;
+
 use Pumukit\SchemaBundle\Services\FactoryService;
 use Pumukit\SchemaBundle\Services\TrackService;
 use Pumukit\SchemaBundle\Services\TagService;
@@ -28,11 +31,31 @@ class OpencastImportService
     private $seriesImportService;
     private $customLanguages;
 
-    public function __construct(DocumentManager $documentManager, FactoryService $factoryService, TrackService $trackService, TagService $tagService, MultimediaObjectService $mmsService, ClientService $opencastClient, OpencastService $opencastService, InspectionServiceInterface $inspectionService, array $otherLocales, $defaultTagImported, SeriesImportService $seriesImportService, array $customLanguages)
+    /**
+     * OpencastImportService constructor.
+     *
+     * @param DocumentManager     $documentManager
+     * @param FactoryService      $factoryService
+     * @param LoggerInterface     $logger
+     * @param TranslatorInterface $translator
+     * @param TrackService        $trackService
+     * @param TagService          $tagService
+     * @param MultimediaObjectService $mmsService
+     * @param ClientService       $opencastClient
+     * @param OpencastService     $opencastService
+     * @param InspectionServiceInterface $inspectionService
+     * @param array $otherLocales
+     * @param $defaultTagImported
+     * @param SeriesImportService $seriesImportService
+     * @param array $customLanguages
+     */
+    public function __construct(DocumentManager $documentManager, FactoryService $factoryService, LoggerInterface $logger, TranslatorInterface $translator, TrackService $trackService, TagService $tagService, MultimediaObjectService $mmsService, ClientService $opencastClient, OpencastService $opencastService, InspectionServiceInterface $inspectionService, array $otherLocales, $defaultTagImported, SeriesImportService $seriesImportService, array $customLanguages)
     {
         $this->opencastClient = $opencastClient;
         $this->dm = $documentManager;
         $this->factoryService = $factoryService;
+        $this->logger = $logger;
+        $this->translator = $translator;
         $this->trackService = $trackService;
         $this->tagService = $tagService;
         $this->mmsService = $mmsService;
@@ -74,94 +97,125 @@ class OpencastImportService
      */
     public function importRecordingFromMediaPackage($mediaPackage, $invert = false, User $loggedInUser = null)
     {
-        $series = $this->seriesImportService->importSeries($mediaPackage, $loggedInUser);
-
         $multimediaObject = null;
-        $multimediaobjectsRepo = $this->dm->getRepository('PumukitSchemaBundle:MultimediaObject');
+        $multimediaObjectRepo = $this->dm->getRepository('PumukitSchemaBundle:MultimediaObject');
         $mediaPackageId = $this->getMediaPackageField($mediaPackage, 'id');
         if ($mediaPackageId) {
-            $multimediaObject = $multimediaobjectsRepo->findOneBy(array('properties.opencast' => $mediaPackageId));
+            $multimediaObject = $multimediaObjectRepo->findOneBy(array('properties.opencast' => $mediaPackageId));
         }
 
-        if ($multimediaObject) {
-            $this->syncTracks($multimediaObject, $mediaPackage);
-            $this->syncPics($multimediaObject, $mediaPackage);
+        if (null !== $multimediaObject){
+            $this->logger->error(
+                __CLASS__.' ['.__FUNCTION__.'] '
+                .sprintf('There is already a multimediaObject(%s) linked to this Opencast Id: %s. Mediapackage not imported', $multimediaObject->getId(), $mediaPackageId)
+            );
+            // NOTE: If the property exist, should we check if the mmobj is empty, and then use it anyways?
+            return;
+        }
 
-            $multimediaObject = $this->mmsService->updateMultimediaObject($multimediaObject);
-        } else {
+        //Check if mp has Galicaster properties and look for an mmobj with the given id.
+        $galicasterProperties = $this->opencastClient->getGalicasterProperties($mediaPackageId);
+        if(isset($galicasterProperties['galicaster']['properties']['pmk_mmobj'])){
+            $multimediaObjectId = $galicasterProperties['galicaster']['properties']['pmk_mmobj'];
+            $multimediaObject = $multimediaObjectRepo->find($multimediaObjectId);
+        }
+
+        // - If the id does not exist, create a new mmobj
+        if (null === $multimediaObject){
+            $series = $this->seriesImportService->importSeries($mediaPackage, $loggedInUser);
+
             $multimediaObject = $this->factoryService->createMultimediaObject($series, true, $loggedInUser);
             $multimediaObject->setSeries($series);
 
             $title = $this->getMediaPackageField($mediaPackage, 'title');
+
             if ($title) {
                 $multimediaObject->setTitle($title);
             }
-
-            $properties = $this->getMediaPackageField($mediaPackage, 'id');
-            if ($properties) {
-                $multimediaObject->setProperty('opencast', $properties);
-                $multimediaObject->setProperty('opencasturl', $this->opencastClient->getPlayerUrl().'?mode=embed&id='.$properties);
-            }
-
-            if (boolval($invert)) {
-                $multimediaObject->setProperty('opencastinvert', true);
-                $multimediaObject->setProperty('paellalayout', 'professor_slide');
-            } else {
-                $multimediaObject->setProperty('opencastinvert', false);
-                $multimediaObject->setProperty('paellalayout', 'slide_professor');
-            }
-
-            $galicasterProperties = $this->opencastClient->getGalicasterProperties($mediaPackageId);
-            $multimediaObject->setProperty('galicaster', $galicasterProperties['galicaster']);
-            $recDate = $this->getMediaPackageField($mediaPackage, 'start');
-            if ($recDate) {
-                $multimediaObject->setRecordDate($recDate);
-            }
-
-            $language = $this->getMediaPackageLanguage($mediaPackage);
-            $multimediaObject->setProperty('opencastlanguage', $language);
 
             foreach ($this->otherLocales as $locale) {
                 $multimediaObject->setTitle($title, $locale);
             }
 
-            $media = $this->getMediaPackageField($mediaPackage, 'media');
-            $tracks = $this->getMediaPackageField($media, 'track');
-            if (isset($tracks[0])) {
-                // NOTE: Multiple tracks
-                $limit = count($tracks);
-                for ($i = 0; $i < $limit; ++$i) {
-                    $track = $this->createTrackFromMediaPackage($mediaPackage, $multimediaObject, $i);
-                }
-            } else {
-                // NOTE: Single track
-                $track = $this->createTrackFromMediaPackage($mediaPackage, $multimediaObject);
+        // -- If it exist, but already has tracks, clone the mmobj, but clear tracks/attachments NOTE: What about tags?
+        } else if (count($multimediaObject->getTracks()) > 0) {
+            $newMultimediaObject = $this->factoryService->cloneMultimediaObject($multimediaObject, $multimediaObject->getSeries(), false);
+            // TODO: Translate?
+            $commentsText = $this->translator->trans(
+                'From Opencast. Used "%title%" (%id%) as template.',
+                array('%title%' => $multimediaObject->getTitle(), '%id%' => $multimediaObject->getId())
+            );
+            $multimediaObject = $newMultimediaObject;
+            $multimediaObject->setComments($commentsText);
+            foreach($multimediaObject->getTracks() as $track){
+                $multimediaObject->removeTrack($track);
             }
+        }
 
-            $attachments = $this->getMediaPackageField($mediaPackage, 'attachments');
-            $attachment = $this->getMediaPackageField($attachments, 'attachment');
-            if (isset($attachment[0])) {
-                $limit = count($attachment);
-                for ($j = 0; $j < $limit; ++$j) {
-                    $multimediaObject = $this->createPicFromAttachment($attachment, $multimediaObject, $j);
-                }
-            } else {
-                $multimediaObject = $this->createPicFromAttachment($attachment, $multimediaObject);
+        if(isset($galicasterProperties['galicaster'])){
+            $multimediaObject->setProperty('galicaster', $galicasterProperties['galicaster']);
+        }
+
+        // -- Then, add opencast object to mmobj
+        $properties = $this->getMediaPackageField($mediaPackage, 'id');
+        if ($properties) {
+            $multimediaObject->setProperty('opencast', $properties);
+            $multimediaObject->setProperty('opencasturl', $this->opencastClient->getPlayerUrl().'?mode=embed&id='.$properties);
+        }
+
+        // NOTE: Should this be added to the already created mmobj? I think not.
+        if (boolval($invert)) {
+            $multimediaObject->setProperty('opencastinvert', true);
+            $multimediaObject->setProperty('paellalayout', 'professor_slide');
+        } else {
+            $multimediaObject->setProperty('opencastinvert', false);
+            $multimediaObject->setProperty('paellalayout', 'slide_professor');
+        }
+
+        $recDate = $this->getMediaPackageField($mediaPackage, 'start');
+        if ($recDate) {
+            $multimediaObject->setRecordDate($recDate);
+        }
+
+        $language = $this->getMediaPackageLanguage($mediaPackage);
+        $multimediaObject->setProperty('opencastlanguage', $language);
+
+        $media = $this->getMediaPackageField($mediaPackage, 'media');
+        $tracks = $this->getMediaPackageField($media, 'track');
+        if (isset($tracks[0])) {
+            // NOTE: Multiple tracks
+            $limit = count($tracks);
+            for ($i = 0; $i < $limit; ++$i) {
+                $track = $this->createTrackFromMediaPackage($mediaPackage, $multimediaObject, $i);
             }
+        } else {
+            // NOTE: Single track
+            $track = $this->createTrackFromMediaPackage($mediaPackage, $multimediaObject);
+        }
 
-            $tagRepo = $this->dm->getRepository('PumukitSchemaBundle:Tag');
-            $opencastTag = $tagRepo->findOneByCod($this->defaultTagImported);
-            if ($opencastTag) {
-                $tagService = $this->tagService;
-                $tagAdded = $tagService->addTagToMultimediaObject($multimediaObject, $opencastTag->getId());
+        $attachments = $this->getMediaPackageField($mediaPackage, 'attachments');
+        $attachment = $this->getMediaPackageField($attachments, 'attachment');
+        if (isset($attachment[0])) {
+            $limit = count($attachment);
+            for ($j = 0; $j < $limit; ++$j) {
+                $multimediaObject = $this->createPicFromAttachment($attachment, $multimediaObject, $j);
             }
+        } else {
+            $multimediaObject = $this->createPicFromAttachment($attachment, $multimediaObject);
+        }
 
-            $multimediaObject = $this->mmsService->updateMultimediaObject($multimediaObject);
+        $tagRepo = $this->dm->getRepository('PumukitSchemaBundle:Tag');
+        $opencastTag = $tagRepo->findOneByCod($this->defaultTagImported);
+        if ($opencastTag) {
+            $tagService = $this->tagService;
+            $tagAdded = $tagService->addTagToMultimediaObject($multimediaObject, $opencastTag->getId());
+        }
 
-            if ($track) {
-                $opencastUrls = $this->getOpencastUrls($mediaPackageId);
-                $this->opencastService->genAutoSbs($multimediaObject, $opencastUrls);
-            }
+        $multimediaObject = $this->mmsService->updateMultimediaObject($multimediaObject);
+
+        if ($track) {
+            $opencastUrls = $this->getOpencastUrls($mediaPackageId);
+            $this->opencastService->genAutoSbs($multimediaObject, $opencastUrls);
         }
     }
 
