@@ -181,6 +181,7 @@ class OpencastService
         if ($opencastUrls) {
             $vars += array('ocurls' => $opencastUrls);
         }
+
         return $this->jobService->addJob($path, $this->sbsProfileName, 2, $multimediaObject, $language, array(), $vars);
     }
 

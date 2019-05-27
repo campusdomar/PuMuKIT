@@ -5,7 +5,6 @@ namespace Pumukit\OpencastBundle\Services;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Symfony\Component\Translation\TranslatorInterface;
-
 use Pumukit\SchemaBundle\Services\FactoryService;
 use Pumukit\SchemaBundle\Services\TrackService;
 use Pumukit\SchemaBundle\Services\TagService;
@@ -34,20 +33,20 @@ class OpencastImportService
     /**
      * OpencastImportService constructor.
      *
-     * @param DocumentManager     $documentManager
-     * @param FactoryService      $factoryService
-     * @param LoggerInterface     $logger
-     * @param TranslatorInterface $translator
-     * @param TrackService        $trackService
-     * @param TagService          $tagService
-     * @param MultimediaObjectService $mmsService
-     * @param ClientService       $opencastClient
-     * @param OpencastService     $opencastService
+     * @param DocumentManager            $documentManager
+     * @param FactoryService             $factoryService
+     * @param LoggerInterface            $logger
+     * @param TranslatorInterface        $translator
+     * @param TrackService               $trackService
+     * @param TagService                 $tagService
+     * @param MultimediaObjectService    $mmsService
+     * @param ClientService              $opencastClient
+     * @param OpencastService            $opencastService
      * @param InspectionServiceInterface $inspectionService
-     * @param array $otherLocales
+     * @param array                      $otherLocales
      * @param $defaultTagImported
      * @param SeriesImportService $seriesImportService
-     * @param array $customLanguages
+     * @param array               $customLanguages
      */
     public function __construct(DocumentManager $documentManager, FactoryService $factoryService, LoggerInterface $logger, TranslatorInterface $translator, TrackService $trackService, TagService $tagService, MultimediaObjectService $mmsService, ClientService $opencastClient, OpencastService $opencastService, InspectionServiceInterface $inspectionService, array $otherLocales, $defaultTagImported, SeriesImportService $seriesImportService, array $customLanguages)
     {
@@ -104,7 +103,7 @@ class OpencastImportService
             $multimediaObject = $multimediaObjectRepo->findOneBy(array('properties.opencast' => $mediaPackageId));
         }
 
-        if (null !== $multimediaObject){
+        if (null !== $multimediaObject) {
             $this->logger->error(
                 __CLASS__.' ['.__FUNCTION__.'] '
                 .sprintf('There is already a multimediaObject(%s) linked to this Opencast Id: %s. Mediapackage not imported', $multimediaObject->getId(), $mediaPackageId)
@@ -115,13 +114,13 @@ class OpencastImportService
 
         //Check if mp has Galicaster properties and look for an mmobj with the given id.
         $galicasterProperties = $this->opencastClient->getGalicasterProperties($mediaPackageId);
-        if(isset($galicasterProperties['galicaster']['properties']['pmk_mmobj'])){
+        if (isset($galicasterProperties['galicaster']['properties']['pmk_mmobj'])) {
             $multimediaObjectId = $galicasterProperties['galicaster']['properties']['pmk_mmobj'];
             $multimediaObject = $multimediaObjectRepo->find($multimediaObjectId);
         }
 
         // - If the id does not exist, create a new mmobj
-        if (null === $multimediaObject){
+        if (null === $multimediaObject) {
             $series = $this->seriesImportService->importSeries($mediaPackage, $loggedInUser);
 
             $multimediaObject = $this->factoryService->createMultimediaObject($series, true, $loggedInUser);
@@ -138,7 +137,7 @@ class OpencastImportService
             }
 
         // -- If it exist, but already has tracks, clone the mmobj, but clear tracks/attachments NOTE: What about tags?
-        } else if (count($multimediaObject->getTracks()) > 0) {
+        } elseif (count($multimediaObject->getTracks()) > 0) {
             $newMultimediaObject = $this->factoryService->cloneMultimediaObject($multimediaObject, $multimediaObject->getSeries(), false);
             // TODO: Translate?
             $commentsText = $this->translator->trans(
@@ -147,12 +146,12 @@ class OpencastImportService
             );
             $multimediaObject = $newMultimediaObject;
             $multimediaObject->setComments($commentsText);
-            foreach($multimediaObject->getTracks() as $track){
+            foreach ($multimediaObject->getTracks() as $track) {
                 $multimediaObject->removeTrack($track);
             }
         }
 
-        if(isset($galicasterProperties['galicaster'])){
+        if (isset($galicasterProperties['galicaster'])) {
             $multimediaObject->setProperty('galicaster', $galicasterProperties['galicaster']);
         }
 

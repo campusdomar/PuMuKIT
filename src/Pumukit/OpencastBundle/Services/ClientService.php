@@ -938,7 +938,6 @@ class ClientService
     }
 
     /**
-     *
      * @return array
      */
     public function getGalicasterProperties($id)
@@ -950,15 +949,16 @@ class ClientService
         }
         $attachments = $this->decodeJson($output['var']);
         $galicasterPropertiesUrl = null;
-        foreach ($attachments as $attachment){
-            if($attachment['id'] != 'galicaster-properties'){
+        foreach ($attachments as $attachment) {
+            if ($attachment['id'] != 'galicaster-properties') {
                 continue;
             }
             $galicasterPropertiesUrl = $attachment['url'];
             break;
         }
-        if(!$galicasterPropertiesUrl){
+        if (!$galicasterPropertiesUrl) {
             $this->logger->warning(sprintf('No \'galicaster-properties\' id exist on attachments list from %s', $url));
+
             return array();
         }
         $propertiesUrl = parse_url($galicasterPropertiesUrl, PHP_URL_PATH);
@@ -968,6 +968,7 @@ class ClientService
             throw new \Exception(sprintf('Can\'t access url for galicaster properties: %s', $galicasterPropertiesUrl));
         }
         $galicasterProperties = $this->decodeJson($output['var']);
+
         return $galicasterProperties;
     }
 }
