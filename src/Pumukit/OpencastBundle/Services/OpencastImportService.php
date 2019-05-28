@@ -163,6 +163,9 @@ class OpencastImportService
             foreach ($multimediaObject->getTracks() as $track) {
                 $multimediaObject->removeTrack($track);
             }
+            foreach ($multimediaObject->getPics() as $pic) {
+                $multimediaObject->removePic($pic);
+            }
         }
 
         $multimediaObject->setProperty('opencastlanguage', $language);
