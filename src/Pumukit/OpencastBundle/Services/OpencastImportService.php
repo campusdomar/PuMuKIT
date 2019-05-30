@@ -429,7 +429,7 @@ class OpencastImportService
             }
         }
 
-        return ($defaultLanguage !== null) ? $defaultLanguage : \Locale::getDefault();
+        return (null !== $defaultLanguage) ? $defaultLanguage : \Locale::getDefault();
     }
 
     public function importTracksFromMediaPackage($mediaPackage, MultimediaObject $multimediaObject, $trackTags)
