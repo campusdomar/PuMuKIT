@@ -322,6 +322,7 @@ class ClientService
     {
         // NOTE: BC for OC 1.4 to 1.6
         $output = $this->request('/episode/episode.json?id='.$id, array(), 'GET', true);
+        // TODO: When the above url returns 404, THIS FAILS ALWAYS!! Since it's a GET request, the request() function throws an exception, and the lines below are never executed
         if (200 !== $output['status']) {
             // NOTE: BC for OC 2.x
             $output = $this->request('/archive/episode.json?id='.$id, array(), 'GET', true);
@@ -933,5 +934,40 @@ class ClientService
         }
 
         throw new \Exception("Cant't recognize ['rest'][0]['version'] from /info/components.json");
+    }
+
+    /**
+     * @return array
+     */
+    public function getGalicasterProperties($id)
+    {
+        $url = sprintf('/admin-ng/event/%s/asset/attachment/attachments.json', $id);
+        $output = $this->request($url);
+        if (!$output) {
+            throw new \Exception(sprintf('Can\'t access %s', $url));
+        }
+        $attachments = $this->decodeJson($output['var']);
+        $galicasterPropertiesUrl = null;
+        foreach ($attachments as $attachment) {
+            if ($attachment['id'] != 'galicaster-properties') {
+                continue;
+            }
+            $galicasterPropertiesUrl = $attachment['url'];
+            break;
+        }
+        if (!$galicasterPropertiesUrl) {
+            $this->logger->warning(sprintf('No \'galicaster-properties\' id exist on attachments list from %s', $url));
+
+            return array();
+        }
+        $propertiesUrl = parse_url($galicasterPropertiesUrl, PHP_URL_PATH);
+        $galicasterPropertiesUrl = $propertiesUrl;
+        $output = $this->request($galicasterPropertiesUrl);
+        if (!$output) {
+            throw new \Exception(sprintf('Can\'t access url for galicaster properties: %s', $galicasterPropertiesUrl));
+        }
+        $galicasterProperties = $this->decodeJson($output['var']);
+
+        return $galicasterProperties;
     }
 }

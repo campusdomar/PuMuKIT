@@ -85,6 +85,8 @@ class PumukitOpencastExtension extends Extension
               ->register('pumukit_opencast.import', "Pumukit\OpencastBundle\Services\OpencastImportService")
               ->addArgument(new Reference('doctrine_mongodb.odm.document_manager'))
               ->addArgument(new Reference('pumukitschema.factory'))
+              ->addArgument(new Reference('logger'))
+              ->addArgument(new Reference('translator'))
               ->addArgument(new Reference('pumukitschema.track'))
               ->addArgument(new Reference('pumukitschema.tag'))
               ->addArgument(new Reference('pumukitschema.multimedia_object'))

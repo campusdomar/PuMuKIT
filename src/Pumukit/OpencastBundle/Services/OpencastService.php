@@ -173,7 +173,7 @@ class OpencastService
         }
 
         $track = $tracks[0];
-        $path = $this->getPath($track->getUrl());
+        $path = $this->getPath($track->getPath());
 
         $language = $multimediaObject->getProperty('opencastlanguage') ? strtolower($multimediaObject->getProperty('opencastlanguage')) : \Locale::getDefault();
 

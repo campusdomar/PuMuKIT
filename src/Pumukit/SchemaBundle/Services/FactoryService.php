@@ -550,7 +550,7 @@ class FactoryService
      *
      * @throws \Exception
      */
-    public function cloneMultimediaObject(MultimediaObject $src, Series $series = null)
+    public function cloneMultimediaObject(MultimediaObject $src, Series $series = null, $addClonedToTitle = true)
     {
         $new = new MultimediaObject();
         $new->setLocale($this->locales[0]);
@@ -561,12 +561,15 @@ class FactoryService
         }
         $new->setType($src->getType());
 
-        $i18nTitles = array();
-        foreach ($src->getI18nTitle() as $key => $val) {
-            $string = $this->translator->trans('cloned', array(), null, $key);
-            $i18nTitles[$key] = $val.' ('.$string.')';
+        $new->setI18nTitle($src->getI18nTitle());
+        if ($addClonedToTitle === true) {
+            $i18nTitles = array();
+            foreach ($src->getI18nTitle() as $key => $val) {
+                $string = $this->translator->trans('cloned', array(), null, $key);
+                $i18nTitles[$key] = $val.' ('.$string.')';
+            }
+            $new->setI18nTitle($i18nTitles);
         }
-        $new->setI18nTitle($i18nTitles);
         $new->setI18nSubtitle($src->getI18nSubtitle());
         $new->setI18nDescription($src->getI18nDescription());
         $new->setI18nLine2($src->getI18nLine2());
