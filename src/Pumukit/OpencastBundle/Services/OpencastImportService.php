@@ -104,11 +104,9 @@ class OpencastImportService
         }
 
         if (null !== $multimediaObject) {
-            $this->logger->error(
-                __CLASS__.' ['.__FUNCTION__.'] '
-                .sprintf('There is already a multimediaObject(%s) linked to this Opencast Id: %s. Mediapackage not imported', $multimediaObject->getId(), $mediaPackageId)
-            );
-            // NOTE: If the property exist, should we check if the mmobj is empty, and then use it anyways?
+            $this->syncTracks($multimediaObject, $mediaPackage);
+            $this->syncPics($multimediaObject, $mediaPackage);
+            $multimediaObject = $this->mmsService->updateMultimediaObject($multimediaObject);
             return;
         }
 
