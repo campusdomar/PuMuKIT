@@ -153,10 +153,6 @@
         <source>{0} Media Packages |{1} Media Package|]1,Inf] Media Packages</source>
         <target>{0} Media Packages |{1} Media Package|]1,Inf] Media Packages</target>
       </trans-unit>
-      <trans-unit id="79dd26f1cbd348dd9db2916086602e6f" resname='From Opencast. Used "%title%" (%id%) as template.'>
-        <source>From Opencast. Used "%title%" (%id%) as template.</source>
-        <target>De Opencast. Usado "%title%" (%id%) como plantilla.</target>
-      </trans-unit>
     </body>
   </file>
 </xliff>
