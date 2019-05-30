@@ -892,8 +892,7 @@ class ClientService
             }
             $response = $this->request($path);
         } else {
-            $path = parse_url($url, PHP_URL_PATH);
-            $response = array('var' => file_get_contents($this->url.$path));
+            $response = array('var' => file_get_contents($url));
         }
 
         $start = strrpos($response['var'], '<dcterms:spatial>');
