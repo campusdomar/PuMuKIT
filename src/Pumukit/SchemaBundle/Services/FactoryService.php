@@ -562,7 +562,7 @@ class FactoryService
         $new->setType($src->getType());
 
         $new->setI18nTitle($src->getI18nTitle());
-        if ($addClonedToTitle === true) {
+        if (true === $addClonedToTitle) {
             $i18nTitles = array();
             foreach ($src->getI18nTitle() as $key => $val) {
                 $string = $this->translator->trans('cloned', array(), null, $key);

@@ -949,7 +949,7 @@ class ClientService
         $attachments = $this->decodeJson($output['var']);
         $galicasterPropertiesUrl = null;
         foreach ($attachments as $attachment) {
-            if ($attachment['id'] != 'galicaster-properties') {
+            if ('galicaster-properties' != $attachment['id']) {
                 continue;
             }
             $galicasterPropertiesUrl = $attachment['url'];
