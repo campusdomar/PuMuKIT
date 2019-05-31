@@ -153,6 +153,8 @@ class MultimediaObjectController extends PlayerController implements WebTVContro
             $limit
         );
 
+        $fullMagicUrl = $this->getMagicUrlConfiguration();
+
         return [
             'series' => $series,
             'multimediaObjects' => $multimediaObjects,
