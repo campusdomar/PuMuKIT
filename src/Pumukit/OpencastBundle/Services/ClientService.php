@@ -942,7 +942,7 @@ class ClientService
     public function getGalicasterProperties($id)
     {
         $url = sprintf('/admin-ng/event/%s/asset/attachment/attachments.json', $id);
-        $output = $this->request($url);
+        $output = $this->request($url, array(), 'GET', true);
         if (!$output) {
             throw new \Exception(sprintf('Can\'t access %s', $url));
         }
