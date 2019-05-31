@@ -107,6 +107,7 @@ class OpencastImportService
             $this->syncTracks($multimediaObject, $mediaPackage);
             $this->syncPics($multimediaObject, $mediaPackage);
             $multimediaObject = $this->mmsService->updateMultimediaObject($multimediaObject);
+
             return;
         }
 
