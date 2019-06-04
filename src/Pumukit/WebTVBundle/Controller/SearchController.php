@@ -12,7 +12,6 @@ use Pagerfanta\Pagerfanta;
 use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Tag;
-use Pumukit\SchemaBundle\Utils\Pagerfanta\Adapter\DoctrineODMMongoDBAdapter;
 use Pumukit\SchemaBundle\Utils\Mongo\TextIndexUtils;
 use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
 
@@ -170,19 +169,16 @@ class SearchController extends Controller implements WebTVControllerInterface
      * @param $objects
      * @param $page
      *
-     * @return Pagerfanta
+     * @return mixed|Pagerfanta
+     *
+     * @throws \Exception
      */
     protected function createPager($objects, $page)
     {
         $limit = $this->container->getParameter('limit_objs_search');
+        $pager = $this->get('pumukit_web_tv.pagination_service')->createDoctrineODMMongoDBAdapter($objects, $page, $limit);
 
-        $adapter = new DoctrineODMMongoDBAdapter($objects);
-        $pagerfanta = new Pagerfanta($adapter);
-        $pagerfanta->setMaxPerPage($limit);
-        $pagerfanta->setNormalizeOutOfRangePages(true);
-        $pagerfanta->setCurrentPage($page);
-
-        return $pagerfanta;
+        return $pager;
     }
 
     /**

@@ -6,7 +6,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Pagerfanta\Adapter\DoctrineODMMongoDBAdapter;
 use Pagerfanta\Pagerfanta;
 use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
@@ -87,20 +86,16 @@ class SeriesController extends Controller implements WebTVControllerInterface
      * @param $objects
      * @param $page
      *
-     * @return Pagerfanta
+     * @return mixed|Pagerfanta
+     *
+     * @throws \Exception
      */
     private function createPager($objects, $page)
     {
         $limit = $this->container->getParameter('limit_objs_series');
 
-        if (0 == $limit) {
-            return $objects->getQuery()->execute();
-        }
-        $adapter = new DoctrineODMMongoDBAdapter($objects);
-        $pagerfanta = new Pagerfanta($adapter);
-        $pagerfanta->setMaxPerPage($limit);
-        $pagerfanta->setCurrentPage($page);
+        $pager = $this->get('pumukit_web_tv.pagination_service')->createDoctrineODMMongoDBAdapter($objects, $page, $limit);
 
-        return $pagerfanta;
+        return $pager;
     }
 }

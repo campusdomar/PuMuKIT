@@ -44,7 +44,7 @@ class TemplateController implements WebTVControllerInterface, ContainerAwareInte
         if ($private) {
             $response->setPrivate();
         } elseif (false === $private || (null === $private && ($maxAge || $sharedAge))) {
-            $response->setPublic($private);
+            $response->setPublic();
         }
 
         return $response;

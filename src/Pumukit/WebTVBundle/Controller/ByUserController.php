@@ -8,7 +8,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Response;
-use Pagerfanta\Adapter\DoctrineODMMongoDBAdapter;
 use Pagerfanta\Pagerfanta;
 use Pumukit\SchemaBundle\Document\User;
 use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
@@ -182,16 +181,15 @@ class ByUserController extends Controller implements WebTVControllerInterface
      * @param     $page
      * @param int $limit
      *
-     * @return Pagerfanta
+     * @return mixed|Pagerfanta
+     *
+     * @throws \Exception
      */
     private function createPager($objects, $page, $limit = 10)
     {
-        $adapter = new DoctrineODMMongoDBAdapter($objects);
-        $pagerfanta = new Pagerfanta($adapter);
-        $pagerfanta->setMaxPerPage($limit);
-        $pagerfanta->setCurrentPage($page);
+        $pager = $this->get('pumukit_web_tv.pagination_service')->createDoctrineODMMongoDBAdapter($objects, $page, $limit);
 
-        return $pagerfanta;
+        return $pager;
     }
 
     /**

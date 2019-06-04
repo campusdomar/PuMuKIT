@@ -6,8 +6,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
-use Pagerfanta\Adapter\ArrayAdapter;
-use Pagerfanta\Pagerfanta;
 use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
 
 /**
@@ -40,15 +38,8 @@ class EventController extends Controller implements WebTVControllerInterface
         $eventsToday = $this->getEventsTodayNextSession($eventsNow, $eventsToday);
         $eventsFuture = $this->get('pumukitschema.eventsession')->findNextEvents();
 
-        $adapter = new ArrayAdapter($eventsFuture);
-        $eventsFuture = new Pagerfanta($adapter);
-
-        $page = $request->query->get('page', 1);
-
         $maxPerPage = $this->container->getParameter('columns_objs_event') * 3;
-        $eventsFuture->setMaxPerPage($maxPerPage);
-        $eventsFuture->setNormalizeOutOfRangePages(true);
-        $eventsFuture->setCurrentPage(intval($page));
+        $eventsFuture = $this->get('pumukit_web_tv.pagination_service')->createArrayAdapter($eventsFuture, $request->query->get('page', 1), $maxPerPage);
 
         return [
             'eventsToday' => $eventsToday,
