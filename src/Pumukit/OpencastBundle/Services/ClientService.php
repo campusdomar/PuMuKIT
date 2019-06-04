@@ -892,7 +892,9 @@ class ClientService
             }
             $response = $this->request($path);
         } else {
-            $response = array('var' => file_get_contents($url));
+            //LOCAL: Do not commit this change
+            $path = parse_url($url, PHP_URL_PATH);
+            $response = array('var' => file_get_contents($this->url.$path));
         }
 
         $start = strrpos($response['var'], '<dcterms:spatial>');
@@ -962,7 +964,7 @@ class ClientService
         }
         $propertiesUrl = parse_url($galicasterPropertiesUrl, PHP_URL_PATH);
         $galicasterPropertiesUrl = $propertiesUrl;
-        $output = $this->request($galicasterPropertiesUrl);
+        $output = $this->request($galicasterPropertiesUrl, array(), 'GET', true);
         if (!$output) {
             throw new \Exception(sprintf('Can\'t access url for galicaster properties: %s', $galicasterPropertiesUrl));
         }
