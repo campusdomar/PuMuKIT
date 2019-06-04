@@ -53,6 +53,7 @@
             <argument type="service" id="translator"/>
             <argument type="service" id="router"/>
             <argument type="service" id="pumukitschema.multimedia_object"/>
+            <argument type="service" id="pumukitschema.series"/>
             <argument type="service" id="pumukitschema.special_translation"/>
             <argument type="service" id="pumukitschema.eventsession"/>
         </service>

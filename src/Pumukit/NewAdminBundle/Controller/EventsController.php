@@ -85,7 +85,7 @@ class EventsController extends Controller implements NewAdminControllerInterface
 
         $factoryService = $this->get('pumukitschema.factory');
 
-        $series = $request->request->get('seriesSuggest') ? $request->request->get('seriesSuggest') : false;
+        $series = $request->get('id') ? $request->get('id') : false;
 
         $createSeries = false;
         if (!$series) {
@@ -134,7 +134,12 @@ class EventsController extends Controller implements NewAdminControllerInterface
         $session->set('admin/live/event/id', $multimediaObject->getId());
         $this->get('session')->set('admin/live/event/page', 1);
 
-        return $this->redirectToRoute('pumukit_new_admin_live_event_list');
+        return new JsonResponse(
+            array(
+                'seriesId' => $series->getId(),
+                'mmId' => $multimediaObject->getId(),
+            )
+        );
     }
 
     /**

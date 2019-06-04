@@ -1,0 +1,24 @@
+window.setInterval(window.update_mms_status_wrapper, 15000);
+
+window.update_preview_mms = function (id) {
+    var route = "{{ path('pumukitnewadmin_mms_show', {id: '__id__'}) }}";
+    $.ajax({
+        url: route.replace('__id__', id),
+        type: 'POST',
+        success: function (response) {
+            $('#preview').html(response);
+        }
+    });
+}
+
+var url = "{{ path('pumukit_schema_apikeywords_mmobj', {'_format':'json'})|raw }}";
+window.mmobjkeywords = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('_id'),
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    prefetch: {
+        url: url,
+        ttl: 1800000
+    }
+});
+
+window.mmobjkeywords.initialize();

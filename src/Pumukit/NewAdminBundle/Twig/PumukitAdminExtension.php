@@ -2,6 +2,8 @@
 
 namespace Pumukit\NewAdminBundle\Twig;
 
+use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Services\SeriesService;
 use Symfony\Component\Intl\Intl;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -16,21 +18,59 @@ use Pumukit\SchemaBundle\Services\EmbeddedEventSessionService;
 
 class PumukitAdminExtension extends \Twig_Extension
 {
+    /**
+     * @var DocumentManager
+     */
     private $dm;
+    /**
+     * @var string[]
+     */
     private $languages;
+    /**
+     * @var ProfileService
+     */
     private $profileService;
+    /**
+     * @var TranslatorInterface
+     */
     private $translator;
+    /**
+     * @var RouterInterface
+     */
     private $router;
+
     private $countMmobjsByStatus;
     private $countMmobjsWithTag;
+    /**
+     * @var MultimediaObjectService
+     */
     private $mmobjService;
+    /**
+     * @var SeriesService
+     */
+    private $seriesService;
+    /**
+     * @var SpecialTranslationService
+     */
     private $specialTranslationService;
+    /**
+     * @var EmbeddedEventSessionService
+     */
     private $eventService;
 
     /**
-     * Constructor.
+     * PumukitAdminExtension constructor.
+     *
+     * @param ProfileService              $profileService
+     * @param DocumentManager             $documentManager
+     * @param TranslatorInterface         $translator
+     * @param RouterInterface             $router
+     * @param MultimediaObjectService     $mmobjService
+     * @param SeriesService               $seriesService
+     * @param SpecialTranslationService   $specialTranslationService
+     * @param EmbeddedEventSessionService $eventService
      */
-    public function __construct(ProfileService $profileService, DocumentManager $documentManager, TranslatorInterface $translator, RouterInterface $router, MultimediaObjectService $mmobjService, SpecialTranslationService $specialTranslationService, EmbeddedEventSessionService $eventService)
+    public function __construct(ProfileService $profileService, DocumentManager $documentManager, TranslatorInterface $translator, RouterInterface $router, MultimediaObjectService $mmobjService, SeriesService $seriesService, SpecialTranslationService $specialTranslationService, EmbeddedEventSessionService $eventService)
     {
         $this->dm = $documentManager;
         $this->languages = Intl::getLanguageBundle()->getLanguageNames();
@@ -38,6 +78,7 @@ class PumukitAdminExtension extends \Twig_Extension
         $this->translator = $translator;
         $this->router = $router;
         $this->mmobjService = $mmobjService;
+        $this->seriesService = $seriesService;
         $this->specialTranslationService = $specialTranslationService;
         $this->eventService = $eventService;
     }
@@ -65,6 +106,7 @@ class PumukitAdminExtension extends \Twig_Extension
             new \Twig_SimpleFilter('mms_announce_text', array($this, 'getMmsAnnounceText')),
             new \Twig_SimpleFilter('filter_profiles', array($this, 'filterProfiles')),
             new \Twig_SimpleFilter('count_multimedia_objects', array($this, 'countMultimediaObjects')),
+            new \Twig_SimpleFilter('count_live_objects', array($this, 'countLives')),
             new \Twig_SimpleFilter('next_session_event', array($this, 'getNextEventSession')),
         );
     }
@@ -203,17 +245,16 @@ class PumukitAdminExtension extends \Twig_Extension
      */
     public function getStatusIcon($status)
     {
-        $iconClass = 'mdi-alert-warning';
-
+        $iconClass = 'fa fa-exclamation-triangle';
         switch ($status) {
             case MultimediaObject::STATUS_PUBLISHED:
-                $iconClass = 'mdi-device-signal-wifi-4-bar';
+                $iconClass = 'fa fa-check';
                 break;
             case MultimediaObject::STATUS_HIDDEN:
-                $iconClass = 'mdi-device-signal-wifi-0-bar';
+                $iconClass = 'fa fa-eye-slash';
                 break;
             case MultimediaObject::STATUS_BLOCKED:
-                $iconClass = 'mdi-device-wifi-lock';
+                $iconClass = 'fa fa-ban';
                 break;
         }
 
@@ -221,9 +262,7 @@ class PumukitAdminExtension extends \Twig_Extension
     }
 
     /**
-     * Get status text.
-     *
-     * @param int|MultimediaObject $status
+     * @param $param
      *
      * @return string
      */
@@ -255,11 +294,11 @@ class PumukitAdminExtension extends \Twig_Extension
     /**
      * Get series icon.
      *
-     * @param string $series
+     * @param Series $series
      *
      * @return string
      */
-    public function getSeriesIcon($series)
+    public function getSeriesIcon(Series $series)
     {
         list($mmobjsPublished, $mmobjsHidden, $mmobjsBlocked) = $this->countMmobjsByStatus($series);
 
@@ -483,6 +522,16 @@ class PumukitAdminExtension extends \Twig_Extension
     public function countMultimediaObjects($series)
     {
         return $this->dm->getRepository('PumukitSchemaBundle:MultimediaObject')->countInSeries($series);
+    }
+
+    /**
+     * @param Series $series
+     *
+     * @return int
+     */
+    public function countLives(Series $series)
+    {
+        return $this->seriesService->countLives($series);
     }
 
     /**

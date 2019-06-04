@@ -1,0 +1,79 @@
+<tbody>
+{% for object in series %}
+
+    {% set index_path = path('pumukitnewadmin_mms_index', {'id': object.id }) %}
+    {% set update_path = path('pumukitnewadmin_series_update', {'id': object.id}) %}
+    {% set show_path = path('pumukitnewadmin_series_show', {'id': object.id}) %}
+
+    {% set numV = object|count_multimedia_objects %}
+    {% set numLive = object|count_live_objects %}
+
+    <tr style="cursor: pointer" {% if(app.session.get('admin/series/id') == object.id ) %} class="success" {% endif %}>
+        <td headers="th-checkbox">
+            <div class="checkbox">
+                <label>
+                    <input id="{{ object.id }}" class="series_checkbox" type="checkbox">
+                </label>
+            </div>
+        </td>
+
+        {% if not is_naked() %}
+            <td headers="th-icons">
+                {% spaceless %}
+                    <i class="{{ object|series_announce_icon }}" data-toggle="tooltip" data-placement="right" title="{{ object|series_announce_text }}"></i>
+                    <i class="{{ object|mms_announce_icon }}" data-toggle="tooltip" data-placement="right" title="{{ object|mms_announce_text }}"></i>
+                {% endspaceless %}
+            </td>
+            <td headers="th-icons">
+                {% if app.user and is_granted('ROLE_ACCESS_PUBLICATION_TAB') %}
+                    <a href="{{ path('pumukitnewadmin_series_changepub', {'id': object.id}) }}" data-toggle="modal" data-backdrop="static" data-target="#myModal" title="{% trans %}Series publication status{% endtrans %}">
+                        <i class="{{ object|series_icon }}" data-toggle="tooltip" data-placement="right" title="{{ object|series_text }}"></i>
+                    </a>
+                {% else %}
+                    <i class="{{ object|series_icon }}" data-toggle="tooltip" data-placement="right" title="{{ object|series_text }}"></i>
+                {% endif %}
+            </td>
+        {% endif %}
+
+        <td headers="th-icons">
+            {% include 'PumukitNewAdminBundle:Series:updatemenu.html.twig' with {'oneseries': object, 'numV': numV} %}
+        </td>
+        <td headers="th-img" onclick="click_fila_edit_urls('series', this, '{{ show_path }}', '{{ update_path }}')" ondblclick="dblclick_fila_url('series', this, '{{ index_path }}')">
+            {% include "PumukitNewAdminBundle:Misc:img_list.html.twig" with {'object': object, 'type' : 'series'} %}
+        </td>
+
+        <td headers="th-title" onclick="click_fila_edit_urls('series', this, '{{ show_path }}', '{{ update_path }}')" ondblclick="dblclick_fila_url('series', this, '{{ index_path }}')">
+            <a href="{{ index_path }}">
+                {{ object.getTitle() }}
+            </a>
+        </td>
+
+        <td headers="th-date" class="text-nowrap" onclick="click_fila_edit_urls('series', this, '{{ show_path }}', '{{ update_path }}')" ondblclick="dblclick_fila_url('series', this, '{{ index_path }}')">
+            {{ object.getPublicDate()|localizeddate('medium','none',app.request.getLocale()) }}
+        </td>
+
+        <td headers="th-mm" onclick="click_fila_edit_urls('series', this, '{{ show_path }}', '{{ update_path }}')" ondblclick="dblclick_fila_url('series', this, '{{ index_path }}')">
+            {{ numV }}
+        </td>
+
+        <td headers="th-live" onclick="click_fila_edit_urls('series', this, '{{ show_path }}', '{{ update_path }}')" ondblclick="dblclick_fila_url('series', this, '{{ index_path }}')">
+            {{ numLive }}
+        </td>
+    </tr>
+{% endfor %}
+
+{% if (series|length - (series.getMaxPerPage() * (series.getCurrentPage() - 1))) < (series.maxPerPage) %}
+    {% for i in (series|length - (series.getMaxPerPage() * (series.getCurrentPage() - 1)))..(series.maxPerPage-1) %}
+        <tr>
+            <td headers="th-checkbox">&nbsp;</td>
+            <td {% if not is_naked() %}colspan="3"{% endif %} headers="th-icons">&nbsp;</td>
+            <td headers="th-img">&nbsp;</td>
+            <td headers="th-title">&nbsp;</td>
+            <td headers="th-date">&nbsp;</td>
+            <td headers="th-mm">&nbsp;</td>
+            <td headers="th-live">&nbsp;</td>
+        </tr>
+    {% endfor %}
+{% endif %}
+
+</tbody>

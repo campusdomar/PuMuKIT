@@ -106,9 +106,13 @@
             </ul>
         </fieldset>
 
-        <div class="text-right">
+        <div class="row text-right">
+            <div class="col-xs-6">
             <input class="btn btn-default btn-raised" onclick="window.location.href='?criteria[reset]=true'" type="button" value="{% trans %}reset{% endtrans %}">
+            </div>
+            <div class="col-xs-6">
             <input type="submit" name="filter" value="{% trans %}filter{% endtrans %}" class="btn btn-pumukit btn-raised">
+            </div>
         </div>
     </form>
 </div>

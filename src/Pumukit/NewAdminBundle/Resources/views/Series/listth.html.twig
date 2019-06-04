@@ -1,20 +1,34 @@
-{% if 'title' == app.session.get('admin/series/sort') %}
-  <th id="th-title">
-    <a href="#" id="pumukitnewadmin_series_title_sort_selected">{% trans %}Title{% endtrans %}&nbsp;{{ app.session.get('admin/series/type')=='asc'?'&#x25B4;':'&#x25BE;' }}</a>
-  </th>
-{% else %}
-  <th id="th-title">
-    <a href="#" id="pumukitnewadmin_series_title_sort_not_selected">{% trans %}Title{% endtrans %}</a>
-  </th>
-{% endif %}
+<thead>
+<tr>
+    <th id="th-checkbox" style="width:1%;">
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" onclick="window.click_checkbox_all('series', this.checked)">
+            </label>
+        </div>
+    </th>
+    <th id="th-icons" colspan="{{ is_naked() ? 1 : 3 }}" style="width:4%;"></th>
+    <th id="th-img" style="width:1%;">{% trans %}Img{% endtrans %}</th>
+    {% if 'title' == app.session.get('admin/series/sort') %}
+        <th id="th-title">
+            <a href="#" id="pumukitnewadmin_series_title_sort_selected">{% trans %}Title{% endtrans %}&nbsp;{{ app.session.get('admin/series/type')=='asc'?'&#x25B4;':'&#x25BE;' }}</a>
+        </th>
+    {% else %}
+        <th id="th-title">
+            <a href="#" id="pumukitnewadmin_series_title_sort_not_selected">{% trans %}Title{% endtrans %}</a>
+        </th>
+    {% endif %}
 
-{% if 'public_date' == app.session.get('admin/series/sort', 'public_date') %}
-  <th id="th-date" width="8%">
-    <a href="#" id="pumukitnewadmin_series_public_date_sort_selected">{% trans %}Date{% endtrans %}&nbsp;{{ app.session.get('admin/series/type')=='asc'?'&#x25B4;':'&#x25BE;' }}</a>
-  </th>
-{% else %}
-  <th id="th-date" width="8%">
-    <a href="#" id="pumukitnewadmin_series_public_date_sort_not_selected">{% trans %}Date{% endtrans %}</a>
-  </th>
-{% endif %}
-<th id="th-mm" width="1%">{% trans %}Mm.Obj.{% endtrans %}</th>
+    {% if 'public_date' == app.session.get('admin/series/sort', 'public_date') %}
+        <th id="th-date" style="width:8%;">
+            <a href="#" id="pumukitnewadmin_series_public_date_sort_selected">{% trans %}Date{% endtrans %}&nbsp;{{ app.session.get('admin/series/type')=='asc'?'&#x25B4;':'&#x25BE;' }}</a>
+        </th>
+    {% else %}
+        <th id="th-date" style="width:8%;">
+            <a href="#" id="pumukitnewadmin_series_public_date_sort_not_selected">{% trans %}Date{% endtrans %}</a>
+        </th>
+    {% endif %}
+    <th id="th-mm" style="width:1%;">{% trans %}VoD{% endtrans %}</th>
+    <th id="th-live" style="width:1%;">{% trans %}Event{% endtrans %}</th>
+</tr>
+</thead>

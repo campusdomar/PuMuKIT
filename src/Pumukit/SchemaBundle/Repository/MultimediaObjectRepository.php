@@ -946,6 +946,15 @@ class MultimediaObjectRepository extends DocumentRepository
         return $qb;
     }
 
+
+    public function findAllMultimediaObjects(Series $series, $sort = array())
+    {
+        $qb = $this->createQueryBuilder()->field('series')->references($series);
+        $qb = $this->addSortToQueryBuilder($qb, array());
+
+        return $qb;
+    }
+
     /**
      * Find ordered by fieldName: asc/desc.
      *

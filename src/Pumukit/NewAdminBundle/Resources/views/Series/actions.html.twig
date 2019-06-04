@@ -1,0 +1,24 @@
+<div class="row" style="padding-left:15px;margin-top:-15px;">
+    <div class="col-xs-12 col-sm-3">
+        <select id="options_series" class="form-control" title="{% trans %}Actions on selected items{% endtrans %}">
+            <option value="default" selected="selected">{% trans %}Select an action...{% endtrans %}</option>
+            <option disabled="">---</option>
+            <option value="delete_selected">{% trans %}Delete selected{% endtrans %}</option>
+
+            {% if not is_naked() %}
+                <option {% if disable_pudenew %}disabled=""{% endif %} value="invert_announce_selected">
+                    {% trans %}Announce/Not announce selected{% endtrans %}
+                </option>
+            {% endif %}
+
+        </select>
+    </div>
+    <div class="text-right col-xs-12 col-sm-9" style="padding-right:30px;">
+        {% if is_granted('ROLE_ACCESS_ADVANCED_UPLOAD') or is_granted('ROLE_ACCESS_WIZARD_UPLOAD') %}
+            <a title="{% trans %}Create new series{% endtrans %}" id="pumukitnewadmin_series_new_button" class="btn btn-pumukit btn-raised" href="#">
+                <i class="mdi-content-add"></i>
+                {% trans %}New{% endtrans %}
+            </a>
+        {% endif %}
+    </div>
+</div>

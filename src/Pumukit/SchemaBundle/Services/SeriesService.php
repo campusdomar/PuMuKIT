@@ -2,6 +2,7 @@
 
 namespace Pumukit\SchemaBundle\Services;
 
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
 use Doctrine\ODM\MongoDB\DocumentManager;
@@ -110,5 +111,22 @@ class SeriesService
         }
 
         return $this->repo->findByPersonIdAndRoleCodOrGroupsSorted($user->getPerson()->getId(), $roleOwnerCode, $groups, $sort, $limit);
+    }
+
+    /**
+     * @param Series $series
+     *
+     * @return int
+     */
+    public function countLives(Series $series)
+    {
+        $lives = $this->dm->getRepository(MultimediaObject::class)->findBy(
+            [
+                'type' => MultimediaObject::TYPE_LIVE,
+                'series' => $series,
+            ]
+        );
+
+        return count($lives);
     }
 }

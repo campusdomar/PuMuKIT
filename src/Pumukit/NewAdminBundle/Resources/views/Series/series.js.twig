@@ -1,0 +1,28 @@
+var url_vod = "{{ path('pumukit_schema_apikeywords_mmobj', {'_format':'json'})|raw }}";
+window.mmobjkeywords = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('_id'),
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    prefetch: {
+        url: url_vod,
+        ttl: 1800000
+    }
+});
+
+window.mmobjkeywords.initialize();
+
+var url_series = "{{ path('pumukit_schema_apikeywords_series', {'_format':'json'})|raw }}";
+window.serieskeywords = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('_id'),
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    prefetch: {
+        url: url_series,
+        ttl: 1800000
+    }
+});
+
+window.serieskeywords.initialize();
+
+$('#options_series').on('change', function(event){
+   event.preventDefault();
+   window.change_select('series', $(this), 'series');
+});

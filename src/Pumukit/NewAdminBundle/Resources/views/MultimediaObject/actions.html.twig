@@ -1,0 +1,121 @@
+<div class="row" style="padding-left:15px;margin-top:-15px;">
+    <div class="col-xs-12 col-sm-3">
+        <select id="options_mms" class="form-control" title="{% trans %}Actions on selected items{% endtrans %}" onchange="window.change_select('mm', $(this), 'mms', '{{ series.id }}');">
+            <option value="default" selected="selected">{% trans %}Select an action{% endtrans %}...</option>
+            <option disabled="">---</option>
+            <option value="delete_selected">{% trans %}Delete selected{% endtrans %}</option>
+
+            {% if not is_naked() %}
+                <option {% if disable_pudenew %}disabled=""{% endif %} value="invert_announce_selected">{% trans %}Announce/Not announce selected{% endtrans %}</option>
+            {% endif %}
+
+            <option disabled="">---</option>
+            <option value="order_manual" data-type="sort" {% if series.sorting == constant('SORT_MANUAL', series) %}data-active="1"{% endif %}>
+                {% trans %}List multimedia objects in a manual order{% endtrans %}
+                {% if series.sorting == constant('SORT_MANUAL', series) %}{% trans %}(active){% endtrans %}{% endif %}
+            </option>
+            <option value="order_pub_date_desc" data-type="sort" {% if series.sorting == constant('SORT_PUB_DES', series) %}data-active="1"{% endif %}>
+                {% trans %}List multimedia objects in descending order of publication date{% endtrans %}
+                {% if series.sorting == constant('SORT_PUB_DES', series) %}{% trans %}(active){% endtrans %}{% endif %}
+            </option>
+            <option value="order_pub_date_asc" data-type="sort" {% if series.sorting == constant('SORT_PUB_ASC', series) %}data-active="1"{% endif %}>
+                {% trans %}List multimedia objects in ascending order of publication date{% endtrans %}
+                {% if series.sorting == constant('SORT_PUB_ASC', series) %}{% trans %}(active){% endtrans %}{% endif %}
+            </option>
+            <option value="order_rec_date_desc" data-type="sort" {% if series.sorting == constant('SORT_REC_DES', series) %}data-active="1"{% endif %}>
+                {% trans %}List multimedia objects in descending order of recording date{% endtrans %}
+                {% if series.sorting == constant('SORT_REC_DES', series) %}{% trans %}(active){% endtrans %}{% endif %}
+            </option>
+            <option value="order_rec_date_asc" data-type="sort" {% if series.sorting == constant('SORT_REC_ASC', series) %}data-active="1"{% endif %}>
+                {% trans %}List multimedia objects in ascending order of recording date{% endtrans %}
+                {% if series.sorting == constant('SORT_REC_ASC', series) %}{% trans %}(active){% endtrans %}{% endif %}
+            </option>
+            <option value="order_abc" data-type="sort" {% if series.sorting == constant('SORT_ALPHAB', series) %}data-active="1"{% endif %}>
+                {% trans %}List multimedia objects in ascending order of title{% endtrans %}
+                {% if series.sorting == constant('SORT_ALPHAB', series) %}{% trans %}(active){% endtrans %}{% endif %}
+            </option>
+            <option disabled="">---</option>
+            <option value="cut_mm">{% trans %}Cut multimedia objects{% endtrans %}</option>
+            {% if app.session.has('admin/mms/cut') and app.session.get('admin/mms/cut') %}
+                <option value="paste_mm" id="paste_mm">
+                    {% trans %}Paste multimedia objects{% endtrans %} ({% for id in app.session.get('admin/mms/cut') %}{{ id }}{% if not loop.last %},&nbsp;{% endif %}{% endfor %})
+                </option>
+            {% else %}
+                <option value="paste_mm" id="paste_mm" style="display:none"></option>
+            {% endif %}
+            {% if app.user and is_granted('ROLE_ACCESS_EDIT_PLAYLIST') %}
+                <option value="add_playlist">{% trans %}Add to playlist{% endtrans %}</option>
+            {% endif %}
+        </select>
+    </div>
+    <div class="text-right col-xs-12 col-sm-9" style="padding-right:30px">
+        {# RENDERS ANY BUTTONS DEFINED IN AN EXTRA PLUGIN #}
+        {% for item in get_extra_buttons() %}
+            {% if app.user and is_granted(item.accessRole) %}
+                <a title="{{ item.name }}" class="btn btn-pumukit btn-raised" href="{{ path(item.uri, {'series': series.id }) }}">
+                    <i class="mdi-content-add"></i>
+                    {{ item.name | trans }}
+                </a>
+            {% endif %}
+        {% endfor %}
+
+        {% if app.user and is_granted('ROLE_ACCESS_LIVE_EVENTS') %}
+            <a class="btn btn-pumukit btn-raised" title="{% trans %}Create new event{% endtrans %}" id="pumukitnewadmin_event_new_button" href="#">
+                <i class="mdi-content-add"></i>
+                {% trans %}Event{% endtrans %}
+            </a>
+        {% endif %}
+
+        {% if app.user and is_granted('ROLE_ACCESS_WIZARD_UPLOAD') %}
+            {% set action_url = url(is_naked() ? 'pumukitwizard_simple_index' : 'pumukitwizard_default_type', {'id': series.id, 'from':'mms', 'same_series': true}) %}
+            <a class="btn btn-primary btn-raised wizard_button" href="{{ action_url }}">
+                <i class="mdi-content-add"></i>
+                {% trans %}Wizard{% endtrans %}
+            </a>
+        {% endif %}
+
+        {% if app.user and is_granted('ROLE_ACCESS_ADVANCED_UPLOAD') %}
+            <a class="btn btn-pumukit btn-raised" title="{% trans %}Create new multimedia object{% endtrans %}" id="pumukitnewadmin_mms_new_button" href="#">
+                <i class="mdi-content-add"></i>
+                {% trans %}VoD{% endtrans %}
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    $('#pumukitnewadmin_event_new_button').on('click', function () {
+        var seriesId = $('#mms_series_id').val();
+        var route = "{{ path('pumukit_new_admin_live_event_create', {'id': '__seriesId__', 'seriesSuggest' : '__seriesId__'}) }}";
+        route = route.replace('__seriesId__', seriesId);
+        $.ajax(route, {
+            type: 'GET',
+            error: function(jqXHR, textStatus, errorThrown){
+                var responseText = jqXHR.responseText.split("<title>").pop().split("</title>").shift();
+                var message = responseText.replace(/(\r\n|\n|\r)/gm,"");
+                no_success(errorThrown+': '+textStatus+', '+message);
+            },
+            success: function(response, textStatus, jqXHR){
+                var seriesId = response['seriesId'];
+                var mmId = response['mmId'];
+
+                // NOTE: Important to call listAction first to update multimedia object id in session
+                var routeList = "{{ path('pumukitnewadmin_mms_list', {'id': '__seriesId__', 'newMmId': '__newMmId__'}) }}";
+                routeList = routeList.replace('__newMmId__', mmId);
+                $('#list_mms').load(routeList.replace('__seriesId__', seriesId), {'_method':'POST'}, function(){
+                    var routeShow = "{{ path('pumukitnewadmin_mms_show', {'id': '__mmId__'}) }}";
+                    $('#preview_mm').load(routeShow.replace('__mmId__', mmId), {'_method':'POST'});
+
+                    var routeEdit = "{{ path('pumukitnewadmin_mms_edit', {'id': '__mmId__', 'seriesId': '__seriesId__'}) }}";
+                    routeEdit = routeEdit.replace('__seriesId__', seriesId);
+                    $('#edit_mm').load(routeEdit.replace('__mmId__', mmId), function(){
+                        init_tabs();
+                    });
+                });
+                success('{% trans %}Multimedia Object successfully created.{% endtrans %}');
+            }
+        });
+
+        return false;
+    });
+</script>

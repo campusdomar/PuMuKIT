@@ -660,10 +660,10 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         $sorting = array('rank' => 'asc');
 
-        $mmsQueryBuilder = $this
-                         ->get('doctrine_mongodb.odm.document_manager')
-                         ->getRepository('PumukitSchemaBundle:MultimediaObject')
-                         ->getQueryBuilderOrderedBy($series, $sorting);
+        $mmsQueryBuilder =  $this
+            ->get('doctrine_mongodb.odm.document_manager')
+            ->getRepository('PumukitSchemaBundle:MultimediaObject')
+            ->findAllMultimediaObjects($series, $sorting);
 
         $adapter = new DoctrineODMMongoDBAdapter($mmsQueryBuilder);
         $mms = new Pagerfanta($adapter);
