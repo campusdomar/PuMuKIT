@@ -824,7 +824,7 @@ class ClientService
     private function decodeJson($jsonString = '')
     {
         $decode = json_decode($jsonString, true);
-        if (!($decode)) {
+        if (!is_array($decode)) {
             throw new \Exception('Opencast communication error');
         }
 
@@ -941,32 +941,30 @@ class ClientService
     /**
      * @return array
      */
-    public function getGalicasterProperties($id)
+    public function getGalicasterProperties($i, $mpVersion = 1)
     {
-        $url = sprintf('/admin-ng/event/%s/asset/attachment/attachments.json', $id);
-        $output = $this->request($url, array(), 'GET', true);
-        if (!$output) {
-            throw new \Exception(sprintf('Can\'t access %s', $url));
-        }
-        $attachments = $this->decodeJson($output['var']);
-        $galicasterPropertiesUrl = null;
-        foreach ($attachments as $attachment) {
-            if ('galicaster-properties' != $attachment['id']) {
-                continue;
-            }
-            $galicasterPropertiesUrl = $attachment['url'];
-            break;
-        }
-        if (!$galicasterPropertiesUrl) {
-            $this->logger->warning(sprintf('No \'galicaster-properties\' id exist on attachments list from %s', $url));
+        $url = sprintf('/assets/assets/%s/galicaster-properties/%d/galicaster.json', $id, $mpVersion);
+
+        return $this->getGalicasterPropertiesFromurl($url);
+    }
+
+    /**
+     * @return array
+     */
+    public function getGalicasterPropertiesFromUrl($url)
+    {
+        $url = parse_url($url, PHP_URL_PATH);
+        try {
+            $output = $this->request($url, array(), 'GET', true);
+        } catch (\Exception $e) {
+            $this->logger->warning(sprintf('Error processing request to get galicaster-properties: %s | Not setting Galicaster properties.', $e->getMessage()));
 
             return array();
         }
-        $propertiesUrl = parse_url($galicasterPropertiesUrl, PHP_URL_PATH);
-        $galicasterPropertiesUrl = $propertiesUrl;
-        $output = $this->request($galicasterPropertiesUrl, array(), 'GET', true);
         if (!$output) {
-            throw new \Exception(sprintf('Can\'t access url for galicaster properties: %s', $galicasterPropertiesUrl));
+            $this->logger->warning(sprintf('Url for galicaster properties returned an empty response: %s', $url));
+
+            return array();
         }
         $galicasterProperties = $this->decodeJson($output['var']);
 
