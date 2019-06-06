@@ -892,9 +892,7 @@ class ClientService
             }
             $response = $this->request($path);
         } else {
-            //LOCAL: Do not commit this change
-            $path = parse_url($url, PHP_URL_PATH);
-            $response = array('var' => file_get_contents($this->url.$path));
+            $response = array('var' => file_get_contents($url));
         }
 
         $start = strrpos($response['var'], '<dcterms:spatial>');
@@ -944,6 +942,7 @@ class ClientService
     public function getGalicasterProperties($id, $mpVersion = 1)
     {
         $url = sprintf('/assets/assets/%s/galicaster-properties/%d/galicaster.json', $id, $mpVersion);
+
         return $this->getGalicasterPropertiesFromurl($url);
     }
 
