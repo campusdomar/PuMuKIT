@@ -229,11 +229,7 @@
       </trans-unit>
       <trans-unit id="yRKQJb0" resname="Sort by">
         <source>Sort by</source>
-<<<<<<< HEAD
-        <target state="translated">Ordenar por</target>
-=======
         <target xml:lang="gl" state="translated">Ordear por</target>
->>>>>>> TTK-21441 allow access without error on all videos
       </trans-unit>
       <trans-unit id="mcQKtAW" resname="Date">
         <source>Date</source>
@@ -555,7 +551,7 @@
         <source>Today events</source>
         <target state="translated">Eventos de hoxe</target>
       </trans-unit>
-      <trans-unit id="8wIYotR" resname="Future events">
+          <trans-unit id="8wIYotR" resname="Future events">
         <source>Future events</source>
         <target state="translated">Eventos futuros</target>
       </trans-unit>
