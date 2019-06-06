@@ -112,7 +112,25 @@ class OpencastImportService
         }
 
         //Check if mp has Galicaster properties and look for an mmobj with the given id.
-        $galicasterProperties = $this->opencastClient->getGalicasterProperties($mediaPackageId);
+        $galicasterPropertiesUrl = null;
+        foreach ($mediaPackage['attachments']['attachment'] as $attachment) {
+            if ('galicaster-properties' != $attachment['id']) {
+                continue;
+            }
+            $galicasterPropertiesUrl = $attachment['url'];
+            break;
+        }
+
+        $galicasterProperties = array();
+        if ($galicasterPropertiesUrl) {
+            $galicasterProperties = $this->opencastClient->getGalicasterPropertiesFromUrl($galicasterPropertiesUrl);
+        } else {
+            $this->logger->warning(sprintf('No \'galicaster-properties\' id exist on attachments list from mediapackage.'));
+            //NOTE: This will only work correctly if the mp was only ingested once. We need to figure out and pass it
+            //the correct 'mediapackage version', but the endpoint with that info does not work currently.
+            $galicasterProperties = $this->opencastClient->getGalicasterProperties($mediaPackageId);
+        }
+
         if (isset($galicasterProperties['galicaster']['properties']['pmk_mmobj'])) {
             $multimediaObjectId = $galicasterProperties['galicaster']['properties']['pmk_mmobj'];
             $multimediaObject = $multimediaObjectRepo->find($multimediaObjectId);
