@@ -13,7 +13,7 @@
                         {% include 'PumukitWebTVBundle:Resources:template_series.html.twig' %}
                         {% include "PumukitWebTVBundle:Resources:template_clearfix.html.twig" %}
                     {% else %}
-                        {% include 'PumukitWebTVBundle:Misc:series_text.html.twig' with {'cols': number_cols, 'num_mmobjs': num_mmobjs } %}
+                        {% include 'PumukitWebTVBundle:Misc:series_text.html.twig' with {'cols': 1, 'num_mmobjs': num_mmobjs } %}
                     {% endif %}
                 {% endfor %}
             </div>

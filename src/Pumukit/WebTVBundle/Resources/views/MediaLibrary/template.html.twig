@@ -8,6 +8,8 @@
 
         {% include "PumukitWebTVBundle:MediaLibrary:template_sort.html.twig" %}
         {% include "PumukitWebTVBundle:MediaLibrary:template_library.html.twig" %}
-        {% include "PumukitWebTVBundle:Misc:pager.html.twig" %}
+        {% if objects is not empty %}
+            {% include "PumukitWebTVBundle:Misc:pager.html.twig" %}
+        {% endif %}
     </div>
 {% endblock %}
