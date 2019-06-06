@@ -941,10 +941,9 @@ class ClientService
     /**
      * @return array
      */
-    public function getGalicasterProperties($i, $mpVersion = 1)
+    public function getGalicasterProperties($id, $mpVersion = 1)
     {
         $url = sprintf('/assets/assets/%s/galicaster-properties/%d/galicaster.json', $id, $mpVersion);
-
         return $this->getGalicasterPropertiesFromurl($url);
     }
 
