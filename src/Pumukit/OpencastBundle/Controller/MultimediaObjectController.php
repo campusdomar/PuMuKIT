@@ -33,10 +33,10 @@ class MultimediaObjectController extends Controller
         }
 
         return array(
-                     'mm' => $multimediaObject,
-                     'generate_sbs' => $generateSbs,
-                     'sbs_profile' => $sbsProfile,
-                     );
+            'mm' => $multimediaObject,
+            'generate_sbs' => $generateSbs,
+            'sbs_profile' => $sbsProfile,
+        );
     }
 
     /**
@@ -70,9 +70,9 @@ class MultimediaObjectController extends Controller
         }
 
         return array(
-                     'form' => $form->createView(),
-                     'multimediaObject' => $multimediaObject,
-                     );
+            'form' => $form->createView(),
+            'multimediaObject' => $multimediaObject,
+        );
     }
 
     /**
@@ -95,9 +95,9 @@ class MultimediaObjectController extends Controller
         }
 
         return array(
-                     'presenter_delivery_url' => $presenterDeliveryUrl,
-                     'presentation_delivery_url' => $presentationDeliveryUrl,
-                     );
+            'presenter_delivery_url' => $presenterDeliveryUrl,
+            'presentation_delivery_url' => $presentationDeliveryUrl,
+        );
     }
 
     /**

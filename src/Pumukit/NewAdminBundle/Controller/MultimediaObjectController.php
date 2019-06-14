@@ -384,6 +384,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         $translator = $this->get('translator');
         $locale = $request->getLocale();
+        $previousStatus = $resource->getStatus();
         $formMeta = $this->createForm(new MultimediaObjectMetaType($translator, $locale), $resource);
         $options = array('not_granted_change_status' => !$this->isGranted(Permission::CHANGE_MMOBJECT_STATUS));
         $formPub = $this->createForm(new MultimediaObjectPubType($translator, $locale), $resource, $options);
@@ -391,12 +392,18 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $pubChannelsTags = $factoryService->getTagsByCod('PUBCHANNELS', true);
         $pubDecisionsTags = $factoryService->getTagsByCod('PUBDECISIONS', true);
 
-        $notChangePubChannel = !$this->isGranted(Permission::CHANGE_MMOBJECT_PUBCHANNEL);
+        $changePubChannel = $this->isGranted(Permission::CHANGE_MMOBJECT_PUBCHANNEL);
 
         $method = $request->getMethod();
         if (in_array($method, array('POST', 'PUT', 'PATCH')) &&
             $formPub->submit($request, !$request->isMethod('PATCH'))->isValid()) {
-            if (!$notChangePubChannel) {
+            //NOTE: If this field is disabled in the form, it sets it to 'null' on the mmobj.
+            //Ideally, fix the form instead of working around it like this
+            if ($resource->getStatus() == null) {
+                $resource->setStatus($previousStatus);
+            }
+
+            if ($changePubChannel) {
                 $resource = $this->updateTags($request->get('pub_channels', null), 'PUCH', $resource);
             }
 
@@ -459,7 +466,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
                                    'pub_channels' => $pubChannelsTags,
                                    'pub_decisions' => $pubDecisionsTags,
                                    'parent_tags' => $parentTags,
-                                   'not_change_pub_channel' => $notChangePubChannel,
+                                   'not_change_pub_channel' => !$changePubChannel,
                                    'groups' => $allGroups,
                                    )
                              );
