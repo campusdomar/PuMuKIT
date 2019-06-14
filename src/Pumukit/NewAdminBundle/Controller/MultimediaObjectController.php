@@ -397,10 +397,9 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $method = $request->getMethod();
         if (in_array($method, array('POST', 'PUT', 'PATCH')) &&
             $formPub->submit($request, !$request->isMethod('PATCH'))->isValid()) {
-
             //NOTE: If this field is disabled in the form, it sets it to 'null' on the mmobj.
             //Ideally, fix the form instead of working around it like this
-            if($resource->getStatus() == null){
+            if ($resource->getStatus() == null) {
                 $resource->setStatus($previousStatus);
             }
 
