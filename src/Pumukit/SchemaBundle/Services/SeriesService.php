@@ -2,11 +2,11 @@
 
 namespace Pumukit\SchemaBundle\Services;
 
-use Pumukit\SchemaBundle\Document\Series;
-use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
 use Doctrine\ODM\MongoDB\DocumentManager;
-use Pumukit\SchemaBundle\Document\User;
+use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Document\User;
 
 class SeriesService
 {
@@ -27,6 +27,7 @@ class SeriesService
      * Resets the magic url for a given series. Returns the secret id.
      *
      * @param Series
+     * @param mixed $series
      *
      * @return string
      */
@@ -49,13 +50,14 @@ class SeriesService
      */
     public function sameEmbeddedBroadcast(Series $series)
     {
-        if (0 == $this->mmRepo->countInSeriesWithPrototype($series)) {
+        if (0 === $this->mmRepo->countInSeriesWithPrototype($series)) {
             return false;
         }
         $firstFound = null;
         $all = $this->mmRepo->findBySeries($series);
         foreach ($all as $multimediaObject) {
             $firstFound = $multimediaObject;
+
             break;
         }
         if (null === $firstFound) {
@@ -71,7 +73,7 @@ class SeriesService
         } elseif (EmbeddedBroadcast::TYPE_PASSWORD === $type) {
             $count = $this->mmRepo->countInSeriesWithEmbeddedBroadcastPassword($series, $type, $embeddedBroadcast->getPassword());
         } elseif (EmbeddedBroadcast::TYPE_GROUPS === $type) {
-            $groups = array();
+            $groups = [];
             foreach ($embeddedBroadcast->getGroups() as $group) {
                 $groups[] = new \MongoId($group->getId());
             }
@@ -100,12 +102,12 @@ class SeriesService
      *
      * @return array
      */
-    public function getSeriesOfUser(User $user, $onlyAdminSeries = false, $roleOwnerCode = '', $sort = array(), $limit = 0)
+    public function getSeriesOfUser(User $user, $onlyAdminSeries = false, $roleOwnerCode = '', $sort = [], $limit = 0)
     {
         if (($permissionProfile = $user->getPermissionProfile()) && $permissionProfile->isGlobal() && !$onlyAdminSeries) {
-            return $this->repo->findBy(array(), $sort, $limit);
+            return $this->repo->findBy([], $sort, $limit);
         }
-        $groups = array();
+        $groups = [];
         foreach ($user->getGroups() as $group) {
             $groups[] = $group->getId();
         }

@@ -2,11 +2,11 @@
 
 namespace Pumukit\SchemaBundle\Services;
 
-use Pumukit\SchemaBundle\Document\Group;
 use Doctrine\ODM\MongoDB\DocumentManager;
-use Symfony\Component\Translation\TranslatorInterface;
-use Pumukit\SchemaBundle\Document\User;
+use Pumukit\SchemaBundle\Document\Group;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\User;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class GroupService
 {
@@ -39,9 +39,9 @@ class GroupService
      *
      * @param Group $group
      *
-     * @return Group
-     *
      * @throws \Exception
+     *
+     * @return Group
      */
     public function create(Group $group)
     {
@@ -70,22 +70,22 @@ class GroupService
      * @param Group $group
      * @param bool  $executeFlush
      *
-     * @return Group
-     *
      * @throws \Exception
+     *
+     * @return Group
      */
     public function update(Group $group, $executeFlush = true)
     {
         $auxKeyGroup = $this->repo->findOneByKey($group->getKey());
         if ($auxKeyGroup) {
-            if ($auxKeyGroup->getId() != $group->getId()) {
+            if ($auxKeyGroup->getId() !== $group->getId()) {
                 throw new \Exception('There is already a group created with key '.$group->getKey().'.');
             }
         }
 
         $auxNameGroup = $this->repo->findOneByName($group->getName());
         if ($auxNameGroup) {
-            if ($auxNameGroup->getId() != $group->getId()) {
+            if ($auxNameGroup->getId() !== $group->getId()) {
                 throw new \Exception('There is already a group created with name '.$group->getName().'.');
             }
         }
@@ -127,6 +127,7 @@ class GroupService
      * Can be deleted.
      *
      * @param Group $group
+     * @param mixed $checkOrigin
      *
      * @return bool
      */
@@ -161,9 +162,8 @@ class GroupService
         $message = '';
         if (!$group->isLocal()) {
             $enMessage = 'Group cannot be deleted because the Group is external. Contact your directory server administrator. You can delete relations with MultimediaObjects if any.';
-            $message = $this->translator->trans($enMessage, array(), null, $locale);
 
-            return $message;
+            return $this->translator->trans($enMessage, [], null, $locale);
         }
         $users = $this->countUsersInGroup($group);
         $admin = $this->countAdminMultimediaObjectsInGroup($group);
@@ -171,49 +171,49 @@ class GroupService
 
         if ((0 === $users) && (0 === $admin) && (0 === $play)) {
             $enMessage = 'ATTENTION!! Are you sure you want to delete this group?';
-            $message = $this->translator->trans($enMessage, array(), null, $locale);
+            $message = $this->translator->trans($enMessage, [], null, $locale);
         } elseif ((0 < $users) && (0 === $admin) && (0 === $play)) {
             if (1 === $users) {
                 $enMessage = 'Group cannot be deleted because there is 1 user related. Please, delete this relation first.';
-                $message = $this->translator->trans($enMessage, array(), null, $locale);
+                $message = $this->translator->trans($enMessage, [], null, $locale);
             } else {
                 $enMessage = 'Group cannot be deleted because there are %s users related. Please, delete these relations first.';
-                $message = $this->translator->trans($enMessage, array(), null, $locale);
+                $message = $this->translator->trans($enMessage, [], null, $locale);
                 $message = sprintf($message, $users);
             }
         } elseif ((0 === $users) && (0 < $admin) && (0 === $play)) {
             if (1 === $admin) {
                 $enMessage = 'Group cannot be deleted because there is 1 admin MultimediaObject related. Please, delete this relation first.';
-                $message = $this->translator->trans($enMessage, array(), null, $locale);
+                $message = $this->translator->trans($enMessage, [], null, $locale);
             } else {
                 $enMessage = 'Group cannot be deleted because there are %s admin MultimediaObjects related. Please, delete these relations first.';
-                $message = $this->translator->trans($enMessage, array(), null, $locale);
+                $message = $this->translator->trans($enMessage, [], null, $locale);
                 $message = sprintf($message, $admin);
             }
         } elseif ((0 === $users) && (0 === $admin) && (0 < $play)) {
             if (1 === $play) {
                 $enMessage = 'Group cannot be deleted because there is 1 play MultimediaObject related. Please, delete this relation first.';
-                $message = $this->translator->trans($enMessage, array(), null, $locale);
+                $message = $this->translator->trans($enMessage, [], null, $locale);
             } else {
                 $enMessage = 'Group cannot be deleted because there are %s play MultimediaObject related. Please, delete these relations first.';
-                $message = $this->translator->trans($enMessage, array(), null, $locale);
+                $message = $this->translator->trans($enMessage, [], null, $locale);
                 $message = sprintf($message, $play);
             }
         } elseif ((0 < $users) && (0 < $admin) && (0 === $play)) {
             $enMessage = 'Group cannot be deleted because there are %s user(s) and %s admin MultimediaObject(s) related. Please, delete these relations first.';
-            $message = $this->translator->trans($enMessage, array(), null, $locale);
+            $message = $this->translator->trans($enMessage, [], null, $locale);
             $message = sprintf($message, $users, $admin);
         } elseif ((0 < $users) && (0 === $admin) && (0 < $play)) {
             $enMessage = 'Group cannot be deleted because there are %s user(s) and %s play MultimediaObject(s) related. Please, delete these relations first.';
-            $message = $this->translator->trans($enMessage, array(), null, $locale);
+            $message = $this->translator->trans($enMessage, [], null, $locale);
             $message = sprintf($message, $users, $play);
         } elseif ((0 === $users) && (0 < $admin) && (0 < $play)) {
             $enMessage = 'Group cannot be deleted because there are %s admin MultimediaObject(s) and %s play MultimediaObject(s) related. Please, delete these relations first.';
-            $message = $this->translator->trans($enMessage, array(), null, $locale);
+            $message = $this->translator->trans($enMessage, [], null, $locale);
             $message = sprintf($message, $admin, $play);
         } elseif ((0 < $users) && (0 < $admin) && (0 < $play)) {
             $enMessage = 'Group cannot be deleted because there are %s user(s), %s admin MultimediaObject(s) and %s play MultimediaObject(s) related. Please, delete these relations first.';
-            $message = $this->translator->trans($enMessage, array(), null, $locale);
+            $message = $this->translator->trans($enMessage, [], null, $locale);
             $message = sprintf($message, $users, $admin, $play);
         }
 
@@ -229,7 +229,7 @@ class GroupService
      */
     public function countResources($groups)
     {
-        $countResources = array();
+        $countResources = [];
         foreach ($groups as $group) {
             $countResources[$group->getId()] = $this->countResourcesInGroup($group);
         }
@@ -246,7 +246,7 @@ class GroupService
      */
     public function countResourcesInGroup(Group $group)
     {
-        $countResources = array();
+        $countResources = [];
         $countResources['users'] = $this->countUsersInGroup($group);
         $countResources['adminMultimediaObjects'] = $this->countAdminMultimediaObjectsInGroup($group);
         $countResources['playMultimediaObjects'] = $this->countPlayMultimediaObjectsInGroup($group);
@@ -291,7 +291,8 @@ class GroupService
             ->field('groups')->equals($group->getId())
             ->count()
             ->getQuery()
-            ->execute();
+            ->execute()
+        ;
     }
 
     /**
@@ -304,11 +305,11 @@ class GroupService
      *
      * @return mixed
      */
-    public function findUsersInGroup(Group $group, $sort = array(), $limit = 0)
+    public function findUsersInGroup(Group $group, $sort = [], $limit = 0)
     {
         $qb = $this->userRepo->createQueryBuilder()
             ->field('groups')->equals($group->getId());
-        if (0 !== count($sort)) {
+        if (0 !== \count($sort)) {
             $qb->sort($sort);
         }
         if ($limit > 0) {
@@ -316,7 +317,8 @@ class GroupService
         }
 
         return $qb->getQuery()
-            ->execute();
+            ->execute()
+        ;
     }
 
     /**
@@ -338,7 +340,7 @@ class GroupService
      */
     public function findAll()
     {
-        return $this->repo->findBy(array(), array('key' => 1));
+        return $this->repo->findBy([], ['key' => 1]);
     }
 
     /**
@@ -349,7 +351,7 @@ class GroupService
      *
      * @return mixed
      */
-    public function findByIdNotIn($ids = array())
+    public function findByIdNotIn($ids = [])
     {
         return $this->repo->findByIdNotIn($ids);
     }
@@ -365,7 +367,7 @@ class GroupService
      *
      * @return mixed
      */
-    public function findByIdNotInOf($ids = array(), $total = array())
+    public function findByIdNotInOf($ids = [], $total = [])
     {
         return $this->repo->findByIdNotInOf($ids, $total);
     }

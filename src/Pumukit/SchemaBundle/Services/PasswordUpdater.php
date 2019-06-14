@@ -2,8 +2,8 @@
 
 namespace Pumukit\SchemaBundle\Services;
 
-use FOS\UserBundle\Util\PasswordUpdaterInterface;
 use FOS\UserBundle\Model\UserInterface;
+use FOS\UserBundle\Util\PasswordUpdaterInterface;
 use Symfony\Component\Security\Core\Encoder\BCryptPasswordEncoder;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 
@@ -26,7 +26,7 @@ class PasswordUpdater implements PasswordUpdaterInterface
     {
         $plainPassword = $user->getPlainPassword();
 
-        if (0 === strlen($plainPassword)) {
+        if (0 === \strlen($plainPassword)) {
             return;
         }
 

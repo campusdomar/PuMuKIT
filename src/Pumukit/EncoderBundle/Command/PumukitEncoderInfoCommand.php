@@ -2,12 +2,12 @@
 
 namespace Pumukit\EncoderBundle\Command;
 
+use Pumukit\EncoderBundle\Document\Job;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Pumukit\EncoderBundle\Document\Job;
 
 class PumukitEncoderInfoCommand extends BasePumukitEncoderCommand
 {
@@ -16,13 +16,15 @@ class PumukitEncoderInfoCommand extends BasePumukitEncoderCommand
         $this
             ->setName('pumukit:encoder:info')
             ->setDescription('Pumukit show job info')
-            ->setDefinition(array(
+            ->setDefinition([
                 new InputArgument('id', InputArgument::OPTIONAL, 'Job identifier to execute'),
                 new InputOption('all', null, InputOption::VALUE_NONE, 'Set this parameter to list jobs in all states'),
-            ))
-            ->setHelp(<<<'EOT'
+            ])
+            ->setHelp(
+                <<<'EOT'
 EOT
-          );
+          )
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -51,19 +53,19 @@ EOT
 
         $output->writeln('<info>CPUS:</info>');
         $table = new Table($output);
-        $table->setHeaders(array('Name', 'Status', 'Type', 'Host', 'Number', 'Description'));
+        $table->setHeaders(['Name', 'Status', 'Type', 'Host', 'Number', 'Description']);
 
         foreach ($cpus as $name => $cpu) {
-            $table->addRow(array(
+            $table->addRow([
                 $name,
-                in_array($name, $deactivatedCpus) ?
+                \in_array($name, $deactivatedCpus, true) ?
                     '<error>In Maintenance</error>' :
                     '<info>Working</info>',
                 $cpu['type'],
                 $cpu['host'],
                 $cpu['number'].'/'.$cpu['max'],
                 $cpu['description'],
-            ));
+            ]);
         }
         $table->render();
     }
@@ -85,18 +87,18 @@ EOT
         if ($all) {
             $status = array_keys(Job::$statusTexts);
         } else {
-            $status = array(Job::STATUS_PAUSED, Job::STATUS_WAITING, Job::STATUS_EXECUTING, Job::STATUS_ERROR);
+            $status = [Job::STATUS_PAUSED, Job::STATUS_WAITING, Job::STATUS_EXECUTING, Job::STATUS_ERROR];
         }
-        $sort = array('timeini' => 'asc');
+        $sort = ['timeini' => 'asc'];
         $jobs = $jobRepo->findWithStatus($status, $sort);
 
         $output->writeln('<info>JOBS:</info>');
         $table = new Table($output);
-        $table->setHeaders(array('Id', 'Status', 'MM', 'Profile', 'Cpu', 'Priority',
-                                 'Timeini', 'Timestart', 'Timeend', ));
+        $table->setHeaders(['Id', 'Status', 'MM', 'Profile', 'Cpu', 'Priority',
+            'Timeini', 'Timestart', 'Timeend', ]);
 
         foreach ($jobs as $name => $job) {
-            $table->addRow(array(
+            $table->addRow([
                 $job->getId(),
                 $this->formatStatus($job->getStatus()),
                 $job->getMmId(),
@@ -106,7 +108,7 @@ EOT
                 $job->getTimeini('Y-m-d H:i:s'),
                 $job->getTimestart('Y-m-d H:i:s'),
                 $job->getTimeend('Y-m-d H:i:s'),
-            ));
+            ]);
         }
         $table->render();
     }
@@ -117,11 +119,11 @@ EOT
         $jobService = $this->getContainer()->get('pumukitencoder.job');
 
         if (null === ($job = $dm->find(Job::class, $id))) {
-            throw new \RuntimeException("Not job found with id $id.");
+            throw new \RuntimeException("Not job found with id {$id}.");
         }
 
         if (null === ($job = $dm->find(Job::class, $id))) {
-            throw new \RuntimeException("Not job found with id $id.");
+            throw new \RuntimeException("Not job found with id {$id}.");
         }
 
         //$description[] = sprintf('<comment>Scope</comment>            %s', $definition->getScope());

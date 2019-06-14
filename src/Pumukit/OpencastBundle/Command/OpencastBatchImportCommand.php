@@ -2,11 +2,11 @@
 
 namespace Pumukit\OpencastBundle\Command;
 
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 
 class OpencastBatchImportCommand extends ContainerAwareCommand
 {
@@ -47,7 +47,7 @@ class OpencastBatchImportCommand extends ContainerAwareCommand
 
             foreach ($mediaPackages[1] as $mediaPackage) {
                 $output->writeln('Importing mediapackage: '.$mediaPackage['id']);
-                if ($repositoryMultimediaObjects->findOneBy(array('properties.opencast' => $mediaPackage['id']))) {
+                if ($repositoryMultimediaObjects->findOneBy(['properties.opencast' => $mediaPackage['id']])) {
                     $output->writeln('Mediapackage '.$mediaPackage['id'].' has already been imported, skipping to next mediapackage');
                 } else {
                     $opencastImportService->importRecording($mediaPackage['id'], $invert);

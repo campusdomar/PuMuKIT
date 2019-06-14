@@ -3,11 +3,15 @@
 namespace Pumukit\SchemaBundle\Tests\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Pumukit\SchemaBundle\Document\EmbeddedEvent;
-use Pumukit\LiveBundle\Document\Live;
 use PHPUnit\Framework\TestCase;
+use Pumukit\LiveBundle\Document\Live;
+use Pumukit\SchemaBundle\Document\EmbeddedEvent;
 
-class EmbeddedEventTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class EmbeddedEventTest extends TestCase
 {
     public function testSetterAndGetter()
     {
@@ -23,8 +27,8 @@ class EmbeddedEventTest extends TestCase
         $embeddedEventSession = new ArrayCollection();
         $live = new Live();
         $url = 'https://test.com';
-        $alreadyHeldMessage = array('en' => 'The event has been already held.');
-        $notYetHeldMessage = array('en' => 'The event has not yet been alread held.');
+        $alreadyHeldMessage = ['en' => 'The event has been already held.'];
+        $notYetHeldMessage = ['en' => 'The event has not yet been alread held.'];
         $locale = 'en';
 
         $embeddedEvent = new EmbeddedEvent();
@@ -44,20 +48,20 @@ class EmbeddedEventTest extends TestCase
         $embeddedEvent->setNotYetHeldMessage($notYetHeldMessage);
         $embeddedEvent->setLocale($locale);
 
-        $this->assertEquals($name, $embeddedEvent->getName());
-        $this->assertEquals($description, $embeddedEvent->getDescription());
-        $this->assertEquals($author, $embeddedEvent->getAuthor());
-        $this->assertEquals($producer, $embeddedEvent->getProducer());
-        $this->assertEquals($place, $embeddedEvent->getPlace());
-        $this->assertEquals($date, $embeddedEvent->getDate());
-        $this->assertEquals($duration, $embeddedEvent->getDuration());
-        $this->assertEquals($display, $embeddedEvent->isDisplay());
-        $this->assertEquals($create_serial, $embeddedEvent->isCreateSerial());
-        $this->assertEquals($embeddedEventSession->toArray(), $embeddedEvent->getEmbeddedEventSession());
-        $this->assertEquals($live, $embeddedEvent->getLive());
-        $this->assertEquals($url, $embeddedEvent->getUrl());
-        $this->assertEquals($alreadyHeldMessage, $embeddedEvent->getAlreadyHeldMessage());
-        $this->assertEquals($notYetHeldMessage, $embeddedEvent->getNotYetHeldMessage());
-        $this->assertEquals($locale, $embeddedEvent->getLocale());
+        static::assertSame($name, $embeddedEvent->getName());
+        static::assertSame($description, $embeddedEvent->getDescription());
+        static::assertSame($author, $embeddedEvent->getAuthor());
+        static::assertSame($producer, $embeddedEvent->getProducer());
+        static::assertSame($place, $embeddedEvent->getPlace());
+        static::assertSame($date, $embeddedEvent->getDate());
+        static::assertSame($duration, $embeddedEvent->getDuration());
+        static::assertSame($display, $embeddedEvent->isDisplay());
+        static::assertSame($create_serial, $embeddedEvent->isCreateSerial());
+        static::assertSame($embeddedEventSession->toArray(), $embeddedEvent->getEmbeddedEventSession());
+        static::assertSame($live, $embeddedEvent->getLive());
+        static::assertSame($url, $embeddedEvent->getUrl());
+        static::assertSame($alreadyHeldMessage, $embeddedEvent->getAlreadyHeldMessage());
+        static::assertSame($notYetHeldMessage, $embeddedEvent->getNotYetHeldMessage());
+        static::assertSame($locale, $embeddedEvent->getLocale());
     }
 }

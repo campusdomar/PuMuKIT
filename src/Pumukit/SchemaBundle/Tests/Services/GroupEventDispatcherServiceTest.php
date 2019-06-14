@@ -2,14 +2,18 @@
 
 namespace Pumukit\SchemaBundle\Tests\Services;
 
+use Pumukit\SchemaBundle\Document\Group;
+use Pumukit\SchemaBundle\Event\GroupEvent;
+use Pumukit\SchemaBundle\Event\SchemaEvents;
+use Pumukit\SchemaBundle\Services\GroupEventDispatcherService;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Pumukit\SchemaBundle\Document\Group;
-use Pumukit\SchemaBundle\Event\SchemaEvents;
-use Pumukit\SchemaBundle\Event\GroupEvent;
-use Pumukit\SchemaBundle\Services\GroupEventDispatcherService;
 
-class GroupEventDispatcherServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class GroupEventDispatcherServiceTest extends WebTestCase
 {
     const EMPTY_NAME = 'EMTPY_NAME';
 
@@ -17,16 +21,17 @@ class GroupEventDispatcherServiceTest extends WebTestCase
     private $dispatcher;
     private $groupDispatcher;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()
-          ->get('doctrine_mongodb.odm.document_manager');
+            ->get('doctrine_mongodb.odm.document_manager')
+        ;
         $this->dispatcher = new EventDispatcher();
 
-        $this->dm->getDocumentCollection(Group::class)->remove(array());
+        $this->dm->getDocumentCollection(Group::class)->remove([]);
         $this->dm->flush();
 
         MockUpGroupListener::$called = false;
@@ -35,7 +40,7 @@ class GroupEventDispatcherServiceTest extends WebTestCase
         $this->groupDispatcher = new GroupEventDispatcherService($this->dispatcher);
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -48,8 +53,8 @@ class GroupEventDispatcherServiceTest extends WebTestCase
     public function testDispatchCreate()
     {
         $this->dispatcher->addListener(SchemaEvents::GROUP_CREATE, function ($event, $name) {
-            $this->assertTrue($event instanceof GroupEvent);
-            $this->assertEquals(SchemaEvents::GROUP_CREATE, $name);
+            static::assertTrue($event instanceof GroupEvent);
+            static::assertSame(SchemaEvents::GROUP_CREATE, $name);
 
             $group = $event->getGroup();
 
@@ -57,8 +62,8 @@ class GroupEventDispatcherServiceTest extends WebTestCase
             MockUpGroupListener::$name = $group->getName();
         });
 
-        $this->assertFalse(MockUpGroupListener::$called);
-        $this->assertEquals(self::EMPTY_NAME, MockUpGroupListener::$name);
+        static::assertFalse(MockUpGroupListener::$called);
+        static::assertSame(self::EMPTY_NAME, MockUpGroupListener::$name);
 
         $name = 'test_name';
 
@@ -70,15 +75,15 @@ class GroupEventDispatcherServiceTest extends WebTestCase
 
         $this->groupDispatcher->dispatchCreate($group);
 
-        $this->assertTrue(MockUpGroupListener::$called);
-        $this->assertEquals($name, MockUpGroupListener::$name);
+        static::assertTrue(MockUpGroupListener::$called);
+        static::assertSame($name, MockUpGroupListener::$name);
     }
 
     public function testDispatchUpdate()
     {
         $this->dispatcher->addListener(SchemaEvents::GROUP_UPDATE, function ($event, $name) {
-            $this->assertTrue($event instanceof GroupEvent);
-            $this->assertEquals(SchemaEvents::GROUP_UPDATE, $name);
+            static::assertTrue($event instanceof GroupEvent);
+            static::assertSame(SchemaEvents::GROUP_UPDATE, $name);
 
             $group = $event->getGroup();
 
@@ -86,8 +91,8 @@ class GroupEventDispatcherServiceTest extends WebTestCase
             MockUpGroupListener::$name = $group->getName();
         });
 
-        $this->assertFalse(MockUpGroupListener::$called);
-        $this->assertEquals(self::EMPTY_NAME, MockUpGroupListener::$name);
+        static::assertFalse(MockUpGroupListener::$called);
+        static::assertSame(self::EMPTY_NAME, MockUpGroupListener::$name);
 
         $name = 'test_name';
 
@@ -105,15 +110,15 @@ class GroupEventDispatcherServiceTest extends WebTestCase
 
         $this->groupDispatcher->dispatchUpdate($group);
 
-        $this->assertTrue(MockUpGroupListener::$called);
-        $this->assertEquals($updateName, MockUpGroupListener::$name);
+        static::assertTrue(MockUpGroupListener::$called);
+        static::assertSame($updateName, MockUpGroupListener::$name);
     }
 
     public function testDispatchDelete()
     {
         $this->dispatcher->addListener(SchemaEvents::GROUP_DELETE, function ($event, $name) {
-            $this->assertTrue($event instanceof GroupEvent);
-            $this->assertEquals(SchemaEvents::GROUP_DELETE, $name);
+            static::assertTrue($event instanceof GroupEvent);
+            static::assertSame(SchemaEvents::GROUP_DELETE, $name);
 
             $group = $event->getGroup();
 
@@ -121,8 +126,8 @@ class GroupEventDispatcherServiceTest extends WebTestCase
             MockUpGroupListener::$name = $group->getName();
         });
 
-        $this->assertFalse(MockUpGroupListener::$called);
-        $this->assertEquals(self::EMPTY_NAME, MockUpGroupListener::$name);
+        static::assertFalse(MockUpGroupListener::$called);
+        static::assertSame(self::EMPTY_NAME, MockUpGroupListener::$name);
 
         $name = 'test_name';
 
@@ -134,8 +139,8 @@ class GroupEventDispatcherServiceTest extends WebTestCase
 
         $this->groupDispatcher->dispatchDelete($group);
 
-        $this->assertTrue(MockUpGroupListener::$called);
-        $this->assertEquals($name, MockUpGroupListener::$name);
+        static::assertTrue(MockUpGroupListener::$called);
+        static::assertSame($name, MockUpGroupListener::$name);
     }
 }
 

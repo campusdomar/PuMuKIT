@@ -2,16 +2,20 @@
 
 namespace Pumukit\EncoderBundle\Tests\Services;
 
-use Pumukit\SchemaBundle\Services\MultimediaObjectPicService;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\Filesystem\Filesystem;
-use Pumukit\SchemaBundle\Document\Track;
 use Pumukit\EncoderBundle\Services\PicExtractorService;
 use Pumukit\InspectionBundle\Utils\TestCommand;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Document\Track;
+use Pumukit\SchemaBundle\Services\MultimediaObjectPicService;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
-class PicExtractorServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class PicExtractorServiceTest extends WebTestCase
 {
     private $dm;
     private $mmobjRepo;
@@ -24,13 +28,13 @@ class PicExtractorServiceTest extends WebTestCase
     private $inspectionService;
     private $mmsPicService;
 
-    public function setUp()
+    protected function setUp()
     {
         if (false === TestCommand::commandExists('/usr/local/bin/ffmpeg')) {
-            $this->markTestSkipped('PicExtractor test marks as skipped (No ffmpeg).');
+            static::markTestSkipped('PicExtractor test marks as skipped (No ffmpeg).');
         }
 
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()->get('doctrine_mongodb')->getManager();
@@ -42,8 +46,8 @@ class PicExtractorServiceTest extends WebTestCase
         $this->targetPath = $this->resourcesDir;
         $this->targetUrl = '/uploads';
 
-        $this->dm->getDocumentCollection(MultimediaObject::class)->remove(array());
-        $this->dm->getDocumentCollection(Series::class)->remove(array());
+        $this->dm->getDocumentCollection(MultimediaObject::class)->remove([]);
+        $this->dm->getDocumentCollection(Series::class)->remove([]);
         $this->dm->flush();
 
         $mmsPicService = new MultimediaObjectPicService($this->dm, $this->picEventDispatcher, $this->targetPath, $this->targetUrl, false);
@@ -53,7 +57,7 @@ class PicExtractorServiceTest extends WebTestCase
         $this->picExtractor = new PicExtractorService($this->dm, $mmsPicService, $width, $height, $this->targetPath, $this->targetUrl, $command);
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         if (isset($this->dm)) {
             $this->dm->close();
@@ -88,17 +92,17 @@ class PicExtractorServiceTest extends WebTestCase
 
         $output = $this->picExtractor->extractPic($multimediaObject, $track, '25%');
 
-        $this->assertStringStartsWith('Captured the FRAME', $output);
+        static::assertStringStartsWith('Captured the FRAME', $output);
 
         $multimediaObject = $this->mmobjRepo->find($multimediaObject->getId());
         $pic = $multimediaObject->getPics()[0];
 
-        $this->assertNotNull($pic->getWidth());
-        $this->assertNotNull($pic->getHeight());
+        static::assertNotNull($pic->getWidth());
+        static::assertNotNull($pic->getHeight());
 
-        $this->assertStringStartsWith($this->resourcesDir, $pic->getPath());
+        static::assertStringStartsWith($this->resourcesDir, $pic->getPath());
 
-        $this->assertStringStartsWith($this->targetUrl, $pic->getUrl());
+        static::assertStringStartsWith($this->targetUrl, $pic->getUrl());
 
         $this->deleteCreatedFiles();
     }
@@ -110,6 +114,7 @@ class PicExtractorServiceTest extends WebTestCase
         foreach ($multimediaObjects as $multimediaObject) {
             if (!$multimediaObject->isPrototype()) {
                 $selectedMultimediaObject = $multimediaObject;
+
                 break;
             }
         }
@@ -125,6 +130,6 @@ class PicExtractorServiceTest extends WebTestCase
         }
 
         $fs = new Filesystem();
-        $fs->remove(array($dirMmId, $dirVideo, $dirSeriesId, $dirSeries));
+        $fs->remove([$dirMmId, $dirVideo, $dirSeriesId, $dirSeries]);
     }
 }

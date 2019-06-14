@@ -2,12 +2,12 @@
 
 namespace Pumukit\TemplateBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Pumukit\TemplateBundle\Document\Template as PumukitTemplate;
 use Pumukit\TemplateBundle\Form\TemplateType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 class CrudController extends Controller
 {
@@ -22,15 +22,17 @@ class CrudController extends Controller
 
         $active = null;
         if ($activeName = $request->get('active')) {
-            $actives = array_filter($templates,
-                                   function ($t) use ($activeName) {
-                                       return $t->getName() == $activeName;
-                                   });
+            $actives = array_filter(
+                $templates,
+                function ($t) use ($activeName) {
+                    return $t->getName() === $activeName;
+                }
+            );
             $active = current($actives);
         }
 
         if (!$active) {
-            if (count($templates) > 0) {
+            if (\count($templates) > 0) {
                 $active = $templates[0];
             } else {
                 $active = null;
@@ -52,12 +54,12 @@ class CrudController extends Controller
             }
         }
 
-        return array(
+        return [
             'templates' => $templates,
             'active' => $active,
             'delete_form' => $deleteForm ? $deleteForm->createView() : null,
             'edit_form' => $editForm ? $editForm->createView() : null,
-        );
+        ];
     }
 
     /**
@@ -99,7 +101,7 @@ class CrudController extends Controller
     private function createDeleteForm(PumukitTemplate $a)
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('pumukit_template_crud_delete', array('id' => $a->getId())))
+            ->setAction($this->generateUrl('pumukit_template_crud_delete', ['id' => $a->getId()]))
             ->setMethod('DELETE')
             ->getForm()
             ;

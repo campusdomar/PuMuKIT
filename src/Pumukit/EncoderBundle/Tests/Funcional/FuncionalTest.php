@@ -2,15 +2,19 @@
 
 namespace Pumukit\EncoderBundle\Tests\Funcional;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Monolog\Handler\StreamHandler;
+use Pumukit\EncoderBundle\Document\Job;
 use Pumukit\EncoderBundle\Services\JobService;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
 use Symfony\Bridge\Monolog\Logger;
-use Monolog\Handler\StreamHandler;
-use Pumukit\EncoderBundle\Document\Job;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class FuncionalTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class FuncionalTest extends WebTestCase
 {
     private $dm;
     private $repo;
@@ -23,11 +27,11 @@ class FuncionalTest extends WebTestCase
     private $propService;
     private $videoInputPath;
 
-    public function setUp()
+    protected function setUp()
     {
-        $this->markTestSkipped('Functional tests not available. (A little better, but still broken)');
+        static::markTestSkipped('Functional tests not available. (A little better, but still broken)');
 
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()->get('doctrine_mongodb')->getManager();
@@ -42,19 +46,28 @@ class FuncionalTest extends WebTestCase
 
         $this->videoInputPath = realpath(__DIR__.'/../Resources').'/CAMERA.mp4';
 
-        $this->dm->getDocumentCollection(Job::class)->remove(array());
-        $this->dm->getDocumentCollection(MultimediaObject::class)->remove(array());
-        $this->dm->getDocumentCollection(Series::class)->remove(array());
+        $this->dm->getDocumentCollection(Job::class)->remove([]);
+        $this->dm->getDocumentCollection(MultimediaObject::class)->remove([]);
+        $this->dm->getDocumentCollection(Series::class)->remove([]);
         $this->dm->flush();
 
         $dispatcher = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')
-                    ->getMock();
+            ->getMock()
+        ;
         $logger = new Logger('job_service_test_logger');
         $logger->pushHandler(new StreamHandler(realpath(__DIR__.'/../Resources').'/encoder_test.log', Logger::WARNING));
-        $this->jobService = new JobService($this->dm, $this->profileService, $this->cpuService,
-                                           $this->inspectionService, $dispatcher, $logger,
-                                           $this->trackService, $this->tokenStorage, $this->propService,
-                                           'test');
+        $this->jobService = new JobService(
+            $this->dm,
+            $this->profileService,
+            $this->cpuService,
+            $this->inspectionService,
+            $dispatcher,
+            $logger,
+            $this->trackService,
+            $this->tokenStorage,
+            $this->propService,
+            'test'
+        );
     }
 
     public function testSimpleEncoding()
@@ -65,8 +78,8 @@ class FuncionalTest extends WebTestCase
 
         $this->jobService->execute($job);
 
-        $this->assertEquals(1, count($mm->getTracks()));
-        $this->assertEquals($job->getDuration(), $mm->getDuration());
+        static::assertSame(1, \count($mm->getTracks()));
+        static::assertSame($job->getDuration(), $mm->getDuration());
     }
 
     private function createMultimediaObjectAssignedToSeries($title, Series $series)

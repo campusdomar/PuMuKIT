@@ -2,14 +2,14 @@
 
 namespace Pumukit\NewAdminBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Pumukit\NewAdminBundle\Form\Type\LinkType;
+use Pumukit\SchemaBundle\Document\Link;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Pumukit\SchemaBundle\Document\Link;
-use Pumukit\NewAdminBundle\Form\Type\LinkType;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Security("is_granted('ROLE_ACCESS_MULTIMEDIA_SERIES')")
@@ -25,7 +25,7 @@ class LinkController extends Controller implements NewAdminControllerInterface
         $translator = $this->get('translator');
         $locale = $request->getLocale();
         $link = new Link();
-        $form = $this->createForm(LinkType::class, $link, array('translator' => $translator, 'locale' => $locale));
+        $form = $this->createForm(LinkType::class, $link, ['translator' => $translator, 'locale' => $locale]);
 
         $form->handleRequest($request);
         if (($request->isMethod('PUT') || $request->isMethod('POST')) && $form->isValid()) {
@@ -35,19 +35,20 @@ class LinkController extends Controller implements NewAdminControllerInterface
                 $this->get('session')->getFlashBag()->add('error', $e->getMessage());
             }
 
-            return $this->render('PumukitNewAdminBundle:Link:list.html.twig',
-                                 array(
-                                     'links' => $multimediaObject->getLinks(),
-                                     'mmId' => $multimediaObject->getId(),
-                                 )
+            return $this->render(
+                'PumukitNewAdminBundle:Link:list.html.twig',
+                [
+                    'links' => $multimediaObject->getLinks(),
+                    'mmId' => $multimediaObject->getId(),
+                ]
             );
         }
 
-        return array(
+        return [
             'link' => $link,
             'form' => $form->createView(),
             'mm' => $multimediaObject,
-        );
+        ];
     }
 
     /**
@@ -59,7 +60,7 @@ class LinkController extends Controller implements NewAdminControllerInterface
         $translator = $this->get('translator');
         $locale = $request->getLocale();
         $link = $multimediaObject->getLinkById($request->get('id'));
-        $form = $this->createForm(LinkType::class, $link, array('translator' => $translator, 'locale' => $locale));
+        $form = $this->createForm(LinkType::class, $link, ['translator' => $translator, 'locale' => $locale]);
 
         $form->handleRequest($request);
         if (($request->isMethod('PUT') || $request->isMethod('POST')) && $form->isValid()) {
@@ -69,19 +70,20 @@ class LinkController extends Controller implements NewAdminControllerInterface
                 $this->get('session')->getFlashBag()->add('error', $e->getMessage());
             }
 
-            return $this->render('PumukitNewAdminBundle:Link:list.html.twig',
-                                 array(
-                                     'links' => $multimediaObject->getLinks(),
-                                     'mmId' => $multimediaObject->getId(),
-                                 )
+            return $this->render(
+                'PumukitNewAdminBundle:Link:list.html.twig',
+                [
+                    'links' => $multimediaObject->getLinks(),
+                    'mmId' => $multimediaObject->getId(),
+                ]
             );
         }
 
-        return array(
+        return [
             'link' => $link,
             'form' => $form->createView(),
             'mm' => $multimediaObject,
-        );
+        ];
     }
 
     /**
@@ -94,10 +96,10 @@ class LinkController extends Controller implements NewAdminControllerInterface
 
         $this->addFlash('success', 'delete');
 
-        return array(
+        return [
             'links' => $multimediaObject->getLinks(),
             'mmId' => $multimediaObject->getId(),
-        );
+        ];
     }
 
     /**
@@ -110,10 +112,10 @@ class LinkController extends Controller implements NewAdminControllerInterface
 
         $this->addFlash('success', 'delete');
 
-        return array(
+        return [
             'mmId' => $multimediaObject->getId(),
             'links' => $multimediaObject->getLinks(),
-        );
+        ];
     }
 
     /**
@@ -126,9 +128,9 @@ class LinkController extends Controller implements NewAdminControllerInterface
 
         $this->addFlash('success', 'delete');
 
-        return array(
+        return [
             'mmId' => $multimediaObject->getId(),
             'links' => $multimediaObject->getLinks(),
-        );
+        ];
     }
 }

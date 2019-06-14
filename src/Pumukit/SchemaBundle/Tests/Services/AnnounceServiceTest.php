@@ -2,13 +2,17 @@
 
 namespace Pumukit\SchemaBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Pumukit\SchemaBundle\Document\Series;
-use Pumukit\SchemaBundle\Document\Tag;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Role;
+use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Document\Tag;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class AnnounceServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class AnnounceServiceTest extends WebTestCase
 {
     private $dm;
     private $mmobjRepo;
@@ -17,39 +21,49 @@ class AnnounceServiceTest extends WebTestCase
     private $factoryService;
     private $tagService;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()
-          ->get('doctrine_mongodb')->getManager();
+            ->get('doctrine_mongodb')->getManager();
         $this->seriesRepo = $this->dm
-          ->getRepository(Series::class);
+            ->getRepository(Series::class)
+        ;
         $this->mmobjRepo = $this->dm
-          ->getRepository(MultimediaObject::class);
+            ->getRepository(MultimediaObject::class)
+        ;
 
         $this->announceService = static::$kernel->getContainer()
-          ->get('pumukitschema.announce');
+            ->get('pumukitschema.announce')
+        ;
         $this->factoryService = static::$kernel->getContainer()
-          ->get('pumukitschema.factory');
+            ->get('pumukitschema.factory')
+        ;
         $this->tagService = static::$kernel->getContainer()
-          ->get('pumukitschema.tag');
+            ->get('pumukitschema.tag')
+        ;
 
         $this->dm->getDocumentCollection(MultimediaObject::class)
-          ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection('PumukitSchemaBundle:SeriesType')
-          ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Series::class)
-          ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Role::class)
-          ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Tag::class)
-          ->remove(array());
+            ->remove([])
+        ;
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->seriesRepo = null;
@@ -90,7 +104,7 @@ class AnnounceServiceTest extends WebTestCase
 
         $this->tagService->addTagToMultimediaObject($mm11, $tag->getId());
 
-        $this->assertEquals(array(), $this->announceService->getLast());
+        static::assertSame([], $this->announceService->getLast());
     }
 
     public function testNextLatestUploads()
@@ -124,12 +138,12 @@ class AnnounceServiceTest extends WebTestCase
 
         //We check the response is correct (returns objects within the same month)
         list($dateEnd, $last) = $this->announceService->getNextLatestUploads($date);
-        $this->assertEquals('05/1999', $dateEnd->format('m/Y'));
-        $this->assertEquals(array($series2, $mm11), $last);
+        static::assertSame('05/1999', $dateEnd->format('m/Y'));
+        static::assertSame([$series2, $mm11], $last);
 
         //We check the response is correct (returns objects within the same month and doesn't return series) with not 'tagPudenew'
         list($dateEnd, $last) = $this->announceService->getNextLatestUploads($date, false);
-        $this->assertEquals(array($mm33->getId() => $mm33, $mm11->getId() => $mm11), $last);
+        static::assertSame([$mm33->getId() => $mm33, $mm11->getId() => $mm11], $last);
 
         //We reuse the series and change the date
         $series2->setPublicDate(\DateTime::createFromFormat('d/m/Y', '05/04/1999'));
@@ -141,12 +155,12 @@ class AnnounceServiceTest extends WebTestCase
         $dateEnd->modify('first day of last month');
         //We check again for a correct answer (the series shouldn't be here at all)
         list($dateEnd, $last) = $this->announceService->getNextLatestUploads($dateEnd);
-        $this->assertEquals(array($mm22), $last);
+        static::assertSame([$mm22], $last);
 
         //Finally, we check the answer is empty after searching for 24 months. (calling it two times)
         $dateEnd->modify('first day of last month');
         list($dateEnd, $last) = $this->announceService->getNextLatestUploads($dateEnd);
-        $this->assertEquals(array(), $last);
-        $this->assertEquals(null, $dateEnd);
+        static::assertSame([], $last);
+        static::assertNull($dateEnd);
     }
 }

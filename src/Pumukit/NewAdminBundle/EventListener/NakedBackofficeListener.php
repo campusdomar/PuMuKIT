@@ -23,7 +23,7 @@ class NakedBackofficeListener
     {
         $req = $event->getRequest();
 
-        if ($req->getHttpHost() == $this->domain) {
+        if ($req->getHttpHost() === $this->domain) {
             $req->attributes->set('nakedbackoffice', true);
             $req->attributes->set('nakedbackoffice_color', $this->background);
             $req->attributes->set('nakedbackoffice_main_color', $this->color);

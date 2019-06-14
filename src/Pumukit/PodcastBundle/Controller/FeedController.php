@@ -3,14 +3,14 @@
 namespace Pumukit\PodcastBundle\Controller;
 
 use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\Tag;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @Route("/podcast")
@@ -28,7 +28,8 @@ class FeedController extends Controller
     {
         $router = $this->get('router');
         $mmObjRepo = $this->get('doctrine_mongodb.odm.document_manager')
-          ->getRepository(MultimediaObject::class);
+            ->getRepository(MultimediaObject::class)
+        ;
 
         $qb = $mmObjRepo->createStandardQueryBuilder();
         $qb->field('embeddedBroadcast.type')->equals(EmbeddedBroadcast::TYPE_PUBLIC);
@@ -36,11 +37,11 @@ class FeedController extends Controller
 
         $xml = new \SimpleXMLElement('<list/>');
         foreach ($series as $s) {
-            $url = $router->generate('pumukit_podcast_series_collection', array('id' => $s), UrlGeneratorInterface::ABSOLUTE_URL);
+            $url = $router->generate('pumukit_podcast_series_collection', ['id' => $s], UrlGeneratorInterface::ABSOLUTE_URL);
             $xml->addChild('podcast', $url);
         }
 
-        return new Response($xml->asXML(), 200, array('Content-Type' => 'text/xml'));
+        return new Response($xml->asXML(), 200, ['Content-Type' => 'text/xml']);
     }
 
     /**
@@ -52,7 +53,7 @@ class FeedController extends Controller
         $values = $this->getValues($request, 'video', null);
         $xml = $this->getXMLElement($multimediaObjects, $values, 'video');
 
-        return new Response($xml->asXML(), 200, array('Content-Type' => 'text/xml'));
+        return new Response($xml->asXML(), 200, ['Content-Type' => 'text/xml']);
     }
 
     /**
@@ -64,7 +65,7 @@ class FeedController extends Controller
         $values = $this->getValues($request, 'audio', null);
         $xml = $this->getXMLElement($multimediaObjects, $values, 'audio');
 
-        return new Response($xml->asXML(), 200, array('Content-Type' => 'text/xml'));
+        return new Response($xml->asXML(), 200, ['Content-Type' => 'text/xml']);
     }
 
     /**
@@ -76,7 +77,7 @@ class FeedController extends Controller
         $values = $this->getValues($request, 'video', $series);
         $xml = $this->getXMLElement($multimediaObjects, $values, 'video');
 
-        return new Response($xml->asXML(), 200, array('Content-Type' => 'text/xml'));
+        return new Response($xml->asXML(), 200, ['Content-Type' => 'text/xml']);
     }
 
     /**
@@ -88,7 +89,7 @@ class FeedController extends Controller
         $values = $this->getValues($request, 'audio', $series);
         $xml = $this->getXMLElement($multimediaObjects, $values, 'audio');
 
-        return new Response($xml->asXML(), 200, array('Content-Type' => 'text/xml'));
+        return new Response($xml->asXML(), 200, ['Content-Type' => 'text/xml']);
     }
 
     /**
@@ -100,7 +101,7 @@ class FeedController extends Controller
         $values = $this->getValues($request, 'video', $series);
         $xml = $this->getXMLElement($multimediaObjects, $values, 'all');
 
-        return new Response($xml->asXML(), 200, array('Content-Type' => 'text/xml'));
+        return new Response($xml->asXML(), 200, ['Content-Type' => 'text/xml']);
     }
 
     private function createPodcastMultimediaObjectByAudioQueryBuilder($isOnlyAudio = false)
@@ -111,7 +112,7 @@ class FeedController extends Controller
         $qb->field('tracks')->elemMatch(
             $qb->expr()
                 ->field('only_audio')->equals($isOnlyAudio)
-                ->field('tags')->all(array('podcast'))
+                ->field('tags')->all(['podcast'])
         );
 
         return $qb;
@@ -135,7 +136,8 @@ class FeedController extends Controller
     private function getPodcastMultimediaObjectsBySeries(Series $series)
     {
         $mmObjRepo = $this->get('doctrine_mongodb.odm.document_manager')
-          ->getRepository(MultimediaObject::class);
+            ->getRepository(MultimediaObject::class)
+        ;
         $qb = $mmObjRepo->createStandardQueryBuilder();
         $qb->field('embeddedBroadcast.type')->equals(EmbeddedBroadcast::TYPE_PUBLIC);
         $qb->field('series')->references($series);
@@ -148,7 +150,7 @@ class FeedController extends Controller
         $container = $this->container;
         $pumukitInfo = $container->getParameter('pumukit.info');
 
-        $values = array();
+        $values = [];
         $values['base_url'] = $this->getBaseUrl().$request->getBasePath();
         $values['requestURI'] = $values['base_url'].$request->getRequestUri();
         $values['image_url'] = $values['base_url'].'/bundles/pumukitpodcast/images/gc_'.$audioVideoType.'.jpg';
@@ -174,7 +176,7 @@ class FeedController extends Controller
               $pumukitInfo['description'];
             $values['copyright'] = $container->getParameter('pumukit_podcast.channel_copyright') ?
               $container->getParameter('pumukit_podcast.channel_copyright') :
-              (isset($pumukitInfo['copyright']) ? $pumukitInfo['copyright'] : 'PuMuKIT2 2015');
+              ($pumukitInfo['copyright'] ?? 'PuMuKIT2 2015');
             $values['itunes_category'] = $container->getParameter('pumukit_podcast.itunes_category');
             $values['itunes_summary'] = $container->getParameter('pumukit_podcast.itunes_summary') ?
               $container->getParameter('pumukit_podcast.itunes_summary') :
@@ -188,7 +190,8 @@ class FeedController extends Controller
 
     private function getXMLElement($multimediaObjects, $values, $trackType = 'video')
     {
-        $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?>'
+        $xml = new \SimpleXMLElement(
+            '<?xml version="1.0" encoding="UTF-8"?>'
                                      .'<rss xmlns:itunes="'.self::ITUNES_DTD_URL
                                      .'" xmlns:itunesu="'.self::ITUNESU_FEED_URL
                                      .'" xmlns:atom="'.self::ATOM_URL
@@ -245,7 +248,7 @@ class FeedController extends Controller
             if ($track) {
                 $item = $channel->addChild('item');
 
-                $title = (0 === strlen($multimediaObject->getTitle())) ?
+                $title = (0 === \strlen($multimediaObject->getTitle())) ?
                   $multimediaObject->getSeries()->getTitle() :
                   $multimediaObject->getTitle();
                 $item->addChild('title', htmlspecialchars($title));
@@ -263,7 +266,7 @@ class FeedController extends Controller
                 }
 
                 if ($multimediaObject->isPublished() && $multimediaObject->containsTagWithCod('PUCHWEBTV')) {
-                    $link = $router->generate('pumukit_webtv_multimediaobject_index', array('id' => $multimediaObject->getId()), UrlGeneratorInterface::ABSOLUTE_URL);
+                    $link = $router->generate('pumukit_webtv_multimediaobject_index', ['id' => $multimediaObject->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
                     $item->addChild('link', $link);
                 }
 
@@ -305,28 +308,30 @@ class FeedController extends Controller
 
     private function getVideoTrack(MultimediaObject $multimediaObject)
     {
-        $video_all_tags = array('podcast');
-        $video_not_all_tags = array('audio');
+        $video_all_tags = ['podcast'];
+        $video_not_all_tags = ['audio'];
 
         return $multimediaObject->getFilteredTrackWithTags(
-                                                           array(),
-                                                           $video_all_tags,
-                                                           array(),
-                                                           $video_not_all_tags,
-                                                           false);
+            [],
+            $video_all_tags,
+            [],
+            $video_not_all_tags,
+            false
+        );
     }
 
     private function getAudioTrack(MultimediaObject $multimediaObject)
     {
-        $audio_all_tags = array('podcast', 'audio');
-        $audio_not_all_tags = array();
+        $audio_all_tags = ['podcast', 'audio'];
+        $audio_not_all_tags = [];
 
         return $multimediaObject->getFilteredTrackWithTags(
-                                                           array(),
-                                                           $audio_all_tags,
-                                                           array(),
-                                                           $audio_not_all_tags,
-                                                           false);
+            [],
+            $audio_all_tags,
+            [],
+            $audio_not_all_tags,
+            false
+        );
     }
 
     private function getDurationString(MultimediaObject $multimediaObject)
@@ -339,7 +344,7 @@ class FeedController extends Controller
 
     private function getAbsoluteUrl($url = '')
     {
-        if ($url && '/' == $url[0]) {
+        if ($url && '/' === $url[0]) {
             return $this->getBaseUrl().$url;
         }
 
@@ -356,9 +361,9 @@ class FeedController extends Controller
         $scheme = $context->getScheme();
         $host = $context->getHost();
         $port = '';
-        if ('http' === $scheme && 80 != $context->getHttpPort()) {
+        if ('http' === $scheme && 80 !== $context->getHttpPort()) {
             $port = ':'.$context->getHttpPort();
-        } elseif ('https' === $scheme && 443 != $context->getHttpsPort()) {
+        } elseif ('https' === $scheme && 443 !== $context->getHttpsPort()) {
             $port = ':'.$context->getHttpsPort();
         }
 

@@ -6,7 +6,7 @@ class TestCommand
 {
     public static function commandExists($command)
     {
-        if (!function_exists('exec')) {
+        if (!\function_exists('exec')) {
             return false;
         }
 
@@ -18,6 +18,6 @@ class TestCommand
         $command = escapeshellcmd($command);
         exec($testCommand.$command.' 2>&1', $output, $code);
 
-        return 0 === $code && count($output) > 0;
+        return 0 === $code && \count($output) > 0;
     }
 }

@@ -20,12 +20,13 @@ class GroupRepository extends DocumentRepository
      *
      * @return mixed
      */
-    public function findByIdNotIn($ids = array())
+    public function findByIdNotIn($ids = [])
     {
         return $this->createQueryBuilder()
             ->field('_id')->notIn($ids)
             ->getQuery()
-            ->execute();
+            ->execute()
+        ;
     }
 
     /**
@@ -39,12 +40,13 @@ class GroupRepository extends DocumentRepository
      *
      * @return mixed
      */
-    public function findByIdNotInOf($ids = array(), $total = array())
+    public function findByIdNotInOf($ids = [], $total = [])
     {
         return $this->createQueryBuilder()
             ->field('_id')->in($total)
             ->field('_id')->notIn($ids)
             ->getQuery()
-            ->execute();
+            ->execute()
+        ;
     }
 }

@@ -14,14 +14,14 @@ trait Keywords
      *
      * @MongoDB\Field(type="raw")
      */
-    private $keyword = array('en' => '');
+    private $keyword = ['en' => ''];
 
     /**
      * @var array
      *
      * @MongoDB\Field(type="raw")
      */
-    private $keywords = array('en' => array());
+    private $keywords = ['en' => []];
 
     /**
      * Set keyword.
@@ -30,7 +30,7 @@ trait Keywords
      * use setKeywords instead
      *
      * @param string      $keyword
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setKeyword($keyword, $locale = null)
     {
@@ -47,7 +47,7 @@ trait Keywords
      * @deprecated in version 2.3
      * use getKeywords instead
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -70,7 +70,7 @@ trait Keywords
      */
     public function setI18nKeyword(array $keyword)
     {
-        $keywords = array();
+        $keywords = [];
         foreach ($keyword as $lang => $value) {
             $keywords[$lang] = array_values(array_filter(array_map('trim', explode(',', $value))));
         }
@@ -86,7 +86,7 @@ trait Keywords
      */
     public function getI18nKeyword()
     {
-        $keywords = array();
+        $keywords = [];
         foreach ($this->keywords as $lang => $value) {
             $keywords[$lang] = implode(',', $value);
         }
@@ -97,8 +97,8 @@ trait Keywords
     /**
      * Contains keyword.
      *
-     *
-     * @param string|null $locale
+     * @param null|string $locale
+     * @param mixed       $keyword
      *
      * @return bool TRUE if this multimedia_object contained the keyword, FALSE otherwise
      */
@@ -108,14 +108,14 @@ trait Keywords
             $locale = $this->locale;
         }
 
-        return in_array($keyword, $this->getKeywords($locale), true);
+        return \in_array($keyword, $this->getKeywords($locale), true);
     }
 
     /**
      * Add keyword.
      *
      * @param string      $keyword
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return bool Always TRUE
      */
@@ -126,7 +126,7 @@ trait Keywords
         }
 
         if (!isset($this->keyword[$locale])) {
-            return array($locale => $keyword);
+            return [$locale => $keyword];
         }
 
         $this->keyword[$locale] = $keyword;
@@ -138,7 +138,7 @@ trait Keywords
      * Remove keyword.
      *
      * @param string      $keyword
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return bool TRUE if object contains the keyword
      */
@@ -167,7 +167,7 @@ trait Keywords
      * Set keywords.
      *
      * @param array       $keyword
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setKeywords(array $keywords, $locale = null)
     {
@@ -180,7 +180,7 @@ trait Keywords
     /**
      * Get keyword.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return array
      */
@@ -190,7 +190,7 @@ trait Keywords
             $locale = $this->locale;
         }
         if (!isset($this->keyword[$locale])) {
-            return array();
+            return [];
         }
 
         return $this->keyword[$locale];

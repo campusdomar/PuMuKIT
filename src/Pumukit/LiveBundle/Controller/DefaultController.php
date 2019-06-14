@@ -2,16 +2,16 @@
 
 namespace Pumukit\LiveBundle\Controller;
 
-use Pumukit\WebTVBundle\Form\Type\ContactType;
+use Pumukit\LiveBundle\Document\Live;
+use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\WebTVBundle\Form\Type\ContactType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Pumukit\LiveBundle\Document\Live;
 
 class DefaultController extends Controller
 {
@@ -26,7 +26,7 @@ class DefaultController extends Controller
      */
     public function indexAction(Live $live, Request $request)
     {
-        $this->updateBreadcrumbs($live->getName(), 'pumukit_live_id', array('id' => $live->getId()));
+        $this->updateBreadcrumbs($live->getName(), 'pumukit_live_id', ['id' => $live->getId()]);
 
         return $this->doLive($live, $request, false);
     }
@@ -45,28 +45,6 @@ class DefaultController extends Controller
         return $this->doLive($live, $request, true);
     }
 
-    protected function doLive(Live $live, Request $request, $iframe = true)
-    {
-        if ($live->getPasswd() && $live->getPasswd() !== $request->get('broadcast_password')) {
-            return $this->render($iframe ? 'PumukitLiveBundle:Default:iframepassword.html.twig' : 'PumukitLiveBundle:Default:indexpassword.html.twig', array(
-                'live' => $live,
-                'invalid_password' => boolval($request->get('broadcast_password')),
-            ));
-        }
-        $userAgent = $request->headers->get('user-agent');
-        $mobileDetectorService = $this->get('mobile_detect.mobile_detector');
-        $mobileDevice = ($mobileDetectorService->isMobile($userAgent) || $mobileDetectorService->isTablet($userAgent));
-        $isIE = $mobileDetectorService->version('IE');
-        $versionIE = $isIE ? floatval($isIE) : 11.0;
-
-        return array(
-            'live' => $live,
-            'mobile_device' => $mobileDevice,
-            'isIE' => $isIE,
-            'versionIE' => $versionIE,
-        );
-    }
-
     /**
      * @param MultimediaObject $multimediaObject
      * @param Request          $request
@@ -81,14 +59,14 @@ class DefaultController extends Controller
     {
         $embeddedEventSessionService = $this->get('pumukitschema.eventsession');
 
-        $criteria = array(
+        $criteria = [
             '_id' => new \MongoId($multimediaObject->getId()),
-        );
+        ];
 
         $nowSessions = $embeddedEventSessionService->findCurrentSessions($criteria, 0, true);
         $nextSession = $embeddedEventSessionService->findNextSessions($criteria, 0, true);
 
-        if (count($nextSession) > 0 || count($nowSessions) > 0) {
+        if (\count($nextSession) > 0 || \count($nowSessions) > 0) {
             $translator = $this->get('translator');
             $this->updateBreadcrumbs($translator->trans('Live events'), 'pumukit_webtv_events');
 
@@ -100,19 +78,19 @@ class DefaultController extends Controller
         $qb = $this->getMultimediaObjects($series->getId());
         $multimediaObjects = $qb->getQuery()->execute();
 
-        if (1 === count($multimediaObjects)) {
+        if (1 === \count($multimediaObjects)) {
             $multimediaObjects->next();
             $mm = $multimediaObjects->current();
 
             if ($mm->getDisplayTrack()) {
-                return $this->redirectToRoute('pumukit_webtv_multimediaobject_index', array('id' => $mm->getId()));
+                return $this->redirectToRoute('pumukit_webtv_multimediaobject_index', ['id' => $mm->getId()]);
             }
-        } elseif (count($multimediaObjects) > 1) {
+        } elseif (\count($multimediaObjects) > 1) {
             if (!$series->isHide()) {
-                return $this->redirectToRoute('pumukit_webtv_series_index', array('id' => $series->getId()));
-            } else {
-                return $this->iframeEventAction($multimediaObject, $request, false);
+                return $this->redirectToRoute('pumukit_webtv_series_index', ['id' => $series->getId()]);
             }
+
+            return $this->iframeEventAction($multimediaObject, $request, false);
         }
 
         return $this->iframeEventAction($multimediaObject, $request, false);
@@ -132,22 +110,22 @@ class DefaultController extends Controller
     public function iframeEventAction(MultimediaObject $multimediaObject, Request $request, $iframe = true)
     {
         if (embeddedBroadcast::TYPE_PASSWORD === $multimediaObject->getEmbeddedBroadcast()->getType() && $multimediaObject->getEmbeddedBroadcast()->getPassword() !== $request->get('broadcast_password')) {
-            return $this->render($iframe ? 'PumukitLiveBundle:Default:iframepassword.html.twig' : 'PumukitLiveBundle:Default:indexpassword.html.twig', array(
+            return $this->render($iframe ? 'PumukitLiveBundle:Default:iframepassword.html.twig' : 'PumukitLiveBundle:Default:indexpassword.html.twig', [
                 'live' => $multimediaObject->getEmbeddedEvent(),
-                'invalid_password' => boolval($request->get('broadcast_password')),
-            ));
+                'invalid_password' => (bool) ($request->get('broadcast_password')),
+            ]);
         }
 
         $userAgent = $request->headers->get('user-agent');
         $mobileDetectorService = $this->get('mobile_detect.mobile_detector');
         $mobileDevice = ($mobileDetectorService->isMobile($userAgent) || $mobileDetectorService->isTablet($userAgent));
         $isIE = $mobileDetectorService->version('IE');
-        $versionIE = $isIE ? floatval($isIE) : 11.0;
+        $versionIE = $isIE ? (float) $isIE : 11.0;
 
         $translator = $this->get('translator');
         $locale = $request->getLocale();
 
-        $form = $this->createForm(ContactType::class, null, array('translator' => $translator, 'locale' => $locale));
+        $form = $this->createForm(ContactType::class, null, ['translator' => $translator, 'locale' => $locale]);
 
         $activeContact = false;
         $captchaPublicKey = '';
@@ -158,9 +136,9 @@ class DefaultController extends Controller
 
         $embeddedEventSessionService = $this->get('pumukitschema.eventsession');
 
-        $criteria = array(
+        $criteria = [
             '_id' => new \MongoId($multimediaObject->getId()),
-        );
+        ];
 
         $nowSessions = $embeddedEventSessionService->findCurrentSessions($criteria, 0, true);
         $now = new \DateTime();
@@ -170,6 +148,7 @@ class DefaultController extends Controller
         foreach ($nowSessions as $session) {
             $firstNowSessionEnds = ($session['data'][0]['session']['start']->sec + $session['data'][0]['session']['duration']) * 1000;
             $firstNowSessionRemainingDuration = $firstNowSessionEnds - ($now->getTimeStamp() * 1000);
+
             break;
         }
 
@@ -179,9 +158,12 @@ class DefaultController extends Controller
         foreach ($multimediaObject->getEmbeddedEvent()->getEmbeddedEventSession() as $session) {
             if ($session->getStart() < $date && $session->getEnds() > $date) {
                 $firstNextSession = $session->getStart()->getTimestamp() * 1000;
+
                 break;
-            } elseif ($session->getStart() > $date) {
+            }
+            if ($session->getStart() > $date) {
                 $firstNextSession = $session->getStart()->getTimestamp() * 1000;
+
                 break;
             }
         }
@@ -191,7 +173,7 @@ class DefaultController extends Controller
             $secondsToEvent = $firstNextSession - ($now->getTimeStamp() * 1000);
         }
 
-        if (0 === count($nowSessions) && 0 === count($nextSessions) && $iframe) {
+        if (0 === \count($nowSessions) && 0 === \count($nextSessions) && $iframe) {
             $qb = $this->getMultimediaObjects($multimediaObject->getSeries()->getId());
             $qb->field('embeddedBroadcast.type')->equals(EmbeddedBroadcast::TYPE_PUBLIC);
             $multimediaObjectPlaylist = $qb->getQuery()->execute()->getSingleResult();
@@ -201,12 +183,12 @@ class DefaultController extends Controller
 
                 return $this->redirectToRoute(
                     'pumukit_playlistplayer_index',
-                    array('id' => $multimediaObjectPlaylist->getSeries()->getId(), 'autostart' => $autostart)
+                    ['id' => $multimediaObjectPlaylist->getSeries()->getId(), 'autostart' => $autostart]
                 );
             }
         }
 
-        return array(
+        return [
             'multimediaObject' => $multimediaObject,
             'firstNextSession' => $firstNextSession,
             'secondsToEvent' => $secondsToEvent,
@@ -222,24 +204,7 @@ class DefaultController extends Controller
             'mobile_device' => $mobileDevice,
             'isIE' => $isIE,
             'versionIE' => $versionIE,
-        );
-    }
-
-    /**
-     * @param $seriesId
-     *
-     * @return mixed
-     */
-    private function getMultimediaObjects($seriesId)
-    {
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        $qb = $dm->getRepository(MultimediaObject::class)->createStandardQueryBuilder()
-            ->field('status')->equals(MultimediaObject::STATUS_PUBLISHED)
-            ->field('tags.cod')->equals('PUCHWEBTV')
-            ->field('series')->equals(new \MongoId($seriesId));
-        $qb->field('tracks')->elemMatch($qb->expr()->field('tags')->equals('display')->field('hide')->equals(false));
-
-        return $qb;
+        ];
     }
 
     /**
@@ -253,21 +218,15 @@ class DefaultController extends Controller
     public function defaultAction(Request $request)
     {
         $repo = $this->get('doctrine_mongodb.odm.document_manager')->getRepository(Live::class);
-        $live = $repo->findOneBy(array());
+        $live = $repo->findOneBy([]);
 
         if (!$live) {
             throw $this->createNotFoundException('The live channel does not exist');
         }
 
-        $this->updateBreadcrumbs($live->getName(), 'pumukit_live', array('id' => $live->getId()));
+        $this->updateBreadcrumbs($live->getName(), 'pumukit_live', ['id' => $live->getId()]);
 
         return $this->doLive($live, $request, false);
-    }
-
-    protected function updateBreadcrumbs($title, $routeName, array $routeParameters = array())
-    {
-        $breadcrumbs = $this->get('pumukit_web_tv.breadcrumbs');
-        $breadcrumbs->addList($title, $routeName, $routeParameters);
     }
 
     /**
@@ -282,9 +241,9 @@ class DefaultController extends Controller
     {
         $intro = $this->container->hasParameter('pumukit.intro') ? $this->container->getParameter('pumukit.intro') : null;
         $dm = $this->container->get('doctrine_mongodb')->getManager();
-        $mmobjsPlaylist = $dm->getRepository(MultimediaObject::class)->findBy(array('properties.is_live_playlist' => true));
+        $mmobjsPlaylist = $dm->getRepository(MultimediaObject::class)->findBy(['properties.is_live_playlist' => true]);
 
-        $response = array('live' => $live);
+        $response = ['live' => $live];
         if ($mmobjsPlaylist) {
             $response['items'] = $mmobjsPlaylist;
         } elseif ($intro) {
@@ -308,7 +267,7 @@ class DefaultController extends Controller
     public function contactAction($multimediaObject, Request $request)
     {
         $translator = $this->get('translator');
-        if ('POST' == $request->getMethod() && $this->checkCaptcha($request->request->get('g-recaptcha-response'), $request->getClientIp())) {
+        if ('POST' === $request->getMethod() && $this->checkCaptcha($request->request->get('g-recaptcha-response'), $request->getClientIp())) {
             $mail = $this->container->hasParameter('pumukit_notification.sender_email') ? $this->container->getParameter('pumukit_notification.sender_email') : 'noreplay@yourplatform.es';
             $to = $multimediaObject->getEmbeddedSocial()->getEmail();
 
@@ -316,7 +275,8 @@ class DefaultController extends Controller
             $bodyMail = sprintf(" * URL: %s\n * ".$translator->trans('Email').": %s\n * ".$translator->trans('Name').": %s\n * ".$translator->trans('Content').": %s\n ", $request->headers->get('referer', 'No referer'), $data['email'], $data['name'], $data['content']);
 
             $pumukitInfo = $this->container->getParameter('pumukit.info');
-            $subject = sprintf('%s - %s: %s',
+            $subject = sprintf(
+                '%s - %s: %s',
                 $pumukitInfo['title'],
                 $translator->trans('New contact from live event'),
                 $multimediaObject->getEmbeddedEvent()->getName()
@@ -326,20 +286,65 @@ class DefaultController extends Controller
             $message->setSubject($subject)->setSender($mail)->setFrom($mail)->setTo($to)->setBody($bodyMail, 'text/plain');
             $sent = $this->get('mailer')->send($message);
 
-            if (0 == $sent) {
+            if (0 === $sent) {
                 $this->get('logger')->error('Event contact: Error sending message from - '.$request->request->get('email'));
             }
 
-            return new JsonResponse(array(
+            return new JsonResponse([
                 'success' => true,
                 'message' => $translator->trans('email send'),
-            ));
-        } else {
-            return new JsonResponse(array(
-                'success' => false,
-                'message' => $translator->trans('please verify form data'),
-            ));
+            ]);
         }
+
+        return new JsonResponse([
+            'success' => false,
+            'message' => $translator->trans('please verify form data'),
+        ]);
+    }
+
+    protected function doLive(Live $live, Request $request, $iframe = true)
+    {
+        if ($live->getPasswd() && $live->getPasswd() !== $request->get('broadcast_password')) {
+            return $this->render($iframe ? 'PumukitLiveBundle:Default:iframepassword.html.twig' : 'PumukitLiveBundle:Default:indexpassword.html.twig', [
+                'live' => $live,
+                'invalid_password' => (bool) ($request->get('broadcast_password')),
+            ]);
+        }
+        $userAgent = $request->headers->get('user-agent');
+        $mobileDetectorService = $this->get('mobile_detect.mobile_detector');
+        $mobileDevice = ($mobileDetectorService->isMobile($userAgent) || $mobileDetectorService->isTablet($userAgent));
+        $isIE = $mobileDetectorService->version('IE');
+        $versionIE = $isIE ? (float) $isIE : 11.0;
+
+        return [
+            'live' => $live,
+            'mobile_device' => $mobileDevice,
+            'isIE' => $isIE,
+            'versionIE' => $versionIE,
+        ];
+    }
+
+    protected function updateBreadcrumbs($title, $routeName, array $routeParameters = [])
+    {
+        $breadcrumbs = $this->get('pumukit_web_tv.breadcrumbs');
+        $breadcrumbs->addList($title, $routeName, $routeParameters);
+    }
+
+    /**
+     * @param $seriesId
+     *
+     * @return mixed
+     */
+    private function getMultimediaObjects($seriesId)
+    {
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $qb = $dm->getRepository(MultimediaObject::class)->createStandardQueryBuilder()
+            ->field('status')->equals(MultimediaObject::STATUS_PUBLISHED)
+            ->field('tags.cod')->equals('PUCHWEBTV')
+            ->field('series')->equals(new \MongoId($seriesId));
+        $qb->field('tracks')->elemMatch($qb->expr()->field('tags')->equals('display')->field('hide')->equals(false));
+
+        return $qb;
     }
 
     /**
@@ -352,15 +357,15 @@ class DefaultController extends Controller
     {
         $privatekey = $this->container->getParameter('captcha_private_key');
 
-        if (null === $response || 0 == strlen($response)) {
+        if (null === $response || 0 === \strlen($response)) {
             return false;
         }
 
-        $response = $this->recaptchaHttpPost(array(
+        $response = $this->recaptchaHttpPost([
             'secret' => $privatekey,
             'remoteip' => $remoteip,
             'response' => $response,
-        ));
+        ]);
 
         $res = json_decode($response);
 
@@ -383,8 +388,6 @@ class DefaultController extends Controller
         curl_setopt($verify, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($verify, CURLOPT_RETURNTRANSFER, true);
 
-        $response = curl_exec($verify);
-
-        return $response;
+        return curl_exec($verify);
     }
 }

@@ -2,30 +2,35 @@
 
 namespace Pumukit\SchemaBundle\Tests\Repository;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Pumukit\SchemaBundle\Security\Permission;
 use Pumukit\SchemaBundle\Document\PermissionProfile;
+use Pumukit\SchemaBundle\Security\Permission;
 use Pumukit\SchemaBundle\Services\PermissionService;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class PermissionProfileRepositoryTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class PermissionProfileRepositoryTest extends WebTestCase
 {
     private $dm;
     private $repo;
     private $permissionService;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()->get('doctrine_mongodb')->getManager();
         $this->repo = $this->dm->getRepository(PermissionProfile::class);
 
         $this->dm->getDocumentCollection(PermissionProfile::class)
-            ->remove(array());
+            ->remove([])
+        ;
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -36,12 +41,12 @@ class PermissionProfileRepositoryTest extends WebTestCase
 
     public function testEmpty()
     {
-        $this->assertEmpty($this->repo->findAll());
+        static::assertEmpty($this->repo->findAll());
     }
 
     public function testRepository()
     {
-        $this->assertCount(0, $this->repo->findAll());
+        static::assertCount(0, $this->repo->findAll());
 
         $permissionProfile = new PermissionProfile();
         $permissionProfile->setName('test');
@@ -49,15 +54,15 @@ class PermissionProfileRepositoryTest extends WebTestCase
         $this->dm->persist($permissionProfile);
         $this->dm->flush();
 
-        $this->assertCount(1, $this->repo->findAll());
+        static::assertCount(1, $this->repo->findAll());
 
-        $this->assertEquals($permissionProfile, $this->repo->find($permissionProfile->getId()));
+        static::assertSame($permissionProfile, $this->repo->find($permissionProfile->getId()));
     }
 
     public function testChangeDefault()
     {
-        $this->assertCount(0, $this->repo->findByDefault(true));
-        $this->assertCount(0, $this->repo->findByDefault(false));
+        static::assertCount(0, $this->repo->findByDefault(true));
+        static::assertCount(0, $this->repo->findByDefault(false));
 
         $permissionProfile1 = new PermissionProfile();
         $permissionProfile1->setName('test1');
@@ -79,9 +84,9 @@ class PermissionProfileRepositoryTest extends WebTestCase
         $this->dm->persist($permissionProfile3);
         $this->dm->flush();
 
-        $this->assertCount(1, $this->repo->findByDefault(true));
-        $this->assertCount(2, $this->repo->findByDefault(false));
-        $this->assertEquals($permissionProfile1, $this->repo->findOneByDefault(true));
+        static::assertCount(1, $this->repo->findByDefault(true));
+        static::assertCount(2, $this->repo->findByDefault(false));
+        static::assertSame($permissionProfile1, $this->repo->findOneByDefault(true));
 
         $permissionProfile4 = new PermissionProfile();
         $permissionProfile4->setName('test4');
@@ -93,35 +98,35 @@ class PermissionProfileRepositoryTest extends WebTestCase
 
         $this->repo->changeDefault($permissionProfile4);
 
-        $this->assertCount(1, $this->repo->findByDefault(true));
-        $this->assertCount(3, $this->repo->findByDefault(false));
-        $this->assertEquals($permissionProfile4, $this->repo->findOneByDefault(true));
+        static::assertCount(1, $this->repo->findByDefault(true));
+        static::assertCount(3, $this->repo->findByDefault(false));
+        static::assertSame($permissionProfile4, $this->repo->findOneByDefault(true));
     }
 
     public function testFindDefaultCandidate()
     {
-        $externalPermissions = array(
-                                     array(
-                                           'role' => 'ROLE_ONE',
-                                           'description' => 'Access One',
-                                           ),
-                                     );
+        $externalPermissions = [
+            [
+                'role' => 'ROLE_ONE',
+                'description' => 'Access One',
+            ],
+        ];
         $permissionService = new PermissionService($this->dm, $externalPermissions);
-        $totalPermissions = count($permissionService->getAllPermissions());
+        $totalPermissions = \count($permissionService->getAllPermissions());
 
-        $this->assertNull($this->repo->findDefaultCandidate($totalPermissions));
+        static::assertNull($this->repo->findDefaultCandidate($totalPermissions));
 
-        $permissions1 = array(Permission::ACCESS_DASHBOARD, Permission::ACCESS_LIVE_CHANNELS);
+        $permissions1 = [Permission::ACCESS_DASHBOARD, Permission::ACCESS_LIVE_CHANNELS];
         $permissionProfile1 = new PermissionProfile();
         $permissionProfile1->setName('test1');
         $permissionProfile1->setPermissions($permissions1);
 
-        $permissions2 = array();
+        $permissions2 = [];
         $permissionProfile2 = new PermissionProfile();
         $permissionProfile2->setName('test2');
         $permissionProfile2->setPermissions($permissions2);
 
-        $permissions3 = array(Permission::ACCESS_DASHBOARD);
+        $permissions3 = [Permission::ACCESS_DASHBOARD];
         $permissionProfile3 = new PermissionProfile();
         $permissionProfile3->setName('test3');
         $permissionProfile3->setPermissions($permissions3);
@@ -131,10 +136,10 @@ class PermissionProfileRepositoryTest extends WebTestCase
         $this->dm->persist($permissionProfile3);
         $this->dm->flush();
 
-        $this->assertEmpty($this->repo->findByDefault(true));
-        $this->assertNotEmpty($this->repo->findByDefault(false));
+        static::assertEmpty($this->repo->findByDefault(true));
+        static::assertNotEmpty($this->repo->findByDefault(false));
 
-        $this->assertEquals($permissionProfile2, $this->repo->findDefaultCandidate($totalPermissions));
+        static::assertSame($permissionProfile2, $this->repo->findDefaultCandidate($totalPermissions));
     }
 
     public function testRank()
@@ -159,8 +164,8 @@ class PermissionProfileRepositoryTest extends WebTestCase
         $this->dm->persist($permissionProfile3);
         $this->dm->flush();
 
-        $this->assertEquals(0, $permissionProfile1->getRank());
-        $this->assertEquals(1, $permissionProfile2->getRank());
-        $this->assertEquals(2, $permissionProfile3->getRank());
+        static::assertSame(0, $permissionProfile1->getRank());
+        static::assertSame(1, $permissionProfile2->getRank());
+        static::assertSame(2, $permissionProfile3->getRank());
     }
 }

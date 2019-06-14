@@ -2,17 +2,17 @@
 
 namespace Pumukit\EncoderBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Pagerfanta\Adapter\DoctrineODMMongoDBAdapter;
 use Pagerfanta\Pagerfanta;
 use Pumukit\EncoderBundle\Document\Job;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\PermissionProfile;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Route("/admin/encoder")
@@ -34,17 +34,17 @@ class InfoController extends Controller
         $dm = $this->get('doctrine_mongodb')->getManager();
         $jobRepo = $dm->getRepository(Job::class);
 
-        $pendingStates = array();
+        $pendingStates = [];
         if ($request->query->get('show_waiting', true)) {
             $pendingStates[] = Job::STATUS_WAITING;
         }
         if ($request->query->get('show_paused', true)) {
             $pendingStates[] = Job::STATUS_PAUSED;
         }
-        $pendingSort = array(
+        $pendingSort = [
             'priority' => 'desc',
             'timeini' => 'asc',
-        );
+        ];
 
         if (!$user->hasRole(PermissionProfile::SCOPE_PERSONAL)) {
             $pendingJobs = $jobRepo->createQueryWithStatus($pendingStates, $pendingSort);
@@ -52,21 +52,21 @@ class InfoController extends Controller
             $pendingJobs = $jobRepo->createQueryWithStatusAndOwner($pendingStates, $pendingSort, $user);
         }
 
-        $executingSort = array('timestart' => 'desc');
+        $executingSort = ['timestart' => 'desc'];
         if (!$user->hasRole(PermissionProfile::SCOPE_PERSONAL)) {
-            $executingJobs = $jobRepo->createQueryWithStatus(array(Job::STATUS_EXECUTING), $executingSort);
+            $executingJobs = $jobRepo->createQueryWithStatus([Job::STATUS_EXECUTING], $executingSort);
         } else {
-            $executingJobs = $jobRepo->createQueryWithStatusAndOwner(array(Job::STATUS_EXECUTING), $executingSort, $user);
+            $executingJobs = $jobRepo->createQueryWithStatusAndOwner([Job::STATUS_EXECUTING], $executingSort, $user);
         }
 
-        $pendingStates = array();
+        $pendingStates = [];
         if ($request->query->get('show_error', true)) {
             $pendingStates[] = Job::STATUS_ERROR;
         }
         if ($request->query->get('show_finished', false)) {
             $pendingStates[] = Job::STATUS_FINISHED;
         }
-        $executedSort = array('timeend' => 'desc');
+        $executedSort = ['timeend' => 'desc'];
 
         if (!$user->hasRole(PermissionProfile::SCOPE_PERSONAL)) {
             $executedJobs = $jobRepo->createQueryWithStatus($pendingStates, $executedSort);
@@ -85,34 +85,25 @@ class InfoController extends Controller
         $cpuService = $this->get('pumukitencoder.cpu');
         $deactivatedCpus = $cpuService->getCpuNamesInMaintenanceMode();
 
-        return array(
+        return [
             'cpus' => $cpus,
             'deactivated_cpus' => $deactivatedCpus,
-            'jobs' => array(
-                'pending' => array(
+            'jobs' => [
+                'pending' => [
                     'total' => ($stats['paused'] + $stats['waiting']),
                     'jobs' => $this->createPager($pendingJobs, $request->query->get('page_pending', 1)),
-                ),
-                'executing' => array(
+                ],
+                'executing' => [
                     'total' => ($stats['executing']),
                     'jobs' => $this->createPager($executingJobs, $request->query->get('page_executing', 1), 20),
-                ),
-                'executed' => array(
+                ],
+                'executed' => [
                     'total' => ($stats['error'] + $stats['finished']),
                     'jobs' => $this->createPager($executedJobs, $request->query->get('page_executed', 1)),
-                ),
-            ),
+                ],
+            ],
             'stats' => $stats,
-        );
-    }
-
-    private function createPager($objects, $page, $limit = 5)
-    {
-        $adapter = new DoctrineODMMongoDBAdapter($objects);
-        $pagerfanta = new Pagerfanta($adapter);
-        $pagerfanta->setMaxPerPage($limit)->setNormalizeOutOfRangePages(true)->setCurrentPage($page);
-
-        return $pagerfanta;
+        ];
     }
 
     /**
@@ -122,6 +113,7 @@ class InfoController extends Controller
     public function infoJobAction(Job $job, Request $request)
     {
         $deletedMultimediaObject = false;
+
         try {
             $command = $this->get('pumukitencoder.job')->renderBat($job);
         } catch (\Exception $e) {
@@ -129,11 +121,11 @@ class InfoController extends Controller
             $deletedMultimediaObject = true;
         }
 
-        return array(
+        return [
             'job' => $job,
             'command' => $command,
             'deletedMultimediaObject' => $deletedMultimediaObject,
-        );
+        ];
     }
 
     /**
@@ -145,10 +137,10 @@ class InfoController extends Controller
         $jobId = $request->get('jobId');
         $this->get('pumukitencoder.job')->updateJobPriority($jobId, $priority);
 
-        return new JsonResponse(array(
+        return new JsonResponse([
             'jobId' => $jobId,
             'priority' => $priority,
-        ));
+        ]);
     }
 
     /**
@@ -159,7 +151,7 @@ class InfoController extends Controller
         $jobId = $request->get('jobId');
         $this->get('pumukitencoder.job')->deleteJob($jobId);
 
-        return new JsonResponse(array('jobId' => $jobId));
+        return new JsonResponse(['jobId' => $jobId]);
     }
 
     /**
@@ -169,10 +161,10 @@ class InfoController extends Controller
     {
         $flashMessage = $this->get('pumukitencoder.job')->retryJob($job);
 
-        return new JsonResponse(array(
+        return new JsonResponse([
             'jobId' => $job->getId(),
             'mesage' => $flashMessage,
-        ));
+        ]);
     }
 
     /**
@@ -180,6 +172,15 @@ class InfoController extends Controller
      */
     public function multimediaObjectAction(MultimediaObject $multimediaObject, Request $request)
     {
-        return $this->redirect($this->generateUrl('pumukitnewadmin_mms_shortener', array('id' => $multimediaObject->getId())));
+        return $this->redirect($this->generateUrl('pumukitnewadmin_mms_shortener', ['id' => $multimediaObject->getId()]));
+    }
+
+    private function createPager($objects, $page, $limit = 5)
+    {
+        $adapter = new DoctrineODMMongoDBAdapter($objects);
+        $pagerfanta = new Pagerfanta($adapter);
+        $pagerfanta->setMaxPerPage($limit)->setNormalizeOutOfRangePages(true)->setCurrentPage($page);
+
+        return $pagerfanta;
     }
 }

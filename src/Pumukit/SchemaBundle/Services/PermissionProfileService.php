@@ -89,7 +89,7 @@ class PermissionProfileService
      */
     public function setDefaultPermissionProfile()
     {
-        $totalPermissions = count($this->permissionService->getAllPermissions());
+        $totalPermissions = \count($this->permissionService->getAllPermissions());
         $default = $this->repo->findDefaultCandidate($totalPermissions);
 
         if (null === $default) {
@@ -131,7 +131,7 @@ class PermissionProfileService
      */
     public function doAddPermission(PermissionProfile $permissionProfile, $permission, $executeFlush = true)
     {
-        if (array_key_exists($permission, $this->permissionService->getAllPermissions())) {
+        if (\array_key_exists($permission, $this->permissionService->getAllPermissions())) {
             $permissionProfile->addPermission($permission);
             foreach ($this->permissionService->getDependenciesByScope($permission, $permissionProfile->getScope()) as $dependency) {
                 $permissionProfile->addPermission($dependency);
@@ -186,7 +186,7 @@ class PermissionProfileService
      */
     public function setScope(PermissionProfile $permissionProfile, $scope, $executeFlush = true)
     {
-        if (array_key_exists($scope, PermissionProfile::$scopeDescription)) {
+        if (\array_key_exists($scope, PermissionProfile::$scopeDescription)) {
             $permissionProfile->setScope($scope);
             $this->dm->persist($permissionProfile);
             if ($executeFlush) {
@@ -203,11 +203,13 @@ class PermissionProfileService
      *
      * @param PermissionProfile $permissionProfile
      * @param bool              $dispatchCreate
+     * @param mixed             $permissionsList
+     * @param mixed             $executeFlush
      */
     public function batchUpdate(PermissionProfile $permissionProfile, $permissionsList, $executeFlush = true)
     {
         //Clears all permissions for this permissionProfile.
-        $permissionProfile->setPermissions(array());
+        $permissionProfile->setPermissions([]);
         foreach ($permissionsList as $permission) {
             $this->doAddPermission($permissionProfile, $permission, false);
         }
@@ -234,10 +236,12 @@ class PermissionProfileService
     /**
      * Get by name.
      *
+     * @param mixed $name
+     *
      * @return PermissionProfile
      */
     public function getByName($name)
     {
-        return $this->repo->findOneBy(array('name' => $name));
+        return $this->repo->findOneBy(['name' => $name]);
     }
 }

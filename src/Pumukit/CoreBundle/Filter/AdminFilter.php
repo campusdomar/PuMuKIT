@@ -23,12 +23,12 @@ class AdminFilter extends BsonFilter
 
     private function getMultimediaObjectCriteria()
     {
-        $criteria = array();
-        if (isset($this->parameters['people']) && isset($this->parameters['groups'])) {
-            $criteria['$or'] = array(
-                array('people' => $this->parameters['people']),
-                array('groups' => $this->parameters['groups']),
-            );
+        $criteria = [];
+        if (isset($this->parameters['people'], $this->parameters['groups'])) {
+            $criteria['$or'] = [
+                ['people' => $this->parameters['people']],
+                ['groups' => $this->parameters['groups']],
+            ];
         }
 
         return $criteria;
@@ -36,8 +36,8 @@ class AdminFilter extends BsonFilter
 
     private function getSeriesCriteria()
     {
-        $criteria = array();
-        if (isset($this->parameters['person_id']) && isset($this->parameters['role_code']) && isset($this->parameters['series_groups'])) {
+        $criteria = [];
+        if (isset($this->parameters['person_id'], $this->parameters['role_code'], $this->parameters['series_groups'])) {
             $criteria['_id'] = $this->getSeriesMongoQuery($this->parameters['person_id'], $this->parameters['role_code'], $this->parameters['series_groups']);
         }
 
@@ -52,15 +52,15 @@ class AdminFilter extends BsonFilter
      * Query in MongoDB:
      * db.Series.find({ "_id": { "$in": [ ObjectId("__id_1__"), ObjectId("__id_2__")... ] } });
      *
-     * @param string|null $personId
-     * @param string|null $roleCode
+     * @param null|string $personId
+     * @param null|string $roleCode
      * @param array       $groups
      *
      * @return array
      */
     private function getSeriesMongoQuery($personId, $roleCode, $groups)
     {
-        $seriesIds = array();
+        $seriesIds = [];
         if ((null !== $personId) && (null !== $roleCode)) {
             $repoMmobj = $this->dm->getRepository(MultimediaObject::class);
             $referencedSeries = $repoMmobj->findSeriesFieldByPersonIdAndRoleCodOrGroups($personId, $roleCode, $groups);

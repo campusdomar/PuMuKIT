@@ -2,21 +2,25 @@
 
 namespace Pumukit\SchemaBundle\Tests\Other;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\SchemaBundle\Document\Track;
 use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Document\Track;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class MultimediaObjectMaxDirationTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class MultimediaObjectMaxDirationTest extends WebTestCase
 {
     private $dm;
     private $repo;
     private $qb;
     private $factoryService;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()->get('doctrine_mongodb')->getManager();
@@ -25,13 +29,15 @@ class MultimediaObjectMaxDirationTest extends WebTestCase
 
         //DELETE DATABASE
         $this->dm->getDocumentCollection(MultimediaObject::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Series::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -67,8 +73,8 @@ class MultimediaObjectMaxDirationTest extends WebTestCase
         $mm = $this->repo->find($id);
         $track = $mm->getTrackById($trackId);
 
-        $this->assertEquals($size, $track->getSize());
-        $this->assertEquals($duration, $track->getDuration());
+        static::assertSame($size, $track->getSize());
+        static::assertSame($duration, $track->getDuration());
     }
 
     private function createMultimediaObject()

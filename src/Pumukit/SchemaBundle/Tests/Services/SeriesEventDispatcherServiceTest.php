@@ -2,14 +2,18 @@
 
 namespace Pumukit\SchemaBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Event\SchemaEvents;
 use Pumukit\SchemaBundle\Event\SeriesEvent;
 use Pumukit\SchemaBundle\Services\SeriesEventDispatcherService;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
-class SeriesEventDispatcherServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class SeriesEventDispatcherServiceTest extends WebTestCase
 {
     const EMPTY_TITLE = 'EMPTY_TITLE';
 
@@ -17,16 +21,17 @@ class SeriesEventDispatcherServiceTest extends WebTestCase
     private $seriesDispatcher;
     private $dispatcher;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()
-          ->get('doctrine_mongodb.odm.document_manager');
+            ->get('doctrine_mongodb.odm.document_manager')
+        ;
         $this->dispatcher = new EventDispatcher();
 
-        $this->dm->getDocumentCollection(Series::class)->remove(array());
+        $this->dm->getDocumentCollection(Series::class)->remove([]);
         $this->dm->flush();
 
         MockUpSeriesListener::$called = false;
@@ -35,7 +40,7 @@ class SeriesEventDispatcherServiceTest extends WebTestCase
         $this->seriesDispatcher = new SeriesEventDispatcherService($this->dispatcher);
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -48,8 +53,8 @@ class SeriesEventDispatcherServiceTest extends WebTestCase
     public function testDispatchCreate()
     {
         $this->dispatcher->addListener(SchemaEvents::SERIES_CREATE, function ($event, $title) {
-            $this->assertTrue($event instanceof SeriesEvent);
-            $this->assertEquals(SchemaEvents::SERIES_CREATE, $title);
+            static::assertTrue($event instanceof SeriesEvent);
+            static::assertSame(SchemaEvents::SERIES_CREATE, $title);
 
             $series = $event->getSeries();
 
@@ -57,8 +62,8 @@ class SeriesEventDispatcherServiceTest extends WebTestCase
             MockUpSeriesListener::$title = $series->getTitle();
         });
 
-        $this->assertFalse(MockUpSeriesListener::$called);
-        $this->assertEquals(self::EMPTY_TITLE, MockUpSeriesListener::$title);
+        static::assertFalse(MockUpSeriesListener::$called);
+        static::assertSame(self::EMPTY_TITLE, MockUpSeriesListener::$title);
 
         $title = 'test_title';
 
@@ -70,15 +75,15 @@ class SeriesEventDispatcherServiceTest extends WebTestCase
 
         $this->seriesDispatcher->dispatchCreate($series);
 
-        $this->assertTrue(MockUpSeriesListener::$called);
-        $this->assertEquals($title, MockUpSeriesListener::$title);
+        static::assertTrue(MockUpSeriesListener::$called);
+        static::assertSame($title, MockUpSeriesListener::$title);
     }
 
     public function testDispatchUpdate()
     {
         $this->dispatcher->addListener(SchemaEvents::SERIES_UPDATE, function ($event, $title) {
-            $this->assertTrue($event instanceof SeriesEvent);
-            $this->assertEquals(SchemaEvents::SERIES_UPDATE, $title);
+            static::assertTrue($event instanceof SeriesEvent);
+            static::assertSame(SchemaEvents::SERIES_UPDATE, $title);
 
             $series = $event->getSeries();
 
@@ -86,8 +91,8 @@ class SeriesEventDispatcherServiceTest extends WebTestCase
             MockUpSeriesListener::$title = $series->getTitle();
         });
 
-        $this->assertFalse(MockUpSeriesListener::$called);
-        $this->assertEquals(self::EMPTY_TITLE, MockUpSeriesListener::$title);
+        static::assertFalse(MockUpSeriesListener::$called);
+        static::assertSame(self::EMPTY_TITLE, MockUpSeriesListener::$title);
 
         $title = 'test_title';
 
@@ -105,15 +110,15 @@ class SeriesEventDispatcherServiceTest extends WebTestCase
 
         $this->seriesDispatcher->dispatchUpdate($series);
 
-        $this->assertTrue(MockUpSeriesListener::$called);
-        $this->assertEquals($updateTitle, MockUpSeriesListener::$title);
+        static::assertTrue(MockUpSeriesListener::$called);
+        static::assertSame($updateTitle, MockUpSeriesListener::$title);
     }
 
     public function testDispatchDelete()
     {
         $this->dispatcher->addListener(SchemaEvents::SERIES_DELETE, function ($event, $title) {
-            $this->assertTrue($event instanceof SeriesEvent);
-            $this->assertEquals(SchemaEvents::SERIES_DELETE, $title);
+            static::assertTrue($event instanceof SeriesEvent);
+            static::assertSame(SchemaEvents::SERIES_DELETE, $title);
 
             $series = $event->getSeries();
 
@@ -121,8 +126,8 @@ class SeriesEventDispatcherServiceTest extends WebTestCase
             MockUpSeriesListener::$title = $series->getTitle();
         });
 
-        $this->assertFalse(MockUpSeriesListener::$called);
-        $this->assertEquals(self::EMPTY_TITLE, MockUpSeriesListener::$title);
+        static::assertFalse(MockUpSeriesListener::$called);
+        static::assertSame(self::EMPTY_TITLE, MockUpSeriesListener::$title);
 
         $title = 'test_title';
 
@@ -134,8 +139,8 @@ class SeriesEventDispatcherServiceTest extends WebTestCase
 
         $this->seriesDispatcher->dispatchDelete($series);
 
-        $this->assertTrue(MockUpSeriesListener::$called);
-        $this->assertEquals($title, MockUpSeriesListener::$title);
+        static::assertTrue(MockUpSeriesListener::$called);
+        static::assertSame($title, MockUpSeriesListener::$title);
     }
 }
 

@@ -2,11 +2,11 @@
 
 namespace Pumukit\StatsBundle\Controller;
 
+use Pumukit\NewAdminBundle\Controller\NewAdminControllerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Pumukit\NewAdminBundle\Controller\NewAdminControllerInterface;
 
 /**
  * @Route("/api/media")
@@ -31,7 +31,7 @@ class APIController extends Controller implements NewAdminControllerInterface
 
         list($mmobjs, $total) = $viewsService->getMmobjsMostViewedByRange($criteria, $options);
 
-        $views = array(
+        $views = [
             'limit' => $limit,
             'page' => $page,
             'total' => $total,
@@ -40,7 +40,7 @@ class APIController extends Controller implements NewAdminControllerInterface
             'from_date' => $fromDate,
             'to_date' => $toDate,
             'mmobjs' => $mmobjs,
-        );
+        ];
 
         $data = $serializer->serialize($views, $request->getRequestFormat());
 
@@ -65,7 +65,7 @@ class APIController extends Controller implements NewAdminControllerInterface
 
         list($series, $total) = $viewsService->getSeriesMostViewedByRange($criteria, $options);
 
-        $views = array(
+        $views = [
             'limit' => $limit,
             'page' => $page,
             'total' => $total,
@@ -74,7 +74,7 @@ class APIController extends Controller implements NewAdminControllerInterface
             'from_date' => $fromDate,
             'to_date' => $toDate,
             'series' => $series,
-        );
+        ];
 
         $data = $serializer->serialize($views, $request->getRequestFormat());
 
@@ -95,7 +95,7 @@ class APIController extends Controller implements NewAdminControllerInterface
 
         //NOTE: $criteria is the same as $criteria_mmobj to provide backwards compatibility.
         $criteria_mmobj = $request->get('criteria_mmobj') ?: $criteria;
-        $criteria_series = $request->get('criteria_series') ?: array();
+        $criteria_series = $request->get('criteria_series') ?: [];
 
         $options['from_date'] = $fromDate;
         $options['to_date'] = $toDate;
@@ -108,20 +108,20 @@ class APIController extends Controller implements NewAdminControllerInterface
 
         list($views, $total) = $viewsService->getTotalViewedGrouped($options);
 
-        $views = array(
+        $views = [
             'limit' => $limit,
             'page' => $page,
             'total' => $total,
-            'criteria' => array(
+            'criteria' => [
                 'criteria_mmobj' => $criteria_mmobj,
                 'criteria_series' => $criteria_series,
-            ),
+            ],
             'sort' => $sort,
             'group_by' => $groupBy,
             'from_date' => $fromDate,
             'to_date' => $toDate,
             'views' => $views,
-        );
+        ];
 
         $data = $serializer->serialize($views, $request->getRequestFormat());
 
@@ -151,7 +151,7 @@ class APIController extends Controller implements NewAdminControllerInterface
 
         list($views, $total) = $viewsService->getTotalViewedGroupedByMmobj(new \MongoId($mmobjId), $options);
 
-        $views = array(
+        $views = [
             'limit' => $limit,
             'page' => $page,
             'total' => $total,
@@ -161,7 +161,7 @@ class APIController extends Controller implements NewAdminControllerInterface
             'to_date' => $toDate,
             'mmobj_id' => $mmobjId ?: -1,
             'views' => $views,
-        );
+        ];
 
         $data = $serializer->serialize($views, $request->getRequestFormat());
 
@@ -191,7 +191,7 @@ class APIController extends Controller implements NewAdminControllerInterface
 
         list($views, $total) = $viewsService->getTotalViewedGroupedBySeries(new \MongoId($seriesId), $options);
 
-        $views = array(
+        $views = [
             'limit' => $limit,
             'page' => $page,
             'total' => $total,
@@ -201,7 +201,7 @@ class APIController extends Controller implements NewAdminControllerInterface
             'to_date' => $toDate,
             'series_id' => $seriesId ?: -1,
             'views' => $views,
-        );
+        ];
 
         $data = $serializer->serialize($views, $request->getRequestFormat());
 
@@ -212,19 +212,19 @@ class APIController extends Controller implements NewAdminControllerInterface
     {
         $MAX_LIMIT = 1000;
         //Request variables.
-        $criteria = $request->get('criteria') ?: array();
-        $sort = intval($request->get('sort'));
+        $criteria = $request->get('criteria') ?: [];
+        $sort = (int) ($request->get('sort'));
         $fromDate = $request->get('from_date');
         $toDate = $request->get('to_date');
-        $limit = intval($request->get('limit'));
-        $page = intval($request->get('page')) ?: 0;
+        $limit = (int) ($request->get('limit'));
+        $page = (int) ($request->get('page')) ?: 0;
 
         //Processing variables.
         if (!$limit || $limit > $MAX_LIMIT) {
             $limit = $MAX_LIMIT;
         }
 
-        if (!in_array($sort, array(1, -1))) {
+        if (!\in_array($sort, [1, -1], true)) {
             $sort = -1;
         }
 
@@ -237,6 +237,6 @@ class APIController extends Controller implements NewAdminControllerInterface
         $fromDate = \DateTime::createFromFormat('Y-m-d\TH:i:s', $fromDate) ?: null;
         $toDate = \DateTime::createFromFormat('Y-m-d\TH:i:s', $toDate) ?: null;
 
-        return array($criteria, $sort, $fromDate, $toDate, $limit, $page);
+        return [$criteria, $sort, $fromDate, $toDate, $limit, $page];
     }
 }

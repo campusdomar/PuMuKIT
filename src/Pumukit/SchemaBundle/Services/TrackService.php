@@ -2,10 +2,10 @@
 
 namespace Pumukit\SchemaBundle\Services;
 
+use Doctrine\ODM\MongoDB\DocumentManager;
+use Pumukit\EncoderBundle\Services\ProfileService;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Track;
-use Pumukit\EncoderBundle\Services\ProfileService;
-use Doctrine\ODM\MongoDB\DocumentManager;
 use Symfony\Component\Finder\Finder;
 
 class TrackService
@@ -63,6 +63,8 @@ class TrackService
 
     /**
      * Remove Track from Multimedia Object.
+     *
+     * @param mixed $trackId
      */
     public function removeTrackFromMultimediaObject(MultimediaObject $multimediaObject, $trackId)
     {
@@ -77,8 +79,8 @@ class TrackService
 
         if ($this->forceDeleteOnDisk && $trackPath && $isNotOpencast) {
             $mmobjRepo = $this->dm->getRepository(MultimediaObject::class);
-            $otherTracks = $mmobjRepo->findBy(array('tracks.path' => $trackPath));
-            if (0 == count($otherTracks)) {
+            $otherTracks = $mmobjRepo->findBy(['tracks.path' => $trackPath]);
+            if (0 === \count($otherTracks)) {
                 $this->deleteFileOnDisk($trackPath);
             }
         }
@@ -90,6 +92,8 @@ class TrackService
 
     /**
      * Up Track in Multimedia Object.
+     *
+     * @param mixed $trackId
      */
     public function upTrackInMultimediaObject(MultimediaObject $multimediaObject, $trackId)
     {
@@ -102,6 +106,8 @@ class TrackService
 
     /**
      * Down Track in Multimedia Object.
+     *
+     * @param mixed $trackId
      */
     public function downTrackInMultimediaObject(MultimediaObject $multimediaObject, $trackId)
     {
@@ -117,12 +123,13 @@ class TrackService
      */
     public function getTempDirs()
     {
-        return array($this->tmpPath);
+        return [$this->tmpPath];
     }
 
     private function deleteFileOnDisk($path)
     {
         $dirname = pathinfo($path, PATHINFO_DIRNAME);
+
         try {
             $deleted = unlink($path);
             if (!$deleted) {

@@ -3,10 +3,10 @@
 namespace Pumukit\NewAdminBundle\Menu;
 
 use Knp\Menu\FactoryInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Knp\Menu\ItemInterface as KnpItemInterface;
 use Pumukit\SchemaBundle\Security\Permission;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
@@ -134,7 +134,7 @@ class Builder implements ContainerAwareInterface
             //Voters are a way to check if a menu item is the current one. Now we are just checking the routes and setting the Current element manually
             $route = $this->container->get('request_stack')->getMasterRequest()->attributes->get('_route');
             $statsRoutes = ['pumukit_stats_series_index', 'pumukit_stats_mmobj_index', 'pumukit_stats_series_index_id', 'pumukit_stats_mmobj_index_id', 'pumukit_stats_versions'];
-            if (in_array($route, $statsRoutes)) {
+            if (\in_array($route, $statsRoutes, true)) {
                 $stats->setCurrent(true);
             }
         }
@@ -358,7 +358,7 @@ class Builder implements ContainerAwareInterface
     /**
      * @param KnpItemInterface      $menu
      * @param ItemInterface         $item
-     * @param KnpItemInterface|null $tools
+     * @param null|KnpItemInterface $tools
      */
     protected function addDynamicToolMenu(KnpItemInterface $menu, ItemInterface $item, $tools)
     {

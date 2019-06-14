@@ -2,19 +2,23 @@
 
 namespace Pumukit\SchemaBundle\Tests\EventListener;
 
+use Pumukit\SchemaBundle\Document\PermissionProfile;
+use Pumukit\SchemaBundle\Document\User;
+use Pumukit\SchemaBundle\EventListener\PermissionProfileListener;
+use Pumukit\SchemaBundle\Security\Permission;
+use Pumukit\SchemaBundle\Services\PermissionProfileEventDispatcherService;
+use Pumukit\SchemaBundle\Services\PermissionProfileService;
+use Pumukit\SchemaBundle\Services\PermissionService;
+use Pumukit\SchemaBundle\Services\UserEventDispatcherService;
+use Pumukit\SchemaBundle\Services\UserService;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Pumukit\SchemaBundle\Document\User;
-use Pumukit\SchemaBundle\Document\PermissionProfile;
-use Pumukit\SchemaBundle\Security\Permission;
-use Pumukit\SchemaBundle\Services\UserService;
-use Pumukit\SchemaBundle\Services\UserEventDispatcherService;
-use Pumukit\SchemaBundle\Services\PermissionService;
-use Pumukit\SchemaBundle\Services\PermissionProfileService;
-use Pumukit\SchemaBundle\Services\PermissionProfileEventDispatcherService;
-use Pumukit\SchemaBundle\EventListener\PermissionProfileListener;
 
-class PermissionProfileListenerTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class PermissionProfileListenerTest extends WebTestCase
 {
     private $dm;
     private $userRepo;
@@ -24,9 +28,9 @@ class PermissionProfileListenerTest extends WebTestCase
     private $listener;
     private $logger;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()->get('doctrine_mongodb')->getManager();
@@ -38,31 +42,37 @@ class PermissionProfileListenerTest extends WebTestCase
         $permissionProfileDispatcher = new PermissionProfileEventDispatcherService($dispatcher);
         $permissionService = new PermissionService($this->dm);
         $this->permissionProfileService = new PermissionProfileService(
-            $this->dm, $permissionProfileDispatcher,
+            $this->dm,
+            $permissionProfileDispatcher,
             $permissionService
         );
 
         $personalScopeDeleteOwners = false;
 
         $this->userService = new UserService(
-            $this->dm, $userDispatcher,
-            $permissionService, $this->permissionProfileService,
+            $this->dm,
+            $userDispatcher,
+            $permissionService,
+            $this->permissionProfileService,
             $personalScopeDeleteOwners
         );
         $this->logger = static::$kernel->getContainer()
-            ->get('logger');
+            ->get('logger')
+        ;
 
         $this->listener = new PermissionProfileListener($this->dm, $this->userService, $this->logger);
-        $dispatcher->addListener('permissionprofile.update', array($this->listener, 'postUpdate'));
+        $dispatcher->addListener('permissionprofile.update', [$this->listener, 'postUpdate']);
 
         $this->dm->getDocumentCollection(PermissionProfile::class)
-          ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(User::class)
-          ->remove(array());
+            ->remove([])
+        ;
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm = null;
         $this->userRepo = null;
@@ -105,30 +115,30 @@ class PermissionProfileListenerTest extends WebTestCase
         $user3 = $this->userService->create($user3);
 
         $user1Roles = $user1->getRoles();
-        $this->assertTrue(in_array('ROLE_USER', $user1Roles));
-        $this->assertFalse(in_array(Permission::ACCESS_DASHBOARD, $user1Roles));
+        static::assertTrue(\in_array('ROLE_USER', $user1Roles, true));
+        static::assertFalse(\in_array(Permission::ACCESS_DASHBOARD, $user1Roles, true));
 
         $user2Roles = $user2->getRoles();
-        $this->assertTrue(in_array('ROLE_USER', $user2Roles));
-        $this->assertFalse(in_array(Permission::ACCESS_DASHBOARD, $user2Roles));
+        static::assertTrue(\in_array('ROLE_USER', $user2Roles, true));
+        static::assertFalse(\in_array(Permission::ACCESS_DASHBOARD, $user2Roles, true));
 
         $user3Roles = $user3->getRoles();
-        $this->assertTrue(in_array('ROLE_USER', $user3Roles));
-        $this->assertFalse(in_array(Permission::ACCESS_DASHBOARD, $user3Roles));
+        static::assertTrue(\in_array('ROLE_USER', $user3Roles, true));
+        static::assertFalse(\in_array(Permission::ACCESS_DASHBOARD, $user3Roles, true));
 
         $permissionProfile1->addPermission(Permission::ACCESS_DASHBOARD);
         $this->permissionProfileService->update($permissionProfile1);
 
         $user1Roles = $user1->getRoles();
-        $this->assertTrue(in_array('ROLE_USER', $user1Roles));
-        $this->assertTrue(in_array(Permission::ACCESS_DASHBOARD, $user1Roles));
+        static::assertTrue(\in_array('ROLE_USER', $user1Roles, true));
+        static::assertTrue(\in_array(Permission::ACCESS_DASHBOARD, $user1Roles, true));
 
         $user2Roles = $user2->getRoles();
-        $this->assertTrue(in_array('ROLE_USER', $user2Roles));
-        $this->assertFalse(in_array(Permission::ACCESS_DASHBOARD, $user2Roles));
+        static::assertTrue(\in_array('ROLE_USER', $user2Roles, true));
+        static::assertFalse(\in_array(Permission::ACCESS_DASHBOARD, $user2Roles, true));
 
         $user3Roles = $user3->getRoles();
-        $this->assertTrue(in_array('ROLE_USER', $user3Roles));
-        $this->assertTrue(in_array(Permission::ACCESS_DASHBOARD, $user3Roles));
+        static::assertTrue(\in_array('ROLE_USER', $user3Roles, true));
+        static::assertTrue(\in_array(Permission::ACCESS_DASHBOARD, $user3Roles, true));
     }
 }

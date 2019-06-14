@@ -66,6 +66,7 @@ class WorkflowService
      * with given mediapackage id.
      *
      * @param string $id
+     * @param mixed  $workflowName
      *
      * @return array
      */
@@ -78,18 +79,18 @@ class WorkflowService
             $total = $statistics['statistics']['total'];
         }
 
-        if (0 == $total) {
+        if (0 === $total) {
             return null;
         }
 
         $decode = $this->clientService->getCountedWorkflowInstances($id, $total, $workflowName);
 
-        $instances = array();
+        $instances = [];
         if (isset($decode['workflows']['workflow'])) {
             $instances = $decode['workflows']['workflow'];
         }
         if (isset($instances['state'])) {
-            $instances = array('0' => $instances);
+            $instances = ['0' => $instances];
         }
 
         return $instances;
@@ -102,7 +103,7 @@ class WorkflowService
      *
      * @return bool
      */
-    private function isWorkflowSucceeded(array $workflow = array())
+    private function isWorkflowSucceeded(array $workflow = [])
     {
         if ($workflow && isset($workflow['state'])) {
             if ('SUCCEEDED' === $workflow['state']) {
@@ -120,7 +121,7 @@ class WorkflowService
      *
      * @return string $mediaPackageId
      */
-    private function getMediaPackageIdFromWorkflow(array $workflow = array())
+    private function getMediaPackageIdFromWorkflow(array $workflow = [])
     {
         if ($workflow && isset($workflow['mediapackage']['id'])) {
             return $workflow['mediapackage']['id'];
@@ -138,7 +139,7 @@ class WorkflowService
      *
      * @return int $errors
      */
-    private function stopSucceededWorkflow(array $workflow = array(), $errors = 0)
+    private function stopSucceededWorkflow(array $workflow = [], $errors = 0)
     {
         if ($this->deleteArchiveMediaPackage) {
             $isSucceeded = $this->isWorkflowSucceeded($workflow);

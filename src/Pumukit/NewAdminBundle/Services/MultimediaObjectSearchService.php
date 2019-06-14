@@ -16,7 +16,7 @@ class MultimediaObjectSearchService
      */
     public function processMMOCriteria($reqCriteria, $locale = 'en')
     {
-        $new_criteria = array('status' => array('$ne' => MultimediaObject::STATUS_PROTOTYPE));
+        $new_criteria = ['status' => ['$ne' => MultimediaObject::STATUS_PROTOTYPE]];
         $bAnnounce = '';
         $bChannel = '';
         $bPerson = false;
@@ -30,7 +30,7 @@ class MultimediaObjectSearchService
             if (('search' === $property) && ('' !== $value)) {
                 $new_criteria['$or'] = $this->getSearchCriteria(
                     $value,
-                    array(array('_id' => array('$in' => array($value)))),
+                    [['_id' => ['$in' => [$value]]]],
                     $locale
                 );
             } elseif (('person_name' === $property) && ('' !== $value)) {
@@ -62,27 +62,28 @@ class MultimediaObjectSearchService
 
         if ('' !== $bAnnounce) {
             if (('' !== $bChannel) && $bChannel && $bAnnounce) {
-                $new_criteria += array('$and' => array(array('tags.cod' => $sChannelValue), array('tags.cod' => 'PUDENEW')));
+                $new_criteria += ['$and' => [['tags.cod' => $sChannelValue], ['tags.cod' => 'PUDENEW']]];
             } elseif (('' !== $bChannel) && $bChannel) {
-                $new_criteria += array('$and' => array(array('tags.cod' => $sChannelValue)));
+                $new_criteria += ['$and' => [['tags.cod' => $sChannelValue]]];
             } elseif ($bAnnounce) {
-                $new_criteria += array('$and' => array(array('tags.cod' => 'PUDENEW')));
+                $new_criteria += ['$and' => [['tags.cod' => 'PUDENEW']]];
             } elseif (!$bAnnounce) {
-                $new_criteria += array('$and' => array(array('tags.cod' => array('$nin' => array('PUDENEW')))));
+                $new_criteria += ['$and' => [['tags.cod' => ['$nin' => ['PUDENEW']]]]];
             }
         } elseif (('' !== $bChannel) && $bChannel) {
-            $new_criteria += array('$and' => array(array('tags.cod' => $sChannelValue)));
+            $new_criteria += ['$and' => [['tags.cod' => $sChannelValue]]];
         }
 
         if ($bStatus) {
             if (!empty($aStatus)) {
                 $aStatus = array_map('intval', $aStatus);
-                $new_criteria['status'] += array('$in' => $aStatus);
+                $new_criteria['status'] += ['$in' => $aStatus];
             }
         }
 
         if ($bPerson && $bRole && $personName && $roleCode) {
             $isMongoId = true;
+
             try {
                 new \MongoId($personName);
             } catch (\Exception $exception) {
@@ -92,13 +93,14 @@ class MultimediaObjectSearchService
             //$isMongoId = \MongoId::isValid($personName);
             if ($isMongoId) {
                 $peopleCriteria = new \MongoId($personName);
-                $new_criteria['people'] = array('$elemMatch' => array('cod' => $roleCode, 'people._id' => $peopleCriteria));
+                $new_criteria['people'] = ['$elemMatch' => ['cod' => $roleCode, 'people._id' => $peopleCriteria]];
             } else {
-                $peopleCriteria = array('$regex' => $personName, '$options' => 'i');
-                $new_criteria['people'] = array('$elemMatch' => array('cod' => $roleCode, 'people.name' => $peopleCriteria));
+                $peopleCriteria = ['$regex' => $personName, '$options' => 'i'];
+                $new_criteria['people'] = ['$elemMatch' => ['cod' => $roleCode, 'people.name' => $peopleCriteria]];
             }
         } elseif ($bPerson && !$bRole && $personName) {
             $isMongoId = true;
+
             try {
                 new \MongoId($personName);
             } catch (\Exception $exception) {
@@ -108,71 +110,16 @@ class MultimediaObjectSearchService
             // $isMongoId = \MongoId::isValid($personName);
             if ($isMongoId) {
                 $peopleCriteria = new \MongoId($personName);
-                $new_criteria += array('people.people._id' => $peopleCriteria);
+                $new_criteria += ['people.people._id' => $peopleCriteria];
             } else {
-                $peopleCriteria = array('$regex' => $personName, '$options' => 'i');
-                $new_criteria += array('people.people.name' => $peopleCriteria);
+                $peopleCriteria = ['$regex' => $personName, '$options' => 'i'];
+                $new_criteria += ['people.people.name' => $peopleCriteria];
             }
         } elseif (!$bPerson && $bRole && $roleCode) {
             $new_criteria['people.cod'] = $roleCode;
         }
 
         return $new_criteria;
-    }
-
-    /**
-     * @param $value
-     *
-     * @return array
-     */
-    private function processDates($value)
-    {
-        $criteria = array();
-        $date_from = null;
-        $date_to = null;
-
-        if ('' !== $value['from']) {
-            $date_from = new \DateTime($value['from']);
-        }
-        if ('' !== $value['to']) {
-            $date_to = new \DateTime($value['to']);
-        }
-
-        if (('' !== $value['from']) && ('' !== $value['to'])) {
-            $criteria['public_date'] = array('$gte' => $date_from, '$lt' => $date_to);
-        } elseif ('' !== $value['from']) {
-            $criteria['public_date'] = array('$gte' => $date_from);
-        } elseif ('' !== $value['to']) {
-            $criteria['public_date'] = array('$lt' => $date_to);
-        }
-
-        return $criteria;
-    }
-
-    /**
-     * @param       $text
-     * @param array $base
-     * @param       $locale
-     *
-     * @return array
-     */
-    private function getSearchCriteria($text, array $base = array(), $locale = 'en')
-    {
-        $text = trim($text);
-        if ((false !== strpos($text, '*')) && (false === strpos($text, ' '))) {
-            $text = str_replace('*', '.*', $text);
-            $text = SearchUtils::scapeTildes($text);
-            $mRegex = new \MongoRegex("/$text/i");
-            $base[] = array(('title.'.$locale) => $mRegex);
-            $base[] = array('people.people.name' => $mRegex);
-        } else {
-            $base[] = array('$text' => array(
-                '$search' => TextIndexUtils::cleanTextIndex($text),
-                '$language' => TextIndexUtils::getCloseLanguage($locale),
-            ));
-        }
-
-        return $base;
     }
 
     /**
@@ -186,14 +133,69 @@ class MultimediaObjectSearchService
         if ((false !== strpos($text, '*')) && (false === strpos($text, ' '))) {
             $text = str_replace('*', '.*', $text);
             $text = SearchUtils::scapeTildes($text);
-            $mRegex = new \MongoRegex("/$text/i");
+            $mRegex = new \MongoRegex("/{$text}/i");
             $queryBuilder->addOr($queryBuilder->expr()->field('title.'.$locale)->equals($mRegex));
             $queryBuilder->addOr($queryBuilder->expr()->field('people.people.name')->equals($mRegex));
         } else {
-            $queryBuilder->field('$text')->equals(array(
+            $queryBuilder->field('$text')->equals([
                 '$search' => TextIndexUtils::cleanTextIndex($text),
                 '$language' => TextIndexUtils::getCloseLanguage($locale),
-            ));
+            ]);
         }
+    }
+
+    /**
+     * @param $value
+     *
+     * @return array
+     */
+    private function processDates($value)
+    {
+        $criteria = [];
+        $date_from = null;
+        $date_to = null;
+
+        if ('' !== $value['from']) {
+            $date_from = new \DateTime($value['from']);
+        }
+        if ('' !== $value['to']) {
+            $date_to = new \DateTime($value['to']);
+        }
+
+        if (('' !== $value['from']) && ('' !== $value['to'])) {
+            $criteria['public_date'] = ['$gte' => $date_from, '$lt' => $date_to];
+        } elseif ('' !== $value['from']) {
+            $criteria['public_date'] = ['$gte' => $date_from];
+        } elseif ('' !== $value['to']) {
+            $criteria['public_date'] = ['$lt' => $date_to];
+        }
+
+        return $criteria;
+    }
+
+    /**
+     * @param       $text
+     * @param array $base
+     * @param       $locale
+     *
+     * @return array
+     */
+    private function getSearchCriteria($text, array $base = [], $locale = 'en')
+    {
+        $text = trim($text);
+        if ((false !== strpos($text, '*')) && (false === strpos($text, ' '))) {
+            $text = str_replace('*', '.*', $text);
+            $text = SearchUtils::scapeTildes($text);
+            $mRegex = new \MongoRegex("/{$text}/i");
+            $base[] = [('title.'.$locale) => $mRegex];
+            $base[] = ['people.people.name' => $mRegex];
+        } else {
+            $base[] = ['$text' => [
+                '$search' => TextIndexUtils::cleanTextIndex($text),
+                '$language' => TextIndexUtils::getCloseLanguage($locale),
+            ]];
+        }
+
+        return $base;
     }
 }

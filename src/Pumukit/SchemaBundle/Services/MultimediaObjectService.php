@@ -3,11 +3,11 @@
 namespace Pumukit\SchemaBundle\Services;
 
 use Doctrine\ODM\MongoDB\DocumentManager;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
 use Pumukit\SchemaBundle\Document\Group;
-use Pumukit\SchemaBundle\Document\User;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Document\User;
 
 class MultimediaObjectService
 {
@@ -28,12 +28,14 @@ class MultimediaObjectService
      * Returns true if the $mm is published. ( Keep updated with SchemaFilter->getCriteria() ).
      *
      * @param MultimediaObject
+     * @param mixed $mm
+     * @param mixed $pubChannelCod
      *
      * @return bool
      */
     public function isPublished($mm, $pubChannelCod)
     {
-        $hasStatus = MultimediaObject::STATUS_PUBLISHED == $mm->getStatus();
+        $hasStatus = MultimediaObject::STATUS_PUBLISHED === $mm->getStatus();
         $hasPubChannel = $mm->containsTagWithCod($pubChannelCod);
 
         return $hasStatus && $hasPubChannel;
@@ -44,12 +46,14 @@ class MultimediaObjectService
      *
      * @param MultimediaObject
      * @param Publication channel code
+     * @param mixed $mm
+     * @param mixed $pubChannelCod
      *
      * @return bool
      */
     public function isHidden($mm, $pubChannelCod)
     {
-        $hasStatus = in_array($mm->getStatus(), array(MultimediaObject::STATUS_PUBLISHED, MultimediaObject::STATUS_HIDDEN));
+        $hasStatus = \in_array($mm->getStatus(), [MultimediaObject::STATUS_PUBLISHED, MultimediaObject::STATUS_HIDDEN], true);
         $hasPubChannel = $mm->containsTagWithCod($pubChannelCod);
 
         return $hasStatus && $hasPubChannel;
@@ -59,6 +63,7 @@ class MultimediaObjectService
      * Returns true if the $mm has a playable resource. ( Keep updated with SchemaFilter->getCriteria() ).
      *
      * @param MultimediaObject
+     * @param mixed $mm
      *
      * @return bool
      */
@@ -74,6 +79,8 @@ class MultimediaObjectService
      *
      * @param MultimediaObject
      * @param string
+     * @param mixed $mm
+     * @param mixed $pubChannelCod
      *
      * @return bool
      */
@@ -86,6 +93,7 @@ class MultimediaObjectService
      * Resets the magic url for a given multimedia object. Returns the secret id.
      *
      * @param MultimediaObject
+     * @param mixed $mm
      *
      * @return string
      */
@@ -180,7 +188,7 @@ class MultimediaObjectService
 
         $userIsOwner = false;
         if ($owners = $multimediaObject->getProperty('owners')) {
-            $userIsOwner = in_array($user->getId(), $owners);
+            $userIsOwner = \in_array($user->getId(), $owners, true);
         }
 
         return $commonAdminGroups || $userIsOwner;
@@ -228,8 +236,8 @@ class MultimediaObjectService
     public function isPlayableOnPlaylist($mmobj)
     {
         $broadcast = $mmobj->getEmbeddedBroadcast();
-        if (($broadcast && EmbeddedBroadcast::TYPE_PUBLIC != $broadcast->getType())
-            || MultimediaObject::STATUS_PUBLISHED != $mmobj->getStatus()
+        if (($broadcast && EmbeddedBroadcast::TYPE_PUBLIC !== $broadcast->getType())
+            || MultimediaObject::STATUS_PUBLISHED !== $mmobj->getStatus()
             || !$this->hasPlayableResource($mmobj)) {
             return false;
         }

@@ -2,10 +2,14 @@
 
 namespace Pumukit\SchemaBundle\Tests\Document;
 
-use Pumukit\SchemaBundle\Document\SeriesType;
 use PHPUnit\Framework\TestCase;
+use Pumukit\SchemaBundle\Document\SeriesType;
 
-class SeriesTypeTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class SeriesTypeTest extends TestCase
 {
     public function testGetterAndSetter()
     {
@@ -21,23 +25,23 @@ class SeriesTypeTest extends TestCase
         $series_type->setCod($cod);
         $series_type->setLocale($locale);
 
-        $this->assertEquals($name, $series_type->getName());
-        $this->assertEquals($description, $series_type->getDescription());
-        $this->assertEquals($cod, $series_type->getCod());
-        $this->assertEquals($locale, $series_type->getLocale());
+        static::assertSame($name, $series_type->getName());
+        static::assertSame($description, $series_type->getDescription());
+        static::assertSame($cod, $series_type->getCod());
+        static::assertSame($locale, $series_type->getLocale());
 
         $nameEs = 'Julio Sermon';
         $descriptionEs = 'Ezequiel 25:17. El camino recto del hombre está por todos lados por las iniquidades de los egoístas y la tiranía de los malos hombres.';
         $localeEs = 'es';
 
-        $nameI18n = array($locale => $name, $localeEs => $nameEs);
-        $descriptionI18n = array($locale => $description, $localeEs => $descriptionEs);
+        $nameI18n = [$locale => $name, $localeEs => $nameEs];
+        $descriptionI18n = [$locale => $description, $localeEs => $descriptionEs];
 
         $series_type->setI18nName($nameI18n);
         $series_type->setI18nDescription($descriptionI18n);
 
-        $this->assertEquals($nameI18n, $series_type->getI18nName());
-        $this->assertEquals($descriptionI18n, $series_type->getI18nDescription());
+        static::assertSame($nameI18n, $series_type->getI18nName());
+        static::assertSame($descriptionI18n, $series_type->getI18nDescription());
 
         $name = null;
         $description = null;
@@ -45,13 +49,13 @@ class SeriesTypeTest extends TestCase
         $series_type->setName($name);
         $series_type->setDescription($description);
 
-        $this->assertEquals(null, $series_type->getName());
-        $this->assertEquals(null, $series_type->getDescription());
+        static::assertNull($series_type->getName());
+        static::assertNull($series_type->getDescription());
     }
 
     public function testToString()
     {
         $series_type = new SeriesType();
-        $this->assertEquals($series_type->getName(), $series_type->__toString());
+        static::assertSame($series_type->getName(), $series_type->__toString());
     }
 }

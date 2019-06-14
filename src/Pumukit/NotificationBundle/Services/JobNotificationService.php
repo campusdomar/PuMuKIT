@@ -3,18 +3,19 @@
 namespace Pumukit\NotificationBundle\Services;
 
 use Doctrine\ODM\MongoDB\DocumentManager;
-use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Translation\TranslatorInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Pumukit\EncoderBundle\Event\JobEvent;
 use Pumukit\EncoderBundle\Document\Job;
+use Pumukit\EncoderBundle\Event\JobEvent;
 use Pumukit\EncoderBundle\Services\JobService;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\SchemaBundle\Security\Permission;
 use Pumukit\SchemaBundle\Document\User;
+use Pumukit\SchemaBundle\Security\Permission;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class JobNotificationService
 {
+    const PERSONAL_SCOPE_ROLE_CODE = 'owner';
     protected $dm;
     protected $senderService;
     protected $jobService;
@@ -27,8 +28,6 @@ class JobNotificationService
     protected $subjectFails;
     protected $subjectSuccessTrans;
     protected $subjectFailsTrans;
-
-    const PERSONAL_SCOPE_ROLE_CODE = 'owner';
 
     public function __construct(DocumentManager $documentManager, SenderService $senderService, JobService $jobService, TranslatorInterface $translator, RouterInterface $router, $enable, $environment, $template, $subjectSuccess, $subjectFails, $subjectSuccessTrans, $subjectFailsTrans)
     {
@@ -104,7 +103,7 @@ class JobNotificationService
             if (!$emailsTo) {
                 return false;
             }
-            if (is_array($emailsTo)) {
+            if (\is_array($emailsTo)) {
                 $output = false;
                 foreach ($emailsTo as $email) {
                     $output = $this->senderService->sendNotification($email, $subject, $this->template, $parameters, $error, true);
@@ -147,9 +146,8 @@ class JobNotificationService
     protected function getSubjectEmailInParameters(Job $job, $error = false)
     {
         $message = $this->getMessage($job, $error);
-        $subject = ($this->senderService->getPlatformName() ? $this->senderService->getPlatformName().': ' : '').$message;
 
-        return $subject;
+        return ($this->senderService->getPlatformName() ? $this->senderService->getPlatformName().': ' : '').$message;
     }
 
     /**
@@ -179,9 +177,7 @@ class JobNotificationService
             }
         }
 
-        $subjectEmail = ($this->senderService->getPlatformName() ? $this->senderService->getPlatformName().': ' : '').$message;
-
-        return $subjectEmail;
+        return ($this->senderService->getPlatformName() ? $this->senderService->getPlatformName().': ' : '').$message;
     }
 
     /**
@@ -197,7 +193,7 @@ class JobNotificationService
     {
         $multimediaObjectAdminLink = $this->getMultimediaObjectAdminLink($multimediaObject, $job->getMmId());
 
-        return array(
+        return [
             'subject' => $subject,
             'job_status' => Job::$statusTexts[$job->getStatus()],
             'job' => $job,
@@ -206,7 +202,7 @@ class JobNotificationService
             'platform_name' => $this->senderService->getPlatformName(),
             'multimedia_object_admin_link' => $multimediaObjectAdminLink,
             'multimedia_object' => $multimediaObject,
-        );
+        ];
     }
 
     /**
@@ -215,16 +211,16 @@ class JobNotificationService
      * @param Job              $job
      * @param MultimediaObject $multimediaObject
      *
-     * @return string|array
+     * @return array|string
      */
     protected function getEmails(Job $job, MultimediaObject $multimediaObject)
     {
-        $emailsTo = array();
+        $emailsTo = [];
 
         if (Job::STATUS_FINISHED === $job->getStatus()) {
             $aPeople = $multimediaObject->getPeopleByRoleCod(self::PERSONAL_SCOPE_ROLE_CODE, true);
             foreach ($aPeople as $people) {
-                $user = $this->dm->getRepository(User::class)->findOneBy(array('email' => $people->getEmail()));
+                $user = $this->dm->getRepository(User::class)->findOneBy(['email' => $people->getEmail()]);
                 if ($user && ($user->hasRole(Permission::ROLE_SEND_NOTIFICATION_COMPLETE) || $user->hasRole('ROLE_SUPER_ADMIN'))) {
                     $emailsTo[] = $user->getEmail();
                 }
@@ -233,7 +229,7 @@ class JobNotificationService
             $aPeople = $multimediaObject->getPeopleByRoleCod(self::PERSONAL_SCOPE_ROLE_CODE, true);
 
             foreach ($aPeople as $people) {
-                $user = $this->dm->getRepository(User::class)->findOneBy(array('email' => $people->getEmail()));
+                $user = $this->dm->getRepository(User::class)->findOneBy(['email' => $people->getEmail()]);
                 if ($user && ($user->hasRole(Permission::ROLE_SEND_NOTIFICATION_ERRORS) || $user->hasRole('ROLE_SUPER_ADMIN'))) {
                     $emailsTo[] = $user->getEmail();
                 }
@@ -246,7 +242,7 @@ class JobNotificationService
     private function getMultimediaObjectAdminLink($multimediaObject, $id = '')
     {
         if (null !== $multimediaObject) {
-            return $this->router->generate('pumukitnewadmin_mms_shortener', array('id' => $multimediaObject->getId()), UrlGeneratorInterface::ABSOLUTE_URL);
+            return $this->router->generate('pumukitnewadmin_mms_shortener', ['id' => $multimediaObject->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
         }
 
         return 'No link found to Multimedia Object with id "'.$id.'".';

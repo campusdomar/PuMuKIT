@@ -2,8 +2,8 @@
 
 namespace Pumukit\SchemaBundle\Document;
 
-use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -64,6 +64,31 @@ class EmbeddedBroadcast
     public function __construct()
     {
         $this->groups = new ArrayCollection();
+    }
+
+    /**
+     * to String.
+     *
+     * Only in English.
+     * For other languages:
+     * use getI18nDescription
+     * in EmbeddedBroadcastService
+     */
+    public function __toString()
+    {
+        $groups = $this->getGroups();
+        $groupsDescription = '';
+        if ((self::TYPE_GROUPS === $this->getType()) && ($groups)) {
+            $groupsDescription = ': ';
+            foreach ($groups as $group) {
+                $groupsDescription .= $group->getName();
+                if ($group !== $groups->last()) {
+                    $groupsDescription .= ', ';
+                }
+            }
+        }
+
+        return $this->getName().$groupsDescription;
     }
 
     /**
@@ -179,36 +204,11 @@ class EmbeddedBroadcast
     }
 
     /**
-     * to String.
-     *
-     * Only in English.
-     * For other languages:
-     * use getI18nDescription
-     * in EmbeddedBroadcastService
-     */
-    public function __toString()
-    {
-        $groups = $this->getGroups();
-        $groupsDescription = '';
-        if ((self::TYPE_GROUPS === $this->getType()) && ($groups)) {
-            $groupsDescription = ': ';
-            foreach ($groups as $group) {
-                $groupsDescription .= $group->getName();
-                if ($group != $groups->last()) {
-                    $groupsDescription .= ', ';
-                }
-            }
-        }
-
-        return $this->getName().$groupsDescription;
-    }
-
-    /**
      * @Assert\IsTrue(message = "Password required if not public")
      */
     public function isPasswordValid()
     {
-        return (self::TYPE_PUBLIC == $this->getType()) ||
-                ((self::TYPE_PASSWORD == $this->getType()) && ('' != $this->getPassword()));
+        return (self::TYPE_PUBLIC === $this->getType()) ||
+                ((self::TYPE_PASSWORD === $this->getType()) && ('' !== $this->getPassword()));
     }
 }

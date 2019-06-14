@@ -2,33 +2,40 @@
 
 namespace Pumukit\SchemaBundle\Tests\Repository;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\SchemaBundle\Document\SeriesType;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class SeriesTypeRepositoryTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class SeriesTypeRepositoryTest extends WebTestCase
 {
     private $dm;
     private $repo;
     private $factoryService;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()
             ->get('doctrine_mongodb')->getManager();
         $this->repo = $this->dm
-            ->getRepository('PumukitSchemaBundle:SeriesType');
+            ->getRepository('PumukitSchemaBundle:SeriesType')
+        ;
         $this->factoryService = static::$kernel->getContainer()
-            ->get('pumukitschema.factory');
+            ->get('pumukitschema.factory')
+        ;
 
         $this->dm->getDocumentCollection('PumukitSchemaBundle:SeriesType')
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -40,7 +47,7 @@ class SeriesTypeRepositoryTest extends WebTestCase
 
     public function testRepositoryEmpty()
     {
-        $this->assertEquals(0, count($this->repo->findAll()));
+        static::assertSame(0, \count($this->repo->findAll()));
     }
 
     public function testRepository()
@@ -58,13 +65,13 @@ class SeriesTypeRepositoryTest extends WebTestCase
         $this->dm->persist($seriesType);
         $this->dm->flush();
 
-        $this->assertEquals(1, count($this->repo->findAll()));
-        $this->assertEquals($seriesType, $this->repo->find($seriesType->getId()));
+        static::assertSame(1, \count($this->repo->findAll()));
+        static::assertSame($seriesType, $this->repo->find($seriesType->getId()));
     }
 
     public function testContainsSeries()
     {
-        $this->markTestSkipped('S');
+        static::markTestSkipped('S');
 
         $seriesType = new SeriesType();
         $this->dm->persist($seriesType);
@@ -76,6 +83,6 @@ class SeriesTypeRepositoryTest extends WebTestCase
         $this->dm->persist($seriesType);
         $this->dm->flush();
 
-        $this->assertTrue($seriesType->containsSeries($series));
+        static::assertTrue($seriesType->containsSeries($series));
     }
 }

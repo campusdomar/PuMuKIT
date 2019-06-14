@@ -2,10 +2,14 @@
 
 namespace Pumukit\SchemaBundle\Tests\Document;
 
-use Pumukit\SchemaBundle\Document\User;
 use PHPUnit\Framework\TestCase;
+use Pumukit\SchemaBundle\Document\User;
 
-class UserTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class UserTest extends TestCase
 {
     public function testSetterAndGetter()
     {
@@ -18,13 +22,13 @@ class UserTest extends TestCase
         $user->setUsername($username);
         $user->setFullname($fullname);
         $user->setOrigin($origin1);
-        $this->assertEquals($fullname, $user->getFullname());
-        $this->assertEquals($origin1, $user->getOrigin());
-        $this->assertTrue($user->isLocal());
+        static::assertSame($fullname, $user->getFullname());
+        static::assertSame($origin1, $user->getOrigin());
+        static::assertTrue($user->isLocal());
 
         $origin2 = 'ldap';
         $user->setOrigin($origin2);
-        $this->assertEquals($origin2, $user->getOrigin());
-        $this->assertFalse($user->isLocal());
+        static::assertSame($origin2, $user->getOrigin());
+        static::assertFalse($user->isLocal());
     }
 }

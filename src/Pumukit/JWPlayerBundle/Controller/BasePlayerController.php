@@ -2,13 +2,13 @@
 
 namespace Pumukit\JWPlayerBundle\Controller;
 
+use Pumukit\BasePlayerBundle\Controller\BasePlayerController as BasePlayerControllero;
+use Pumukit\CoreBundle\Controller\PersonalControllerInterface;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Pumukit\CoreBundle\Controller\PersonalControllerInterface;
-use Pumukit\BasePlayerBundle\Controller\BasePlayerController as BasePlayerControllero;
 
 class BasePlayerController extends BasePlayerControllero implements PersonalControllerInterface
 {
@@ -37,14 +37,14 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
             return $this->redirect($url);
         }
 
-        return array(
+        return [
             'autostart' => $request->query->get('autostart', 'false'),
             'intro' => $this->get('pumukit_baseplayer.intro')->getIntroForMultimediaObject($request->query->get('intro'), $multimediaObject->getProperty('intro')),
             'multimediaObject' => $multimediaObject,
             'object' => $multimediaObject,
             'when_dispatch_view_event' => $this->container->getParameter('pumukitplayer.when_dispatch_view_event'),
             'track' => $track,
-        );
+        ];
     }
 
     /**
@@ -56,10 +56,11 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
         $mmobjService = $this->get('pumukitschema.multimedia_object');
         if ($mmobjService->isPublished($multimediaObject, 'PUCHWEBTV')) {
             if ($mmobjService->hasPlayableResource($multimediaObject) && $multimediaObject->isPublicEmbeddedBroadcast()) {
-                return $this->redirect($this->generateUrl('pumukit_videoplayer_index', array('id' => $multimediaObject->getId())));
+                return $this->redirect($this->generateUrl('pumukit_videoplayer_index', ['id' => $multimediaObject->getId()]));
             }
-        } elseif ((MultimediaObject::STATUS_PUBLISHED != $multimediaObject->getStatus()
-                 && MultimediaObject::STATUS_HIDDEN != $multimediaObject->getStatus()
+        } elseif ((
+            MultimediaObject::STATUS_PUBLISHED !== $multimediaObject->getStatus()
+                 && MultimediaObject::STATUS_HIDDEN !== $multimediaObject->getStatus()
                  ) || !$multimediaObject->containsTagWithCod('PUCHWEBTV')) {
             return $this->render('PumukitWebTVBundle:Index:404notfound.html.twig');
         }
@@ -83,7 +84,7 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
             return $this->redirect($url);
         }
 
-        return array(
+        return [
             'autostart' => $request->query->get('autostart', 'false'),
             'intro' => $this->get('pumukit_baseplayer.intro')->getIntroForMultimediaObject($request->query->get('intro'), $multimediaObject->getProperty('intro')),
             'multimediaObject' => $multimediaObject,
@@ -91,6 +92,6 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
             'when_dispatch_view_event' => $this->container->getParameter('pumukitplayer.when_dispatch_view_event'),
             'track' => $track,
             'magic_url' => true,
-        );
+        ];
     }
 }

@@ -14,11 +14,11 @@ class PermissionProfile
     const SCOPE_PERSONAL = 'ROLE_SCOPE_PERSONAL';
     const SCOPE_NONE = 'ROLE_SCOPE_NONE';
 
-    public static $scopeDescription = array(
+    public static $scopeDescription = [
         self::SCOPE_GLOBAL => 'Global Scope',
         self::SCOPE_PERSONAL => 'Personal Scope',
         self::SCOPE_NONE => 'No Scope',
-    );
+    ];
 
     /**
      * @var string
@@ -40,7 +40,7 @@ class PermissionProfile
      *
      * @MongoDB\Field(type="collection")
      */
-    private $permissions = array();
+    private $permissions = [];
 
     /**
      * @var bool
@@ -70,6 +70,14 @@ class PermissionProfile
      * @Gedmo\SortablePosition
      */
     private $rank;
+
+    /**
+     * To String.
+     */
+    public function __toString()
+    {
+        return $this->getName();
+    }
 
     /**
      * Get id.
@@ -162,7 +170,7 @@ class PermissionProfile
      */
     public function containsPermission($permission)
     {
-        return in_array($permission, $this->permissions, true);
+        return \in_array($permission, $this->permissions, true);
     }
 
     /**
@@ -174,7 +182,7 @@ class PermissionProfile
      */
     public function containsAllPermissions(array $permissions)
     {
-        return count(array_intersect($permissions, $this->permissions)) === count($permissions);
+        return \count(array_intersect($permissions, $this->permissions)) === \count($permissions);
     }
 
     /**
@@ -186,7 +194,7 @@ class PermissionProfile
      */
     public function containsAnyPermission(array $permissions)
     {
-        return 0 != count(array_intersect($permissions, $this->permissions));
+        return 0 !== \count(array_intersect($permissions, $this->permissions));
     }
 
     /**
@@ -300,14 +308,6 @@ class PermissionProfile
     public function isNone()
     {
         return self::SCOPE_NONE === $this->getScope();
-    }
-
-    /**
-     * To String.
-     */
-    public function __toString()
-    {
-        return $this->getName();
     }
 
     /**

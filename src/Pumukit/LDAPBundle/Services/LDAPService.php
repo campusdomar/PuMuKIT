@@ -74,15 +74,16 @@ class LDAPService
             return false;
         }
         $ret = false;
+
         try {
             $linkIdentifier = ldap_connect($this->server);
             ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
             if ($linkIdentifier) {
                 ldap_bind($linkIdentifier, $this->bindRdn, $this->bindPassword);
-                $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, array(), 0, 1);
+                $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, [], 0, 1);
                 if ($searchResult) {
                     $info = ldap_get_entries($linkIdentifier, $searchResult);
-                    if (($info) && (0 != $info['count'])) {
+                    if (($info) && (0 !== $info['count'])) {
                         $dn = $info[0]['dn'];
                         $ret = @ldap_bind($linkIdentifier, $dn, $pass);
                     }
@@ -91,6 +92,7 @@ class LDAPService
             }
         } catch (\Exception $e) {
             $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.$e->getMessage());
+
             throw $e;
         }
 
@@ -101,22 +103,24 @@ class LDAPService
      * Obtiene el nombre completo de usuario del
      * servidor ldap.
      *
-     * @return string nombre completo del usuario
      *
      * @param string $user nombre del usuario
+     *
+     * @return string nombre completo del usuario
      */
     public function getName($user)
     {
         $name = false;
+
         try {
             $linkIdentifier = ldap_connect($this->server);
             ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
             if ($linkIdentifier) {
                 ldap_bind($linkIdentifier, $this->bindRdn, $this->bindPassword);
-                $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, array(), 0, 1);
+                $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, [], 0, 1);
                 if ($searchResult) {
                     $info = ldap_get_entries($linkIdentifier, $searchResult);
-                    if (($info) && (0 != count($info))) {
+                    if (($info) && (0 !== \count($info))) {
                         $name = $info[0]['cn'][0];
                     }
                 }
@@ -124,6 +128,7 @@ class LDAPService
             }
         } catch (\Exception $e) {
             $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.$e->getMessage());
+
             throw $e;
         }
 
@@ -136,22 +141,23 @@ class LDAPService
      *
      * @public
      *
-     * @return string correo del usuario
-     *
      * @param string $user nombre del usuario
+     *
+     * @return string correo del usuario
      */
     public function getMail($user)
     {
         $name = false;
+
         try {
             $linkIdentifier = ldap_connect($this->server);
             ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
             if ($linkIdentifier) {
                 ldap_bind($linkIdentifier, $this->bindRdn, $this->bindPassword);
-                $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, array(), 0, 1);
+                $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, [], 0, 1);
                 if ($searchResult) {
                     $info = ldap_get_entries($linkIdentifier, $searchResult);
-                    if (($info) && (0 != count($info))) {
+                    if (($info) && (0 !== \count($info))) {
                         $name = $info[0]['mail'][0];
                     }
                 }
@@ -159,6 +165,7 @@ class LDAPService
             }
         } catch (\Exception $e) {
             $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.$e->getMessage());
+
             throw $e;
         }
 
@@ -170,6 +177,8 @@ class LDAPService
      *
      * @public
      * @pararm string $email
+     *
+     * @param mixed $email
      *
      * @return array|false
      */
@@ -185,6 +194,9 @@ class LDAPService
      * @pararm string $key
      * @pararm string $value
      *
+     * @param mixed $key
+     * @param mixed $value
+     *
      * @return array|false
      */
     public function getInfoFrom($key, $value)
@@ -195,10 +207,10 @@ class LDAPService
         ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
         if ($linkIdentifier) {
             ldap_bind($linkIdentifier, $this->bindRdn, $this->bindPassword);
-            $searchResult = ldap_search($linkIdentifier, $this->baseDn, $key.'='.$value, array(), 0, 1);
+            $searchResult = ldap_search($linkIdentifier, $this->baseDn, $key.'='.$value, [], 0, 1);
             if ($searchResult) {
                 $info = ldap_get_entries($linkIdentifier, $searchResult);
-                if (($info) && (0 != count($info)) && isset($info[0])) {
+                if (($info) && (0 !== \count($info)) && isset($info[0])) {
                     $return = $info[0];
                 }
             }
@@ -227,25 +239,26 @@ class LDAPService
     public function getListUsers($cn = '', $mail = '')
     {
         $limit = 40;
-        $out = array();
+        $out = [];
+
         try {
             $linkIdentifier = ldap_connect($this->server);
             ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
             if ($linkIdentifier) {
                 ldap_bind($linkIdentifier, $this->bindRdn, $this->bindPassword);
                 $filter = $this->getFilter($cn, $mail);
-                $searchResult = ldap_search($linkIdentifier, $this->baseDn, $filter, array(), 0, $limit);
+                $searchResult = ldap_search($linkIdentifier, $this->baseDn, $filter, [], 0, $limit);
                 if ($searchResult) {
                     $info = ldap_get_entries($linkIdentifier, $searchResult);
-                    if (($info) && (0 != count($info))) {
+                    if (($info) && (0 !== \count($info))) {
                         foreach ($info as $k => $i) {
                             if ('count' === $k) {
                                 continue;
                             }
-                            $out[] = array(
-                                           'mail' => $i['mail'][0],
-                                           'cn' => $i['cn'][0],
-                                           );
+                            $out[] = [
+                                'mail' => $i['mail'][0],
+                                'cn' => $i['cn'][0],
+                            ];
                         }
                     }
                 }
@@ -253,6 +266,7 @@ class LDAPService
             }
         } catch (\Exception $e) {
             $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.$e->getMessage());
+
             throw $e;
         }
 

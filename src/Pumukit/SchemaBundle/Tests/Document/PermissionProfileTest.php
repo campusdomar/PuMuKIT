@@ -2,22 +2,26 @@
 
 namespace Pumukit\SchemaBundle\Tests\Document;
 
+use PHPUnit\Framework\TestCase;
 use Pumukit\SchemaBundle\Document\PermissionProfile;
 use Pumukit\SchemaBundle\Security\Permission;
-use PHPUnit\Framework\TestCase;
 
-class PermissionProfileTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class PermissionProfileTest extends TestCase
 {
     public function testSetterAndGetter()
     {
         $name = 'User Test Permission';
-        $permissions = array(
-                            Permission::ACCESS_DASHBOARD,
-                            Permission::ACCESS_MULTIMEDIA_SERIES,
-                            Permission::ACCESS_LIVE_CHANNELS,
-                            Permission::ACCESS_LIVE_EVENTS,
-                            'ROLE_ACCESS_IMPORTER',
-                            );
+        $permissions = [
+            Permission::ACCESS_DASHBOARD,
+            Permission::ACCESS_MULTIMEDIA_SERIES,
+            Permission::ACCESS_LIVE_CHANNELS,
+            Permission::ACCESS_LIVE_EVENTS,
+            'ROLE_ACCESS_IMPORTER',
+        ];
         $system = true;
         $default = true;
         $scope = PermissionProfile::SCOPE_GLOBAL;
@@ -30,23 +34,23 @@ class PermissionProfileTest extends TestCase
         $permissionProfile->setDefault($default);
         $permissionProfile->setScope($scope);
 
-        $this->assertEquals($name, $permissionProfile->getName());
-        $this->assertEquals($permissions, $permissionProfile->getPermissions());
-        $this->assertEquals($system, $permissionProfile->getSystem());
-        $this->assertEquals($default, $permissionProfile->getDefault());
-        $this->assertEquals($scope, $permissionProfile->getScope());
+        static::assertSame($name, $permissionProfile->getName());
+        static::assertSame($permissions, $permissionProfile->getPermissions());
+        static::assertSame($system, $permissionProfile->getSystem());
+        static::assertSame($default, $permissionProfile->getDefault());
+        static::assertSame($scope, $permissionProfile->getScope());
     }
 
     public function testPermissionsCollection()
     {
         $name = 'User Test Permission';
-        $permissions = array(
-                            Permission::ACCESS_DASHBOARD,
-                            Permission::ACCESS_MULTIMEDIA_SERIES,
-                            Permission::ACCESS_LIVE_CHANNELS,
-                            Permission::ACCESS_LIVE_EVENTS,
-                            'ROLE_ACCESS_IMPORTER',
-                            );
+        $permissions = [
+            Permission::ACCESS_DASHBOARD,
+            Permission::ACCESS_MULTIMEDIA_SERIES,
+            Permission::ACCESS_LIVE_CHANNELS,
+            Permission::ACCESS_LIVE_EVENTS,
+            'ROLE_ACCESS_IMPORTER',
+        ];
         $system = true;
         $default = true;
         $scope = PermissionProfile::SCOPE_GLOBAL;
@@ -59,63 +63,63 @@ class PermissionProfileTest extends TestCase
         $permissionProfile->setDefault($default);
         $permissionProfile->setScope($scope);
 
-        $this->assertEquals($permissions, $permissionProfile->getPermissions());
+        static::assertSame($permissions, $permissionProfile->getPermissions());
 
-        $this->assertTrue($permissionProfile->containsPermission(Permission::ACCESS_DASHBOARD));
-        $this->assertFalse($permissionProfile->containsPermission(Permission::ACCESS_ADMIN_USERS));
+        static::assertTrue($permissionProfile->containsPermission(Permission::ACCESS_DASHBOARD));
+        static::assertFalse($permissionProfile->containsPermission(Permission::ACCESS_ADMIN_USERS));
 
-        $this->assertTrue($permissionProfile->containsAllPermissions($permissions));
+        static::assertTrue($permissionProfile->containsAllPermissions($permissions));
 
-        $morePermissions = array(
-                                 Permission::ACCESS_DASHBOARD,
-                                 Permission::ACCESS_MULTIMEDIA_SERIES,
-                                 Permission::ACCESS_ADMIN_USERS,
-                                 );
+        $morePermissions = [
+            Permission::ACCESS_DASHBOARD,
+            Permission::ACCESS_MULTIMEDIA_SERIES,
+            Permission::ACCESS_ADMIN_USERS,
+        ];
 
-        $fewerPermissions = array(
-                                 Permission::ACCESS_DASHBOARD,
-                                 Permission::ACCESS_MULTIMEDIA_SERIES,
-                                 );
+        $fewerPermissions = [
+            Permission::ACCESS_DASHBOARD,
+            Permission::ACCESS_MULTIMEDIA_SERIES,
+        ];
 
-        $notPermissions = array(
-                               Permission::ACCESS_ADMIN_USERS,
-                               Permission::ACCESS_ROLES,
-                               );
+        $notPermissions = [
+            Permission::ACCESS_ADMIN_USERS,
+            Permission::ACCESS_ROLES,
+        ];
 
-        $this->assertFalse($permissionProfile->containsAllPermissions($morePermissions));
-        $this->assertTrue($permissionProfile->containsAllPermissions($fewerPermissions));
-        $this->assertTrue($permissionProfile->containsAnyPermission($fewerPermissions));
-        $this->assertTrue($permissionProfile->containsAnyPermission($morePermissions));
-        $this->assertFalse($permissionProfile->containsAnyPermission($notPermissions));
+        static::assertFalse($permissionProfile->containsAllPermissions($morePermissions));
+        static::assertTrue($permissionProfile->containsAllPermissions($fewerPermissions));
+        static::assertTrue($permissionProfile->containsAnyPermission($fewerPermissions));
+        static::assertTrue($permissionProfile->containsAnyPermission($morePermissions));
+        static::assertFalse($permissionProfile->containsAnyPermission($notPermissions));
 
-        $newPermissions = array(
-                            Permission::ACCESS_DASHBOARD,
-                            Permission::ACCESS_MULTIMEDIA_SERIES,
-                            Permission::ACCESS_LIVE_CHANNELS,
-                            Permission::ACCESS_LIVE_EVENTS,
-                            'ROLE_ACCESS_IMPORTER',
-                            Permission::ACCESS_ADMIN_USERS,
-                            );
+        $newPermissions = [
+            Permission::ACCESS_DASHBOARD,
+            Permission::ACCESS_MULTIMEDIA_SERIES,
+            Permission::ACCESS_LIVE_CHANNELS,
+            Permission::ACCESS_LIVE_EVENTS,
+            'ROLE_ACCESS_IMPORTER',
+            Permission::ACCESS_ADMIN_USERS,
+        ];
 
-        $this->assertEquals($newPermissions, $permissionProfile->addPermission(Permission::ACCESS_ADMIN_USERS));
-        $this->assertTrue($permissionProfile->containsPermission(Permission::ACCESS_ADMIN_USERS));
+        static::assertSame($newPermissions, $permissionProfile->addPermission(Permission::ACCESS_ADMIN_USERS));
+        static::assertTrue($permissionProfile->containsPermission(Permission::ACCESS_ADMIN_USERS));
 
-        $this->assertTrue($permissionProfile->removePermission(Permission::ACCESS_DASHBOARD));
-        $this->assertFalse($permissionProfile->containsPermission(Permission::ACCESS_DASHBOARD));
+        static::assertTrue($permissionProfile->removePermission(Permission::ACCESS_DASHBOARD));
+        static::assertFalse($permissionProfile->containsPermission(Permission::ACCESS_DASHBOARD));
 
-        $this->assertFalse($permissionProfile->removePermission(Permission::ACCESS_WIZARD_UPLOAD));
+        static::assertFalse($permissionProfile->removePermission(Permission::ACCESS_WIZARD_UPLOAD));
     }
 
     public function testIsScope()
     {
         $name = 'User Test Permission';
-        $permissions = array(
-                            Permission::ACCESS_DASHBOARD,
-                            Permission::ACCESS_MULTIMEDIA_SERIES,
-                            Permission::ACCESS_LIVE_CHANNELS,
-                            Permission::ACCESS_LIVE_EVENTS,
-                            'ROLE_ACCESS_IMPORTER',
-                            );
+        $permissions = [
+            Permission::ACCESS_DASHBOARD,
+            Permission::ACCESS_MULTIMEDIA_SERIES,
+            Permission::ACCESS_LIVE_CHANNELS,
+            Permission::ACCESS_LIVE_EVENTS,
+            'ROLE_ACCESS_IMPORTER',
+        ];
         $system = true;
         $default = true;
         $scope = PermissionProfile::SCOPE_GLOBAL;
@@ -128,9 +132,9 @@ class PermissionProfileTest extends TestCase
         $permissionProfile->setDefault($default);
         $permissionProfile->setScope($scope);
 
-        $this->assertTrue($permissionProfile->isGlobal());
-        $this->assertFalse($permissionProfile->isPersonal());
-        $this->assertFalse($permissionProfile->isNone());
+        static::assertTrue($permissionProfile->isGlobal());
+        static::assertFalse($permissionProfile->isPersonal());
+        static::assertFalse($permissionProfile->isNone());
     }
 
     public function testIsDefault()
@@ -143,7 +147,7 @@ class PermissionProfileTest extends TestCase
         $permissionProfile->setName($name);
         $permissionProfile->setDefault($default);
 
-        $this->assertTrue($permissionProfile->isDefault());
+        static::assertTrue($permissionProfile->isDefault());
 
         $name = 'User Test Permission 2';
         $default = false;
@@ -153,7 +157,7 @@ class PermissionProfileTest extends TestCase
         $permissionProfile2->setName($name);
         $permissionProfile2->setDefault($default);
 
-        $this->assertFalse($permissionProfile2->isDefault());
+        static::assertFalse($permissionProfile2->isDefault());
     }
 
     public function testIsSystem()
@@ -166,7 +170,7 @@ class PermissionProfileTest extends TestCase
         $permissionProfile->setName($name);
         $permissionProfile->setSystem($system);
 
-        $this->assertTrue($permissionProfile->isSystem());
+        static::assertTrue($permissionProfile->isSystem());
 
         $name = 'User Test Permission 2';
         $system = false;
@@ -176,7 +180,7 @@ class PermissionProfileTest extends TestCase
         $permissionProfile2->setName($name);
         $permissionProfile2->setSystem($system);
 
-        $this->assertFalse($permissionProfile2->isSystem());
+        static::assertFalse($permissionProfile2->isSystem());
     }
 
     public function testToString()
@@ -187,6 +191,6 @@ class PermissionProfileTest extends TestCase
 
         $permissionProfile->setName($name);
 
-        $this->assertEquals($name, $permissionProfile->__toString());
+        static::assertSame($name, $permissionProfile->__toString());
     }
 }

@@ -2,12 +2,16 @@
 
 namespace Pumukit\InspectionBundle\Tests\Services;
 
+use PHPUnit\Framework\TestCase;
 use Pumukit\InspectionBundle\Services\InspectionFfprobeService;
 use Pumukit\InspectionBundle\Utils\TestCommand;
 use Pumukit\SchemaBundle\Document\Track;
-use PHPUnit\Framework\TestCase;
 
-class InspectionFfprobeServiceTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class InspectionFfprobeServiceTest extends TestCase
 {
     private $resources_dir;
     private $wrong_file_textfile;
@@ -15,20 +19,20 @@ class InspectionFfprobeServiceTest extends TestCase
     private $wrong_file_subtitle;
     private $vid_no_audio;
 
-    public function setUp()
+    protected function setUp()
     {
         if (false === TestCommand::commandExists('ffprobe')) {
-            $this->markTestSkipped('FFprobe test marks skipped (No ffprobe command).');
+            static::markTestSkipped('FFprobe test marks skipped (No ffprobe command).');
         }
 
-        $this->resources_dir = realpath(__DIR__.'/../Resources').DIRECTORY_SEPARATOR;
+        $this->resources_dir = realpath(__DIR__.'/../Resources').\DIRECTORY_SEPARATOR;
         $this->wrong_file_textfile = $this->resources_dir.'textfile.txt';
         $this->wrong_file_zerofile = $this->resources_dir.'zerosizefile.txt';
         $this->wrong_file_subtitle = $this->resources_dir.'subtitle.vtt';
         $this->vid_no_audio = $this->resources_dir.'SCREEN.mp4';
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->resources_dir = null;
         $this->wrong_file_textfile = null;
@@ -66,8 +70,8 @@ class InspectionFfprobeServiceTest extends TestCase
         $file1 = $this->resources_dir.'AUDIO.mp3';
         $file2 = $this->resources_dir.'CAMERA.mp4';
         $is = new InspectionFfprobeService(); //logger missing, it is not initialized here.
-        $this->assertEquals(2, $is->getDuration($file1));
-        $this->assertEquals(2, $is->getDuration($file2));
+        static::assertSame(2, $is->getDuration($file1));
+        static::assertSame(2, $is->getDuration($file2));
     }
 
     /**
@@ -106,18 +110,18 @@ class InspectionFfprobeServiceTest extends TestCase
         $acodec = 'mp3';
 
         // Test no video properties are set
-        $this->assertEmpty($track->getVcodec());
-        $this->assertEmpty($track->getFramerate());
-        $this->assertEmpty($track->getWidth());
-        $this->assertEmpty($track->getHeight());
+        static::assertEmpty($track->getVcodec());
+        static::assertEmpty($track->getFramerate());
+        static::assertEmpty($track->getWidth());
+        static::assertEmpty($track->getHeight());
 
         // Test general and audio properties
-        $this->assertEquals($mime_type, $track->getMimetype());
-        $this->assertEquals($acodec, $track->getAcodec());
-        $this->assertEquals($bitrate, $track->getBitrate());
-        $this->assertEquals($duration, $track->getDuration());
-        $this->assertEquals($size, $track->getSize());
-        $this->assertTrue($track->getOnlyAudio());
+        static::assertSame($mime_type, $track->getMimetype());
+        static::assertSame($acodec, $track->getAcodec());
+        static::assertSame($bitrate, $track->getBitrate());
+        static::assertSame($duration, $track->getDuration());
+        static::assertSame($size, $track->getSize());
+        static::assertTrue($track->getOnlyAudio());
     }
 
     public function testAutocompleteTrackWithAudioAndVideo()
@@ -145,20 +149,20 @@ class InspectionFfprobeServiceTest extends TestCase
         $acodec1 = 'aac';
 
         // Test general properties
-        $this->assertEquals($mime_type1, $track1->getMimetype());
-        $this->assertTrue($track1->getBitrate() > $bitrate1);
-        $this->assertEquals($duration1, $track1->getDuration());
-        $this->assertEquals($size1, $track1->getSize());
+        static::assertSame($mime_type1, $track1->getMimetype());
+        static::assertTrue($track1->getBitrate() > $bitrate1);
+        static::assertSame($duration1, $track1->getDuration());
+        static::assertSame($size1, $track1->getSize());
 
         // Test video properties
-        $this->assertEquals($vcodec1, $track1->getVcodec());
-        $this->assertEquals($framerate1, $track1->getFramerate());
-        $this->assertEquals($width1, $track1->getWidth());
-        $this->assertEquals($height1, $track1->getHeight());
+        static::assertSame($vcodec1, $track1->getVcodec());
+        static::assertSame($framerate1, $track1->getFramerate());
+        static::assertSame($width1, $track1->getWidth());
+        static::assertSame($height1, $track1->getHeight());
 
         // Test audio properties
-        $this->assertFalse($track1->getOnlyAudio());
-        $this->assertEquals($acodec1, $track1->getAcodec());
+        static::assertFalse($track1->getOnlyAudio());
+        static::assertSame($acodec1, $track1->getAcodec());
 
         $mime_type2 = 'video/mp4';
         $bitrate2 = 847600;
@@ -173,19 +177,19 @@ class InspectionFfprobeServiceTest extends TestCase
         $acodec2 = 'aac';
 
         // Test general properties
-        $this->assertEquals($mime_type2, $track2->getMimetype());
-        $this->assertEquals($bitrate2, $track2->getBitrate());
-        $this->assertEquals($duration2, $track2->getDuration());
-        $this->assertEquals($size2, $track2->getSize());
+        static::assertSame($mime_type2, $track2->getMimetype());
+        static::assertSame($bitrate2, $track2->getBitrate());
+        static::assertSame($duration2, $track2->getDuration());
+        static::assertSame($size2, $track2->getSize());
 
         // Test video properties
-        $this->assertEquals($vcodec2, $track2->getVcodec());
-        $this->assertEquals($framerate2, $track2->getFramerate());
-        $this->assertEquals($width2, $track2->getWidth());
-        $this->assertEquals($height2, $track2->getHeight());
+        static::assertSame($vcodec2, $track2->getVcodec());
+        static::assertSame($framerate2, $track2->getFramerate());
+        static::assertSame($width2, $track2->getWidth());
+        static::assertSame($height2, $track2->getHeight());
 
         // Test audio properties
-        $this->assertFalse($track2->getOnlyAudio());
-        $this->assertEquals($acodec2, $track2->getAcodec());
+        static::assertFalse($track2->getOnlyAudio());
+        static::assertSame($acodec2, $track2->getAcodec());
     }
 }

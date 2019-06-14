@@ -3,16 +3,16 @@
 namespace Pumukit\OpencastBundle\Services;
 
 use Doctrine\ODM\MongoDB\DocumentManager;
-use Pumukit\SchemaBundle\Services\FactoryService;
-use Pumukit\SchemaBundle\Services\TrackService;
-use Pumukit\SchemaBundle\Services\TagService;
-use Pumukit\SchemaBundle\Services\MultimediaObjectService;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\SchemaBundle\Document\Track;
-use Pumukit\SchemaBundle\Document\Pic;
-use Pumukit\SchemaBundle\Document\User;
 use Pumukit\InspectionBundle\Services\InspectionServiceInterface;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Pic;
 use Pumukit\SchemaBundle\Document\Tag;
+use Pumukit\SchemaBundle\Document\Track;
+use Pumukit\SchemaBundle\Document\User;
+use Pumukit\SchemaBundle\Services\FactoryService;
+use Pumukit\SchemaBundle\Services\MultimediaObjectService;
+use Pumukit\SchemaBundle\Services\TagService;
+use Pumukit\SchemaBundle\Services\TrackService;
 
 class OpencastImportService
 {
@@ -54,7 +54,7 @@ class OpencastImportService
      *
      * @param string    $opencastId
      * @param bool      $invert
-     * @param User|null $loggedInUser
+     * @param null|User $loggedInUser
      */
     public function importRecording($opencastId, $invert = false, User $loggedInUser = null)
     {
@@ -71,7 +71,7 @@ class OpencastImportService
      *
      * @param array     $mediaPackage
      * @param bool      $invert
-     * @param User|null $loggedInUser
+     * @param null|User $loggedInUser
      */
     public function importRecordingFromMediaPackage($mediaPackage, $invert = false, User $loggedInUser = null)
     {
@@ -84,7 +84,7 @@ class OpencastImportService
         $multimediaobjectsRepo = $this->dm->getRepository(MultimediaObject::class);
         $mediaPackageId = $this->getMediaPackageField($mediaPackage, 'id');
         if ($mediaPackageId) {
-            $multimediaObject = $multimediaobjectsRepo->findOneBy(array('properties.opencast' => $mediaPackageId));
+            $multimediaObject = $multimediaobjectsRepo->findOneBy(['properties.opencast' => $mediaPackageId]);
         }
 
         if ($multimediaObject) {
@@ -107,7 +107,7 @@ class OpencastImportService
                 $multimediaObject->setProperty('opencasturl', $this->opencastClient->getPlayerUrl().'?mode=embed&id='.$properties);
             }
 
-            if (boolval($invert)) {
+            if ((bool) $invert) {
                 $multimediaObject->setProperty('opencastinvert', true);
                 $multimediaObject->setProperty('paellalayout', 'professor_slide');
             } else {
@@ -131,7 +131,7 @@ class OpencastImportService
             $tracks = $this->getMediaPackageField($media, 'track');
             if (isset($tracks[0])) {
                 // NOTE: Multiple tracks
-                $limit = count($tracks);
+                $limit = \count($tracks);
                 for ($i = 0; $i < $limit; ++$i) {
                     $track = $this->createTrackFromMediaPackage($mediaPackage, $multimediaObject, $i);
                 }
@@ -143,7 +143,7 @@ class OpencastImportService
             $attachments = $this->getMediaPackageField($mediaPackage, 'attachments');
             $attachment = $this->getMediaPackageField($attachments, 'attachment');
             if (isset($attachment[0])) {
-                $limit = count($attachment);
+                $limit = \count($attachment);
                 for ($j = 0; $j < $limit; ++$j) {
                     $multimediaObject = $this->createPicFromAttachment($attachment, $multimediaObject, $j);
                 }
@@ -169,7 +169,7 @@ class OpencastImportService
 
     public function getOpencastUrls($opencastId = '')
     {
-        $opencastUrls = array();
+        $opencastUrls = [];
         if (null !== $opencastId) {
             try {
                 $archiveMediaPackage = $this->opencastClient->getMasterMediaPackage($opencastId);
@@ -180,7 +180,7 @@ class OpencastImportService
             $tracks = $this->getMediaPackageField($media, 'track');
             if (isset($tracks[0])) {
                 // NOTE: Multiple tracks
-                $limit = count($tracks);
+                $limit = \count($tracks);
                 for ($i = 0; $i < $limit; ++$i) {
                     $track = $tracks[$i];
                     $opencastUrls = $this->addOpencastUrl($opencastUrls, $track);
@@ -195,18 +195,7 @@ class OpencastImportService
         return $opencastUrls;
     }
 
-    private function addOpencastUrl($opencastUrls = array(), $track = array())
-    {
-        $type = $this->getMediaPackageField($track, 'type');
-        $url = $this->getMediaPackageField($track, 'url');
-        if ($type && $url) {
-            $opencastUrls[$type] = $url;
-        }
-
-        return $opencastUrls;
-    }
-
-    public function getMediaPackageField($mediaFields = array(), $field = '')
+    public function getMediaPackageField($mediaFields = [], $field = '')
     {
         if ($mediaFields && $field) {
             if (isset($mediaFields[$field])) {
@@ -217,7 +206,7 @@ class OpencastImportService
         return null;
     }
 
-    public function createTrackFromMediaPackage($mediaPackage, MultimediaObject $multimediaObject, $index = null, $trackTags = array('display'), $defaultLanguage = null)
+    public function createTrackFromMediaPackage($mediaPackage, MultimediaObject $multimediaObject, $index = null, $trackTags = ['display'], $defaultLanguage = null)
     {
         $media = $this->getMediaPackageField($mediaPackage, 'media');
         $tracks = $this->getMediaPackageField($media, 'track');
@@ -240,7 +229,7 @@ class OpencastImportService
         $tags = $this->getMediaPackageField($tagsArray, 'tag');
         if (isset($tags[0])) {
             // NOTE: Multiple tags
-            $limit = count($tags);
+            $limit = \count($tags);
             for ($i = 0; $i < $limit; ++$i) {
                 $track = $this->addTagToTrack($tags, $track, $i);
             }
@@ -311,6 +300,109 @@ class OpencastImportService
         return $track;
     }
 
+    public function importTracksFromMediaPackage($mediaPackage, MultimediaObject $multimediaObject, $trackTags)
+    {
+        $media = $this->getMediaPackageField($mediaPackage, 'media');
+        $tracks = $this->getMediaPackageField($media, 'track');
+        if (isset($tracks[0])) {
+            $limit = \count($tracks);
+            for ($i = 0; $i < $limit; ++$i) {
+                if (false === stripos($tracks[$i]['url'], 'rtmp:')) {
+                    $this->createTrackFromMediaPackage($mediaPackage, $multimediaObject, $i, $trackTags);
+                }
+            }
+        } else {
+            if (false === stripos($tracks['url'], 'rtmp:')) {
+                $this->createTrackFromMediaPackage($mediaPackage, $multimediaObject, null, $trackTags);
+            }
+        }
+    }
+
+    public function syncTracks(MultimediaObject $multimediaObject, $mediaPackage = null)
+    {
+        $mediaPackageId = $multimediaObject->getProperty('opencast');
+        if (!$mediaPackageId) {
+            return;
+        }
+
+        if (!$mediaPackage) {
+            $mediaPackage = $this->opencastClient->getMediaPackage($mediaPackageId);
+        }
+
+        if (!$mediaPackage) {
+            throw new \Exception('Opencast communication error');
+        }
+
+        $media = $this->getMediaPackageField($mediaPackage, 'media');
+        $tracks = $this->getMediaPackageField($media, 'track');
+        if (isset($tracks[0])) {
+            // NOTE: Multiple tracks
+            $limit = \count($tracks);
+            for ($i = 0; $i < $limit; ++$i) {
+                $track = $tracks[$i];
+                $type = $this->getMediaPackageField($track, 'type');
+                $url = $this->getMediaPackageField($track, 'url');
+                if ($type && $url) {
+                    $this->syncTrack($multimediaObject, $type, $url);
+                }
+            }
+        } else {
+            // NOTE: Single track
+            $type = $this->getMediaPackageField($tracks, 'type');
+            $url = $this->getMediaPackageField($tracks, 'url');
+            if ($type && $url) {
+                $this->syncTrack($multimediaObject, $type, $url);
+            }
+        }
+    }
+
+    public function syncPics(MultimediaObject $multimediaObject, $mediaPackage = null)
+    {
+        $mediaPackageId = $multimediaObject->getProperty('opencast');
+        if (!$mediaPackageId) {
+            return;
+        }
+
+        if (!$mediaPackage) {
+            $mediaPackage = $this->opencastClient->getMediaPackage($mediaPackageId);
+        }
+
+        if (!$mediaPackage) {
+            throw new \Exception('Opencast communication error');
+        }
+
+        $attachments = $this->getMediaPackageField($mediaPackage, 'attachments');
+        $attachment = $this->getMediaPackageField($attachments, 'attachment');
+        if (isset($attachment[0])) {
+            $limit = \count($attachment);
+            for ($i = 0; $i < $limit; ++$i) {
+                $pic = $attachment[$i];
+                $type = $this->getMediaPackageField($pic, 'type');
+                $url = $this->getMediaPackageField($pic, 'url');
+                if ($type && $url) {
+                    $this->syncPic($multimediaObject, $type, $url);
+                }
+            }
+        } else {
+            $type = $this->getMediaPackageField($attachment, 'type');
+            $url = $this->getMediaPackageField($attachment, 'url');
+            if ($type && $url) {
+                $this->syncPic($multimediaObject, $type, $url);
+            }
+        }
+    }
+
+    private function addOpencastUrl($opencastUrls = [], $track = [])
+    {
+        $type = $this->getMediaPackageField($track, 'type');
+        $url = $this->getMediaPackageField($track, 'url');
+        if ($type && $url) {
+            $opencastUrls[$type] = $url;
+        }
+
+        return $opencastUrls;
+    }
+
     private function createPicFromAttachment($attachment, MultimediaObject $multimediaObject, $index = null)
     {
         if ($attachment) {
@@ -320,7 +412,7 @@ class OpencastImportService
                 $itemAttachment = $attachment[$index];
             }
             $type = $this->getMediaPackageField($itemAttachment, 'type');
-            if ('presenter/search+preview' == $type) {
+            if ('presenter/search+preview' === $type) {
                 $tags = $this->getMediaPackageField($itemAttachment, 'tags');
                 $type = $this->getMediaPackageField($itemAttachment, 'type');
                 $url = $this->getMediaPackageField($itemAttachment, 'url');
@@ -365,7 +457,7 @@ class OpencastImportService
         $language = $this->getMediaPackageField($mediaPackage, 'language');
         if ($language) {
             $parsedLocale = \Locale::parseLocale($language);
-            if (!$this->customLanguages || in_array($parsedLocale['language'], $this->customLanguages)) {
+            if (!$this->customLanguages || \in_array($parsedLocale['language'], $this->customLanguages, true)) {
                 return $parsedLocale['language'];
             }
         }
@@ -373,65 +465,9 @@ class OpencastImportService
         return (null !== $defaultLanguage) ? $defaultLanguage : \Locale::getDefault();
     }
 
-    public function importTracksFromMediaPackage($mediaPackage, MultimediaObject $multimediaObject, $trackTags)
-    {
-        $media = $this->getMediaPackageField($mediaPackage, 'media');
-        $tracks = $this->getMediaPackageField($media, 'track');
-        if (isset($tracks[0])) {
-            $limit = count($tracks);
-            for ($i = 0; $i < $limit; ++$i) {
-                if (false === stripos($tracks[$i]['url'], 'rtmp:')) {
-                    $this->createTrackFromMediaPackage($mediaPackage, $multimediaObject, $i, $trackTags);
-                }
-            }
-        } else {
-            if (false === stripos($tracks['url'], 'rtmp:')) {
-                $this->createTrackFromMediaPackage($mediaPackage, $multimediaObject, null, $trackTags);
-            }
-        }
-    }
-
-    public function syncTracks(MultimediaObject $multimediaObject, $mediaPackage = null)
-    {
-        $mediaPackageId = $multimediaObject->getProperty('opencast');
-        if (!$mediaPackageId) {
-            return;
-        }
-
-        if (!$mediaPackage) {
-            $mediaPackage = $this->opencastClient->getMediaPackage($mediaPackageId);
-        }
-
-        if (!$mediaPackage) {
-            throw new \Exception('Opencast communication error');
-        }
-
-        $media = $this->getMediaPackageField($mediaPackage, 'media');
-        $tracks = $this->getMediaPackageField($media, 'track');
-        if (isset($tracks[0])) {
-            // NOTE: Multiple tracks
-            $limit = count($tracks);
-            for ($i = 0; $i < $limit; ++$i) {
-                $track = $tracks[$i];
-                $type = $this->getMediaPackageField($track, 'type');
-                $url = $this->getMediaPackageField($track, 'url');
-                if ($type && $url) {
-                    $this->syncTrack($multimediaObject, $type, $url);
-                }
-            }
-        } else {
-            // NOTE: Single track
-            $type = $this->getMediaPackageField($tracks, 'type');
-            $url = $this->getMediaPackageField($tracks, 'url');
-            if ($type && $url) {
-                $this->syncTrack($multimediaObject, $type, $url);
-            }
-        }
-    }
-
     private function syncTrack(MultimediaObject $multimediaObject, $type, $url)
     {
-        $track = $multimediaObject->getTrackWithAllTags(array('opencast', $type));
+        $track = $multimediaObject->getTrackWithAllTags(['opencast', $type]);
         if (!$track) {
             return false;
         }
@@ -442,45 +478,9 @@ class OpencastImportService
         return true;
     }
 
-    public function syncPics(MultimediaObject $multimediaObject, $mediaPackage = null)
-    {
-        $mediaPackageId = $multimediaObject->getProperty('opencast');
-        if (!$mediaPackageId) {
-            return;
-        }
-
-        if (!$mediaPackage) {
-            $mediaPackage = $this->opencastClient->getMediaPackage($mediaPackageId);
-        }
-
-        if (!$mediaPackage) {
-            throw new \Exception('Opencast communication error');
-        }
-
-        $attachments = $this->getMediaPackageField($mediaPackage, 'attachments');
-        $attachment = $this->getMediaPackageField($attachments, 'attachment');
-        if (isset($attachment[0])) {
-            $limit = count($attachment);
-            for ($i = 0; $i < $limit; ++$i) {
-                $pic = $attachment[$i];
-                $type = $this->getMediaPackageField($pic, 'type');
-                $url = $this->getMediaPackageField($pic, 'url');
-                if ($type && $url) {
-                    $this->syncPic($multimediaObject, $type, $url);
-                }
-            }
-        } else {
-            $type = $this->getMediaPackageField($attachment, 'type');
-            $url = $this->getMediaPackageField($attachment, 'url');
-            if ($type && $url) {
-                $this->syncPic($multimediaObject, $type, $url);
-            }
-        }
-    }
-
     private function syncPic(MultimediaObject $multimediaObject, $type, $url)
     {
-        $pic = $multimediaObject->getPicWithAllTags(array('opencast', $type));
+        $pic = $multimediaObject->getPicWithAllTags(['opencast', $type]);
         if (!$pic) {
             return false;
         }

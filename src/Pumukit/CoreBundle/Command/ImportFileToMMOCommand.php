@@ -2,16 +2,16 @@
 
 namespace Pumukit\CoreBundle\Command;
 
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 
 class ImportFileToMMOCommand extends ContainerAwareCommand
 {
-    private $dm = null;
+    private $dm;
     private $mmobjRepo;
     private $jobService;
     private $profileService;
@@ -28,7 +28,8 @@ class ImportFileToMMOCommand extends ContainerAwareCommand
             ->addOption('profile', null, InputOption::VALUE_OPTIONAL, 'profile')
             ->addOption('language', null, InputOption::VALUE_OPTIONAL, 'language', null)
             ->addArgument('description', InputArgument::OPTIONAL, 'description')
-            ->setHelp(<<<'EOT'
+            ->setHelp(
+                <<<'EOT'
 This command import file like a track on a multimedia object
 
 Example complete:
@@ -38,7 +39,8 @@ Basic example:
 <info>php app/console import:multimedia:file 58a31ce08381165d008b456a /var/www/html/pumukit2/web/storage/tmp/test.mp4</info>
 
 EOT
-            );
+            )
+        ;
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output)
@@ -66,17 +68,17 @@ EOT
             throw new \Exception('The file is not a valid video or audio file');
         }
 
-        if (0 == $duration) {
+        if (0 === $duration) {
             throw new \Exception('The file is not a valid video or audio file (duration is zero)');
         }
 
         $multimediaObject = $this->mmobjRepo->findOneBy(
-            array('id' => new \MongoId($input->getArgument('object')))
+            ['id' => new \MongoId($input->getArgument('object'))]
         );
 
         $profile = ($input->hasOption('profile')) ? $input->getOption('profile') : $this->profileService->getDefaultMasterProfile();
         $language = ($input->hasOption('language')) ? $input->getOption('language') : null;
-        $description = ($input->hasArgument('description')) ? array($this->defaultLanguage => $input->getArgument('description')) : '';
+        $description = ($input->hasArgument('description')) ? [$this->defaultLanguage => $input->getArgument('description')] : '';
 
         $track = $this->jobService->createTrack($multimediaObject, $filePath, $profile, $language, $description);
         $output->writeln('<info> Track '.$track->getId().' was imported succesfully on '.$multimediaObject->getId().'</info>');

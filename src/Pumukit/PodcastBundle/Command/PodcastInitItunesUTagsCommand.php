@@ -2,13 +2,13 @@
 
 namespace Pumukit\PodcastBundle\Command;
 
+use Pumukit\SchemaBundle\Document\Tag;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Pumukit\SchemaBundle\Document\Tag;
 
 class PodcastInitItunesUTagsCommand extends ContainerAwareCommand
 {
@@ -23,13 +23,15 @@ class PodcastInitItunesUTagsCommand extends ContainerAwareCommand
             ->setDescription('Load podcast itunesu tag data fixture to your database')
             ->addArgument('file', InputArgument::OPTIONAL, 'Input CSV path')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Set this parameter to execute this action')
-            ->setHelp(<<<'EOT'
+            ->setHelp(
+                <<<'EOT'
 Command to load a controlled Podcast ItunesU tags data into a database. Useful for init Podcast environment.
 
 The --force parameter has to be used to actually drop the database.
 
 EOT
-          );
+          )
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -39,13 +41,12 @@ EOT
 
         if ($input->getOption('force')) {
             return $this->executeTags($input, $output);
-        } else {
-            $output->writeln('<error>ATTENTION:</error> This operation should not be executed in a production environment without backup.');
-            $output->writeln('');
-            $output->writeln('Please run the operation with --force to execute.');
-
-            return -1;
         }
+        $output->writeln('<error>ATTENTION:</error> This operation should not be executed in a production environment without backup.');
+        $output->writeln('');
+        $output->writeln('Please run the operation with --force to execute.');
+
+        return -1;
 
         return 0;
     }
@@ -55,7 +56,7 @@ EOT
         $finder = new Finder();
         $finder->files()->in(__DIR__.'/'.$this->tagsPath);
         $file = $input->getArgument('file');
-        if ((0 == strcmp($file, '')) && (!$finder)) {
+        if ((0 === strcmp($file, '')) && (!$finder)) {
             $output->writeln("<error>Tags: There's no data to initialize</error>");
 
             return -1;
@@ -86,20 +87,20 @@ EOT
             return -1;
         }
 
-        $idCodMapping = array();
+        $idCodMapping = [];
 
         $row = 1;
         if (false !== ($file = fopen($file, 'r'))) {
             while (false !== ($currentRow = fgetcsv($file, 0, ';'))) {
-                $number = count($currentRow);
-                if (('tag' === $repoName) && (6 == $number || 9 == $number)) {
+                $number = \count($currentRow);
+                if (('tag' === $repoName) && (6 === $number || 9 === $number)) {
                     //Check header rows
-                    if ('id' == trim($currentRow[0])) {
+                    if ('id' === trim($currentRow[0])) {
                         continue;
                     }
-                    $parent = isset($idCodMapping[$currentRow[2]])
-                      ? $idCodMapping[$currentRow[2]]
-                      : $root;
+                    $parent = $idCodMapping[$currentRow[2]]
+                      ?? $root;
+
                     try {
                         $tag = $this->createTagFromCsvArray($currentRow, $parent);
                         $idCodMapping[$currentRow[0]] = $tag;
@@ -109,10 +110,10 @@ EOT
                     }
                 } else {
                     $output->writeln($repoName.': Last valid row = ...');
-                    $output->writeln("Error: line $row has $number elements");
+                    $output->writeln("Error: line {$row} has {$number} elements");
                 }
 
-                if (0 == $row % 100) {
+                if (0 === $row % 100) {
                     echo 'Row '.$row."\n";
                 }
 

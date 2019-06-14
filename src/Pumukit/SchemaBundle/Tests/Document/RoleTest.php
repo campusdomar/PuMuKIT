@@ -2,19 +2,23 @@
 
 namespace Pumukit\SchemaBundle\Tests\Document;
 
-use Pumukit\SchemaBundle\Document\Role;
 use PHPUnit\Framework\TestCase;
+use Pumukit\SchemaBundle\Document\Role;
 
-class RoleTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class RoleTest extends TestCase
 {
     public function testDefaults()
     {
         $role = new Role();
 
-        $this->assertEquals('0', $role->getCod());
-        $this->assertTrue($role->getDisplay());
-        $this->assertEquals(0, $role->getNumberPeopleInMultimediaObject());
-        $this->assertEquals($role, $role->cloneResource());
+        static::assertSame('0', $role->getCod());
+        static::assertTrue($role->getDisplay());
+        static::assertSame(0, $role->getNumberPeopleInMultimediaObject());
+        static::assertSame($role, $role->cloneResource());
     }
 
     public function testGetterAndSetter()
@@ -37,49 +41,49 @@ class RoleTest extends TestCase
         $role->setName($name1);
         $role->setText($text1);
 
-        $this->assertEquals($locale, $role->getLocale());
-        $this->assertEquals($cod, $role->getCod());
-        $this->assertEquals($xml, $role->getXml());
-        $this->assertEquals($display, $role->getDisplay());
-        $this->assertEquals($name1, $role->getName());
-        $this->assertEquals($text1, $role->getText());
+        static::assertSame($locale, $role->getLocale());
+        static::assertSame($cod, $role->getCod());
+        static::assertSame($xml, $role->getXml());
+        static::assertSame($display, $role->getDisplay());
+        static::assertSame($name1, $role->getName());
+        static::assertSame($text1, $role->getText());
 
         $role->setName($name2);
         $role->setText($text2);
 
-        $this->assertEquals($name2, $role->getName());
-        $this->assertEquals($text2, $role->getText());
+        static::assertSame($name2, $role->getName());
+        static::assertSame($text2, $role->getText());
 
         $nameEs = 'Presentador';
         $textEs = 'Rol de presentador 1';
 
-        $i18nName = array('en' => $name1, 'es' => $nameEs);
-        $i18nText = array('en' => $text1, 'es' => $textEs);
+        $i18nName = ['en' => $name1, 'es' => $nameEs];
+        $i18nText = ['en' => $text1, 'es' => $textEs];
 
         $role->setI18nName($i18nName);
         $role->setI18nText($i18nText);
 
-        $this->assertEquals($i18nName, $role->getI18nName());
-        $this->assertEquals($i18nText, $role->getI18nText());
+        static::assertSame($i18nName, $role->getI18nName());
+        static::assertSame($i18nText, $role->getI18nText());
     }
 
     public function testNumberPeopleInMultimediaObject()
     {
         $role = new Role();
 
-        $this->assertEquals(0, $role->getNumberPeopleInMultimediaObject());
+        static::assertSame(0, $role->getNumberPeopleInMultimediaObject());
 
         $role->increaseNumberPeopleInMultimediaObject();
-        $this->assertEquals(1, $role->getNumberPeopleInMultimediaObject());
+        static::assertSame(1, $role->getNumberPeopleInMultimediaObject());
 
         $role->increaseNumberPeopleInMultimediaObject();
         $role->increaseNumberPeopleInMultimediaObject();
-        $this->assertEquals(3, $role->getNumberPeopleInMultimediaObject());
+        static::assertSame(3, $role->getNumberPeopleInMultimediaObject());
 
         $role->decreaseNumberPeopleInMultimediaObject();
-        $this->assertEquals(2, $role->getNumberPeopleInMultimediaObject());
+        static::assertSame(2, $role->getNumberPeopleInMultimediaObject());
 
         $role->setNumberPeopleInMultimediaObject(3);
-        $this->assertEquals(3, $role->getNumberPeopleInMultimediaObject());
+        static::assertSame(3, $role->getNumberPeopleInMultimediaObject());
     }
 }

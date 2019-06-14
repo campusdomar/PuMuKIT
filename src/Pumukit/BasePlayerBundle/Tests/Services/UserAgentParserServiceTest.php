@@ -6,13 +6,16 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * Class UserAgentParserServiceTest.
+ *
+ * @internal
+ * @coversNothing
  */
-class UserAgentParserServiceTest extends WebTestCase
+final class UserAgentParserServiceTest extends WebTestCase
 {
     private $agentStrings;
     private $agentService;
 
-    public function setUp()
+    protected function setUp()
     {
         $options = ['environment' => 'test'];
         static::bootKernel($options);
@@ -33,7 +36,7 @@ class UserAgentParserServiceTest extends WebTestCase
         ];
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->agentService = null;
         $this->agentStrings = null;
@@ -44,7 +47,7 @@ class UserAgentParserServiceTest extends WebTestCase
     public function testIsOldBrowser()
     {
         foreach ($this->agentStrings as $userAgent) {
-            $this->assertEquals($userAgent['old'], $this->agentService->isOldBrowser($userAgent['string']));
+            static::assertSame($userAgent['old'], $this->agentService->isOldBrowser($userAgent['string']));
         }
     }
 }

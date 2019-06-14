@@ -2,10 +2,14 @@
 
 namespace Pumukit\SchemaBundle\Tests\Document;
 
-use Pumukit\SchemaBundle\Document\Person;
 use PHPUnit\Framework\TestCase;
+use Pumukit\SchemaBundle\Document\Person;
 
-class PersonTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class PersonTest extends TestCase
 {
     public function testGetterAndSetter()
     {
@@ -31,43 +35,43 @@ class PersonTest extends TestCase
         $person->setPost($post);
         $person->setBio($bio);
 
-        $this->assertEquals($email, $person->getEmail());
-        $this->assertEquals($name, $person->getName());
-        $this->assertEquals($web, $person->getWeb());
-        $this->assertEquals($phone, $person->getPhone());
-        $this->assertEquals($honorific, $person->getHonorific());
-        $this->assertEquals($firm, $person->getFirm());
-        $this->assertEquals($post, $person->getPost());
-        $this->assertEquals($bio, $person->getBio());
-        $this->assertEquals($locale, $person->getLocale());
+        static::assertSame($email, $person->getEmail());
+        static::assertSame($name, $person->getName());
+        static::assertSame($web, $person->getWeb());
+        static::assertSame($phone, $person->getPhone());
+        static::assertSame($honorific, $person->getHonorific());
+        static::assertSame($firm, $person->getFirm());
+        static::assertSame($post, $person->getPost());
+        static::assertSame($bio, $person->getBio());
+        static::assertSame($locale, $person->getLocale());
 
-        $this->assertEquals($honorific.' '.$name, $person->getHName());
-        $this->assertEquals($post.' '.$firm.' '.$bio, $person->getOther());
-        $this->assertEquals($post.', '.$firm.', '.$bio, $person->getInfo());
+        static::assertSame($honorific.' '.$name, $person->getHName());
+        static::assertSame($post.' '.$firm.' '.$bio, $person->getOther());
+        static::assertSame($post.', '.$firm.', '.$bio, $person->getInfo());
 
         $bio = '';
         $person->setBio($bio);
-        $this->assertEquals($post.', '.$firm, $person->getInfo());
+        static::assertSame($post.', '.$firm, $person->getInfo());
 
         $honorificEs = 'Don';
         $firmEs = 'Firma de esta persona';
         $postEs = 'Post de esta persona';
         $bioEs = 'Biografía de esta persona';
 
-        $i18nHonorific = array('en' => $honorific, 'es' => $honorificEs);
-        $i18nFirm = array('en' => $firm, 'es' => $firmEs);
-        $i18nPost = array('en' => $post, 'es' => $postEs);
-        $i18nBio = array('en' => $bio, 'es' => $bioEs);
+        $i18nHonorific = ['en' => $honorific, 'es' => $honorificEs];
+        $i18nFirm = ['en' => $firm, 'es' => $firmEs];
+        $i18nPost = ['en' => $post, 'es' => $postEs];
+        $i18nBio = ['en' => $bio, 'es' => $bioEs];
 
         $person->setI18nHonorific($i18nHonorific);
         $person->setI18nFirm($i18nFirm);
         $person->setI18nPost($i18nPost);
         $person->setI18nBio($i18nBio);
 
-        $this->assertEquals($i18nHonorific, $person->getI18nHonorific());
-        $this->assertEquals($i18nFirm, $person->getI18nFirm());
-        $this->assertEquals($i18nPost, $person->getI18nPost());
-        $this->assertEquals($i18nBio, $person->getI18nBio());
+        static::assertSame($i18nHonorific, $person->getI18nHonorific());
+        static::assertSame($i18nFirm, $person->getI18nFirm());
+        static::assertSame($i18nPost, $person->getI18nPost());
+        static::assertSame($i18nBio, $person->getI18nBio());
 
         $honorific = null;
         $firm = null;
@@ -79,16 +83,16 @@ class PersonTest extends TestCase
         $person->setPost($post);
         $person->setBio($bio);
 
-        $this->assertEquals($honorific, $person->getHonorific());
-        $this->assertEquals($firm, $person->getFirm());
-        $this->assertEquals($post, $person->getPost());
-        $this->assertEquals($bio, $person->getBio());
+        static::assertSame($honorific, $person->getHonorific());
+        static::assertSame($firm, $person->getFirm());
+        static::assertSame($post, $person->getPost());
+        static::assertSame($bio, $person->getBio());
     }
 
     public function testCloneResource()
     {
         $person = new Person();
 
-        $this->assertEquals($person, $person->cloneResource());
+        static::assertSame($person, $person->cloneResource());
     }
 }

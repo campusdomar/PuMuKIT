@@ -2,10 +2,14 @@
 
 namespace Pumukit\LiveBundle\Tests\Document;
 
-use Pumukit\LiveBundle\Document\Live;
 use PHPUnit\Framework\TestCase;
+use Pumukit\LiveBundle\Document\Live;
 
-class LiveTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class LiveTest extends TestCase
 {
     public function testGetterAndSetter()
     {
@@ -23,7 +27,7 @@ class LiveTest extends TestCase
         $locale = 'en';
         $name = 'liveo 1';
         $description = 'liveo channel';
-        $resolution = array('width' => $width, 'height' => $height);
+        $resolution = ['width' => $width, 'height' => $height];
 
         $liveo = new Live();
 
@@ -43,58 +47,58 @@ class LiveTest extends TestCase
         $liveo->setDescription($description, $locale);
         $liveo->setResolution($resolution);
 
-        $this->assertEquals($url, $liveo->getUrl());
-        $this->assertEquals($passwd, $liveo->getPasswd());
-        $this->assertEquals($live_type, $liveo->getLiveType());
-        $this->assertEquals($width, $liveo->getWidth());
-        $this->assertEquals($height, $liveo->getHeight());
-        $this->assertEquals($qualities, $liveo->getQualities());
-        $this->assertEquals($ip_source, $liveo->getIpSource());
-        $this->assertEquals($source_name, $liveo->getSourceName());
-        $this->assertEquals($index_play, $liveo->getIndexPlay());
-        $this->assertEquals($broadcasting, $liveo->getBroadcasting());
-        $this->assertEquals($debug, $liveo->getDebug());
-        $this->assertEquals($locale, $liveo->getLocale());
-        $this->assertEquals($name, $liveo->getName($liveo->getLocale()));
-        $this->assertEquals($name, $liveo->getName());
-        $this->assertEquals($description, $liveo->getDescription($liveo->getLocale()));
-        $this->assertEquals($description, $liveo->getDescription());
-        $this->assertEquals($resolution, $liveo->getResolution());
+        static::assertSame($url, $liveo->getUrl());
+        static::assertSame($passwd, $liveo->getPasswd());
+        static::assertSame($live_type, $liveo->getLiveType());
+        static::assertSame($width, $liveo->getWidth());
+        static::assertSame($height, $liveo->getHeight());
+        static::assertSame($qualities, $liveo->getQualities());
+        static::assertSame($ip_source, $liveo->getIpSource());
+        static::assertSame($source_name, $liveo->getSourceName());
+        static::assertSame($index_play, $liveo->getIndexPlay());
+        static::assertSame($broadcasting, $liveo->getBroadcasting());
+        static::assertSame($debug, $liveo->getDebug());
+        static::assertSame($locale, $liveo->getLocale());
+        static::assertSame($name, $liveo->getName($liveo->getLocale()));
+        static::assertSame($name, $liveo->getName());
+        static::assertSame($description, $liveo->getDescription($liveo->getLocale()));
+        static::assertSame($description, $liveo->getDescription());
+        static::assertSame($resolution, $liveo->getResolution());
 
         $liveo->setDescription($description);
-        $this->assertEquals($description, $liveo->getDescription($liveo->getLocale()));
+        static::assertSame($description, $liveo->getDescription($liveo->getLocale()));
 
         $nameEs = 'directo 1';
-        $i18nName = array('en' => $name, 'es' => $nameEs);
+        $i18nName = ['en' => $name, 'es' => $nameEs];
         $liveo->setI18nName($i18nName);
-        $this->assertEquals($i18nName, $liveo->getI18nName());
+        static::assertSame($i18nName, $liveo->getI18nName());
 
         $descriptionEs = 'canal de directos';
-        $i18nDescription = array('en' => $description, 'es' => $descriptionEs);
+        $i18nDescription = ['en' => $description, 'es' => $descriptionEs];
         $liveo->setI18nDescription($i18nDescription);
-        $this->assertEquals($i18nDescription, $liveo->getI18nDescription());
+        static::assertSame($i18nDescription, $liveo->getI18nDescription());
 
         $name = null;
         $liveo->setName($name, $locale);
-        $this->assertEquals(null, $liveo->getName($liveo->getLocale()));
+        static::assertNull($liveo->getName($liveo->getLocale()));
 
         $description = null;
         $liveo->setDescription($description, $locale);
-        $this->assertEquals(null, $liveo->getDescription($liveo->getLocale()));
+        static::assertNull($liveo->getDescription($liveo->getLocale()));
     }
 
     public function testCloneResource()
     {
         $live = new Live();
 
-        $this->assertEquals($live, $live->cloneResource());
+        static::assertSame($live, $live->cloneResource());
     }
 
     public function testToString()
     {
         $live = new Live();
 
-        $this->assertEquals($live->getName(), $live->__toString());
+        static::assertSame($live->getName(), $live->__toString());
     }
 
     public function testIsValidLiveType()
@@ -104,6 +108,6 @@ class LiveTest extends TestCase
         $live_type = Live::LIVE_TYPE_FMS;
         $live->setLiveType($live_type);
 
-        $this->assertTrue($live->isValidLiveType());
+        static::assertTrue($live->isValidLiveType());
     }
 }

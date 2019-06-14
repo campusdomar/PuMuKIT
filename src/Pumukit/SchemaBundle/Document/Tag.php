@@ -2,9 +2,9 @@
 
 namespace Pumukit\SchemaBundle\Document;
 
-use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Pumukit\SchemaBundle\Document\Tag.
@@ -38,21 +38,21 @@ class Tag
      *
      * @MongoDB\Field(type="raw")
      */
-    private $title = array('en' => '');
+    private $title = ['en' => ''];
 
     /**
      * @var string
      *
      * @MongoDB\Field(type="raw")
      */
-    private $label = array('en' => '');
+    private $label = ['en' => ''];
 
     /**
      * @var string
      *
      * @MongoDB\Field(type="raw")
      */
-    private $description = array('en' => '');
+    private $description = ['en' => ''];
 
     /**
      * @var string
@@ -117,7 +117,7 @@ class Tag
     /**
      * @MongoDB\ReferenceMany(targetDocument="Tag", mappedBy="parent", sort={"cod": 1})
      */
-    private $children = array();
+    private $children = [];
 
     /**
      * Number of children. Only for cache purposes.
@@ -149,7 +149,17 @@ class Tag
 
     public function __construct()
     {
-        $this->children = array();
+        $this->children = [];
+    }
+
+    /**
+     * to string.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getTitle();
     }
 
     /**
@@ -166,7 +176,7 @@ class Tag
      * Set title.
      *
      * @param string      $title
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setTitle($title, $locale = null)
     {
@@ -179,7 +189,7 @@ class Tag
     /**
      * Get title.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -199,7 +209,7 @@ class Tag
      * Set label.
      *
      * @param string      $label
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setLabel($label, $locale = null)
     {
@@ -212,7 +222,7 @@ class Tag
     /**
      * Get label.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -252,7 +262,7 @@ class Tag
      * Set description.
      *
      * @param string      $description
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setDescription($description, $locale = null)
     {
@@ -265,7 +275,7 @@ class Tag
     /**
      * Get description.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -446,16 +456,6 @@ class Tag
     }
 
     /**
-     * to string.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->getTitle();
-    }
-
-    /**
      * Increase number_multimedia_objects.
      */
     public function increaseNumberMultimediaObjects()
@@ -481,13 +481,15 @@ class Tag
 
     /**
      * Set number_multimedia_objects.
+     *
+     * @param mixed $count
      */
     public function setNumberMultimediaObjects($count)
     {
         return $this->number_multimedia_objects = $count;
     }
 
-    public function setParent(Tag $parent = null)
+    public function setParent(self $parent = null)
     {
         $this->parent = $parent;
         $parent->addChild($this);
@@ -501,13 +503,6 @@ class Tag
     public function getChildren()
     {
         return $this->children;
-    }
-
-    private function addChild(Tag $tag)
-    {
-        ++$this->number_children;
-
-        return $this->children[] = $tag;
     }
 
     public function getNumberOfChildren()
@@ -545,7 +540,7 @@ class Tag
     public function isChildOf($tag)
     {
         if ($this->isDescendantOf($tag)) {
-            $suffixPath = substr($this->getPath(), strlen($tag->getPath()), strlen($this->getPath()));
+            $suffixPath = substr($this->getPath(), \strlen($tag->getPath()), \strlen($this->getPath()));
             if (1 === substr_count($suffixPath, '|')) {
                 return true;
             }
@@ -563,11 +558,11 @@ class Tag
      */
     public function isDescendantOf($tag)
     {
-        if ($tag == $this) {
+        if ($tag === $this) {
             return false;
         }
 
-        return substr($this->getPath(), 0, strlen($tag->getPath())) === $tag->getPath();
+        return substr($this->getPath(), 0, \strlen($tag->getPath())) === $tag->getPath();
     }
 
     /**
@@ -579,19 +574,20 @@ class Tag
      */
     public function equalsOrDescendantOf($tag)
     {
-        return substr($this->getPath(), 0, strlen($tag->getPath())) === $tag->getPath();
+        return substr($this->getPath(), 0, \strlen($tag->getPath())) === $tag->getPath();
     }
 
     /**
      * Returns true if given node cod is descendant of tag.
      *
      * @param EmbeddedTag|Tag $tag
+     * @param mixed           $tagCod
      *
      * @return bool
      */
     public function isDescendantOfByCod($tagCod)
     {
-        if ($tagCod == $this->getCod()) {
+        if ($tagCod === $this->getCod()) {
             return false;
         }
         if (0 === strpos($this->getPath(), sprintf('%s|', $tagCod))) {
@@ -607,5 +603,12 @@ class Tag
     public function isPubTag()
     {
         return $this->isDescendantOfByCod('PUBCHANNELS') || $this->isDescendantOfByCod('PUBDECISIONS');
+    }
+
+    private function addChild(self $tag)
+    {
+        ++$this->number_children;
+
+        return $this->children[] = $tag;
     }
 }

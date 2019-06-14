@@ -2,9 +2,9 @@
 
 namespace Pumukit\NewAdminBundle\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 class TranslateController implements NewAdminControllerInterface
 {
@@ -18,6 +18,6 @@ class TranslateController implements NewAdminControllerInterface
      */
     public function indexAction(Request $request)
     {
-        return new JsonResponse(array('status' => 'Not Implemented'), 501);
+        return new JsonResponse(['status' => 'Not Implemented'], 501);
     }
 }

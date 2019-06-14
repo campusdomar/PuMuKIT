@@ -23,7 +23,7 @@ class Element
     /**
      * @MongoDB\OneToOne(targetDocument="Element")
      * @MongoDB\JoinColumn(name="ref_id", referencedColumnName="id")
-     **/
+     */
     //private $ref = null;
 
     /**
@@ -73,7 +73,7 @@ class Element
      *
      * @MongoDB\Field(type="raw")
      */
-    private $description = array('en' => '');
+    private $description = ['en' => ''];
 
     /**
      * Used locale to override Translation listener`s locale
@@ -85,7 +85,22 @@ class Element
 
     public function __construct()
     {
-        $this->tags = array();
+        $this->tags = [];
+    }
+
+    public function __clone()
+    {
+        $this->id = null;
+    }
+
+    /**
+     * To string.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getUrl();
     }
 
     /**
@@ -179,7 +194,7 @@ class Element
      */
     public function containsTag($tag)
     {
-        return in_array($tag, $this->tags, true);
+        return \in_array($tag, $this->tags, true);
     }
 
     /**
@@ -191,7 +206,7 @@ class Element
      */
     public function containsAllTags(array $tags)
     {
-        return count(array_intersect($tags, $this->tags)) === count($tags);
+        return \count(array_intersect($tags, $this->tags)) === \count($tags);
     }
 
     /**
@@ -203,7 +218,7 @@ class Element
      */
     public function containsAnyTag(array $tags)
     {
-        return 0 != count(array_intersect($tags, $this->tags));
+        return 0 !== \count(array_intersect($tags, $this->tags));
     }
 
     /**
@@ -320,7 +335,7 @@ class Element
      * Set description.
      *
      * @param string      $description
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setDescription($description, $locale = null)
     {
@@ -333,7 +348,7 @@ class Element
     /**
      * Get description.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -387,20 +402,5 @@ class Element
     public function getLocale()
     {
         return $this->locale;
-    }
-
-    public function __clone()
-    {
-        $this->id = null;
-    }
-
-    /**
-     * To string.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->getUrl();
     }
 }

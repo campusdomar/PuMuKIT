@@ -2,15 +2,15 @@
 
 namespace Pumukit\NewAdminBundle\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -25,11 +25,11 @@ class MultimediaObjectPicController extends Controller implements NewAdminContro
     {
         $isEventPoster = $request->get('is_event_poster', false);
 
-        return array(
+        return [
             'resource' => $multimediaObject,
             'resource_name' => 'mms',
             'is_event_poster' => $isEventPoster,
-        );
+        ];
     }
 
     /**
@@ -39,11 +39,11 @@ class MultimediaObjectPicController extends Controller implements NewAdminContro
     {
         $isEventPoster = $request->get('is_event_poster', false);
 
-        return array(
+        return [
             'resource' => $multimediaObject,
             'resource_name' => 'mms',
             'is_event_poster' => $isEventPoster,
-        );
+        ];
     }
 
     /**
@@ -60,11 +60,11 @@ class MultimediaObjectPicController extends Controller implements NewAdminContro
             $multimediaObject = $picService->addPicUrl($multimediaObject, $url, true, $isEventPoster);
         }
 
-        return array(
+        return [
             'resource' => $multimediaObject,
             'resource_name' => 'mms',
             'is_event_poster' => $isEventPoster,
-        );
+        ];
     }
 
     /**
@@ -74,6 +74,7 @@ class MultimediaObjectPicController extends Controller implements NewAdminContro
     public function uploadAction(MultimediaObject $multimediaObject, Request $request)
     {
         $isEventPoster = $request->get('is_event_poster', false);
+
         try {
             if (0 === $request->files->count() && 0 === $request->request->count()) {
                 throw new \Exception('PHP ERROR: File exceeds post_max_size ('.ini_get('post_max_size').')');
@@ -83,24 +84,24 @@ class MultimediaObjectPicController extends Controller implements NewAdminContro
                 $picService->addPicFile($multimediaObject, $request->files->get('file'), $isEventPoster);
             }
         } catch (\Exception $e) {
-            return array(
+            return [
                 'resource' => $multimediaObject,
                 'resource_name' => 'mms',
                 'uploaded' => 'failed',
                 'message' => $e->getMessage(),
                 'isBanner' => false,
                 'is_event_poster' => $isEventPoster,
-            );
+            ];
         }
 
-        return array(
+        return [
             'resource' => $multimediaObject,
             'resource_name' => 'mms',
             'uploaded' => 'success',
             'message' => 'New Pic added.',
             'isBanner' => false,
             'is_event_poster' => $isEventPoster,
-        );
+        ];
     }
 
     /**
@@ -112,7 +113,8 @@ class MultimediaObjectPicController extends Controller implements NewAdminContro
         $picId = $request->get('id');
 
         $repo = $this->get('doctrine_mongodb')
-              ->getRepository(MultimediaObject::class);
+            ->getRepository(MultimediaObject::class)
+        ;
 
         if (!$multimediaObject = $repo->findByPicId($picId)) {
             throw new NotFoundHttpException('Requested multimedia object does not exist');
@@ -120,7 +122,7 @@ class MultimediaObjectPicController extends Controller implements NewAdminContro
 
         $multimediaObject = $this->get('pumukitschema.mmspic')->removePicFromMultimediaObject($multimediaObject, $picId);
 
-        return $this->redirect($this->generateUrl('pumukitnewadmin_mmspic_list', array('id' => $multimediaObject->getId(), 'is_event_poster' => $isEventPoster)));
+        return $this->redirect($this->generateUrl('pumukitnewadmin_mmspic_list', ['id' => $multimediaObject->getId(), 'is_event_poster' => $isEventPoster]));
     }
 
     /**
@@ -131,7 +133,8 @@ class MultimediaObjectPicController extends Controller implements NewAdminContro
         $picId = $request->get('id');
 
         $repo = $this->get('doctrine_mongodb')
-              ->getRepository(MultimediaObject::class);
+            ->getRepository(MultimediaObject::class)
+        ;
 
         if (!$multimediaObject = $repo->findByPicId($picId)) {
             throw new NotFoundHttpException('Requested multimedia object does not exist');
@@ -143,7 +146,7 @@ class MultimediaObjectPicController extends Controller implements NewAdminContro
         $dm->persist($multimediaObject);
         $dm->flush();
 
-        return $this->redirect($this->generateUrl('pumukitnewadmin_mmspic_list', array('id' => $multimediaObject->getId())));
+        return $this->redirect($this->generateUrl('pumukitnewadmin_mmspic_list', ['id' => $multimediaObject->getId()]));
     }
 
     /**
@@ -154,7 +157,8 @@ class MultimediaObjectPicController extends Controller implements NewAdminContro
         $picId = $request->get('id');
 
         $repo = $this->get('doctrine_mongodb')
-              ->getRepository(MultimediaObject::class);
+            ->getRepository(MultimediaObject::class)
+        ;
 
         if (!$multimediaObject = $repo->findByPicId($picId)) {
             throw new NotFoundHttpException('Requested multimedia object does not exist');
@@ -166,7 +170,7 @@ class MultimediaObjectPicController extends Controller implements NewAdminContro
         $dm->persist($multimediaObject);
         $dm->flush();
 
-        return $this->redirect($this->generateUrl('pumukitnewadmin_mmspic_list', array('id' => $multimediaObject->getId())));
+        return $this->redirect($this->generateUrl('pumukitnewadmin_mmspic_list', ['id' => $multimediaObject->getId()]));
     }
 
     /**
@@ -180,25 +184,25 @@ class MultimediaObjectPicController extends Controller implements NewAdminContro
         if ($request->get('page', null)) {
             $this->get('session')->set('admin/mmspic/page', $request->get('page', 1));
         }
-        $page = intval($this->get('session')->get('admin/mmspic/page', 1));
+        $page = (int) ($this->get('session')->get('admin/mmspic/page', 1));
         $limit = 12;
 
         $series = $multimediaObject->getSeries();
 
         $urlPics = $picService->getRecommendedPics($series);
 
-        $total = intval(ceil(count($urlPics) / $limit));
+        $total = (int) (ceil(\count($urlPics) / $limit));
 
         $pics = $this->getPaginatedPics($urlPics, $limit, $page);
 
-        return array(
+        return [
             'resource' => $multimediaObject,
             'resource_name' => 'mms',
             'pics' => $pics,
             'page' => $page,
             'total' => $total,
             'is_event_poster' => $isEventPoster,
-        );
+        ];
     }
 
     /**
@@ -212,29 +216,28 @@ class MultimediaObjectPicController extends Controller implements NewAdminContro
             }
 
             $base_64 = $request->request->get('img');
-            $decodedData = substr($base_64, 22, strlen($base_64));
+            $decodedData = substr($base_64, 22, \strlen($base_64));
             $format = substr($base_64, strpos($base_64, '/') + 1, strpos($base_64, ';') - 1 - strpos($base_64, '/'));
 
-            $data = base64_decode($decodedData);
+            $data = base64_decode($decodedData, true);
 
             $picService = $this->get('pumukitschema.mmspic');
             $picService->addPicMem($multimediaObject, $data, $format);
 
             return new JsonResponse('done');
-        } else {
-            $track = $request->query->has('track_id') ?
+        }
+        $track = $request->query->has('track_id') ?
                    $multimediaObject->getTrackById($request->query->get('track_id')) :
                    $multimediaObject->getDisplayTrack();
 
-            if (!$track || $track->isOnlyAudio()) {
-                throw new NotFoundHttpException("Requested multimedia object doesn't have a public track");
-            }
-
-            return array(
-                'mm' => $multimediaObject,
-                'track' => $track,
-            );
+        if (!$track || $track->isOnlyAudio()) {
+            throw new NotFoundHttpException("Requested multimedia object doesn't have a public track");
         }
+
+        return [
+            'mm' => $multimediaObject,
+            'track' => $track,
+        ];
     }
 
     /**
@@ -254,7 +257,8 @@ class MultimediaObjectPicController extends Controller implements NewAdminContro
         $pics
             ->setMaxPerPage($limit)
             ->setNormalizeOutOfRangePages(true)
-            ->setCurrentPage($page);
+            ->setCurrentPage($page)
+        ;
 
         return $pics;
     }

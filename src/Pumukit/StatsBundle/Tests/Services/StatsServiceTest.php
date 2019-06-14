@@ -2,45 +2,199 @@
 
 namespace Pumukit\StatsBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\Tag;
 use Pumukit\SchemaBundle\Document\Track;
-use Pumukit\StatsBundle\Services\StatsService;
 use Pumukit\StatsBundle\Document\ViewsLog;
-use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\StatsBundle\Services\StatsService;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class StatsServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class StatsServiceTest extends WebTestCase
 {
     private $dm;
     private $repo;
     private $factoryService;
     private $viewsService;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()
             ->get('doctrine_mongodb')->getManager();
         $this->repo = $this->dm
-            ->getRepository('PumukitStatsBundle:ViewsLog');
+            ->getRepository('PumukitStatsBundle:ViewsLog')
+        ;
         $this->factoryService = static::$kernel->getContainer()
-            ->get('pumukitschema.factory');
+            ->get('pumukitschema.factory')
+        ;
         $this->viewsService = static::$kernel->getContainer()
-            ->get('pumukit_stats.stats');
+            ->get('pumukit_stats.stats')
+        ;
 
         $this->dm->getDocumentCollection('PumukitStatsBundle:ViewsLog')
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection('PumukitStatsBundle:ViewsAggregation')
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(MultimediaObject::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Series::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Tag::class)
-            ->remove(array());
+            ->remove([])
+        ;
+    }
+
+    protected function tearDown()
+    {
+        $this->dm->close();
+        $this->dm = null;
+        $this->repo = null;
+        $this->factoryService = null;
+        $this->viewsService = null;
+        gc_collect_cycles();
+        parent::tearDown();
+    }
+
+    public function testSimpleStatsService()
+    {
+        $list = $this->initContext();
+
+        $service = new StatsService($this->dm);
+        $mv = $service->getMostViewed([], 1, 1);
+        static::assertSame(1, \count($mv));
+        static::assertSame($mv, [$list[3]]);
+
+        $mv = $service->getMostViewed([], 30, 1);
+        static::assertSame($mv, [$list[5]]);
+
+        $mv = $service->getMostViewed([], 1, 3);
+        static::assertSame($mv, [$list[3], $list[2], $list[1]]);
+
+        $mv = $service->getMostViewed([], 30, 3);
+        static::assertSame($mv, [$list[5], $list[4], $list[3]]);
+
+        $mv = $service->getMostViewed([], 30, 30);
+        static::assertSame(5, \count($mv));
+        static::assertSame($mv, [$list[5], $list[4], $list[3], $list[2], $list[1]]);
+    }
+
+    public function testStatsServiceWithBlockedVideos()
+    {
+        $list = $this->initContext();
+        $this->initTags($list);
+
+        $service = new StatsService($this->dm);
+        $mv = $service->getMostViewed(['tv'], 30, 3);
+        static::assertSame($mv, [$list[5], $list[4], $list[3]]);
+
+        $mm = $list[5];
+        foreach ($mm->getTags() as $tag) {
+            $mm->removeTag($tag);
+        }
+        $this->dm->persist($mm);
+        $this->dm->flush();
+
+        $mv = $service->getMostViewed(['tv'], 30, 3);
+        static::assertSame($mv, [$list[4], $list[3], $list[2]]);
+    }
+
+    public function testStatsServiceWithTags()
+    {
+        $list = $this->initContext();
+        $this->initTags($list);
+
+        $service = new StatsService($this->dm);
+
+        $mv = $service->getMostViewed(['1'], 30, 30);
+        static::assertSame($mv, [$list[1]]);
+
+        $mv = $service->getMostViewed(['11'], 30, 30);
+        static::assertSame($mv, []);
+
+        $mv = $service->getMostViewed(['1'], 1, 3);
+        static::assertSame($mv, [$list[1]]);
+    }
+
+    public function testStatsServiceUsingFilters()
+    {
+        $list = $this->initContext();
+        $this->initTags($list);
+
+        $filter = $this->dm->getFilterCollection()->enable('frontend');
+        $filter->setParameter('pub_channel_tag', '1');
+
+        $this->dm->getFilterCollection()->enable('personal');
+
+        $service = new StatsService($this->dm);
+
+        $mv = $service->getMostViewedUsingFilters(30, 30);
+        static::assertSame($mv, [$list[1]]);
+    }
+
+    public function testGetMmobjsMostViewedByRange()
+    {
+        $list = $this->initContext();
+        $this->initTags($list);
+        $service = new StatsService($this->dm);
+        //Maps the list to give an output similar to function
+        $listMapped = array_map(function ($a) {
+            return [
+                'mmobj' => $a,
+                'num_viewed' => $a->getNumview(),
+            ];
+        }, $list);
+        //Sorts by least viewed
+        usort($listMapped, function ($a, $b) {
+            return $a['num_viewed'] > $b['num_viewed'];
+        });
+
+        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange([], ['sort' => 1]);
+
+        static::assertSame($listMapped, $mostViewed);
+
+        //Sorts by most viewed
+        usort($listMapped, function ($a, $b) {
+            return $a['num_viewed'] < $b['num_viewed'];
+        });
+
+        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange();
+        static::assertSame($listMapped, $mostViewed);
+        static::assertSame($total, \count($listMapped));
+
+        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange(['title.en' => 'OTHER MMOBJ']);
+        static::assertSame([$listMapped[4]], $mostViewed);
+        static::assertSame($total, 1);
+
+        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange([], ['limit' => 0]);
+        static::assertSame([], $mostViewed);
+        static::assertSame($total, 5);
+        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange(['not_a_parameter' => 'not_a_value']);
+        static::assertSame($total, 0);
+        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange(['title.en' => 'New'], ['limit' => 2, 'from_date' => new \DateTime('-11 days')]);
+        static::assertSame([$listMapped[1], $listMapped[2]], $mostViewed);
+        static::assertSame(4, $total);
+        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange(['title.en' => 'New'], ['limit' => 2, 'from_date' => new \DateTime('-11 days'), 'page' => 1]);
+        static::assertSame([$listMapped[3], ['mmobj' => $list[3], 'num_viewed' => 0]], $mostViewed);
+        static::assertSame(4, $total);
+
+        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange([], ['from_date' => new \DateTime('-21 days'), 'to_date' => new \DateTime('-9 days')]);
+
+        static::assertSame([$listMapped[0], $listMapped[1]], \array_slice($mostViewed, 0, 2));
+        static::assertSame(0, $mostViewed[2]['num_viewed']);
+        static::assertSame(0, $mostViewed[3]['num_viewed']);
+        static::assertSame(0, $mostViewed[4]['num_viewed']);
+        static::assertSame(5, $total);
     }
 
     private function logView($when, MultimediaObject $multimediaObject, Track $track = null)
@@ -58,7 +212,7 @@ class StatsServiceTest extends WebTestCase
     private function initContext()
     {
         $series = $this->factoryService->createSeries();
-        $list = array();
+        $list = [];
         $list[1] = $this->factoryService->createMultimediaObject($series);
         $list[2] = $this->factoryService->createMultimediaObject($series);
         $list[3] = $this->factoryService->createMultimediaObject($series);
@@ -102,7 +256,7 @@ class StatsServiceTest extends WebTestCase
         $globalTag->setCod('tv');
         $this->dm->persist($globalTag);
 
-        $tags = array();
+        $tags = [];
         foreach ($list as $i => $mm) {
             $tag = new Tag();
             $tag->setCod($i);
@@ -117,147 +271,5 @@ class StatsServiceTest extends WebTestCase
             $this->dm->persist($mm);
         }
         $this->dm->flush();
-    }
-
-    public function tearDown()
-    {
-        $this->dm->close();
-        $this->dm = null;
-        $this->repo = null;
-        $this->factoryService = null;
-        $this->viewsService = null;
-        gc_collect_cycles();
-        parent::tearDown();
-    }
-
-    public function testSimpleStatsService()
-    {
-        $list = $this->initContext();
-
-        $service = new StatsService($this->dm);
-        $mv = $service->getMostViewed(array(), 1, 1);
-        $this->assertEquals(1, count($mv));
-        $this->assertEquals($mv, array($list[3]));
-
-        $mv = $service->getMostViewed(array(), 30, 1);
-        $this->assertEquals($mv, array($list[5]));
-
-        $mv = $service->getMostViewed(array(), 1, 3);
-        $this->assertEquals($mv, array($list[3], $list[2], $list[1]));
-
-        $mv = $service->getMostViewed(array(), 30, 3);
-        $this->assertEquals($mv, array($list[5], $list[4], $list[3]));
-
-        $mv = $service->getMostViewed(array(), 30, 30);
-        $this->assertEquals(5, count($mv));
-        $this->assertEquals($mv, array($list[5], $list[4], $list[3], $list[2], $list[1]));
-    }
-
-    public function testStatsServiceWithBlockedVideos()
-    {
-        $list = $this->initContext();
-        $this->initTags($list);
-
-        $service = new StatsService($this->dm);
-        $mv = $service->getMostViewed(array('tv'), 30, 3);
-        $this->assertEquals($mv, array($list[5], $list[4], $list[3]));
-
-        $mm = $list[5];
-        foreach ($mm->getTags() as $tag) {
-            $mm->removeTag($tag);
-        }
-        $this->dm->persist($mm);
-        $this->dm->flush();
-
-        $mv = $service->getMostViewed(array('tv'), 30, 3);
-        $this->assertEquals($mv, array($list[4], $list[3], $list[2]));
-    }
-
-    public function testStatsServiceWithTags()
-    {
-        $list = $this->initContext();
-        $this->initTags($list);
-
-        $service = new StatsService($this->dm);
-
-        $mv = $service->getMostViewed(array('1'), 30, 30);
-        $this->assertEquals($mv, array($list[1]));
-
-        $mv = $service->getMostViewed(array('11'), 30, 30);
-        $this->assertEquals($mv, array());
-
-        $mv = $service->getMostViewed(array('1'), 1, 3);
-        $this->assertEquals($mv, array($list[1]));
-    }
-
-    public function testStatsServiceUsingFilters()
-    {
-        $list = $this->initContext();
-        $this->initTags($list);
-
-        $filter = $this->dm->getFilterCollection()->enable('frontend');
-        $filter->setParameter('pub_channel_tag', '1');
-
-        $this->dm->getFilterCollection()->enable('personal');
-
-        $service = new StatsService($this->dm);
-
-        $mv = $service->getMostViewedUsingFilters(30, 30);
-        $this->assertEquals($mv, array($list[1]));
-    }
-
-    public function testGetMmobjsMostViewedByRange()
-    {
-        $list = $this->initContext();
-        $this->initTags($list);
-        $service = new StatsService($this->dm);
-        //Maps the list to give an output similar to function
-        $listMapped = array_map(function ($a) {
-            return array(
-                'mmobj' => $a,
-                'num_viewed' => $a->getNumview(),
-            );
-        }, $list);
-        //Sorts by least viewed
-        usort($listMapped, function ($a, $b) {
-            return $a['num_viewed'] > $b['num_viewed'];
-        });
-
-        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange(array(), array('sort' => 1));
-
-        $this->assertEquals($listMapped, $mostViewed);
-
-        //Sorts by most viewed
-        usort($listMapped, function ($a, $b) {
-            return $a['num_viewed'] < $b['num_viewed'];
-        });
-
-        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange();
-        $this->assertEquals($listMapped, $mostViewed);
-        $this->assertEquals($total, count($listMapped));
-
-        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange(array('title.en' => 'OTHER MMOBJ'));
-        $this->assertEquals(array($listMapped[4]), $mostViewed);
-        $this->assertEquals($total, 1);
-
-        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange(array(), array('limit' => 0));
-        $this->assertEquals(array(), $mostViewed);
-        $this->assertEquals($total, 5);
-        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange(array('not_a_parameter' => 'not_a_value'));
-        $this->assertEquals($total, 0);
-        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange(array('title.en' => 'New'), array('limit' => 2, 'from_date' => new \DateTime('-11 days')));
-        $this->assertEquals(array($listMapped[1], $listMapped[2]), $mostViewed);
-        $this->assertEquals(4, $total);
-        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange(array('title.en' => 'New'), array('limit' => 2, 'from_date' => new \DateTime('-11 days'), 'page' => 1));
-        $this->assertEquals(array($listMapped[3], array('mmobj' => $list[3], 'num_viewed' => 0)), $mostViewed);
-        $this->assertEquals(4, $total);
-
-        list($mostViewed, $total) = $service->getMmobjsMostViewedByRange(array(), array('from_date' => new \DateTime('-21 days'), 'to_date' => new \DateTime('-9 days')));
-
-        $this->assertEquals(array($listMapped[0], $listMapped[1]), array_slice($mostViewed, 0, 2));
-        $this->assertEquals(0, $mostViewed[2]['num_viewed']);
-        $this->assertEquals(0, $mostViewed[3]['num_viewed']);
-        $this->assertEquals(0, $mostViewed[4]['num_viewed']);
-        $this->assertEquals(5, $total);
     }
 }

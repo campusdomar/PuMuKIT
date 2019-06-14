@@ -23,14 +23,14 @@ class EmbeddedTag
      *
      * @MongoDB\Field(type="raw")
      */
-    private $title = array('en' => '');
+    private $title = ['en' => ''];
 
     /**
      * @var string
      *
      * @MongoDB\Field(type="raw")
      */
-    private $description = array('en' => '');
+    private $description = ['en' => ''];
 
     /**
      * @var string
@@ -115,6 +115,16 @@ class EmbeddedTag
     }
 
     /**
+     * to string.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getTitle();
+    }
+
+    /**
      * Get id.
      *
      * @return int
@@ -128,7 +138,7 @@ class EmbeddedTag
      * Set title.
      *
      * @param string      $title
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setTitle($title, $locale = null)
     {
@@ -141,7 +151,7 @@ class EmbeddedTag
     /**
      * Get title.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -181,7 +191,7 @@ class EmbeddedTag
      * Set description.
      *
      * @param string      $description
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setDescription($description, $locale = null)
     {
@@ -194,7 +204,7 @@ class EmbeddedTag
     /**
      * Get description.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -383,16 +393,6 @@ class EmbeddedTag
     }
 
     /**
-     * to string.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->getTitle();
-    }
-
-    /**
      * Get level.
      */
     public function getLevel()
@@ -418,7 +418,7 @@ class EmbeddedTag
     public function isChildOf($tag)
     {
         if ($this->isDescendantOf($tag)) {
-            $suffixPath = substr($this->getPath(), strlen($tag->getPath()), strlen($this->getPath()));
+            $suffixPath = substr($this->getPath(), \strlen($tag->getPath()), \strlen($this->getPath()));
             if (1 === substr_count($suffixPath, '|')) {
                 return true;
             }
@@ -436,11 +436,11 @@ class EmbeddedTag
      */
     public function isDescendantOf($tag)
     {
-        if ($tag->getCod() == $this->getCod()) {
+        if ($tag->getCod() === $this->getCod()) {
             return false;
         }
 
-        return substr($this->getPath(), 0, strlen($tag->getPath())) === $tag->getPath();
+        return substr($this->getPath(), 0, \strlen($tag->getPath())) === $tag->getPath();
     }
 
     /**
@@ -452,19 +452,20 @@ class EmbeddedTag
      */
     public function equalsOrDescendantOf($tag)
     {
-        return substr($this->getPath(), 0, strlen($tag->getPath())) === $tag->getPath();
+        return substr($this->getPath(), 0, \strlen($tag->getPath())) === $tag->getPath();
     }
 
     /**
      * Returns true if given node cod is descendant of tag.
      *
      * @param EmbeddedTag|Tag $tag
+     * @param mixed           $tagCod
      *
      * @return bool
      */
     public function isDescendantOfByCod($tagCod)
     {
-        if ($tagCod == $this->getCod()) {
+        if ($tagCod === $this->getCod()) {
             return false;
         }
         if (0 === strpos($this->getPath(), sprintf('%s|', $tagCod))) {
@@ -477,6 +478,7 @@ class EmbeddedTag
     /**
      * @param ArrayCollection $embeddedTags
      * @param EmbeddedTag|Tag $tag
+     * @param mixed           $embedTags
      *
      * @return EmbeddedTag
      */
@@ -484,7 +486,8 @@ class EmbeddedTag
     {
         if ($tag instanceof self) {
             return $tag;
-        } elseif ($tag instanceof Tag) {
+        }
+        if ($tag instanceof Tag) {
             return new self($tag);
         }
 

@@ -2,14 +2,18 @@
 
 namespace Pumukit\SchemaBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Pic;
-use Pumukit\SchemaBundle\Event\SchemaEvents;
 use Pumukit\SchemaBundle\Event\PicEvent;
+use Pumukit\SchemaBundle\Event\SchemaEvents;
 use Pumukit\SchemaBundle\Services\PicEventDispatcherService;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class PicEventDispatcherServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class PicEventDispatcherServiceTest extends WebTestCase
 {
     const EMPTY_TITLE = 'EMTPY TITLE';
     const EMPTY_URL = 'EMTPY URL';
@@ -17,13 +21,14 @@ class PicEventDispatcherServiceTest extends WebTestCase
     private $picDispatcher;
     private $dispatcher;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dispatcher = static::$kernel->getContainer()
-          ->get('event_dispatcher');
+            ->get('event_dispatcher')
+        ;
 
         MockUpPicListener::$called = false;
         MockUpPicListener::$title = self::EMPTY_TITLE;
@@ -32,7 +37,7 @@ class PicEventDispatcherServiceTest extends WebTestCase
         $this->picDispatcher = new PicEventDispatcherService($this->dispatcher);
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dispatcher = null;
         $this->picDispatcher = null;
@@ -43,8 +48,8 @@ class PicEventDispatcherServiceTest extends WebTestCase
     public function testDispatchCreate()
     {
         $this->dispatcher->addListener(SchemaEvents::PIC_CREATE, function ($event, $name) {
-            $this->assertTrue($event instanceof PicEvent);
-            $this->assertEquals(SchemaEvents::PIC_CREATE, $name);
+            static::assertTrue($event instanceof PicEvent);
+            static::assertSame(SchemaEvents::PIC_CREATE, $name);
 
             $multimediaObject = $event->getMultimediaObject();
             $pic = $event->getPic();
@@ -54,9 +59,9 @@ class PicEventDispatcherServiceTest extends WebTestCase
             MockUpPicListener::$url = $pic->getUrl();
         });
 
-        $this->assertFalse(MockUpPicListener::$called);
-        $this->assertEquals(self::EMPTY_TITLE, MockUpPicListener::$title);
-        $this->assertEquals(self::EMPTY_URL, MockUpPicListener::$url);
+        static::assertFalse(MockUpPicListener::$called);
+        static::assertSame(self::EMPTY_TITLE, MockUpPicListener::$title);
+        static::assertSame(self::EMPTY_URL, MockUpPicListener::$url);
 
         $title = 'test title';
         $url = 'http://testpic.com';
@@ -69,16 +74,16 @@ class PicEventDispatcherServiceTest extends WebTestCase
 
         $this->picDispatcher->dispatchCreate($multimediaObject, $pic);
 
-        $this->assertTrue(MockUpPicListener::$called);
-        $this->assertEquals($title, MockUpPicListener::$title);
-        $this->assertEquals($url, MockUpPicListener::$url);
+        static::assertTrue(MockUpPicListener::$called);
+        static::assertSame($title, MockUpPicListener::$title);
+        static::assertSame($url, MockUpPicListener::$url);
     }
 
     public function testDispatchUpdate()
     {
         $this->dispatcher->addListener(SchemaEvents::PIC_UPDATE, function ($event, $name) {
-            $this->assertTrue($event instanceof PicEvent);
-            $this->assertEquals(SchemaEvents::PIC_UPDATE, $name);
+            static::assertTrue($event instanceof PicEvent);
+            static::assertSame(SchemaEvents::PIC_UPDATE, $name);
 
             $multimediaObject = $event->getMultimediaObject();
             $pic = $event->getPic();
@@ -88,9 +93,9 @@ class PicEventDispatcherServiceTest extends WebTestCase
             MockUpPicListener::$url = $pic->getUrl();
         });
 
-        $this->assertFalse(MockUpPicListener::$called);
-        $this->assertEquals(self::EMPTY_TITLE, MockUpPicListener::$title);
-        $this->assertEquals(self::EMPTY_URL, MockUpPicListener::$url);
+        static::assertFalse(MockUpPicListener::$called);
+        static::assertSame(self::EMPTY_TITLE, MockUpPicListener::$title);
+        static::assertSame(self::EMPTY_URL, MockUpPicListener::$url);
 
         $title = 'test title';
         $url = 'http://testpic.com';
@@ -106,16 +111,16 @@ class PicEventDispatcherServiceTest extends WebTestCase
 
         $this->picDispatcher->dispatchUpdate($multimediaObject, $pic);
 
-        $this->assertTrue(MockUpPicListener::$called);
-        $this->assertEquals($title, MockUpPicListener::$title);
-        $this->assertEquals($updateUrl, MockUpPicListener::$url);
+        static::assertTrue(MockUpPicListener::$called);
+        static::assertSame($title, MockUpPicListener::$title);
+        static::assertSame($updateUrl, MockUpPicListener::$url);
     }
 
     public function testDispatchDelete()
     {
         $this->dispatcher->addListener(SchemaEvents::PIC_DELETE, function ($event, $name) {
-            $this->assertTrue($event instanceof PicEvent);
-            $this->assertEquals(SchemaEvents::PIC_DELETE, $name);
+            static::assertTrue($event instanceof PicEvent);
+            static::assertSame(SchemaEvents::PIC_DELETE, $name);
 
             $multimediaObject = $event->getMultimediaObject();
             $pic = $event->getPic();
@@ -125,9 +130,9 @@ class PicEventDispatcherServiceTest extends WebTestCase
             MockUpPicListener::$url = $pic->getUrl();
         });
 
-        $this->assertFalse(MockUpPicListener::$called);
-        $this->assertEquals(self::EMPTY_TITLE, MockUpPicListener::$title);
-        $this->assertEquals(self::EMPTY_URL, MockUpPicListener::$url);
+        static::assertFalse(MockUpPicListener::$called);
+        static::assertSame(self::EMPTY_TITLE, MockUpPicListener::$title);
+        static::assertSame(self::EMPTY_URL, MockUpPicListener::$url);
 
         $title = 'test title';
         $url = 'http://testpic.com';
@@ -140,9 +145,9 @@ class PicEventDispatcherServiceTest extends WebTestCase
 
         $this->picDispatcher->dispatchDelete($multimediaObject, $pic);
 
-        $this->assertTrue(MockUpPicListener::$called);
-        $this->assertEquals($title, MockUpPicListener::$title);
-        $this->assertEquals($url, MockUpPicListener::$url);
+        static::assertTrue(MockUpPicListener::$called);
+        static::assertSame($title, MockUpPicListener::$title);
+        static::assertSame($url, MockUpPicListener::$url);
     }
 }
 

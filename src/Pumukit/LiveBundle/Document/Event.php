@@ -38,7 +38,7 @@ class Event
      *
      * @MongoDB\Field(type="raw")
      */
-    private $description = array('en' => '');
+    private $description = ['en' => ''];
 
     /**
      * @var string
@@ -148,7 +148,8 @@ class Event
     /**
      * Set description.
      *
-     * @param string $description
+     * @param string     $description
+     * @param null|mixed $locale
      */
     public function setDescription($description, $locale = null)
     {
@@ -160,6 +161,8 @@ class Event
 
     /**
      * Get description.
+     *
+     * @param null|mixed $locale
      *
      * @return string
      */
@@ -322,14 +325,15 @@ class Event
      */
     public function getSchedule()
     {
-        return array('date' => $this->date,
-                     'duration' => $this->duration, );
+        return ['date' => $this->date,
+            'duration' => $this->duration, ];
     }
 
     /**
      * Get Schedule.
      *
      * @param array
+     * @param mixed $schedule
      */
     public function setSchedule($schedule)
     {

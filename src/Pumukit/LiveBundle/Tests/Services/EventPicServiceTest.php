@@ -2,13 +2,17 @@
 
 namespace Pumukit\LiveBundle\Tests\Services;
 
+use Pumukit\LiveBundle\Document\Event;
+use Pumukit\LiveBundle\Document\Live;
+use Pumukit\LiveBundle\Services\LegacyEventPicService;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Pumukit\LiveBundle\Services\LegacyEventPicService;
-use Pumukit\LiveBundle\Document\Live;
-use Pumukit\LiveBundle\Document\Event;
 
-class EventPicServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class EventPicServiceTest extends WebTestCase
 {
     private $dm;
     private $repo;
@@ -16,9 +20,9 @@ class EventPicServiceTest extends WebTestCase
     private $originalPicPath;
     private $uploadsPath;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()->get('doctrine_mongodb')->getManager();
@@ -28,12 +32,12 @@ class EventPicServiceTest extends WebTestCase
         $this->originalPicPath = realpath(__DIR__.'/../Resources').'/logo.png';
         $this->uploadsPath = realpath(__DIR__.'/../../../../../web/uploads/pic');
 
-        $this->dm->getDocumentCollection(Live::class)->remove(array());
-        $this->dm->getDocumentCollection(Event::class)->remove(array());
+        $this->dm->getDocumentCollection(Live::class)->remove([]);
+        $this->dm->getDocumentCollection(Event::class)->remove([]);
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -50,14 +54,14 @@ class EventPicServiceTest extends WebTestCase
         $live = $this->createLiveChannel();
         $event = $this->createLiveEvent($live);
 
-        $this->assertNull($event->getPic());
+        static::assertNull($event->getPic());
 
         $url = 'http://domain.com/pic.png';
 
         $event = $this->eventPicService->addPicUrl($event, $url);
 
-        $this->assertEquals($url, $event->getPic()->getUrl());
-        $this->assertEquals($url, $this->repo->find($event->getId())->getPic()->getUrl());
+        static::assertSame($url, $event->getPic()->getUrl());
+        static::assertSame($url, $this->repo->find($event->getId())->getPic()->getUrl());
     }
 
     public function testAddPicFile()
@@ -65,7 +69,7 @@ class EventPicServiceTest extends WebTestCase
         $live = $this->createLiveChannel();
         $event = $this->createLiveEvent($live);
 
-        $this->assertNull($event->getPic());
+        static::assertNull($event->getPic());
 
         $picPath = realpath(__DIR__.'/../Resources').'/picCopy.png';
         if (copy($this->originalPicPath, $picPath)) {
@@ -75,7 +79,7 @@ class EventPicServiceTest extends WebTestCase
 
             $pic = $event->getPic();
             $uploadedPic = '/uploads/pic/'.$event->getId().'/'.$picFile->getClientOriginalName();
-            $this->assertEquals($uploadedPic, $pic->getUrl());
+            static::assertSame($uploadedPic, $pic->getUrl());
         }
 
         $this->deleteCreatedFiles();
@@ -86,7 +90,7 @@ class EventPicServiceTest extends WebTestCase
         $live = $this->createLiveChannel();
         $event = $this->createLiveEvent($live);
 
-        $this->assertNull($event->getPic());
+        static::assertNull($event->getPic());
 
         $picPath = realpath(__DIR__.'/../Resources').'/picCopy.png';
         if (copy($this->originalPicPath, $picPath)) {
@@ -96,10 +100,10 @@ class EventPicServiceTest extends WebTestCase
 
             $pic = $event->getPic();
             $uploadedPic = '/uploads/pic/'.$event->getId().'/'.$picFile->getClientOriginalName();
-            $this->assertEquals($uploadedPic, $pic->getUrl());
+            static::assertSame($uploadedPic, $pic->getUrl());
 
             $event = $this->eventPicService->removePicFromEvent($event);
-            $this->assertNull($event->getPic());
+            static::assertNull($event->getPic());
         }
 
         $this->deleteCreatedFiles();

@@ -9,20 +9,24 @@
 
 namespace Pumukit\SchemaBundle\Tests\Other;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class MultimediaObjectInSeriesTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class MultimediaObjectInSeriesTest extends WebTestCase
 {
     private $dm;
     private $seriesRepo;
     private $mmobjRepo;
     private $factoryService;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $container = static::$kernel->getContainer();
@@ -31,11 +35,11 @@ class MultimediaObjectInSeriesTest extends WebTestCase
         $this->seriesRepo = $this->dm->getRepository(Series::class);
         $this->mmobjRepo = $this->dm->getRepository(MultimediaObject::class);
 
-        $this->dm->getDocumentCollection(Series::class)->remove(array());
-        $this->dm->getDocumentCollection(MultimediaObject::class)->remove(array());
+        $this->dm->getDocumentCollection(Series::class)->remove([]);
+        $this->dm->getDocumentCollection(MultimediaObject::class)->remove([]);
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->factoryService = null;
@@ -55,7 +59,7 @@ class MultimediaObjectInSeriesTest extends WebTestCase
         $coll_mms = $this->seriesRepo->getMultimediaObjects($series);
 
         //echo "Assert\n";
-        $this->assertEquals(1, count($coll_mms));
+        static::assertSame(1, \count($coll_mms));
 
         //echo "Foreach\n";
         $i = 0;
@@ -63,7 +67,7 @@ class MultimediaObjectInSeriesTest extends WebTestCase
             ++$i;
             //echo "\t - ", $mm->getId(), "\n";
         }
-        $this->assertEquals(1, $i);
+        static::assertSame(1, $i);
     }
 
     public function testRelationSimple()
@@ -82,6 +86,6 @@ class MultimediaObjectInSeriesTest extends WebTestCase
                 ++$i;
             }
         }
-        $this->assertEquals(3, $i);
+        static::assertSame(3, $i);
     }
 }

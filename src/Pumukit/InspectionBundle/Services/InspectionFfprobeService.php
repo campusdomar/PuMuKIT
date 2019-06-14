@@ -2,9 +2,9 @@
 
 namespace Pumukit\InspectionBundle\Services;
 
+use Psr\Log\LoggerInterface;
 use Pumukit\SchemaBundle\Document\Track;
 use Symfony\Component\Process\Process;
-use Psr\Log\LoggerInterface;
 
 class InspectionFfprobeService implements InspectionServiceInterface
 {
@@ -39,7 +39,7 @@ class InspectionFfprobeService implements InspectionServiceInterface
 
         $duration = 0;
         if (isset($json->format->duration)) {
-            $duration = ceil(floatval($json->format->duration));
+            $duration = ceil((float) ($json->format->duration));
         }
 
         return $duration;
@@ -67,9 +67,9 @@ class InspectionFfprobeService implements InspectionServiceInterface
         }
 
         $track->setMimetype(mime_content_type($track->getPath()));
-        $bitrate = isset($json->format->bit_rate) ? intval($json->format->bit_rate) : 0;
+        $bitrate = isset($json->format->bit_rate) ? (int) ($json->format->bit_rate) : 0;
         $track->setBitrate($bitrate);
-        $duration = ceil(floatval($json->format->duration));
+        $duration = ceil((float) ($json->format->duration));
         $track->setDuration($duration);
         $size = isset($json->format->size) ? (string) $json->format->size : 0;
         $track->setSize($size);
@@ -80,14 +80,15 @@ class InspectionFfprobeService implements InspectionServiceInterface
                     case 'video':
                         $track->setVcodec((string) $stream->codec_name);
                         $track->setFramerate((string) $stream->avg_frame_rate);
-                        $track->setWidth(intval($stream->width));
-                        $track->setHeight(intval($stream->height));
+                        $track->setWidth((int) ($stream->width));
+                        $track->setHeight((int) ($stream->height));
                         $only_audio = false;
-                        break;
 
+                        break;
                     case 'audio':
                         $track->setAcodec((string) $stream->codec_name);
-                        $track->setChannels(intval($stream->channels));
+                        $track->setChannels((int) ($stream->channels));
+
                         break;
                 }
             }
@@ -99,7 +100,7 @@ class InspectionFfprobeService implements InspectionServiceInterface
     {
         if (null !== $json->streams) {
             foreach ($json->streams as $stream) {
-                if ((isset($stream->codec_type)) && ('audio' == $stream->codec_type || 'video' == $stream->codec_type) && ('ansi' != $stream->codec_name)) {
+                if ((isset($stream->codec_type)) && ('audio' === $stream->codec_type || 'video' === $stream->codec_type) && ('ansi' !== $stream->codec_name)) {
                     return true;
                 }
             }
@@ -120,6 +121,7 @@ class InspectionFfprobeService implements InspectionServiceInterface
             if ($this->logger) {
                 $this->logger->error($message);
             }
+
             throw new \RuntimeException($message);
         }
 

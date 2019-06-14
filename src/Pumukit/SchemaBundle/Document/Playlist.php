@@ -2,9 +2,9 @@
 
 namespace Pumukit\SchemaBundle\Document;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use JMS\Serializer\Annotation as Serializer;
-use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Pumukit\SchemaBundle\Document\Playlist.
@@ -62,11 +62,12 @@ class Playlist
      * Removes all references to the multimedia objects with the given id.
      *
      * @param MultimediaObject $multimedia_object
+     * @param mixed            $mmobjId
      */
     public function removeAllMultimediaObjectsById($mmobjId)
     {
         foreach ($this->multimedia_objects as $key => $mmobj) {
-            if ($mmobj->getId() == $mmobjId) {
+            if ($mmobj->getId() === $mmobjId) {
                 $this->multimedia_objects->remove($key);
             }
         }
@@ -99,7 +100,7 @@ class Playlist
      */
     public function getPublishedMultimediaObjects()
     {
-        return $this->getMultimediaObjectsByStatus(array(MultimediaObject::STATUS_PUBLISHED));
+        return $this->getMultimediaObjectsByStatus([MultimediaObject::STATUS_PUBLISHED]);
     }
 
     /**
@@ -109,7 +110,7 @@ class Playlist
      */
     public function getPublishedAndHiddenMultimediaObjects()
     {
-        return $this->getMultimediaObjectsByStatus(array(MultimediaObject::STATUS_HIDDEN, MultimediaObject::STATUS_PUBLISHED));
+        return $this->getMultimediaObjectsByStatus([MultimediaObject::STATUS_HIDDEN, MultimediaObject::STATUS_PUBLISHED]);
     }
 
     /**
@@ -121,20 +122,20 @@ class Playlist
      *
      * @return array
      */
-    public function getMultimediaObjectsByStatus(array $status = array())
+    public function getMultimediaObjectsByStatus(array $status = [])
     {
         if (empty($status)) {
-            $status = array(MultimediaObject::STATUS_HIDDEN, MultimediaObject::STATUS_PUBLISHED, MultimediaObject::STATUS_BLOCKED);
+            $status = [MultimediaObject::STATUS_HIDDEN, MultimediaObject::STATUS_PUBLISHED, MultimediaObject::STATUS_BLOCKED];
         }
 
-        $multimediaObjects = array();
+        $multimediaObjects = [];
         foreach ($this->multimedia_objects as $multimediaObject) {
             try {
-                if (in_array(MultimediaObject::STATUS_PUBLISHED, $status) && $multimediaObject->isPublished()) {
+                if (\in_array(MultimediaObject::STATUS_PUBLISHED, $status, true) && $multimediaObject->isPublished()) {
                     $multimediaObjects[] = $multimediaObject;
-                } elseif (in_array(MultimediaObject::STATUS_HIDDEN, $status) && $multimediaObject->isHidden()) {
+                } elseif (\in_array(MultimediaObject::STATUS_HIDDEN, $status, true) && $multimediaObject->isHidden()) {
                     $multimediaObjects[] = $multimediaObject;
-                } elseif (in_array(MultimediaObject::STATUS_BLOCKED, $status) && $multimediaObject->isBlocked()) {
+                } elseif (\in_array(MultimediaObject::STATUS_BLOCKED, $status, true) && $multimediaObject->isBlocked()) {
                     $multimediaObjects[] = $multimediaObject;
                 }
             } catch (\Exception $exception) {
@@ -155,7 +156,8 @@ class Playlist
         $mmobjIds = array_map(
             function ($m) {
                 return new \MongoId($m->getId());
-            }, $this->multimedia_objects->toArray()
+            },
+            $this->multimedia_objects->toArray()
         );
 
         return $mmobjIds;
@@ -163,6 +165,9 @@ class Playlist
 
     /**
      * Move multimedia_objects.
+     *
+     * @param mixed $posStart
+     * @param mixed $posEnd
      *
      * @return ArrayCollection
      */
@@ -172,7 +177,7 @@ class Playlist
         if ($maxPos < 1) {
             return false;
         }
-        if (0 == $posStart - $posEnd
+        if (0 === $posStart - $posEnd
            || $posStart < 0 || $posStart > $maxPos) {
             return false; //If start is out of range or start/end is the same, do nothing.
         }

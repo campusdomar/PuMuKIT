@@ -2,47 +2,58 @@
 
 namespace Pumukit\SchemaBundle\Tests\Repository;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\SchemaBundle\Document\Tag;
 use Pumukit\SchemaBundle\Document\Person;
 use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Document\Tag;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class EmbedRelationsTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class EmbedRelationsTest extends WebTestCase
 {
     private $dm;
     private $repoMmobjs;
     private $repoTags;
     private $qb;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()
             ->get('doctrine_mongodb')->getManager();
         $this->repoMmobjs = $this->dm
-            ->getRepository(MultimediaObject::class);
+            ->getRepository(MultimediaObject::class)
+        ;
         $this->repoTags = $this->dm
-            ->getRepository(Tag::class);
+            ->getRepository(Tag::class)
+        ;
 
         //DELETE DATABASE
         // pimo has to be deleted before mmobj
         $this->dm->getDocumentCollection(Tag::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(MultimediaObject::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Person::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Series::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection('PumukitSchemaBundle:SeriesType')
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -54,8 +65,8 @@ class EmbedRelationsTest extends WebTestCase
 
     public function testRepositoryEmpty()
     {
-        $this->assertEquals(0, count($this->repoMmobjs->findAll()));
-        $this->assertEquals(0, count($this->repoTags->findAll()));
+        static::assertSame(0, \count($this->repoMmobjs->findAll()));
+        static::assertSame(0, \count($this->repoTags->findAll()));
     }
 
     public function testCreateRootTag()
@@ -67,7 +78,7 @@ class EmbedRelationsTest extends WebTestCase
         $this->dm->flush();
 
         // This should pass to check the unrequired fields
-        $this->assertEquals(1, count($this->repoTags->findAll()));
+        static::assertSame(1, \count($this->repoTags->findAll()));
     }
 
     public function testGetChildren()
@@ -76,21 +87,21 @@ class EmbedRelationsTest extends WebTestCase
 
         $tag = $this->repoTags->findOneByCod('ROOT');
         $tree = $this->repoTags->getTree($tag);
-        $this->assertEquals(6, count($tree));
+        static::assertSame(6, \count($tree));
         $children = $this->repoTags->getChildren($tag);
-        $this->assertEquals(5, count($children));
-        $this->assertEquals(5, $this->repoTags->childCount($tag));
+        static::assertSame(5, \count($children));
+        static::assertSame(5, $this->repoTags->childCount($tag));
         $directChildren = $this->repoTags->getChildren($tag, true);
-        $this->assertEquals(2, count($directChildren));
+        static::assertSame(2, \count($directChildren));
 
         $tag = $this->repoTags->findOneByCod('B');
         $tree = $this->repoTags->getTree($tag);
-        $this->assertEquals(4, count($tree));
+        static::assertSame(4, \count($tree));
         $children = $this->repoTags->getChildren($tag);
-        $this->assertEquals(3, count($children));
-        $this->assertEquals(3, $this->repoTags->childCount($tag));
+        static::assertSame(3, \count($children));
+        static::assertSame(3, $this->repoTags->childCount($tag));
         $directChildren = $this->repoTags->getChildren($tag, true);
-        $this->assertEquals(2, count($directChildren));
+        static::assertSame(2, \count($directChildren));
     }
 
     public function testGetRootNodes()
@@ -98,14 +109,14 @@ class EmbedRelationsTest extends WebTestCase
         $this->createTestTree();
 
         $tree = $this->repoTags->getRootNodes();
-        $this->assertEquals(1, count($tree));
+        static::assertSame(1, \count($tree));
     }
 
     public function testTagEmptyInMultimediaObject()
     {
         $this->createTestMultimediaObject();
 
-        $this->assertEquals(0, count($this->repoMmobjs->findOneByDuration(300)->getTags()));
+        static::assertSame(0, \count($this->repoMmobjs->findOneByDuration(300)->getTags()));
     }
 
     public function testAddTagToMultimediaObject()
@@ -114,8 +125,8 @@ class EmbedRelationsTest extends WebTestCase
         $this->createTestMultimediaObject();
         $this->addTagToMultimediaObject();
 
-        $this->assertEquals(1, count($this->repoMmobjs->findOneByDuration(300)->getTags()));
-        $this->assertEquals('B2A', $this->repoTags->findOneByCod('B2A')->getCod());
+        static::assertSame(1, \count($this->repoMmobjs->findOneByDuration(300)->getTags()));
+        static::assertSame('B2A', $this->repoTags->findOneByCod('B2A')->getCod());
     }
 
     public function testAddAndRemoveTagToMultimediaObject()
@@ -125,8 +136,8 @@ class EmbedRelationsTest extends WebTestCase
         $this->addTagToMultimediaObject();
         $this->removeTagFromMultimediaObject();
 
-        $this->assertEquals(0, count($this->repoMmobjs->findOneByDuration(300)->getTags()));
-        $this->assertEquals('B2A', $this->repoTags->findOneByCod('B2A')->getCod());
+        static::assertSame(0, \count($this->repoMmobjs->findOneByDuration(300)->getTags()));
+        static::assertSame('B2A', $this->repoTags->findOneByCod('B2A')->getCod());
     }
 
     private function createTestTree()

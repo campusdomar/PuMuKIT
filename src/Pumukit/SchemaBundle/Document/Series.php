@@ -2,9 +2,9 @@
 
 namespace Pumukit\SchemaBundle\Document;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use JMS\Serializer\Annotation as Serializer;
-use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @MongoDB\Document(repositoryClass="Pumukit\SchemaBundle\Repository\SeriesRepository")
@@ -30,23 +30,23 @@ class Series
     const SORT_REC_ASC = 4;
     const SORT_ALPHAB = 5;
 
-    public static $sortCriteria = array(
-        self::SORT_MANUAL => array('rank' => 'asc'),
-        self::SORT_PUB_ASC => array('public_date' => 'asc'),
-        self::SORT_PUB_DES => array('public_date' => 'des'),
-        self::SORT_REC_DES => array('record_date' => 'des'),
-        self::SORT_REC_ASC => array('record_date' => 'asc'),
-        self::SORT_ALPHAB => array('title.es' => 'asc'),
-    );
+    public static $sortCriteria = [
+        self::SORT_MANUAL => ['rank' => 'asc'],
+        self::SORT_PUB_ASC => ['public_date' => 'asc'],
+        self::SORT_PUB_DES => ['public_date' => 'des'],
+        self::SORT_REC_DES => ['record_date' => 'des'],
+        self::SORT_REC_ASC => ['record_date' => 'asc'],
+        self::SORT_ALPHAB => ['title.es' => 'asc'],
+    ];
 
-    public static $sortText = array(
+    public static $sortText = [
         self::SORT_MANUAL => 'manual',
         self::SORT_PUB_ASC => 'publication date ascending',
         self::SORT_PUB_DES => 'publication date descending',
         self::SORT_REC_DES => 'recording date descending',
         self::SORT_REC_ASC => 'recording date ascending',
         self::SORT_ALPHAB => 'title',
-    );
+    ];
 
     /**
      * @MongoDB\Id
@@ -129,19 +129,19 @@ class Series
      * @var string
      * @MongoDB\Field(type="raw")
      */
-    private $title = array('en' => '');
+    private $title = ['en' => ''];
 
     /**
      * @var string
      * @MongoDB\Field(type="raw")
      */
-    private $subtitle = array('en' => '');
+    private $subtitle = ['en' => ''];
 
     /**
      * @var string
      * @MongoDB\Field(type="raw")
      */
-    private $description = array('en' => '');
+    private $description = ['en' => ''];
 
     /**
      * @var string
@@ -153,31 +153,31 @@ class Series
      * @var string
      * @MongoDB\Field(type="raw")
      */
-    private $header = array('en' => '');
+    private $header = ['en' => ''];
 
     /**
      * @var string
      * @MongoDB\Field(type="raw")
      */
-    private $footer = array('en' => '');
+    private $footer = ['en' => ''];
 
     /**
      * @var string
      * @MongoDB\Field(type="raw")
      */
-    private $line2 = array('en' => '');
+    private $line2 = ['en' => ''];
 
     /**
      * @var array
      * @MongoDB\Raw
      */
-    private $textindex = array();
+    private $textindex = [];
 
     /**
      * @var array
      * @MongoDB\Raw
      */
-    private $secondarytextindex = array();
+    private $secondarytextindex = [];
 
     /**
      * Used locale to override Translation listener`s locale
@@ -231,6 +231,8 @@ class Series
     /**
      * Set numerical id.
      *
+     * @param mixed $numericalID
+     *
      * @return int
      */
     public function setNumericalID($numericalID)
@@ -272,6 +274,8 @@ class Series
 
     /**
      * Set type.
+     *
+     * @param mixed $type
      *
      * @return int
      */
@@ -403,9 +407,9 @@ class Series
     /**
      * Get multimedia_objects.
      *
-     * @return mixed
-     *
      * @throws \Exception
+     *
+     * @return mixed
      */
     public function getMultimediaObjects()
     {
@@ -516,7 +520,7 @@ class Series
      * Set title.
      *
      * @param string      $title
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setTitle($title, $locale = null)
     {
@@ -529,7 +533,7 @@ class Series
     /**
      * Get title.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -569,7 +573,7 @@ class Series
      * Set subtitle.
      *
      * @param string      $subtitle
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setSubtitle($subtitle, $locale = null)
     {
@@ -582,7 +586,7 @@ class Series
     /**
      * Get subtitle.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -622,7 +626,7 @@ class Series
      * Set description.
      *
      * @param string      $description
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setDescription($description, $locale = null)
     {
@@ -635,7 +639,7 @@ class Series
     /**
      * Get description.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -695,7 +699,7 @@ class Series
      * Set header.
      *
      * @param string      $header
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setHeader($header, $locale = null)
     {
@@ -708,7 +712,7 @@ class Series
     /**
      * Get header.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -748,7 +752,7 @@ class Series
      * Set footer.
      *
      * @param string      $footer
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setFooter($footer, $locale = null)
     {
@@ -761,7 +765,7 @@ class Series
     /**
      * Get footer.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -849,7 +853,7 @@ class Series
      * Set line2.
      *
      * @param string      $line2
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setLine2($line2, $locale = null)
     {
@@ -862,7 +866,7 @@ class Series
     /**
      * Get line2.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -1011,7 +1015,6 @@ class Series
     /**
      * Get textindex.
      *
-     *
      * @return array
      */
     public function getTextIndex()
@@ -1031,7 +1034,6 @@ class Series
 
     /**
      * Get secondarytextindex.
-     *
      *
      * @return array
      */

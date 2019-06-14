@@ -2,14 +2,18 @@
 
 namespace Pumukit\SchemaBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Link;
-use Pumukit\SchemaBundle\Event\SchemaEvents;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Event\LinkEvent;
+use Pumukit\SchemaBundle\Event\SchemaEvents;
 use Pumukit\SchemaBundle\Services\LinkEventDispatcherService;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class LinkEventDispatcherServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class LinkEventDispatcherServiceTest extends WebTestCase
 {
     const EMPTY_TITLE = 'EMTPY TITLE';
     const EMPTY_URL = 'EMTPY URL';
@@ -17,13 +21,14 @@ class LinkEventDispatcherServiceTest extends WebTestCase
     private $linkDispatcher;
     private $dispatcher;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dispatcher = static::$kernel->getContainer()
-          ->get('event_dispatcher');
+            ->get('event_dispatcher')
+        ;
 
         MockUpLinkListener::$called = false;
         MockUpLinkListener::$title = self::EMPTY_TITLE;
@@ -32,7 +37,7 @@ class LinkEventDispatcherServiceTest extends WebTestCase
         $this->linkDispatcher = new LinkEventDispatcherService($this->dispatcher);
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dispatcher = null;
         $this->linkDispatcher = null;
@@ -43,8 +48,8 @@ class LinkEventDispatcherServiceTest extends WebTestCase
     public function testDispatchCreate()
     {
         $this->dispatcher->addListener(SchemaEvents::LINK_CREATE, function ($event, $name) {
-            $this->assertTrue($event instanceof LinkEvent);
-            $this->assertEquals(SchemaEvents::LINK_CREATE, $name);
+            static::assertTrue($event instanceof LinkEvent);
+            static::assertSame(SchemaEvents::LINK_CREATE, $name);
 
             $multimediaObject = $event->getMultimediaObject();
             $link = $event->getLink();
@@ -54,9 +59,9 @@ class LinkEventDispatcherServiceTest extends WebTestCase
             MockUpLinkListener::$url = $link->getUrl();
         });
 
-        $this->assertFalse(MockUpLinkListener::$called);
-        $this->assertEquals(self::EMPTY_TITLE, MockUpLinkListener::$title);
-        $this->assertEquals(self::EMPTY_URL, MockUpLinkListener::$url);
+        static::assertFalse(MockUpLinkListener::$called);
+        static::assertSame(self::EMPTY_TITLE, MockUpLinkListener::$title);
+        static::assertSame(self::EMPTY_URL, MockUpLinkListener::$url);
 
         $title = 'test title';
         $url = 'http://testlink.com';
@@ -69,16 +74,16 @@ class LinkEventDispatcherServiceTest extends WebTestCase
 
         $this->linkDispatcher->dispatchCreate($multimediaObject, $link);
 
-        $this->assertTrue(MockUpLinkListener::$called);
-        $this->assertEquals($title, MockUpLinkListener::$title);
-        $this->assertEquals($url, MockUpLinkListener::$url);
+        static::assertTrue(MockUpLinkListener::$called);
+        static::assertSame($title, MockUpLinkListener::$title);
+        static::assertSame($url, MockUpLinkListener::$url);
     }
 
     public function testDispatchUpdate()
     {
         $this->dispatcher->addListener(SchemaEvents::LINK_UPDATE, function ($event, $name) {
-            $this->assertTrue($event instanceof LinkEvent);
-            $this->assertEquals(SchemaEvents::LINK_UPDATE, $name);
+            static::assertTrue($event instanceof LinkEvent);
+            static::assertSame(SchemaEvents::LINK_UPDATE, $name);
 
             $multimediaObject = $event->getMultimediaObject();
             $link = $event->getLink();
@@ -88,9 +93,9 @@ class LinkEventDispatcherServiceTest extends WebTestCase
             MockUpLinkListener::$url = $link->getUrl();
         });
 
-        $this->assertFalse(MockUpLinkListener::$called);
-        $this->assertEquals(self::EMPTY_TITLE, MockUpLinkListener::$title);
-        $this->assertEquals(self::EMPTY_URL, MockUpLinkListener::$url);
+        static::assertFalse(MockUpLinkListener::$called);
+        static::assertSame(self::EMPTY_TITLE, MockUpLinkListener::$title);
+        static::assertSame(self::EMPTY_URL, MockUpLinkListener::$url);
 
         $title = 'test title';
         $url = 'http://testlink.com';
@@ -106,16 +111,16 @@ class LinkEventDispatcherServiceTest extends WebTestCase
 
         $this->linkDispatcher->dispatchUpdate($multimediaObject, $link);
 
-        $this->assertTrue(MockUpLinkListener::$called);
-        $this->assertEquals($title, MockUpLinkListener::$title);
-        $this->assertEquals($updateUrl, MockUpLinkListener::$url);
+        static::assertTrue(MockUpLinkListener::$called);
+        static::assertSame($title, MockUpLinkListener::$title);
+        static::assertSame($updateUrl, MockUpLinkListener::$url);
     }
 
     public function testDispatchDelete()
     {
         $this->dispatcher->addListener(SchemaEvents::LINK_DELETE, function ($event, $name) {
-            $this->assertTrue($event instanceof LinkEvent);
-            $this->assertEquals(SchemaEvents::LINK_DELETE, $name);
+            static::assertTrue($event instanceof LinkEvent);
+            static::assertSame(SchemaEvents::LINK_DELETE, $name);
 
             $multimediaObject = $event->getMultimediaObject();
             $link = $event->getLink();
@@ -125,9 +130,9 @@ class LinkEventDispatcherServiceTest extends WebTestCase
             MockUpLinkListener::$url = $link->getUrl();
         });
 
-        $this->assertFalse(MockUpLinkListener::$called);
-        $this->assertEquals(self::EMPTY_TITLE, MockUpLinkListener::$title);
-        $this->assertEquals(self::EMPTY_URL, MockUpLinkListener::$url);
+        static::assertFalse(MockUpLinkListener::$called);
+        static::assertSame(self::EMPTY_TITLE, MockUpLinkListener::$title);
+        static::assertSame(self::EMPTY_URL, MockUpLinkListener::$url);
 
         $title = 'test title';
         $url = 'http://testlink.com';
@@ -140,9 +145,9 @@ class LinkEventDispatcherServiceTest extends WebTestCase
 
         $this->linkDispatcher->dispatchDelete($multimediaObject, $link);
 
-        $this->assertTrue(MockUpLinkListener::$called);
-        $this->assertEquals($title, MockUpLinkListener::$title);
-        $this->assertEquals($url, MockUpLinkListener::$url);
+        static::assertTrue(MockUpLinkListener::$called);
+        static::assertSame($title, MockUpLinkListener::$title);
+        static::assertSame($url, MockUpLinkListener::$url);
     }
 }
 

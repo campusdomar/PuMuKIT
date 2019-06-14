@@ -2,14 +2,14 @@
 
 namespace Pumukit\WebTVBundle\Controller;
 
+use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Tag;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+//Used on countMmobjsInTags TODO Move to service
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-//Used on countMmobjsInTags TODO Move to service
-use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
-use Pumukit\SchemaBundle\Document\Tag;
 
 /**
  * Class CategoriesController.
@@ -19,6 +19,8 @@ class CategoriesController extends Controller implements WebTVControllerInterfac
     /**
      * @Route("/categories/{sort}", defaults={"sort" = "date"}, requirements={"sort" = "alphabetically|date|tags"}, name="pumukit_webtv_categories_index")
      * @Template("PumukitWebTVBundle:Categories:template.html.twig")
+     *
+     * @param mixed $sort
      */
     public function indexAction($sort, Request $request)
     {
@@ -29,7 +31,8 @@ class CategoriesController extends Controller implements WebTVControllerInterfac
 
         $groundsRoot = $this->getDoctrine()
             ->getRepository(Tag::class)
-            ->findOneByCod($parentCod);
+            ->findOneByCod($parentCod)
+        ;
 
         if (!isset($groundsRoot)) {
             throw $this->createNotFoundException(
@@ -43,18 +46,19 @@ class CategoriesController extends Controller implements WebTVControllerInterfac
         $allGrounds = [];
         $tagsTree = $this->getDoctrine()
             ->getRepository(Tag::class)
-            ->getTree($groundsRoot);
+            ->getTree($groundsRoot)
+        ;
 
         //Create array structure
         //TODO Move this logic to a service.
         $tagsArray = [];
-        $parentPathLength = strlen($groundsRoot->getPath());
+        $parentPathLength = \strlen($groundsRoot->getPath());
         foreach ($tagsTree as $tag) {
             $path = sprintf('%s__object', $tag->getPath());
             $keys = explode('|', $path);
             $ref = &$tagsArray;
             foreach ($keys as $key) {
-                if (!array_key_exists($key, $ref)) {
+                if (!\array_key_exists($key, $ref)) {
                     $ref[$key] = [];
                 }
                 $ref = &$ref[$key];
@@ -76,7 +80,7 @@ class CategoriesController extends Controller implements WebTVControllerInterfac
         $counterMmobjs = $this->countMmobjInTags($provider);
         $linkService = $this->get('pumukit_web_tv.link_service');
         foreach ($tagsArray as $id => $parent) {
-            if ('__object' == $id) {
+            if ('__object' === $id) {
                 continue;
             }
             $allGrounds[$id] = [];
@@ -110,7 +114,7 @@ class CategoriesController extends Controller implements WebTVControllerInterfac
                 $allGrounds[$id]['children']['general']['children'] = [];
             }
             foreach ($parent as $id2 => $child) {
-                if ('__object' == $id2) {
+                if ('__object' === $id2) {
                     continue;
                 }
                 $allGrounds[$id]['children'][$id2] = [];
@@ -130,7 +134,7 @@ class CategoriesController extends Controller implements WebTVControllerInterfac
                 $allGrounds[$id]['children'][$id2]['children'] = [];
 
                 foreach ($child as $id3 => $grandchild) {
-                    if ('__object' == $id3) {
+                    if ('__object' === $id3) {
                         continue;
                     }
                     $allGrounds[$id]['children'][$id2]['children'][$id3] = [];
@@ -160,7 +164,7 @@ class CategoriesController extends Controller implements WebTVControllerInterfac
 
         $dm = $this->get('doctrine_mongodb.odm.document_manager');
         $multimediaObjectsColl = $dm->getDocumentCollection(MultimediaObject::class);
-        $criteria = ['status' => MultimediaObject::STATUS_PUBLISHED, 'tags.cod' => array('$all' => ['PUCHWEBTV', $parentCod])];
+        $criteria = ['status' => MultimediaObject::STATUS_PUBLISHED, 'tags.cod' => ['$all' => ['PUCHWEBTV', $parentCod]]];
         $criteria['$or'] = [
             ['tracks' => ['$elemMatch' => ['tags' => 'display', 'hide' => false]], 'properties.opencast' => ['$exists' => false]],
             ['properties.opencast' => ['$exists' => true]],
@@ -195,10 +199,10 @@ class CategoriesController extends Controller implements WebTVControllerInterfac
         if (null !== $provider) {
             $qb = $qb->field('tags.cod')->equals($provider);
         }
-        $qb = $qb->count()
-            ->getQuery()
-            ->execute();
 
-        return $qb;
+        return $qb->count()
+            ->getQuery()
+            ->execute()
+        ;
     }
 }

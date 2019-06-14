@@ -2,8 +2,8 @@
 
 namespace Pumukit\WebTVBundle\Twig;
 
-use Symfony\Component\Routing\RequestContext;
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Symfony\Component\Routing\RequestContext;
 
 /**
  * Class BootstrapExtension.
@@ -57,7 +57,7 @@ class BootstrapExtension extends \Twig_Extension
             '12' => 'col-xs-12 col-sm-12 col-md-1',
         ];
 
-        if (!array_key_exists($objectsByCol, $mapping)) {
+        if (!\array_key_exists($objectsByCol, $mapping)) {
             return $mapping[1];
         }
 
@@ -81,11 +81,11 @@ class BootstrapExtension extends \Twig_Extension
             '12' => 12,
         ];
 
-        if (!array_key_exists($objectsByCol, $mapping)) {
+        if (!\array_key_exists($objectsByCol, $mapping)) {
             return false;
         }
 
-        if (0 != $loopIndex % $mapping[$objectsByCol]) {
+        if (0 !== $loopIndex % $mapping[$objectsByCol]) {
             return false;
         }
 
@@ -109,11 +109,11 @@ class BootstrapExtension extends \Twig_Extension
             '12' => 12,
         ];
 
-        if (!array_key_exists($objectsByCol, $mapping)) {
+        if (!\array_key_exists($objectsByCol, $mapping)) {
             return false;
         }
 
-        if (0 != $loopIndex % $mapping[$objectsByCol]) {
+        if (0 !== $loopIndex % $mapping[$objectsByCol]) {
             return false;
         }
 

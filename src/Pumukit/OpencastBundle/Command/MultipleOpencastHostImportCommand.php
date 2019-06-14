@@ -6,10 +6,10 @@ use Doctrine\ODM\MongoDB\DocumentManager;
 use Pumukit\OpencastBundle\Services\ClientService;
 use Pumukit\OpencastBundle\Services\OpencastImportService;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 
 /**
  * Class MultipleOpencastHostImportCommand.
@@ -36,7 +36,8 @@ class MultipleOpencastHostImportCommand extends ContainerAwareCommand
             ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'ID of multimedia object to import')
             ->addOption('master', null, InputOption::VALUE_NONE, 'Import master tracks')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Set this parameter to execute this action')
-            ->setHelp(<<<'EOT'
+            ->setHelp(
+                <<<'EOT'
             
             Important:
             
@@ -69,7 +70,8 @@ class MultipleOpencastHostImportCommand extends ContainerAwareCommand
             <comment>php app/console pumukit:opencast:import:multiple:host --user="myuser" --password="mypassword" --host="https://opencast-local.teltek.es" --master --id="5bcd806ebf435c25008b4581" --force</comment>
 
 EOT
-            );
+            )
+        ;
     }
 
     /**
@@ -108,9 +110,9 @@ EOT
      * @param InputInterface  $input
      * @param OutputInterface $output
      *
-     * @return int|void|null
-     *
      * @throws \Exception
+     *
+     * @return null|int|void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -151,9 +153,9 @@ EOT
     /**
      * @param ClientService $clientService
      *
-     * @return bool
-     *
      * @throws \Exception
+     *
+     * @return bool
      */
     private function checkOpencastStatus(ClientService $clientService)
     {
@@ -171,17 +173,15 @@ EOT
      */
     private function getMultimediaObjects(DocumentManager $dm)
     {
-        $criteria = array(
-            'properties.opencasturl' => new \MongoRegex("/$this->host/i"),
-        );
+        $criteria = [
+            'properties.opencasturl' => new \MongoRegex("/{$this->host}/i"),
+        ];
 
         if ($this->id) {
             $criteria['_id'] = new \MongoId($this->id);
         }
 
-        $multimediaObjects = $dm->getRepository(MultimediaObject::class)->findBy($criteria);
-
-        return $multimediaObjects;
+        return $dm->getRepository(MultimediaObject::class)->findBy($criteria);
     }
 
     /**
@@ -195,12 +195,12 @@ EOT
     private function importBroadcastTracks(OutputInterface $output, ClientService $clientService, OpencastImportService $opencastImportService, $multimediaObjects)
     {
         $output->writeln(
-            array(
+            [
                 '',
                 '<info> **** Adding tracks to multimedia object **** </info>',
                 '',
-                '<comment> ----- Total: </comment>'.count($multimediaObjects),
-            )
+                '<comment> ----- Total: </comment>'.\count($multimediaObjects),
+            ]
         );
 
         foreach ($multimediaObjects as $multimediaObject) {
@@ -229,12 +229,12 @@ EOT
     private function importMasterTracks(OutputInterface $output, ClientService $clientService, OpencastImportService $opencastImportService, $multimediaObjects)
     {
         $output->writeln(
-            array(
+            [
                 '',
                 '<info> **** Import master tracks to multimedia object **** </info>',
                 '',
-                '<comment> ----- Total: </comment>'.count($multimediaObjects),
-            )
+                '<comment> ----- Total: </comment>'.\count($multimediaObjects),
+            ]
         );
 
         foreach ($multimediaObjects as $multimediaObject) {
@@ -265,10 +265,10 @@ EOT
     {
         if ($master) {
             $mediaPackage = $clientService->getMasterMediaPackage($multimediaObject->getProperty('opencast'));
-            $trackTags = array('master');
+            $trackTags = ['master'];
         } else {
             $mediaPackage = $clientService->getMediaPackage($multimediaObject->getProperty('opencast'));
-            $trackTags = array('display');
+            $trackTags = ['display'];
         }
 
         try {
@@ -295,12 +295,12 @@ EOT
             $message = '<info> **** Finding Multimedia Objects (master)**** </info>';
         }
         $output->writeln(
-            array(
+            [
                 '',
                 $message,
                 '',
-                '<comment> ----- Total: </comment>'.count($multimediaObjects),
-            )
+                '<comment> ----- Total: </comment>'.\count($multimediaObjects),
+            ]
         );
 
         foreach ($multimediaObjects as $multimediaObject) {
@@ -326,7 +326,7 @@ EOT
         $tracks = $opencastImportService->getMediaPackageField($media, 'track');
         $tracksCount = 1;
         if (isset($tracks[0])) {
-            $tracksCount = count($tracks);
+            $tracksCount = \count($tracks);
         }
 
         $output->writeln(' Multimedia Object: '.$multimediaObject->getId().' - URL: '.$multimediaObject->getProperty('opencasturl').' - Tracks: '.$tracksCount);

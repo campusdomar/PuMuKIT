@@ -2,22 +2,26 @@
 
 namespace Pumukit\SchemaBundle\Tests\Repository;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Person;
 use Pumukit\SchemaBundle\Document\Role;
-use Pumukit\SchemaBundle\Document\User;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Document\User;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class PersonRepositoryTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class PersonRepositoryTest extends WebTestCase
 {
     private $dm;
     private $repo;
     private $factoryService;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()->get('doctrine_mongodb')->getManager();
@@ -26,17 +30,21 @@ class PersonRepositoryTest extends WebTestCase
 
         //DELETE DATABASE
         $this->dm->getDocumentCollection(MultimediaObject::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Role::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Person::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Series::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -48,14 +56,14 @@ class PersonRepositoryTest extends WebTestCase
 
     public function testRepositoryEmpty()
     {
-        $this->assertEquals(0, count($this->repo->findAll()));
+        static::assertSame(0, \count($this->repo->findAll()));
     }
 
     public function testRepository()
     {
         $person = $this->createNewPerson();
 
-        $this->assertEquals(1, count($this->repo->findAll()));
+        static::assertSame(1, \count($this->repo->findAll()));
     }
 
     public function testUser()
@@ -76,7 +84,7 @@ class PersonRepositoryTest extends WebTestCase
 
         $person = $this->repo->find($person->getId());
 
-        $this->assertEquals($user, $person->getUser());
+        static::assertSame($user, $person->getUser());
     }
 
     public function testFindByRoleCodAndEmail()
@@ -125,15 +133,15 @@ class PersonRepositoryTest extends WebTestCase
         $this->dm->persist($mm4);
         $this->dm->flush();
 
-        $this->assertEquals($person_ned, $this->repo->findByRoleCodAndEmail($role_lord->getCod(), $email_ned));
-        $this->assertEquals($person_mark, $this->repo->findByRoleCodAndEmail($role_lord->getCod(), $email_mark));
-        $this->assertEquals($person_benjen, $this->repo->findByRoleCodAndEmail($role_lord->getCod(), $email_benjen));
-        $this->assertEquals($person_ned, $this->repo->findByRoleCodAndEmail($role_ranger->getCod(), $email_ned));
-        $this->assertEquals($person_mark, $this->repo->findByRoleCodAndEmail($role_ranger->getCod(), $email_mark));
-        $this->assertEquals($person_benjen, $this->repo->findByRoleCodAndEmail($role_ranger->getCod(), $email_benjen));
-        $this->assertEquals($person_ned, $this->repo->findByRoleCodAndEmail($role_hand->getCod(), $email_ned));
-        $this->assertEquals($person_mark, $this->repo->findByRoleCodAndEmail($role_hand->getCod(), $email_mark));
-        $this->assertNull($this->repo->findByRoleCodAndEmail($role_hand->getCod(), $email_benjen));
+        static::assertSame($person_ned, $this->repo->findByRoleCodAndEmail($role_lord->getCod(), $email_ned));
+        static::assertSame($person_mark, $this->repo->findByRoleCodAndEmail($role_lord->getCod(), $email_mark));
+        static::assertSame($person_benjen, $this->repo->findByRoleCodAndEmail($role_lord->getCod(), $email_benjen));
+        static::assertSame($person_ned, $this->repo->findByRoleCodAndEmail($role_ranger->getCod(), $email_ned));
+        static::assertSame($person_mark, $this->repo->findByRoleCodAndEmail($role_ranger->getCod(), $email_mark));
+        static::assertSame($person_benjen, $this->repo->findByRoleCodAndEmail($role_ranger->getCod(), $email_benjen));
+        static::assertSame($person_ned, $this->repo->findByRoleCodAndEmail($role_hand->getCod(), $email_ned));
+        static::assertSame($person_mark, $this->repo->findByRoleCodAndEmail($role_hand->getCod(), $email_mark));
+        static::assertNull($this->repo->findByRoleCodAndEmail($role_hand->getCod(), $email_benjen));
     }
 
     private function createNewPerson($name = 'name', $email = 'email@email.com')
@@ -184,7 +192,7 @@ class PersonRepositoryTest extends WebTestCase
     private function createRole($name)
     {
         $cod = $name; // string (20)
-        $rank = strlen($name); // Quick and dirty way to keep it unique
+        $rank = \strlen($name); // Quick and dirty way to keep it unique
         $xml = '<xml content and definition of this/>';
         $display = true;
         $text = 'Black then white are all i see in my infancy.';

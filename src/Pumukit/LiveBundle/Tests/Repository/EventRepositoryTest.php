@@ -2,29 +2,33 @@
 
 namespace Pumukit\LiveBundle\Tests\Repository;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Pumukit\LiveBundle\Document\Live;
 use Pumukit\LiveBundle\Document\Event;
+use Pumukit\LiveBundle\Document\Live;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class EventRepositoryTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class EventRepositoryTest extends WebTestCase
 {
     private $dm;
     private $repo;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()->get('doctrine_mongodb')->getManager();
         $this->repo = $this->dm->getRepository(Event::class);
 
-        $this->dm->getDocumentCollection(Event::class)->remove(array());
-        $this->dm->getDocumentCollection(Live::class)->remove(array());
+        $this->dm->getDocumentCollection(Event::class)->remove([]);
+        $this->dm->getDocumentCollection(Live::class)->remove([]);
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -61,7 +65,7 @@ class EventRepositoryTest extends WebTestCase
         $this->dm->persist($event);
         $this->dm->flush();
 
-        $this->assertEquals(1, count($this->repo->findAll()));
+        static::assertSame(1, \count($this->repo->findAll()));
     }
 
     public function testFindFutureAndNotFinished()
@@ -119,23 +123,23 @@ class EventRepositoryTest extends WebTestCase
         $this->dm->persist($event4);
         $this->dm->flush();
 
-        $events = array($event4);
-        $this->assertEquals($events, array_values($this->repo->findFutureAndNotFinished(1, $date)->toArray()));
+        $events = [$event4];
+        static::assertSame($events, array_values($this->repo->findFutureAndNotFinished(1, $date)->toArray()));
 
-        $events = array($event4, $event1);
-        $this->assertEquals($events, array_values($this->repo->findFutureAndNotFinished(2, $date)->toArray()));
+        $events = [$event4, $event1];
+        static::assertSame($events, array_values($this->repo->findFutureAndNotFinished(2, $date)->toArray()));
 
-        $events = array($event4, $event1, $event3);
-        $this->assertEquals($events, array_values($this->repo->findFutureAndNotFinished(3, $date)->toArray()));
+        $events = [$event4, $event1, $event3];
+        static::assertSame($events, array_values($this->repo->findFutureAndNotFinished(3, $date)->toArray()));
 
-        $events = array($event4, $event1, $event3, $event2);
-        $this->assertEquals($events, array_values($this->repo->findFutureAndNotFinished(4, $date)->toArray()));
+        $events = [$event4, $event1, $event3, $event2];
+        static::assertSame($events, array_values($this->repo->findFutureAndNotFinished(4, $date)->toArray()));
 
-        $events = array($event1, $event2);
-        $this->assertEquals($events, array_values($this->repo->findFutureAndNotFinished(4, $date, $live1)->toArray()));
+        $events = [$event1, $event2];
+        static::assertSame($events, array_values($this->repo->findFutureAndNotFinished(4, $date, $live1)->toArray()));
 
-        $events = array($event4, $event3);
-        $this->assertEquals($events, array_values($this->repo->findFutureAndNotFinished(4, $date, $live2)->toArray()));
+        $events = [$event4, $event3];
+        static::assertSame($events, array_values($this->repo->findFutureAndNotFinished(4, $date, $live2)->toArray()));
     }
 
     public function testFindByHoursEvent()
@@ -183,72 +187,72 @@ class EventRepositoryTest extends WebTestCase
         $this->dm->persist($event4);
         $this->dm->flush();
 
-        $this->assertEquals($event4, $this->repo->findOneByHoursEvent(3, $date));
+        static::assertSame($event4, $this->repo->findOneByHoursEvent(3, $date));
     }
 
     public function testFindCurrentEvents()
     {
-        $this->assertEquals(0, count($this->repo->findCurrentEvents()));
+        static::assertSame(0, \count($this->repo->findCurrentEvents()));
 
         $this->createEvent('PAST', new \DateTime('-3 minute'), 2);
         $events = $this->repo->findCurrentEvents();
-        $this->assertEquals(0, count($events));
+        static::assertSame(0, \count($events));
 
         $this->createEvent('LONG PAST', new \DateTime('yesterday'), 2);
         $events = $this->repo->findCurrentEvents();
-        $this->assertEquals(0, count($events));
+        static::assertSame(0, \count($events));
 
         $this->createEvent('FUTURE', new \DateTime('+1 minute'), 2);
         $events = $this->repo->findCurrentEvents();
-        $this->assertEquals(0, count($events));
+        static::assertSame(0, \count($events));
 
         $this->createEvent('LONG FUTURE', new \DateTime('tomorrow'), 2);
         $events = $this->repo->findCurrentEvents();
-        $this->assertEquals(0, count($events));
+        static::assertSame(0, \count($events));
 
         $this->createEvent('ONE', new \DateTime('1 minute ago'), 2);
         $events = $this->repo->findCurrentEvents();
-        $this->assertEquals(1, count($events));
-        $this->assertEquals('ONE', $events->getSingleResult()->getName());
+        static::assertSame(1, \count($events));
+        static::assertSame('ONE', $events->getSingleResult()->getName());
 
         $this->createEvent('TWO', new \DateTime('2 minute ago'), 4);
         $events = $this->repo->findCurrentEvents();
-        $this->assertEquals(2, count($events));
+        static::assertSame(2, \count($events));
 
         $this->createEvent('THREE', new \DateTime('3 minute ago'), 6);
         $events = $this->repo->findCurrentEvents();
-        $this->assertEquals(3, count($events));
+        static::assertSame(3, \count($events));
 
         $events = $this->repo->findCurrentEvents(1);
-        $this->assertEquals(1, count($events));
+        static::assertSame(1, \count($events));
     }
 
     public function testFindCurrentEventsWithMargin()
     {
-        $this->assertEquals(0, count($this->repo->findCurrentEvents()));
+        static::assertSame(0, \count($this->repo->findCurrentEvents()));
 
         $this->createEvent('ONE', new \DateTime('+1 minute'), 2);
         $events = $this->repo->findCurrentEvents();
-        $this->assertEquals(0, count($events));
+        static::assertSame(0, \count($events));
 
         $events = $this->repo->findCurrentEvents(null, 2);
-        $this->assertEquals(1, count($events));
+        static::assertSame(1, \count($events));
 
         $events = $this->repo->findCurrentEvents(null, 22);
-        $this->assertEquals(1, count($events));
+        static::assertSame(1, \count($events));
 
         $this->createEvent('ONE', new \DateTime('-2 minute'), 1);
         $events = $this->repo->findCurrentEvents();
-        $this->assertEquals(0, count($events));
+        static::assertSame(0, \count($events));
 
         $events = $this->repo->findCurrentEvents(null, 0, 1);
-        $this->assertEquals(1, count($events));
+        static::assertSame(1, \count($events));
 
         $events = $this->repo->findCurrentEvents(null, 0, 11);
-        $this->assertEquals(1, count($events));
+        static::assertSame(1, \count($events));
 
         $events = $this->repo->findCurrentEvents(null, 2, 1);
-        $this->assertEquals(2, count($events));
+        static::assertSame(2, \count($events));
     }
 
     private function createEvent($name, $datetime, $duration)

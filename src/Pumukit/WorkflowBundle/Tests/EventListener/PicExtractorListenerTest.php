@@ -2,14 +2,18 @@
 
 namespace Pumukit\WorkflowBundle\Tests\EventListener;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Pumukit\SchemaBundle\Document\Track;
-use Pumukit\SchemaBundle\Document\Pic;
-use Pumukit\WorkflowBundle\EventListener\PicExtractorListener;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Pic;
 use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Document\Track;
+use Pumukit\WorkflowBundle\EventListener\PicExtractorListener;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class PicExtractorListenerTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class PicExtractorListenerTest extends WebTestCase
 {
     private $dm;
     private $repo;
@@ -21,9 +25,9 @@ class PicExtractorListenerTest extends WebTestCase
     private $picExtractorService;
     private $autoExtractPic = true;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()->get('doctrine_mongodb')->getManager();
@@ -35,25 +39,31 @@ class PicExtractorListenerTest extends WebTestCase
         $this->picExtractorService = static::$kernel->getContainer()->get('pumukitencoder.picextractor');
 
         $this->dm->getDocumentCollection(MultimediaObject::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Series::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $mmsPicService = $this->getMockBuilder('Pumukit\SchemaBundle\Services\MultimediaObjectPicService')
             ->disableOriginalConstructor()
-            ->getMock();
-        $mmsPicService->expects($this->any())
+            ->getMock()
+        ;
+        $mmsPicService->expects(static::any())
             ->method('addPicFile')
-            ->will($this->returnValue('multimedia object'));
+            ->willReturn('multimedia object')
+        ;
         $picExtractorService = $this->getMockBuilder('Pumukit\EncoderBundle\Services\PicExtractorService')
             ->disableOriginalConstructor()
-            ->getMock();
-        $picExtractorService->expects($this->any())
+            ->getMock()
+        ;
+        $picExtractorService->expects(static::any())
             ->method('extractPic')
-            ->will($this->returnValue('success'));
+            ->willReturn('success')
+        ;
         $this->picExtractorListener = new PicExtractorListener($this->dm, $mmsPicService, $picExtractorService, $this->logger, $this->autoExtractPic);
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -85,9 +95,9 @@ class PicExtractorListenerTest extends WebTestCase
         $this->dm->persist($mm);
         $this->dm->flush();
 
-        $this->assertTrue($mm->getPics()->isEmpty());
-        $this->assertEquals(0, count($mm->getPics()->toArray()));
-        $this->assertTrue($this->invokeMethod($this->picExtractorListener, 'generatePic', array($mm, $track)));
+        static::assertTrue($mm->getPics()->isEmpty());
+        static::assertSame(0, \count($mm->getPics()->toArray()));
+        static::assertTrue($this->invokeMethod($this->picExtractorListener, 'generatePic', [$mm, $track]));
 
         $pic = new Pic();
         $mm->addPic($pic);
@@ -95,14 +105,14 @@ class PicExtractorListenerTest extends WebTestCase
         $this->dm->persist($mm);
         $this->dm->flush();
 
-        $this->assertFalse($mm->getPics()->isEmpty());
-        $this->assertEquals(1, count($mm->getPics()->toArray()));
-        $this->assertFalse($this->invokeMethod($this->picExtractorListener, 'generatePic', array($mm, $track)));
+        static::assertFalse($mm->getPics()->isEmpty());
+        static::assertSame(1, \count($mm->getPics()->toArray()));
+        static::assertFalse($this->invokeMethod($this->picExtractorListener, 'generatePic', [$mm, $track]));
     }
 
     public function testAddDefaultAudioPic()
     {
-        $this->markTestSkipped('S');
+        static::markTestSkipped('S');
 
         $series = $this->factoryService->createSeries();
         $mm = $this->factoryService->createMultimediaObject($series);
@@ -119,10 +129,10 @@ class PicExtractorListenerTest extends WebTestCase
         $this->dm->persist($mm);
         $this->dm->flush();
 
-        $this->assertTrue($mm->getPics()->isEmpty());
-        $this->assertEquals(0, count($mm->getPics()->toArray()));
+        static::assertTrue($mm->getPics()->isEmpty());
+        static::assertSame(0, \count($mm->getPics()->toArray()));
 
-        $this->assertTrue($this->invokeMethod($this->picExtractorListener, 'generatePic', array($mm, $track)));
+        static::assertTrue($this->invokeMethod($this->picExtractorListener, 'generatePic', [$mm, $track]));
 
         $pic = new Pic();
         $mm->addPic($pic);
@@ -130,25 +140,29 @@ class PicExtractorListenerTest extends WebTestCase
         $this->dm->persist($mm);
         $this->dm->flush();
 
-        $this->assertFalse($mm->getPics()->isEmpty());
-        $this->assertEquals(1, count($mm->getPics()->toArray()));
-        $this->assertFalse($this->invokeMethod($this->picExtractorListener, 'generatePic', array($mm, $track)));
+        static::assertFalse($mm->getPics()->isEmpty());
+        static::assertSame(1, \count($mm->getPics()->toArray()));
+        static::assertFalse($this->invokeMethod($this->picExtractorListener, 'generatePic', [$mm, $track]));
     }
 
     public function testPicExtractorVideoError()
     {
         $mmsPicService = $this->getMockBuilder('Pumukit\SchemaBundle\Services\MultimediaObjectPicService')
             ->disableOriginalConstructor()
-            ->getMock();
-        $mmsPicService->expects($this->any())
+            ->getMock()
+        ;
+        $mmsPicService->expects(static::any())
             ->method('addPicFile')
-            ->will($this->returnValue('multimedia object'));
+            ->willReturn('multimedia object')
+        ;
         $picExtractorService = $this->getMockBuilder('Pumukit\EncoderBundle\Services\PicExtractorService')
             ->disableOriginalConstructor()
-            ->getMock();
-        $picExtractorService->expects($this->any())
+            ->getMock()
+        ;
+        $picExtractorService->expects(static::any())
             ->method('extractPic')
-            ->will($this->returnValue('Error'));
+            ->willReturn('Error')
+        ;
         $picExtractorListener = new PicExtractorListener($this->dm, $mmsPicService, $picExtractorService, $this->logger, $this->autoExtractPic);
 
         $series = $this->factoryService->createSeries();
@@ -166,27 +180,31 @@ class PicExtractorListenerTest extends WebTestCase
         $this->dm->persist($mm);
         $this->dm->flush();
 
-        $this->assertTrue($mm->getPics()->isEmpty());
-        $this->assertEquals(0, count($mm->getPics()->toArray()));
-        $this->assertFalse($this->invokeMethod($picExtractorListener, 'generatePic', array($mm, $track)));
+        static::assertTrue($mm->getPics()->isEmpty());
+        static::assertSame(0, \count($mm->getPics()->toArray()));
+        static::assertFalse($this->invokeMethod($picExtractorListener, 'generatePic', [$mm, $track]));
     }
 
     public function testPicExtractorAudioError()
     {
-        $this->markTestSkipped('S');
+        static::markTestSkipped('S');
 
         $mmsPicService = $this->getMockBuilder('Pumukit\SchemaBundle\Services\MultimediaObjectPicService')
             ->disableOriginalConstructor()
-            ->getMock();
-        $mmsPicService->expects($this->any())
+            ->getMock()
+        ;
+        $mmsPicService->expects(static::any())
             ->method('addPicFile')
-            ->will($this->returnValue(null));
+            ->willReturn(null)
+        ;
         $picExtractorService = $this->getMockBuilder('Pumukit\EncoderBundle\Services\PicExtractorService')
             ->disableOriginalConstructor()
-            ->getMock();
-        $picExtractorService->expects($this->any())
+            ->getMock()
+        ;
+        $picExtractorService->expects(static::any())
             ->method('extractPic')
-            ->will($this->returnValue('success'));
+            ->willReturn('success')
+        ;
         $picExtractorListener = new PicExtractorListener($this->dm, $mmsPicService, $picExtractorService, $this->logger, $this->autoExtractPic);
 
         $series = $this->factoryService->createSeries();
@@ -204,14 +222,14 @@ class PicExtractorListenerTest extends WebTestCase
         $this->dm->persist($mm);
         $this->dm->flush();
 
-        $this->assertTrue($mm->getPics()->isEmpty());
-        $this->assertEquals(0, count($mm->getPics()->toArray()));
-        $this->assertFalse($this->invokeMethod($picExtractorListener, 'generatePic', array($mm, $track)));
+        static::assertTrue($mm->getPics()->isEmpty());
+        static::assertSame(0, \count($mm->getPics()->toArray()));
+        static::assertFalse($this->invokeMethod($picExtractorListener, 'generatePic', [$mm, $track]));
     }
 
-    private function invokeMethod(&$object, $methodName, array $parameters = array())
+    private function invokeMethod(&$object, $methodName, array $parameters = [])
     {
-        $reflection = new \ReflectionClass(get_class($object));
+        $reflection = new \ReflectionClass(\get_class($object));
         $method = $reflection->getMethod($methodName);
         $method->setAccessible(true);
 

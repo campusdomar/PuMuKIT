@@ -2,14 +2,14 @@
 
 namespace Pumukit\BasePlayerBundle\Controller;
 
-use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\SchemaBundle\Document\Track;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
 use Pumukit\BasePlayerBundle\Event\BasePlayerEvents;
 use Pumukit\BasePlayerBundle\Event\ViewedEvent;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Track;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 abstract class BasePlayerController extends Controller
 {
@@ -46,6 +46,8 @@ abstract class BasePlayerController extends Controller
     /**
      * @deprecated Will be removed in version 2.5.x
      *             Use lines in this function instead
+     *
+     * @param mixed $queryIntro
      */
     protected function getIntro($queryIntro = false)
     {

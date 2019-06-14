@@ -13,6 +13,7 @@ class UserAgentParserService
      * This function is used in PuMuKIT ONLY for the player opencast template (to show a warning if it's 'old'. This can be better solved using a script to check for feature support).
      *
      * @param string
+     * @param mixed $userAgent
      *
      * @return bool
      */
@@ -21,7 +22,7 @@ class UserAgentParserService
         $isOldBrowser = false;
         $webExplorer = $this->getWebExplorer($userAgent);
         $version = $this->getVersion($userAgent, $webExplorer);
-        if (('IE' == $webExplorer) || ('MSIE' == $webExplorer) || 'Firefox' == $webExplorer || 'Opera' == $webExplorer || ('Safari' == $webExplorer && $version < 4)) {
+        if (('IE' === $webExplorer) || ('MSIE' === $webExplorer) || 'Firefox' === $webExplorer || 'Opera' === $webExplorer || ('Safari' === $webExplorer && $version < 4)) {
             $isOldBrowser = true;
         }
 
@@ -34,6 +35,7 @@ class UserAgentParserService
      * Only works for MSIE, Opera, Firefox, Safari and Chrome. Add more strings if needed.
      *
      * @param string
+     * @param mixed $userAgent
      *
      * @return string
      */
@@ -65,6 +67,8 @@ class UserAgentParserService
      *
      * @param string
      * @param string
+     * @param mixed $userAgent
+     * @param mixed $webExplorer
      *
      * @return string
      */
@@ -75,7 +79,7 @@ class UserAgentParserService
         if ('Opera' !== $webExplorer && preg_match('#('.$webExplorer.')[/ ]?([0-9.]*)#', $userAgent, $match)) {
             $version = floor($match[2]);
         }
-        if (('Opera' == $webExplorer || 'Safari' == $webExplorer) && preg_match('#(Version)[/ ]?([0-9.]*)#', $userAgent, $match)) {
+        if (('Opera' === $webExplorer || 'Safari' === $webExplorer) && preg_match('#(Version)[/ ]?([0-9.]*)#', $userAgent, $match)) {
             $version = floor($match[2]);
         }
 

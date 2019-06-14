@@ -3,13 +3,17 @@
 namespace Pumukit\NewAdminBundle\Tests\Services;
 
 use Pumukit\SchemaBundle\Document\Group;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Person;
 use Pumukit\SchemaBundle\Document\Role;
 use Pumukit\SchemaBundle\Document\Tag;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 
-class MultimediaObjectSyncServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class MultimediaObjectSyncServiceTest extends WebTestCase
 {
     private $dm;
     private $mmobjRepo;
@@ -18,9 +22,9 @@ class MultimediaObjectSyncServiceTest extends WebTestCase
     private $tagService;
     private $syncService;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()->get('doctrine_mongodb')->getManager();
@@ -31,13 +35,13 @@ class MultimediaObjectSyncServiceTest extends WebTestCase
         $this->tagService = static::$kernel->getContainer()->get('pumukitschema.tag');
         $this->factoryService = static::$kernel->getContainer()->get('pumukitschema.factory');
 
-        $this->dm->getDocumentCollection(MultimediaObject::class)->remove(array());
-        $this->dm->getDocumentCollection(Role::class)->remove(array());
-        $this->dm->getDocumentCollection(Tag::class)->remove(array());
+        $this->dm->getDocumentCollection(MultimediaObject::class)->remove([]);
+        $this->dm->getDocumentCollection(Role::class)->remove([]);
+        $this->dm->getDocumentCollection(Tag::class)->remove([]);
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->mmobjRepo = null;
@@ -59,27 +63,27 @@ class MultimediaObjectSyncServiceTest extends WebTestCase
         $multimediaObject = $this->factoryService->createMultimediaObject($series);
         $multimediaObject->setComments('Comments');
         $multimediaObject->setCopyright('Copyright');
-        $i18nDescription = array('es' => 'descripción', 'en' => 'description');
+        $i18nDescription = ['es' => 'descripción', 'en' => 'description'];
         $multimediaObject->setI18nDescription($i18nDescription);
-        $i18nLine2 = array('es' => 'line 2 es', 'en' => 'line 2 en');
+        $i18nLine2 = ['es' => 'line 2 es', 'en' => 'line 2 en'];
         $multimediaObject->setI18nLine2($i18nLine2);
-        $i18nKeywords = array('es' => array('a', 'b'), 'en' => array('c', 'd'));
+        $i18nKeywords = ['es' => ['a', 'b'], 'en' => ['c', 'd']];
         $multimediaObject->setI18nKeywords($i18nKeywords);
         $multimediaObject->setLicense('Licencia');
         $multimediaObject->setPublicDate($date);
         $multimediaObject->setRecordDate($date);
-        $i18nSubseries = array('es' => 'subserie', 'en' => 'subseries');
+        $i18nSubseries = ['es' => 'subserie', 'en' => 'subseries'];
         $multimediaObject->setProperty('subseriestitle', $i18nSubseries);
         $multimediaObject->setProperty('subseries', true);
 
-        /* Add group */
+        // Add group
         $group = new Group();
         $group->setKey('key');
         $group->setName('name');
         $this->dm->persist($group);
         $multimediaObject->addGroup($group);
 
-        /* Add person with role */
+        // Add person with role
         $person = new Person();
         $person->setName('person test');
         $person->setEmail('person@mail.com');
@@ -104,7 +108,7 @@ class MultimediaObjectSyncServiceTest extends WebTestCase
         $multimediaObject->addPersonWithRole($person, $role);
         $multimediaObject->addPersonWithRole($person, $roleAuthor);
 
-        /* Add publishing decision */
+        // Add publishing decision
         $tag = new Tag();
         $tag->setCod('PUBDECISIONS');
         $tag->setMetatag(true);
@@ -120,7 +124,7 @@ class MultimediaObjectSyncServiceTest extends WebTestCase
         $tag2->setParent($tag);
         $this->dm->persist($tag2);
 
-        /* Add unesco tag */
+        // Add unesco tag
         $tagUNESCO = new Tag();
         $tagUNESCO->setCod('UNESCO');
         $tagUNESCO->setMetatag(true);
@@ -150,38 +154,38 @@ class MultimediaObjectSyncServiceTest extends WebTestCase
 
         $syncFieldTag = 'metadata_tag_'.$tag3->getId();
         $syncFieldRole = 'metadata_role_'.$roleAuthor->getId();
-        $syncFields = array(
-              'metadata_comments_all' => 'on',
-              'metadata_copyright_all' => 'on',
-              'metadata_description_all' => 'on',
-              'metadata_groups_all' => 'on',
-              'metadata_headline_all' => 'on',
-              'metadata_keywords_all' => 'on',
-              'metadata_license_all' => 'on',
-              'metadata_owners_all' => 'on',
-              'metadata_publicdate_all' => 'on',
-              'metadata_publishingdecisions_all' => 'on',
-              'metadata_recorddate_all' => 'on',
-              'metadata_subseries_all' => 'on',
-                $syncFieldTag => 'on',
-                $syncFieldRole => 'on',
-        );
+        $syncFields = [
+            'metadata_comments_all' => 'on',
+            'metadata_copyright_all' => 'on',
+            'metadata_description_all' => 'on',
+            'metadata_groups_all' => 'on',
+            'metadata_headline_all' => 'on',
+            'metadata_keywords_all' => 'on',
+            'metadata_license_all' => 'on',
+            'metadata_owners_all' => 'on',
+            'metadata_publicdate_all' => 'on',
+            'metadata_publishingdecisions_all' => 'on',
+            'metadata_recorddate_all' => 'on',
+            'metadata_subseries_all' => 'on',
+            $syncFieldTag => 'on',
+            $syncFieldRole => 'on',
+        ];
 
-        $this->syncService->syncMetadata(array($multimediaObject2), $multimediaObject, $syncFields);
+        $this->syncService->syncMetadata([$multimediaObject2], $multimediaObject, $syncFields);
 
-        $this->assertEquals($multimediaObject->getComments(), $multimediaObject2->getComments());
-        $this->assertEquals($multimediaObject->getCopyright(), $multimediaObject2->getCopyright());
-        $this->assertEquals($multimediaObject->getI18nDescription(), $multimediaObject2->getI18nDescription());
-        $this->assertEquals($multimediaObject->getI18nLine2(), $multimediaObject2->getI18nLine2());
-        $this->assertEquals($multimediaObject->getI18nKeywords(), $multimediaObject2->getI18nKeywords());
-        $this->assertEquals($multimediaObject->getLicense(), $multimediaObject2->getLicense());
-        $this->assertEquals($multimediaObject->getEmbeddedRole($role), $multimediaObject2->getEmbeddedRole($role));
-        $this->assertEquals($multimediaObject->getPublicDate(), $multimediaObject2->getPublicDate());
-        $this->assertEquals($multimediaObject->getRecordDate(), $multimediaObject2->getRecordDate());
-        $this->assertEquals($multimediaObject->containsTag($tag2), $multimediaObject2->containsTag($tag2));
-        $this->assertEquals($multimediaObject->getProperty('subseriestitle'), $multimediaObject2->getProperty('subseriestitle'));
-        $this->assertEquals($multimediaObject->getProperty('subseries'), $multimediaObject2->getProperty('subseries'));
-        $this->assertEquals($multimediaObject->getEmbeddedRole($roleAuthor), $multimediaObject2->getEmbeddedRole($roleAuthor));
-        $this->assertEquals($multimediaObject->containsTag($tag3), $multimediaObject2->containsTag($tag3));
+        static::assertSame($multimediaObject->getComments(), $multimediaObject2->getComments());
+        static::assertSame($multimediaObject->getCopyright(), $multimediaObject2->getCopyright());
+        static::assertSame($multimediaObject->getI18nDescription(), $multimediaObject2->getI18nDescription());
+        static::assertSame($multimediaObject->getI18nLine2(), $multimediaObject2->getI18nLine2());
+        static::assertSame($multimediaObject->getI18nKeywords(), $multimediaObject2->getI18nKeywords());
+        static::assertSame($multimediaObject->getLicense(), $multimediaObject2->getLicense());
+        static::assertSame($multimediaObject->getEmbeddedRole($role), $multimediaObject2->getEmbeddedRole($role));
+        static::assertSame($multimediaObject->getPublicDate(), $multimediaObject2->getPublicDate());
+        static::assertSame($multimediaObject->getRecordDate(), $multimediaObject2->getRecordDate());
+        static::assertSame($multimediaObject->containsTag($tag2), $multimediaObject2->containsTag($tag2));
+        static::assertSame($multimediaObject->getProperty('subseriestitle'), $multimediaObject2->getProperty('subseriestitle'));
+        static::assertSame($multimediaObject->getProperty('subseries'), $multimediaObject2->getProperty('subseries'));
+        static::assertSame($multimediaObject->getEmbeddedRole($roleAuthor), $multimediaObject2->getEmbeddedRole($roleAuthor));
+        static::assertSame($multimediaObject->containsTag($tag3), $multimediaObject2->containsTag($tag3));
     }
 }

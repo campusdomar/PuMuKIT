@@ -2,14 +2,14 @@
 
 namespace Pumukit\NewAdminBundle\Controller;
 
+use Pumukit\SchemaBundle\Document\Series;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Pumukit\SchemaBundle\Document\Series;
 
 /**
  * @Security("is_granted('ROLE_ACCESS_DASHBOARD')")
@@ -23,7 +23,7 @@ class DashboardController extends Controller implements NewAdminControllerInterf
      */
     public function indexAction(Request $request)
     {
-        $data = array('stats' => false);
+        $data = ['stats' => false];
         if ($request->get('show_stats')) {
             $dm = $this->get('doctrine_mongodb');
 
@@ -69,11 +69,11 @@ class DashboardController extends Controller implements NewAdminControllerInterf
 
         foreach ($series as $s) {
             $XMLSeries = $XML->addChild('event', htmlspecialchars($s->getTitle()));
-            $XMLSeries->addAttribute('start', $s->getPublicDate()->format("M j Y H:i:s \G\M\TP"));
+            $XMLSeries->addAttribute('start', $s->getPublicDate()->format('M j Y H:i:s \\G\\M\\TP'));
             $XMLSeries->addAttribute('title', $s->getTitle());
-            $XMLSeries->addAttribute('link', $this->get('router')->generate('pumukit_webtv_series_index', array('id' => $s->getId()), UrlGeneratorInterface::ABSOLUTE_URL));
+            $XMLSeries->addAttribute('link', $this->get('router')->generate('pumukit_webtv_series_index', ['id' => $s->getId()], UrlGeneratorInterface::ABSOLUTE_URL));
         }
 
-        return new Response($XML->asXML(), 200, array('Content-Type' => 'text/xml'));
+        return new Response($XML->asXML(), 200, ['Content-Type' => 'text/xml']);
     }
 }

@@ -2,13 +2,13 @@
 
 namespace Pumukit\WebTVBundle\Controller;
 
+use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
 
 /**
  * Class MultimediaObjectController.
@@ -74,8 +74,9 @@ class MultimediaObjectController extends PlayerController implements WebTVContro
             if ($mmobjService->hasPlayableResource($multimediaObject) && $multimediaObject->isPublicEmbeddedBroadcast()) {
                 return $this->redirect($this->generateUrl('pumukit_webtv_multimediaobject_index', ['id' => $multimediaObject->getId()]));
             }
-        } elseif ((MultimediaObject::STATUS_PUBLISHED != $multimediaObject->getStatus()
-                && MultimediaObject::STATUS_HIDDEN != $multimediaObject->getStatus()
+        } elseif ((
+            MultimediaObject::STATUS_PUBLISHED !== $multimediaObject->getStatus()
+                && MultimediaObject::STATUS_HIDDEN !== $multimediaObject->getStatus()
             )
             || !$multimediaObject->containsTagWithCod('PUCHWEBTV')) {
             return $this->render('PumukitWebTVBundle:Index:404notfound.html.twig');
@@ -136,7 +137,8 @@ class MultimediaObjectController extends PlayerController implements WebTVContro
 
         $mmobjRepo = $this
             ->get('doctrine_mongodb.odm.document_manager')
-            ->getRepository(MultimediaObject::class);
+            ->getRepository(MultimediaObject::class)
+        ;
 
         $limit = $this->container->getParameter('limit_objs_player_series');
 
@@ -177,7 +179,8 @@ class MultimediaObjectController extends PlayerController implements WebTVContro
     {
         $mmobjRepo = $this
             ->get('doctrine_mongodb.odm.document_manager')
-            ->getRepository(MultimediaObject::class);
+            ->getRepository(MultimediaObject::class)
+        ;
         $relatedMms = $mmobjRepo->findRelatedMultimediaObjects($multimediaObject);
 
         return ['multimediaObjects' => $relatedMms];

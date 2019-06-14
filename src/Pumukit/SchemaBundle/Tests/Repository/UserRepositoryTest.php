@@ -2,22 +2,26 @@
 
 namespace Pumukit\SchemaBundle\Tests\Repository;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Pumukit\SchemaBundle\Document\Person;
-use Pumukit\SchemaBundle\Document\PermissionProfile;
-use Pumukit\SchemaBundle\Document\User;
 use Pumukit\SchemaBundle\Document\Group;
+use Pumukit\SchemaBundle\Document\PermissionProfile;
+use Pumukit\SchemaBundle\Document\Person;
+use Pumukit\SchemaBundle\Document\User;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class UserRepositoryTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class UserRepositoryTest extends WebTestCase
 {
     private $dm;
     private $repo;
     private $groupRepo;
     private $factoryService;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()->get('doctrine_mongodb')->getManager();
@@ -27,17 +31,21 @@ class UserRepositoryTest extends WebTestCase
 
         //DELETE DATABASE
         $this->dm->getDocumentCollection(Person::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(PermissionProfile::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(User::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Group::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -49,7 +57,7 @@ class UserRepositoryTest extends WebTestCase
 
     public function testRepositoryEmpty()
     {
-        $this->assertEquals(0, count($this->repo->findAll()));
+        static::assertSame(0, \count($this->repo->findAll()));
     }
 
     public function testRepository()
@@ -62,7 +70,7 @@ class UserRepositoryTest extends WebTestCase
         $this->dm->persist($user);
         $this->dm->flush();
 
-        $this->assertEquals(1, count($this->repo->findAll()));
+        static::assertSame(1, \count($this->repo->findAll()));
     }
 
     public function testPerson()
@@ -83,7 +91,7 @@ class UserRepositoryTest extends WebTestCase
 
         $user = $this->repo->find($user->getId());
 
-        $this->assertEquals($person, $user->getPerson());
+        static::assertSame($person, $user->getPerson());
     }
 
     public function testPermissionProfile()
@@ -103,24 +111,24 @@ class UserRepositoryTest extends WebTestCase
 
         $user = $this->repo->find($user->getId());
 
-        $this->assertEquals($permissionProfile, $user->getPermissionProfile());
+        static::assertSame($permissionProfile, $user->getPermissionProfile());
     }
 
     public function testUserGroups()
     {
-        $this->assertEquals(0, count($this->groupRepo->findAll()));
+        static::assertSame(0, \count($this->groupRepo->findAll()));
 
         $key1 = 'Group1';
         $name1 = 'Group 1';
         $group1 = $this->createGroup($key1, $name1);
 
-        $this->assertEquals(1, count($this->groupRepo->findAll()));
+        static::assertSame(1, \count($this->groupRepo->findAll()));
 
         $key2 = 'Group2';
         $name2 = 'Group 2';
         $group2 = $this->createGroup($key2, $name2);
 
-        $this->assertEquals(2, count($this->groupRepo->findAll()));
+        static::assertSame(2, \count($this->groupRepo->findAll()));
 
         $user = new User();
         $user->setEmail('testgroup@mail.com');
@@ -130,29 +138,29 @@ class UserRepositoryTest extends WebTestCase
         $this->dm->persist($user);
         $this->dm->flush();
 
-        $this->assertTrue($user->containsGroup($group1));
-        $this->assertFalse($user->containsGroup($group2));
-        $this->assertEquals(1, $user->getGroups()->count());
+        static::assertTrue($user->containsGroup($group1));
+        static::assertFalse($user->containsGroup($group2));
+        static::assertSame(1, $user->getGroups()->count());
 
         $user->addGroup($group2);
 
         $this->dm->persist($user);
         $this->dm->flush();
 
-        $this->assertTrue($user->containsGroup($group1));
-        $this->assertTrue($user->containsGroup($group2));
-        $this->assertEquals(2, $user->getGroups()->count());
+        static::assertTrue($user->containsGroup($group1));
+        static::assertTrue($user->containsGroup($group2));
+        static::assertSame(2, $user->getGroups()->count());
 
         $user->removeGroup($group1);
 
         $this->dm->persist($user);
         $this->dm->flush();
 
-        $this->assertFalse($user->containsGroup($group1));
-        $this->assertTrue($user->containsGroup($group2));
-        $this->assertEquals(1, $user->getGroups()->count());
+        static::assertFalse($user->containsGroup($group1));
+        static::assertTrue($user->containsGroup($group2));
+        static::assertSame(1, $user->getGroups()->count());
 
-        $this->assertEquals(2, count($this->groupRepo->findAll()));
+        static::assertSame(2, \count($this->groupRepo->findAll()));
     }
 
     public function testGetGroupsIds()
@@ -172,21 +180,21 @@ class UserRepositoryTest extends WebTestCase
         $this->dm->persist($user);
         $this->dm->flush();
 
-        $this->assertEquals(0, count($user->getGroupsIds()));
+        static::assertSame(0, \count($user->getGroupsIds()));
 
         $user->addGroup($group1);
 
         $this->dm->persist($user);
         $this->dm->flush();
 
-        $this->assertEquals(1, count($user->getGroupsIds()));
+        static::assertSame(1, \count($user->getGroupsIds()));
 
         $user->addGroup($group2);
 
         $this->dm->persist($user);
         $this->dm->flush();
 
-        $this->assertEquals(2, count($user->getGroupsIds()));
+        static::assertSame(2, \count($user->getGroupsIds()));
     }
 
     private function createGroup($key = 'Group1', $name = 'Group 1')

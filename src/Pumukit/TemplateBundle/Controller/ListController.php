@@ -2,11 +2,11 @@
 
 namespace Pumukit\TemplateBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
+use Pumukit\TemplateBundle\Document\Template as PumukitTemplate;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Pumukit\TemplateBundle\Document\Template as PumukitTemplate;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 class ListController extends Controller
 {
@@ -20,8 +20,8 @@ class ListController extends Controller
             throw $this->createNotFoundException('Page not found!');
         }
 
-        $this->get('pumukit_web_tv.breadcrumbs')->addList($template->getName(), 'pumukit_webtv_index_index', array(), true);
+        $this->get('pumukit_web_tv.breadcrumbs')->addList($template->getName(), 'pumukit_webtv_index_index', [], true);
 
-        return array('template' => $template);
+        return ['template' => $template];
     }
 }

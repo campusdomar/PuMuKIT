@@ -57,28 +57,28 @@ class EmbeddedPerson
      *
      * @MongoDB\Field(type="raw")
      */
-    protected $honorific = array('en' => '');
+    protected $honorific = ['en' => ''];
 
     /**
      * @var string
      *
      * @MongoDB\Field(type="raw")
      */
-    protected $firm = array('en' => '');
+    protected $firm = ['en' => ''];
 
     /**
      * @var string
      *
      * @MongoDB\Field(type="raw")
      */
-    protected $post = array('en' => '');
+    protected $post = ['en' => ''];
 
     /**
      * @var string
      *
      * @MongoDB\Field(type="raw")
      */
-    protected $bio = array('en' => '');
+    protected $bio = ['en' => ''];
 
     /**
      * Locale.
@@ -103,6 +103,14 @@ class EmbeddedPerson
             $this->setI18nPost($person->getI18nPost());
             $this->setI18nBio($person->getI18nBio());
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getName();
     }
 
     /**
@@ -199,7 +207,7 @@ class EmbeddedPerson
      * Set honorific.
      *
      * @param string      $honorific
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setHonorific($honorific, $locale = null)
     {
@@ -212,7 +220,7 @@ class EmbeddedPerson
     /**
      * Get honorific.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -248,7 +256,7 @@ class EmbeddedPerson
      * Set firm.
      *
      * @param string      $firm
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setFirm($firm, $locale = null)
     {
@@ -261,7 +269,7 @@ class EmbeddedPerson
     /**
      * Get firm.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -297,7 +305,7 @@ class EmbeddedPerson
      * Set post.
      *
      * @param string      $post
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setPost($post, $locale = null)
     {
@@ -310,7 +318,7 @@ class EmbeddedPerson
     /**
      * Get post.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -346,7 +354,7 @@ class EmbeddedPerson
      * Set bio.
      *
      * @param string      $bio
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setBio($bio, $locale = null)
     {
@@ -359,7 +367,7 @@ class EmbeddedPerson
     /**
      * Get bio.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -449,20 +457,12 @@ class EmbeddedPerson
     public function getInfo($withBio = true)
     {
         $aux = $withBio ?
-             array($this->getPost(), $this->getFirm(), $this->getBio()) :
-             array($this->getPost(), $this->getFirm());
+             [$this->getPost(), $this->getFirm(), $this->getBio()] :
+             [$this->getPost(), $this->getFirm()];
         $aux = array_filter($aux, function ($a) {
-            return !is_null($a) && ('' != $a);
+            return null !== $a && ('' !== $a);
         });
 
         return implode(', ', $aux);
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->getName();
     }
 }

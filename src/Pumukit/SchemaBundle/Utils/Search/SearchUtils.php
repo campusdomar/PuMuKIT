@@ -7,39 +7,39 @@ namespace Pumukit\SchemaBundle\Utils\Search;
  */
 class SearchUtils
 {
-    private static $cleanTildes = array(
+    private static $cleanTildes = [
         'á',
         'é',
         'í',
         'ó',
         'ú',
         'ü',
-    );
+    ];
 
-    private static $cleanTildesReplace = array(
+    private static $cleanTildesReplace = [
         'a',
         'e',
         'i',
         'o',
         'u',
         'u',
-    );
+    ];
 
-    private static $mapping = array(
+    private static $mapping = [
         'a',
         'e',
         'i',
         'o',
         'u',
-    );
+    ];
 
-    private static $specialCharacter = array(
+    private static $specialCharacter = [
         '[aá]',
         '[eé]',
         '[ií]',
         '[oó]',
         '[uúü]',
-    );
+    ];
 
     private static $delimiter = ' ';
     private static $glue = '|';
@@ -56,7 +56,7 @@ class SearchUtils
         $elements = str_getcsv(preg_quote($string), self::$delimiter);
 
         if (self::$maxTokens > 0) {
-            $elements = array_slice($elements, 0, self::$maxTokens);
+            $elements = \array_slice($elements, 0, self::$maxTokens);
         }
 
         $elements = array_filter($elements, 'self::filterStopWords');
@@ -74,7 +74,7 @@ class SearchUtils
      */
     public static function filterStopWords($element)
     {
-        if (strlen($element) > self::$filterSizeStopWords) {
+        if (\strlen($element) > self::$filterSizeStopWords) {
             return true;
         }
 
@@ -102,8 +102,6 @@ class SearchUtils
     {
         $regexString = implode($regexString, self::$glue);
 
-        $regexString = '/('.$regexString.')/i';
-
-        return $regexString;
+        return '/('.$regexString.')/i';
     }
 }

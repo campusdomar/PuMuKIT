@@ -2,14 +2,18 @@
 
 namespace Pumukit\SchemaBundle\Tests\Document;
 
-use Pumukit\SchemaBundle\Document\Element;
 use PHPUnit\Framework\TestCase;
+use Pumukit\SchemaBundle\Document\Element;
 
-class ElementTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class ElementTest extends TestCase
 {
     public function testGetterAndSetter()
     {
-        $tags = array('tag_a', 'tag_b');
+        $tags = ['tag_a', 'tag_b'];
         $locale = 'en';
         $url = '/mnt/video/123/23435.mp4';
         $path = '/mnt/video/123/23435.mp4';
@@ -27,23 +31,23 @@ class ElementTest extends TestCase
         $element->setHide($hide);
         $element->setDescription($description);
 
-        $this->assertEquals($tags, $element->getTags());
-        $this->assertEquals($locale, $element->getLocale());
-        $this->assertEquals($url, $element->getUrl());
-        $this->assertEquals($path, $element->getPath());
-        $this->assertEquals($mime, $element->getMimeType());
-        $this->assertFalse($hide, $element->getHide());
-        $this->assertEquals($description, $element->getDescription());
+        static::assertSame($tags, $element->getTags());
+        static::assertSame($locale, $element->getLocale());
+        static::assertSame($url, $element->getUrl());
+        static::assertSame($path, $element->getPath());
+        static::assertSame($mime, $element->getMimeType());
+        static::assertFalse($hide, $element->getHide());
+        static::assertSame($description, $element->getDescription());
 
         $description = null;
         $element->setDescription($description);
-        $this->assertEquals($description, $element->getDescription());
+        static::assertSame($description, $element->getDescription());
 
         $description = 'description';
         $descriptionEs = 'descripción';
-        $descriptionI18n = array($locale => $description, $localeEs => $descriptionEs);
+        $descriptionI18n = [$locale => $description, $localeEs => $descriptionEs];
         $element->setI18nDescription($descriptionI18n);
-        $this->assertEquals($descriptionI18n, $element->getI18nDescription());
+        static::assertSame($descriptionI18n, $element->getI18nDescription());
     }
 
     public function testMaxSize()
@@ -52,37 +56,37 @@ class ElementTest extends TestCase
 
         $element = new Element();
         $element->setSize($size);
-        $this->assertEquals($size, $element->getSize());
+        static::assertSame($size, $element->getSize());
     }
 
     public function testTagCollection()
     {
         $element = new Element();
-        $this->assertFalse($element->containsTag('t'));
+        static::assertFalse($element->containsTag('t'));
         $element->addTag('t');
-        $this->assertTrue($element->containsTag('t'));
+        static::assertTrue($element->containsTag('t'));
         $element->removeTag('t');
-        $this->assertFalse($element->containsTag('t'));
+        static::assertFalse($element->containsTag('t'));
 
         //Repeat Tag
-        $this->assertFalse($element->containsTag('t'));
+        static::assertFalse($element->containsTag('t'));
         $element->addTag('t');
         $element->addTag('t');
-        $this->assertTrue($element->containsTag('t'));
+        static::assertTrue($element->containsTag('t'));
         $element->removeTag('t');
-        $this->assertFalse($element->containsTag('t'));
-        $this->assertFalse($element->removeTag('t'));
+        static::assertFalse($element->containsTag('t'));
+        static::assertFalse($element->removeTag('t'));
 
         //containsAllTag and containsAnyTag
         $element->addTag('t1');
         $element->addTag('t2');
         $element->addTag('t3');
-        $this->assertTrue($element->containsAnyTag(array('t0', 't2')));
-        $this->assertTrue($element->containsAnyTag(array('t2', 't3')));
-        $this->assertFalse($element->containsAnyTag(array('t0', 't4')));
-        $this->assertTrue($element->containsAllTags(array('t1', 't2')));
-        $this->assertTrue($element->containsAllTags(array('t1')));
-        $this->assertFalse($element->containsAllTags(array('t0', 't2')));
-        $this->assertFalse($element->containsAllTags(array('t0', 't1', 't2', 't3')));
+        static::assertTrue($element->containsAnyTag(['t0', 't2']));
+        static::assertTrue($element->containsAnyTag(['t2', 't3']));
+        static::assertFalse($element->containsAnyTag(['t0', 't4']));
+        static::assertTrue($element->containsAllTags(['t1', 't2']));
+        static::assertTrue($element->containsAllTags(['t1']));
+        static::assertFalse($element->containsAllTags(['t0', 't2']));
+        static::assertFalse($element->containsAllTags(['t0', 't1', 't2', 't3']));
     }
 }

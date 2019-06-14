@@ -21,9 +21,9 @@ class CoreExtension extends \Twig_Extension
      */
     public function getFunctions()
     {
-        return array(
-            new \Twig_SimpleFunction('bundle_enabled', array($this, 'isBundleEnabled')),
-        );
+        return [
+            new \Twig_SimpleFunction('bundle_enabled', [$this, 'isBundleEnabled']),
+        ];
     }
 
     /**
@@ -35,7 +35,7 @@ class CoreExtension extends \Twig_Extension
      */
     public function isBundleEnabled($bundle)
     {
-        return array_key_exists(
+        return \array_key_exists(
             $bundle,
             $this->container->getParameter('kernel.bundles')
         );

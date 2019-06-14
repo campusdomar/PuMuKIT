@@ -2,10 +2,10 @@
 
 namespace Pumukit\NotificationBundle\Services;
 
-use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
-use Symfony\Component\Translation\TranslatorInterface;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Pumukit\SchemaBundle\Document\Person;
+use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class SenderService
 {
@@ -110,7 +110,7 @@ class SenderService
     /**
      * Get Admin email.
      *
-     * @return string|array
+     * @return array|string
      */
     public function getAdminEmail()
     {
@@ -179,7 +179,7 @@ class SenderService
      *
      * @return bool
      */
-    public function sendNotification($emailTo, $subject, $template, array $parameters = array(), $error = true, $transConfigSubject = false)
+    public function sendNotification($emailTo, $subject, $template, array $parameters = [], $error = true, $transConfigSubject = false)
     {
         $filterEmail = $this->filterEmail($emailTo);
         $sent = false;
@@ -213,82 +213,6 @@ class SenderService
     }
 
     /**
-     * Checks if string|array email are valid.
-     *
-     * @param string|array $emailTo
-     *
-     * @return bool
-     */
-    private function filterEmail($emailTo)
-    {
-        $verifiedEmails = array();
-        $errorEmails = array();
-        if (is_array($emailTo)) {
-            foreach ($emailTo as $email) {
-                if (false !== filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    $verifiedEmails[] = $email;
-                } else {
-                    $errorEmails[] = $email;
-                }
-            }
-        } else {
-            if (filter_var($emailTo, FILTER_VALIDATE_EMAIL)) {
-                $verifiedEmails[] = $emailTo;
-            } else {
-                $errorEmails[] = $emailTo;
-            }
-        }
-        $filterEmail = array(
-            'verified' => $verifiedEmails,
-            'error' => $errorEmails,
-        );
-
-        return $filterEmail;
-    }
-
-    /**
-     * Create the email and send.
-     *
-     * @param $emailTo
-     * @param $subject
-     * @param $template
-     * @param $parameters
-     * @param $error
-     * @param $transConfigSubject
-     *
-     * @return mixed
-     */
-    private function sendEmailTemplate($emailTo, $subject, $template, $parameters, $error, $transConfigSubject)
-    {
-        $message = \Swift_Message::newInstance();
-        if ($error && $this->notificateErrorsToAdmin) {
-            if (is_array($this->adminEmail)) {
-                foreach ($this->adminEmail as $admin) {
-                    $message->addBcc($admin);
-                }
-            } else {
-                $message->addBcc($this->adminEmail);
-            }
-        }
-
-        if (is_array($emailTo)) {
-            $aux = 0;
-            foreach ($emailTo as $email) {
-                $parameters['person_name'] = $this->getPersonNameFromEmail($email);
-                $message = $this->getMessageToSend($message, $email, $subject, $template, $parameters, $error, $transConfigSubject);
-                $aux += $this->mailer->send($message);
-            }
-
-            return $aux;
-        } else {
-            $parameters['person_name'] = $this->getPersonNameFromEmail($emailTo);
-            $message = $this->getMessageToSend($message, $emailTo, $subject, $template, $parameters, $error, $transConfigSubject);
-        }
-
-        return $this->mailer->send($message);
-    }
-
-    /**
      * Get message to send.
      *
      * @param $message
@@ -305,14 +229,15 @@ class SenderService
     {
         $body = $this->getBodyInMultipleLanguages($template, $parameters, $error, $transConfigSubject);
 
-        /* Send to verified emails */
+        // Send to verified emails
         $message
             ->setSubject($subject)
             ->setSender($this->senderEmail, $this->senderName)
             ->setFrom($this->senderEmail, $this->senderName)
             ->addReplyTo($this->senderEmail, $this->senderName)
             ->setTo($email)
-            ->setBody($body, 'text/html');
+            ->setBody($body, 'text/html')
+        ;
 
         return $message;
     }
@@ -347,6 +272,122 @@ class SenderService
         return $body;
     }
 
+    /**
+     * Get Subject Success Trans With Locale.
+     *
+     * @param mixed $locale
+     *
+     * @return string
+     */
+    public function getSubjectSuccessTransWithLocale($locale = 'en')
+    {
+        return $this->getSubjectTransWithLocale($this->subjectSuccessTrans, $locale);
+    }
+
+    /**
+     * Get Subject Fails Trans With Locale.
+     *
+     * @param mixed $locale
+     *
+     * @return string
+     */
+    public function getSubjectFailsTransWithLocale($locale = 'en')
+    {
+        return $this->getSubjectTransWithLocale($this->subjectFailsTrans, $locale);
+    }
+
+    /**
+     * Get Subject Trans With Locale.
+     *
+     * @param mixed $locale
+     *
+     * @return string
+     */
+    public function getSubjectTransWithLocale(array $subjectArray = [], $locale = 'en')
+    {
+        foreach ($subjectArray as $translation) {
+            if (isset($translation['locale']) && ($locale === $translation['locale']) && isset($translation['subject'])) {
+                return $translation['subject'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Checks if string|array email are valid.
+     *
+     * @param array|string $emailTo
+     *
+     * @return bool
+     */
+    private function filterEmail($emailTo)
+    {
+        $verifiedEmails = [];
+        $errorEmails = [];
+        if (\is_array($emailTo)) {
+            foreach ($emailTo as $email) {
+                if (false !== filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $verifiedEmails[] = $email;
+                } else {
+                    $errorEmails[] = $email;
+                }
+            }
+        } else {
+            if (filter_var($emailTo, FILTER_VALIDATE_EMAIL)) {
+                $verifiedEmails[] = $emailTo;
+            } else {
+                $errorEmails[] = $emailTo;
+            }
+        }
+
+        return [
+            'verified' => $verifiedEmails,
+            'error' => $errorEmails,
+        ];
+    }
+
+    /**
+     * Create the email and send.
+     *
+     * @param $emailTo
+     * @param $subject
+     * @param $template
+     * @param $parameters
+     * @param $error
+     * @param $transConfigSubject
+     *
+     * @return mixed
+     */
+    private function sendEmailTemplate($emailTo, $subject, $template, $parameters, $error, $transConfigSubject)
+    {
+        $message = \Swift_Message::newInstance();
+        if ($error && $this->notificateErrorsToAdmin) {
+            if (\is_array($this->adminEmail)) {
+                foreach ($this->adminEmail as $admin) {
+                    $message->addBcc($admin);
+                }
+            } else {
+                $message->addBcc($this->adminEmail);
+            }
+        }
+
+        if (\is_array($emailTo)) {
+            $aux = 0;
+            foreach ($emailTo as $email) {
+                $parameters['person_name'] = $this->getPersonNameFromEmail($email);
+                $message = $this->getMessageToSend($message, $email, $subject, $template, $parameters, $error, $transConfigSubject);
+                $aux += $this->mailer->send($message);
+            }
+
+            return $aux;
+        }
+        $parameters['person_name'] = $this->getPersonNameFromEmail($emailTo);
+        $message = $this->getMessageToSend($message, $emailTo, $subject, $template, $parameters, $error, $transConfigSubject);
+
+        return $this->mailer->send($message);
+    }
+
     private function transConfigurationSubject($parameters, $locale, $error, $transConfigSubject)
     {
         if ($transConfigSubject) {
@@ -359,42 +400,6 @@ class SenderService
         }
 
         return $parameters;
-    }
-
-    /**
-     * Get Subject Success Trans With Locale.
-     *
-     * @return string
-     */
-    public function getSubjectSuccessTransWithLocale($locale = 'en')
-    {
-        return $this->getSubjectTransWithLocale($this->subjectSuccessTrans, $locale);
-    }
-
-    /**
-     * Get Subject Fails Trans With Locale.
-     *
-     * @return string
-     */
-    public function getSubjectFailsTransWithLocale($locale = 'en')
-    {
-        return $this->getSubjectTransWithLocale($this->subjectFailsTrans, $locale);
-    }
-
-    /**
-     * Get Subject Trans With Locale.
-     *
-     * @return string
-     */
-    public function getSubjectTransWithLocale(array $subjectArray = array(), $locale = 'en')
-    {
-        foreach ($subjectArray as $translation) {
-            if (isset($translation['locale']) && ($locale == $translation['locale']) && isset($translation['subject'])) {
-                return $translation['subject'];
-            }
-        }
-
-        return null;
     }
 
     private function getPersonNameFromEmail($email)

@@ -2,40 +2,45 @@
 
 namespace Pumukit\NotificationBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\EncoderBundle\Document\Job;
 use Pumukit\EncoderBundle\Event\JobEvent;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Track;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class JobNotificationServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class JobNotificationServiceTest extends WebTestCase
 {
     private $dm;
     private $repo;
     private $container;
     private $jobNotificationService;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
         $this->container = static::$kernel->getContainer();
 
-        if (!array_key_exists('PumukitNotificationBundle', $this->container->getParameter('kernel.bundles'))) {
-            $this->markTestSkipped('NotificationBundle is not installed');
+        if (!\array_key_exists('PumukitNotificationBundle', $this->container->getParameter('kernel.bundles'))) {
+            static::markTestSkipped('NotificationBundle is not installed');
         }
 
         $this->dm = $this->container->get('doctrine_mongodb')->getManager();
         $this->repo = $this->dm->getRepository(Job::class);
 
         $this->jobNotificationService = $this->container
-          ->get('pumukit_notification.listener');
+            ->get('pumukit_notification.listener')
+        ;
 
-        $this->dm->getDocumentCollection(Job::class)->remove(array());
+        $this->dm->getDocumentCollection(Job::class)->remove([]);
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         if (isset($this->dm)) {
             $this->dm->close();
@@ -62,8 +67,8 @@ class JobNotificationServiceTest extends WebTestCase
         $event = new JobEvent($job, $track, $multimediaObject);
         $output = $this->jobNotificationService->onJobSuccess($event);
 
-        $this->assertEquals(1, $output);
-        $this->assertEquals(1, count($this->repo->findAll()));
+        static::assertSame(1, $output);
+        static::assertSame(1, \count($this->repo->findAll()));
     }
 
     public function testOnJobError()
@@ -80,8 +85,8 @@ class JobNotificationServiceTest extends WebTestCase
         $event = new JobEvent($job, $track, $multimediaObject);
         $output = $this->jobNotificationService->onJobError($event);
 
-        $this->assertEquals(1, $output);
-        $this->assertEquals(1, count($this->repo->findAll()));
+        static::assertSame(1, $output);
+        static::assertSame(1, \count($this->repo->findAll()));
     }
 
     private function createNewJob($status, $multimediaObject)

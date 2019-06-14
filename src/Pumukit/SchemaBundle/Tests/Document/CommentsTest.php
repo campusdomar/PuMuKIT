@@ -2,10 +2,14 @@
 
 namespace Pumukit\SchemaBundle\Tests\Document;
 
-use Pumukit\SchemaBundle\Document\Comments;
 use PHPUnit\Framework\TestCase;
+use Pumukit\SchemaBundle\Document\Comments;
 
-class CommentsTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class CommentsTest extends TestCase
 {
     public function testGetterAndSetter()
     {
@@ -19,8 +23,8 @@ class CommentsTest extends TestCase
         $comment->setText($text);
         $comment->setMultimediaObjectId($multimedia_object_id);
 
-        $this->assertEquals($date, $comment->getDate());
-        $this->assertEquals($text, $comment->getText());
-        $this->assertEquals($multimedia_object_id, $comment->getMultimediaObjectId());
+        static::assertSame($date, $comment->getDate());
+        static::assertSame($text, $comment->getText());
+        static::assertSame($multimedia_object_id, $comment->getMultimediaObjectId());
     }
 }

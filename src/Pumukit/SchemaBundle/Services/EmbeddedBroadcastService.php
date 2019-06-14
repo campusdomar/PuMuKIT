@@ -2,15 +2,15 @@
 
 namespace Pumukit\SchemaBundle\Services;
 
-use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
 use Pumukit\SchemaBundle\Document\Group;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\User;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class EmbeddedBroadcastService
 {
@@ -25,6 +25,8 @@ class EmbeddedBroadcastService
 
     /**
      * Constructor.
+     *
+     * @param mixed $disabledBroadcast
      */
     public function __construct(DocumentManager $documentManager, MultimediaObjectService $mmsService, MultimediaObjectEventDispatcherService $dispatcher, AuthorizationCheckerInterface $authorizationChecker, EngineInterface $templating, RouterInterface $router, $disabledBroadcast)
     {
@@ -73,18 +75,22 @@ class EmbeddedBroadcastService
         case EmbeddedBroadcast::TYPE_PASSWORD:
             $embeddedBroadcast->setType(EmbeddedBroadcast::TYPE_PASSWORD);
             $embeddedBroadcast->setName(EmbeddedBroadcast::NAME_PASSWORD);
+
             break;
         case EmbeddedBroadcast::TYPE_LOGIN:
             $embeddedBroadcast->setType(EmbeddedBroadcast::TYPE_LOGIN);
             $embeddedBroadcast->setName(EmbeddedBroadcast::NAME_LOGIN);
+
             break;
         case EmbeddedBroadcast::TYPE_GROUPS:
             $embeddedBroadcast->setType(EmbeddedBroadcast::TYPE_GROUPS);
             $embeddedBroadcast->setName(EmbeddedBroadcast::NAME_GROUPS);
+
             break;
         default:
             $embeddedBroadcast->setType(EmbeddedBroadcast::TYPE_PUBLIC);
             $embeddedBroadcast->setName(EmbeddedBroadcast::NAME_PUBLIC);
+
             break;
         }
 
@@ -136,31 +142,31 @@ class EmbeddedBroadcastService
     {
         if ($live) {
             if ($this->disabledBroadcast) {
-                return array(
+                return [
                     EmbeddedBroadcast::TYPE_PUBLIC => EmbeddedBroadcast::NAME_PUBLIC,
-                );
+                ];
             }
 
-            return array(
+            return [
                 EmbeddedBroadcast::TYPE_PUBLIC => EmbeddedBroadcast::NAME_PUBLIC,
                 EmbeddedBroadcast::TYPE_PASSWORD => EmbeddedBroadcast::NAME_PASSWORD,
-            );
+            ];
         }
 
         if ($this->disabledBroadcast) {
-            return array(
-                         EmbeddedBroadcast::TYPE_PUBLIC => EmbeddedBroadcast::NAME_PUBLIC,
-                         EmbeddedBroadcast::TYPE_LOGIN => EmbeddedBroadcast::NAME_LOGIN,
-                         EmbeddedBroadcast::TYPE_GROUPS => EmbeddedBroadcast::NAME_GROUPS,
-                         );
+            return [
+                EmbeddedBroadcast::TYPE_PUBLIC => EmbeddedBroadcast::NAME_PUBLIC,
+                EmbeddedBroadcast::TYPE_LOGIN => EmbeddedBroadcast::NAME_LOGIN,
+                EmbeddedBroadcast::TYPE_GROUPS => EmbeddedBroadcast::NAME_GROUPS,
+            ];
         }
 
-        return array(
-                     EmbeddedBroadcast::TYPE_PUBLIC => EmbeddedBroadcast::NAME_PUBLIC,
-                     EmbeddedBroadcast::TYPE_PASSWORD => EmbeddedBroadcast::NAME_PASSWORD,
-                     EmbeddedBroadcast::TYPE_LOGIN => EmbeddedBroadcast::NAME_LOGIN,
-                     EmbeddedBroadcast::TYPE_GROUPS => EmbeddedBroadcast::NAME_GROUPS,
-                     );
+        return [
+            EmbeddedBroadcast::TYPE_PUBLIC => EmbeddedBroadcast::NAME_PUBLIC,
+            EmbeddedBroadcast::TYPE_PASSWORD => EmbeddedBroadcast::NAME_PASSWORD,
+            EmbeddedBroadcast::TYPE_LOGIN => EmbeddedBroadcast::NAME_LOGIN,
+            EmbeddedBroadcast::TYPE_GROUPS => EmbeddedBroadcast::NAME_GROUPS,
+        ];
     }
 
     /**
@@ -178,7 +184,7 @@ class EmbeddedBroadcastService
             $multimediaObject->setEmbeddedBroadcast($embeddedBroadcast);
         }
         $allTypes = $this->getAllTypes();
-        if (($type !== $embeddedBroadcast->getType()) && array_key_exists($type, $allTypes)) {
+        if (($type !== $embeddedBroadcast->getType()) && \array_key_exists($type, $allTypes)) {
             $embeddedBroadcast->setType($type);
             $embeddedBroadcast->setName($allTypes[$type]);
             $this->dm->persist($multimediaObject);
@@ -303,12 +309,26 @@ class EmbeddedBroadcastService
         if ($embeddedBroadcast = $multimediaObject->getEmbeddedBroadcast()) {
             $playGroups = $embeddedBroadcast->getGroups()->toArray();
         } else {
-            $playGroups = array();
+            $playGroups = [];
         }
         $commonPlayGroups = array_intersect($playGroups, $userGroups);
         $userIsOwner = $this->mmsService->isUserOwner($user, $multimediaObject);
 
         return $commonPlayGroups || $userIsOwner;
+    }
+
+    /**
+     * Delete all embedded broadcasts from group.
+     *
+     * @param Group
+     */
+    public function deleteAllFromGroup(Group $group)
+    {
+        $multimediaObjects = $this->repo->findWithGroupInEmbeddedBroadcast($group);
+        foreach ($multimediaObjects as $multimediaObject) {
+            $this->deleteGroup($group, $multimediaObject, false);
+        }
+        $this->dm->flush();
     }
 
     private function isAuthenticatedFully(User $user = null)
@@ -350,11 +370,10 @@ class EmbeddedBroadcastService
         $invalidPassword = false;
         if (($password) && ($embeddedBroadcast = $multimediaObject->getEmbeddedBroadcast())) {
             $embeddedPassword = $embeddedBroadcast->getPassword();
-            if (($password == $embeddedPassword) && (null !== $embeddedPassword)) {
+            if (($password === $embeddedPassword) && (null !== $embeddedPassword)) {
                 return true;
-            } else {
-                $invalidPassword = true;
             }
+            $invalidPassword = true;
         }
 
         return $this->renderErrorPassword($invalidPassword);
@@ -362,29 +381,15 @@ class EmbeddedBroadcastService
 
     private function renderErrorNotAuthenticated()
     {
-        $renderedView = $this->templating->render('PumukitWebTVBundle:Index:403forbidden.html.twig', array('show_forceauth' => true));
+        $renderedView = $this->templating->render('PumukitWebTVBundle:Index:403forbidden.html.twig', ['show_forceauth' => true]);
 
         return new Response($renderedView, Response::HTTP_FORBIDDEN);
     }
 
     private function renderErrorPassword($invalidPassword = false)
     {
-        $renderedView = $this->templating->render('PumukitWebTVBundle:Index:401unauthorized.html.twig', array('show_forceauth' => true, 'invalid_password' => $invalidPassword));
+        $renderedView = $this->templating->render('PumukitWebTVBundle:Index:401unauthorized.html.twig', ['show_forceauth' => true, 'invalid_password' => $invalidPassword]);
 
         return new Response($renderedView, Response::HTTP_UNAUTHORIZED);
-    }
-
-    /**
-     * Delete all embedded broadcasts from group.
-     *
-     * @param Group
-     */
-    public function deleteAllFromGroup(Group $group)
-    {
-        $multimediaObjects = $this->repo->findWithGroupInEmbeddedBroadcast($group);
-        foreach ($multimediaObjects as $multimediaObject) {
-            $this->deleteGroup($group, $multimediaObject, false);
-        }
-        $this->dm->flush();
     }
 }

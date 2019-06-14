@@ -3,11 +3,11 @@
 namespace Pumukit\SchemaBundle\EventListener;
 
 use Doctrine\ODM\MongoDB\Event\LifecycleEventArgs;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Init the locale of the i18n Documents when loaded.
@@ -19,7 +19,7 @@ class LocaleListener implements EventSubscriberInterface
     private $defaultLocale;
     private $pumukitLocales;
 
-    public function __construct(RequestStack $requestStack, $defaultLocale = 'en', $pumukitLocales = array())
+    public function __construct(RequestStack $requestStack, $defaultLocale = 'en', $pumukitLocales = [])
     {
         $this->requestStack = $requestStack;
         $this->defaultLocale = $defaultLocale;
@@ -52,14 +52,14 @@ class LocaleListener implements EventSubscriberInterface
         $sessionLocale = $request->getSession()->get('_locale');
 
         // try to see if the locale has been set as a _locale routing parameter
-        if ($requestLocale && in_array($requestLocale, $this->pumukitLocales)) {
+        if ($requestLocale && \in_array($requestLocale, $this->pumukitLocales, true)) {
             $request->getSession()->set('_locale', $requestLocale);
         } else {
-            if (!$sessionLocale || !in_array($sessionLocale, $this->pumukitLocales)) {
+            if (!$sessionLocale || !\in_array($sessionLocale, $this->pumukitLocales, true)) {
                 $validLocales = array_intersect($request->getLanguages(), $this->pumukitLocales);
                 if ($validLocales) {
                     $request->getSession()->set('_locale', current($validLocales));
-                } elseif (in_array($this->defaultLocale, $this->pumukitLocales)) {
+                } elseif (\in_array($this->defaultLocale, $this->pumukitLocales, true)) {
                     $request->getSession()->set('_locale', $this->defaultLocale);
                 } elseif (!empty($this->pumukitLocales)) {
                     $request->getSession()->set('_locale', $this->pumukitLocales[0]);
@@ -74,10 +74,10 @@ class LocaleListener implements EventSubscriberInterface
 
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             // must be registered before the default Locale listener
-            KernelEvents::REQUEST => array(array('onKernelRequest', 17)),
-        );
+            KernelEvents::REQUEST => [['onKernelRequest', 17]],
+        ];
     }
 
     /**

@@ -2,32 +2,38 @@
 
 namespace Pumukit\SchemaBundle\Tests\Document;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\SchemaBundle\Document\Tag;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class TagTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class TagTest extends WebTestCase
 {
     private $dm;
     private $tagRepo;
     private $tagService;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()
-          ->get('doctrine_mongodb')->getManager();
+            ->get('doctrine_mongodb')->getManager();
         $this->tagRepo = $this->dm
-          ->getRepository(Tag::class);
+            ->getRepository(Tag::class)
+        ;
 
         $this->tagService = static::$kernel->getContainer()->get('pumukitschema.tag');
 
         $this->dm->getDocumentCollection(Tag::class)
-      ->remove(array());
+            ->remove([])
+        ;
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -48,7 +54,7 @@ class TagTest extends WebTestCase
         $updated = new \DateTime('now');
         $display = true;
         $youtubeProperty = 'w7dD-JJJytM&list=PLmXxqSJJq-yUfrjvKe5c5LX_1x7nGVF6c';
-        $properties = array('youtube' => $youtubeProperty);
+        $properties = ['youtube' => $youtubeProperty];
 
         $tag = new Tag();
 
@@ -65,64 +71,64 @@ class TagTest extends WebTestCase
         $tag_parent = new Tag();
         $tag->setParent($tag_parent);
 
-        $this->assertEquals($title, $tag->getTitle());
-        $this->assertEquals($description, $tag->getDescription());
-        $this->assertEquals($slug, $tag->getSlug());
-        $this->assertEquals($cod, $tag->getCod());
-        $this->assertEquals($metatag, $tag->getMetatag());
-        $this->assertEquals($created, $tag->getCreated());
-        $this->assertEquals($updated, $tag->getUpdated());
-        $this->assertEquals($tag_parent, $tag->getParent());
-        $this->assertEquals($display, $tag->getDisplay());
-        $this->assertEquals($properties, $tag->getProperties());
-        $this->assertEquals(null, $tag->getLockTime());
+        static::assertSame($title, $tag->getTitle());
+        static::assertSame($description, $tag->getDescription());
+        static::assertSame($slug, $tag->getSlug());
+        static::assertSame($cod, $tag->getCod());
+        static::assertSame($metatag, $tag->getMetatag());
+        static::assertSame($created, $tag->getCreated());
+        static::assertSame($updated, $tag->getUpdated());
+        static::assertSame($tag_parent, $tag->getParent());
+        static::assertSame($display, $tag->getDisplay());
+        static::assertSame($properties, $tag->getProperties());
+        static::assertNull($tag->getLockTime());
 
-        $this->assertEquals('', $tag->getTitle('fr'));
-        $this->assertEquals('', $tag->getDescription('fr'));
+        static::assertSame('', $tag->getTitle('fr'));
+        static::assertSame('', $tag->getDescription('fr'));
 
         $titleEs = 'título';
-        $titleArray = array('en' => $title, 'es' => $titleEs);
+        $titleArray = ['en' => $title, 'es' => $titleEs];
         $descriptionEs = 'descripción';
-        $descriptionArray = array('en' => $description, 'es' => $descriptionEs);
+        $descriptionArray = ['en' => $description, 'es' => $descriptionEs];
 
         $tag->setI18nTitle($titleArray);
         $tag->setI18nDescription($descriptionArray);
 
-        $this->assertEquals($titleArray, $tag->getI18nTitle());
-        $this->assertEquals($descriptionArray, $tag->getI18nDescription());
+        static::assertSame($titleArray, $tag->getI18nTitle());
+        static::assertSame($descriptionArray, $tag->getI18nDescription());
 
-        $this->assertEquals($tag->getTitle(), $tag->__toString());
+        static::assertSame($tag->getTitle(), $tag->__toString());
 
         $testProperty = 'test property';
         $tag->setProperty('test', $testProperty);
-        $this->assertEquals($youtubeProperty, $tag->getProperty('youtube'));
-        $this->assertEquals($testProperty, $tag->getProperty('test'));
+        static::assertSame($youtubeProperty, $tag->getProperty('youtube'));
+        static::assertSame($testProperty, $tag->getProperty('test'));
 
         $testProperty = null;
         $tag->setProperty('test', $testProperty);
-        $this->assertEquals($testProperty, $tag->getProperty('test'));
+        static::assertSame($testProperty, $tag->getProperty('test'));
     }
 
     public function testNumberMultimediaObjects()
     {
         $tag = new Tag();
-        $this->assertEquals(0, $tag->getNumberMultimediaObjects());
+        static::assertSame(0, $tag->getNumberMultimediaObjects());
 
         $tag->increaseNumberMultimediaObjects();
-        $this->assertEquals(1, $tag->getNumberMultimediaObjects());
+        static::assertSame(1, $tag->getNumberMultimediaObjects());
 
         $tag->increaseNumberMultimediaObjects();
-        $this->assertEquals(2, $tag->getNumberMultimediaObjects());
+        static::assertSame(2, $tag->getNumberMultimediaObjects());
 
         $tag->decreaseNumberMultimediaObjects();
-        $this->assertEquals(1, $tag->getNumberMultimediaObjects());
+        static::assertSame(1, $tag->getNumberMultimediaObjects());
 
         $tag->decreaseNumberMultimediaObjects();
-        $this->assertEquals(0, $tag->getNumberMultimediaObjects());
+        static::assertSame(0, $tag->getNumberMultimediaObjects());
 
         $count = 5;
         $tag->setNumberMultimediaObjects($count);
-        $this->assertEquals(5, $tag->getNumberMultimediaObjects());
+        static::assertSame(5, $tag->getNumberMultimediaObjects());
     }
 
     public function testChildren()
@@ -138,13 +144,13 @@ class TagTest extends WebTestCase
         $this->dm->persist($tag_grandchild);
         $this->dm->flush();
 
-        $this->assertEquals(null, $tag_parent->getParent());
-        $this->assertFalse($tag_parent->isChildOf($tag_child));
-        $this->assertFalse($tag_child->isChildOf($tag_child));
-        $this->assertFalse($tag_parent->isDescendantOf($tag_child));
-        $this->assertFalse($tag_child->isDescendantOf($tag_child));
-        $this->assertFalse($tag_parent->isDescendantOfByCod($tag_child->getCod()));
-        $this->assertFalse($tag_child->isDescendantOfByCod($tag_child->getCod()));
+        static::assertNull($tag_parent->getParent());
+        static::assertFalse($tag_parent->isChildOf($tag_child));
+        static::assertFalse($tag_child->isChildOf($tag_child));
+        static::assertFalse($tag_parent->isDescendantOf($tag_child));
+        static::assertFalse($tag_child->isDescendantOf($tag_child));
+        static::assertFalse($tag_parent->isDescendantOfByCod($tag_child->getCod()));
+        static::assertFalse($tag_child->isDescendantOfByCod($tag_child->getCod()));
 
         $tag_child->setParent($tag_parent);
         $tag_grandchild->setParent($tag_child);
@@ -152,16 +158,16 @@ class TagTest extends WebTestCase
         $this->dm->persist($tag_parent);
         $this->dm->flush();
 
-        $this->assertEquals('Parent|ParentChild|GrandChild|', $tag_grandchild->getPath());
-        $this->assertEquals($tag_parent, $tag_child->getParent());
-        $this->assertTrue($tag_child->isChildOf($tag_parent));
-        $this->assertTrue($tag_grandchild->isDescendantOf($tag_parent));
-        $this->assertTrue($tag_child->isDescendantOfByCod($tag_parent->getCod()));
-        $this->assertTrue($tag_grandchild->isDescendantOfByCod($tag_parent->getCod()));
+        static::assertSame('Parent|ParentChild|GrandChild|', $tag_grandchild->getPath());
+        static::assertSame($tag_parent, $tag_child->getParent());
+        static::assertTrue($tag_child->isChildOf($tag_parent));
+        static::assertTrue($tag_grandchild->isDescendantOf($tag_parent));
+        static::assertTrue($tag_child->isDescendantOfByCod($tag_parent->getCod()));
+        static::assertTrue($tag_grandchild->isDescendantOfByCod($tag_parent->getCod()));
 
-        $this->assertFalse($tag_grandchild->isChildOf($tag_parent));
-        $this->assertFalse($tag_parent->isChildOf($tag_child));
-        $this->assertFalse($tag_parent->isDescendantOf($tag_child));
-        $this->assertFalse($tag_parent->isDescendantOfByCod($tag_child->getCod()));
+        static::assertFalse($tag_grandchild->isChildOf($tag_parent));
+        static::assertFalse($tag_parent->isChildOf($tag_child));
+        static::assertFalse($tag_parent->isDescendantOf($tag_child));
+        static::assertFalse($tag_parent->isDescendantOfByCod($tag_child->getCod()));
     }
 }

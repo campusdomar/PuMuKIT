@@ -2,10 +2,10 @@
 
 namespace Pumukit\WebTVBundle\Controller;
 
+use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
 
 /**
  * Class LocaleController.
@@ -48,7 +48,7 @@ class LocaleController extends Controller implements WebTVControllerInterface
         //array_filter ARRAY_FILTER_USE_BOTH only in 5.6
         $params = [];
         foreach ($route as $k => $v) {
-            if ('_' != $k[0]) {
+            if ('_' !== $k[0]) {
                 $params[$k] = $v;
             }
         }

@@ -2,12 +2,16 @@
 
 namespace Pumukit\LiveBundle\Tests\Document;
 
-use Pumukit\LiveBundle\Document\Live;
-use Pumukit\LiveBundle\Document\Event;
-use Pumukit\SchemaBundle\Document\Pic;
 use PHPUnit\Framework\TestCase;
+use Pumukit\LiveBundle\Document\Event;
+use Pumukit\LiveBundle\Document\Live;
+use Pumukit\SchemaBundle\Document\Pic;
 
-class EventTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class EventTest extends TestCase
 {
     public function testSetterAndGetter()
     {
@@ -19,7 +23,7 @@ class EventTest extends TestCase
         $display = 0;
         $create_serial = 0;
         $locale = 'en';
-        $schedule = array('date' => $date, 'duration' => $duration);
+        $schedule = ['date' => $date, 'duration' => $duration];
 
         $pic = new Pic();
         $imagePath = '/path/to/image.jpg';
@@ -38,15 +42,15 @@ class EventTest extends TestCase
         $event->setLocale($locale);
         $event->setSchedule($schedule);
 
-        $this->assertEquals($live, $event->getLive());
-        $this->assertEquals($name, $event->getName());
-        $this->assertEquals($place, $event->getPlace());
-        $this->assertEquals($date, $event->getDate());
-        $this->assertEquals($duration, $event->getDuration());
-        $this->assertEquals($display, $event->getDisplay());
-        $this->assertEquals($create_serial, $event->getCreateSerial());
-        $this->assertEquals($locale, $event->getLocale());
-        $this->assertEquals($pic, $event->getPic());
-        $this->assertEquals($schedule, $event->getSchedule());
+        static::assertSame($live, $event->getLive());
+        static::assertSame($name, $event->getName());
+        static::assertSame($place, $event->getPlace());
+        static::assertSame($date, $event->getDate());
+        static::assertSame($duration, $event->getDuration());
+        static::assertSame($display, $event->getDisplay());
+        static::assertSame($create_serial, $event->getCreateSerial());
+        static::assertSame($locale, $event->getLocale());
+        static::assertSame($pic, $event->getPic());
+        static::assertSame($schedule, $event->getSchedule());
     }
 }

@@ -2,16 +2,20 @@
 
 namespace Pumukit\EncoderBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Pumukit\EncoderBundle\Document\Job;
+use Pumukit\EncoderBundle\Services\CpuService;
 use Pumukit\EncoderBundle\Services\JobService;
 use Pumukit\EncoderBundle\Services\ProfileService;
-use Pumukit\EncoderBundle\Services\CpuService;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class JobServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class JobServiceTest extends WebTestCase
 {
     private $dm;
     private $repo;
@@ -24,9 +28,9 @@ class JobServiceTest extends WebTestCase
     private $tokenStorage;
     private $propService;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()->get('doctrine_mongodb')->getManager();
@@ -38,26 +42,37 @@ class JobServiceTest extends WebTestCase
         $this->factory = static::$kernel->getContainer()->get('pumukitschema.factory');
         $this->propService = static::$kernel->getContainer()->get('pumukitencoder.mmpropertyjob');
 
-        $this->dm->getDocumentCollection(Job::class)->remove(array());
-        $this->dm->getDocumentCollection(MultimediaObject::class)->remove(array());
-        $this->dm->getDocumentCollection(Series::class)->remove(array());
+        $this->dm->getDocumentCollection(Job::class)->remove([]);
+        $this->dm->getDocumentCollection(MultimediaObject::class)->remove([]);
+        $this->dm->getDocumentCollection(Series::class)->remove([]);
         $this->dm->flush();
 
         $profileService = new ProfileService($this->getDemoProfiles(), $this->dm);
         $cpuService = new CpuService($this->getDemoCpus(), $this->dm);
         $dispatcher = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')
-                    ->getMock();
+            ->getMock()
+        ;
         $inspectionService = $this->getMockBuilder('Pumukit\InspectionBundle\Services\InspectionServiceInterface')
-                           ->getMock();
-        $inspectionService->expects($this->any())->method('getDuration')->will($this->returnValue(5));
+            ->getMock()
+        ;
+        $inspectionService->expects(static::any())->method('getDuration')->willReturn(5);
         $this->resourcesDir = realpath(__DIR__.'/../Resources').'/';
-        $this->jobService = new JobService($this->dm, $profileService, $cpuService,
-                                           $inspectionService, $dispatcher, $this->logger,
-                                           $this->trackService, $this->tokenStorage, $this->propService,
-                                           'test', null);
+        $this->jobService = new JobService(
+            $this->dm,
+            $profileService,
+            $cpuService,
+            $inspectionService,
+            $dispatcher,
+            $this->logger,
+            $this->trackService,
+            $this->tokenStorage,
+            $this->propService,
+            'test',
+            null
+        );
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -78,8 +93,8 @@ class JobServiceTest extends WebTestCase
         $series = $this->factory->createSeries();
         $multimediaObject = $this->factory->createMultimediaObject($series);
 
-        $this->assertEquals(0, count($multimediaObject->getTracks()));
-        $this->assertEquals(0, count($this->repo->findAll()));
+        static::assertSame(0, \count($multimediaObject->getTracks()));
+        static::assertSame(0, \count($this->repo->findAll()));
 
         $originalFile = $this->resourcesDir.'CAMERA.mp4';
 
@@ -90,15 +105,15 @@ class JobServiceTest extends WebTestCase
             $profile = 'MASTER_COPY';
             $priority = 2;
             $language = 'en';
-            $description = array(
-                                 'en' => 'local track description',
-                                 'es' => 'descripción del archivo local',
-                                 );
+            $description = [
+                'en' => 'local track description',
+                'es' => 'descripción del archivo local',
+            ];
 
             $multimediaObject = $this->jobService->createTrackFromLocalHardDrive($multimediaObject, $file, $profile, $priority, $language, $description);
 
-            $this->assertEquals(0, count($multimediaObject->getTracks()));
-            $this->assertEquals(1, count($this->repo->findAll()));
+            static::assertSame(0, \count($multimediaObject->getTracks()));
+            static::assertSame(1, \count($this->repo->findAll()));
         }
 
         $this->deleteCreatedFiles();
@@ -109,8 +124,8 @@ class JobServiceTest extends WebTestCase
         $series = $this->factory->createSeries();
         $multimediaObject = $this->factory->createMultimediaObject($series);
 
-        $this->assertEquals(0, count($multimediaObject->getTracks()));
-        $this->assertEquals(0, count($this->repo->findAll()));
+        static::assertSame(0, \count($multimediaObject->getTracks()));
+        static::assertSame(0, \count($this->repo->findAll()));
 
         $originalFile = $this->resourcesDir.'CAMERA.mp4';
 
@@ -119,15 +134,15 @@ class JobServiceTest extends WebTestCase
             $profile = 'MASTER_COPY';
             $priority = 2;
             $language = 'en';
-            $description = array(
-                                 'en' => 'track description inbox',
-                                 'es' => 'descripción del archivo inbox',
-                                 );
+            $description = [
+                'en' => 'track description inbox',
+                'es' => 'descripción del archivo inbox',
+            ];
 
             $multimediaObject = $this->jobService->createTrackFromInboxOnServer($multimediaObject, $filePath, $profile, $priority, $language, $description);
 
-            $this->assertEquals(0, count($multimediaObject->getTracks()));
-            $this->assertEquals(1, count($this->repo->findAll()));
+            static::assertSame(0, \count($multimediaObject->getTracks()));
+            static::assertSame(1, \count($this->repo->findAll()));
         }
 
         $this->deleteCreatedFiles();
@@ -143,7 +158,7 @@ class JobServiceTest extends WebTestCase
         $profile = 'MASTER_COPY';
         $priority = 2;
         $language = 'es';
-        $description = array('en' => 'test', 'es' => 'prueba');
+        $description = ['en' => 'test', 'es' => 'prueba'];
 
         $series = new Series();
         $multimediaObject = new MultimediaObject();
@@ -154,18 +169,18 @@ class JobServiceTest extends WebTestCase
 
         $this->jobService->addJob($pathFile, $profile, $priority, $multimediaObject, $language, $description);
 
-        $this->assertEquals(1, count($this->repo->findAll()));
+        static::assertSame(1, \count($this->repo->findAll()));
 
         $pathFile2 = $this->resourcesDir.'test2.txt';
 
         $profile2 = 'MASTER_VIDEO_H264';
         $priority2 = 3;
         $language2 = 'en';
-        $description2 = array('en' => 'test2', 'es' => 'prueba2');
+        $description2 = ['en' => 'test2', 'es' => 'prueba2'];
 
         $this->jobService->addJob($pathFile2, $profile2, $priority2, $multimediaObject, $language2, $description2);
 
-        $this->assertEquals(2, count($this->repo->findAll()));
+        static::assertSame(2, \count($this->repo->findAll()));
     }
 
     public function testPauseJob()
@@ -173,7 +188,7 @@ class JobServiceTest extends WebTestCase
         $job = $this->createNewJob();
         $this->jobService->pauseJob($job->getId());
 
-        $this->assertEquals(Job::STATUS_PAUSED, $job->getStatus());
+        static::assertSame(Job::STATUS_PAUSED, $job->getStatus());
     }
 
     public function testResumeJob()
@@ -183,29 +198,29 @@ class JobServiceTest extends WebTestCase
         $this->jobService->pauseJob($job->getId());
         $this->jobService->resumeJob($job->getId());
 
-        $this->assertEquals(Job::STATUS_WAITING, $job->getStatus());
+        static::assertSame(Job::STATUS_WAITING, $job->getStatus());
     }
 
     public function testCancelJob()
     {
         $job = $this->createNewJob();
-        $this->assertEquals(1, count($this->repo->findAll()));
+        static::assertSame(1, \count($this->repo->findAll()));
         $this->jobService->cancelJob($job->getId());
-        $this->assertEquals(array(), $this->repo->findAll());
+        static::assertSame([], $this->repo->findAll());
 
         $job = $this->createNewJob();
-        $this->assertEquals(1, count($this->repo->findAll()));
+        static::assertSame(1, \count($this->repo->findAll()));
         $this->jobService->pauseJob($job->getId());
         $this->jobService->resumeJob($job->getId());
         $this->jobService->cancelJob($job->getId());
-        $this->assertEquals(array(), $this->repo->findAll());
+        static::assertSame([], $this->repo->findAll());
 
         $job1 = $this->createNewJob();
         $job2 = $this->createNewJob();
-        $this->assertEquals(2, count($this->repo->findAll()));
+        static::assertSame(2, \count($this->repo->findAll()));
         $this->jobService->cancelJob($job1->getId());
-        $this->assertEquals(1, count($this->repo->findAll()));
-        $this->assertEquals($job2, $this->repo->findAll()[0]);
+        static::assertSame(1, \count($this->repo->findAll()));
+        static::assertSame($job2, $this->repo->findAll()[0]);
     }
 
     public function testGetAllJobsStatus()
@@ -233,11 +248,11 @@ class JobServiceTest extends WebTestCase
 
         $allJobsStatus = $this->jobService->getAllJobsStatus();
 
-        $this->assertEquals(0, $allJobsStatus['error']);
-        $this->assertEquals(2, $allJobsStatus['paused']);
-        $this->assertEquals(7, $allJobsStatus['waiting']);
-        $this->assertEquals(2, $allJobsStatus['executing']);
-        $this->assertEquals(9, $allJobsStatus['finished']);
+        static::assertSame(0, $allJobsStatus['error']);
+        static::assertSame(2, $allJobsStatus['paused']);
+        static::assertSame(7, $allJobsStatus['waiting']);
+        static::assertSame(2, $allJobsStatus['executing']);
+        static::assertSame(9, $allJobsStatus['finished']);
     }
 
     public function testGetNextJob()
@@ -250,28 +265,28 @@ class JobServiceTest extends WebTestCase
         $job6 = $this->createNewJob(null, 3, 5);
         $job7 = $this->createNewJob(null, 1, 6);
 
-        $this->assertEquals($job4, $this->jobService->getNextJob());
+        static::assertSame($job4, $this->jobService->getNextJob());
 
         $this->jobService->cancelJob($job4->getId());
-        $this->assertEquals($job6, $this->jobService->getNextJob());
+        static::assertSame($job6, $this->jobService->getNextJob());
 
         $this->jobService->cancelJob($job6->getId());
-        $this->assertEquals($job2, $this->jobService->getNextJob());
+        static::assertSame($job2, $this->jobService->getNextJob());
 
         $this->jobService->cancelJob($job2->getId());
-        $this->assertEquals($job5, $this->jobService->getNextJob());
+        static::assertSame($job5, $this->jobService->getNextJob());
 
         $this->jobService->cancelJob($job5->getId());
-        $this->assertEquals($job1, $this->jobService->getNextJob());
+        static::assertSame($job1, $this->jobService->getNextJob());
 
         $this->jobService->cancelJob($job1->getId());
-        $this->assertEquals($job3, $this->jobService->getNextJob());
+        static::assertSame($job3, $this->jobService->getNextJob());
 
         $this->jobService->cancelJob($job3->getId());
-        $this->assertEquals($job7, $this->jobService->getNextJob());
+        static::assertSame($job7, $this->jobService->getNextJob());
 
         $this->jobService->cancelJob($job7->getId());
-        $this->assertNull($this->jobService->getNextJob());
+        static::assertNull($this->jobService->getNextJob());
     }
 
     /**
@@ -285,7 +300,7 @@ class JobServiceTest extends WebTestCase
         $profile = 'non_existing';
         $priority = 2;
         $language = 'es';
-        $description = array('en' => 'test', 'es' => 'prueba');
+        $description = ['en' => 'test', 'es' => 'prueba'];
 
         $multimediaObject = new MultimediaObject();
         $this->dm->persist($multimediaObject);
@@ -333,13 +348,13 @@ class JobServiceTest extends WebTestCase
         $this->dm->persist($job3);
         $this->dm->flush();
 
-        $this->assertEquals(2, count($this->jobService->getNotFinishedJobsByMultimediaObjectId($mm_id1)));
-        $this->assertEquals(1, count($this->jobService->getNotFinishedJobsByMultimediaObjectId($mm_id2)));
+        static::assertSame(2, \count($this->jobService->getNotFinishedJobsByMultimediaObjectId($mm_id1)));
+        static::assertSame(1, \count($this->jobService->getNotFinishedJobsByMultimediaObjectId($mm_id2)));
     }
 
     public function testGetStatusError()
     {
-        $this->assertEquals(Job::STATUS_ERROR, $this->jobService->getStatusError());
+        static::assertSame(Job::STATUS_ERROR, $this->jobService->getStatusError());
     }
 
     private function createNewJob($status = null, $priority = null, $timeadd = 0)
@@ -352,7 +367,7 @@ class JobServiceTest extends WebTestCase
             $job->setPriority($priority);
         }
         $datetime = new \DateTime('now');
-        $datetime->modify("+$timeadd hour");
+        $datetime->modify("+{$timeadd} hour");
         $job->setTimeini($datetime);
         $this->dm->persist($job);
         $this->dm->flush();
@@ -362,85 +377,81 @@ class JobServiceTest extends WebTestCase
 
     private function getDemoCpus()
     {
-        $cpus = array(
-                      'CPU_LOCAL' => array(
-                                           'id' => 1,
-                                           'host' => '127.0.0.1',
-                                           'max' => 1,
-                                           'number' => 1,
-                                           'type' => CpuService::TYPE_LINUX,
-                                           'user' => 'transco1',
-                                           'password' => 'PUMUKIT',
-                                           'description' => 'Pumukit transcoder',
-                                           ),
-                      'CPU_REMOTE' => array(
-                                            'id' => 2,
-                                            'host' => '192.168.5.123',
-                                            'max' => 2,
-                                            'number' => 1,
-                                            'type' => CpuService::TYPE_LINUX,
-                                            'user' => 'transco2',
-                                            'password' => 'PUMUKIT',
-                                            'description' => 'Pumukit transcoder',
-                                            ),
-                      );
-
-        return $cpus;
+        return [
+            'CPU_LOCAL' => [
+                'id' => 1,
+                'host' => '127.0.0.1',
+                'max' => 1,
+                'number' => 1,
+                'type' => CpuService::TYPE_LINUX,
+                'user' => 'transco1',
+                'password' => 'PUMUKIT',
+                'description' => 'Pumukit transcoder',
+            ],
+            'CPU_REMOTE' => [
+                'id' => 2,
+                'host' => '192.168.5.123',
+                'max' => 2,
+                'number' => 1,
+                'type' => CpuService::TYPE_LINUX,
+                'user' => 'transco2',
+                'password' => 'PUMUKIT',
+                'description' => 'Pumukit transcoder',
+            ],
+        ];
     }
 
     private function getDemoProfiles()
     {
-        $profiles = array(
-                          'MASTER_COPY' => array(
-                                                 'display' => false,
-                                                 'wizard' => true,
-                                                 'master' => true,
-                                                 'resolution_hor' => 0,
-                                                 'resolution_ver' => 0,
-                                                 'framerate' => '0',
-                                                 'channels' => 1,
-                                                 'audio' => false,
-                                                 'bat' => 'cp "{{input}}" "{{output}}"',
-                                                 'streamserver' => array(
-                                                                         'type' => ProfileService::STREAMSERVER_STORE,
-                                                                         'host' => '127.0.0.1',
-                                                                         'name' => 'Localmaster',
-                                                                         'description' => 'Local masters server',
-                                                                         'dir_out' => __DIR__.'/../Resources/dir_out',                                                         ),
-                                                 'app' => 'cp',
-                                                 'rel_duration_size' => 1,
-                                                 'rel_duration_trans' => 1,
-                                                 ),
-                          'MASTER_VIDEO_H264' => array(
-                                                       'display' => false,
-                                                       'wizard' => true,
-                                                       'master' => true,
-                                                       'format' => 'mp4',
-                                                       'codec' => 'h264',
-                                                       'mime_type' => 'video/x-mp4',
-                                                       'extension' => 'mp4',
-                                                       'resolution_hor' => 0,
-                                                       'resolution_ver' => 0,
-                                                       'bitrate' => '1 Mbps',
-                                                       'framerate' => '25/1',
-                                                       'channels' => 1,
-                                                       'audio' => false,
-                                                       'bat' => 'ffmpeg -y -i "{{input}}" -acodec aac -vcodec libx264 -preset slow -crf 15 -threads 0 "{{output}}"',
-                                                       'streamserver' => array(
-                                                                               'type' => ProfileService::STREAMSERVER_STORE,
-                                                                               'host' => '192.168.5.125',
-                                                                               'name' => 'Download',
-                                                                               'description' => 'Download server',
-                                                                               'dir_out' => __DIR__.'/../Resources/dir_out',
-                                                                               'url_out' => 'http://localhost:8000/downloads/',
-                                                                               ),
-                                                       'app' => 'ffmpeg',
-                                                       'rel_duration_size' => 1,
-                                                       'rel_duration_trans' => 1,
-                                                       ),
-                          );
-
-        return $profiles;
+        return [
+            'MASTER_COPY' => [
+                'display' => false,
+                'wizard' => true,
+                'master' => true,
+                'resolution_hor' => 0,
+                'resolution_ver' => 0,
+                'framerate' => '0',
+                'channels' => 1,
+                'audio' => false,
+                'bat' => 'cp "{{input}}" "{{output}}"',
+                'streamserver' => [
+                    'type' => ProfileService::STREAMSERVER_STORE,
+                    'host' => '127.0.0.1',
+                    'name' => 'Localmaster',
+                    'description' => 'Local masters server',
+                    'dir_out' => __DIR__.'/../Resources/dir_out',                                                         ],
+                'app' => 'cp',
+                'rel_duration_size' => 1,
+                'rel_duration_trans' => 1,
+            ],
+            'MASTER_VIDEO_H264' => [
+                'display' => false,
+                'wizard' => true,
+                'master' => true,
+                'format' => 'mp4',
+                'codec' => 'h264',
+                'mime_type' => 'video/x-mp4',
+                'extension' => 'mp4',
+                'resolution_hor' => 0,
+                'resolution_ver' => 0,
+                'bitrate' => '1 Mbps',
+                'framerate' => '25/1',
+                'channels' => 1,
+                'audio' => false,
+                'bat' => 'ffmpeg -y -i "{{input}}" -acodec aac -vcodec libx264 -preset slow -crf 15 -threads 0 "{{output}}"',
+                'streamserver' => [
+                    'type' => ProfileService::STREAMSERVER_STORE,
+                    'host' => '192.168.5.125',
+                    'name' => 'Download',
+                    'description' => 'Download server',
+                    'dir_out' => __DIR__.'/../Resources/dir_out',
+                    'url_out' => 'http://localhost:8000/downloads/',
+                ],
+                'app' => 'ffmpeg',
+                'rel_duration_size' => 1,
+                'rel_duration_trans' => 1,
+            ],
+        ];
     }
 
     private function deleteCreatedFiles()

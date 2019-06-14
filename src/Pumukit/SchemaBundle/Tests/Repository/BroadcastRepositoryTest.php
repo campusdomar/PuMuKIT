@@ -2,36 +2,42 @@
 
 namespace Pumukit\SchemaBundle\Tests\Repository;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\SchemaBundle\Document\Broadcast;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * @deprecated in version 2.3
+ *
+ * @internal
+ * @coversNothing
  */
-class BroadcastRepositoryTest extends WebTestCase
+final class BroadcastRepositoryTest extends WebTestCase
 {
     private $dm;
     private $repo;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()
-        ->get('doctrine_mongodb')->getManager();
+            ->get('doctrine_mongodb')->getManager();
         $this->repo = $this->dm
-        ->getRepository(Broadcast::class);
+            ->getRepository(Broadcast::class)
+        ;
 
         $this->dm->getDocumentCollection(MultimediaObject::class)
-        ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Broadcast::class)
-        ->remove(array());
+            ->remove([])
+        ;
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -42,16 +48,16 @@ class BroadcastRepositoryTest extends WebTestCase
 
     public function testRepositoryEmpty()
     {
-        $this->assertEquals(0, count($this->repo->findAll()));
+        static::assertSame(0, \count($this->repo->findAll()));
     }
 
     public function testRepository()
     {
         $broadcastPrivate = $this->createBroadcast(Broadcast::BROADCAST_TYPE_PRI, 'private');
-        $this->assertEquals(1, count($this->repo->findAll()));
+        static::assertSame(1, \count($this->repo->findAll()));
 
         $broadcastPublic = $this->createBroadcast(Broadcast::BROADCAST_TYPE_PUB, 'public');
-        $this->assertEquals(2, count($this->repo->findAll()));
+        static::assertSame(2, \count($this->repo->findAll()));
     }
 
     public function testFindDistinctIdsByBroadcastTypeId()
@@ -64,34 +70,34 @@ class BroadcastRepositoryTest extends WebTestCase
 
         $privates = $this->repo->findDistinctIdsByBroadcastTypeId(Broadcast::BROADCAST_TYPE_PRI)->toArray();
 
-        $this->assertTrue(in_array($private1->getId(), $privates));
-        $this->assertTrue(in_array($private2->getId(), $privates));
-        $this->assertFalse(in_array($public1->getId(), $privates));
-        $this->assertFalse(in_array($public2->getId(), $privates));
-        $this->assertFalse(in_array($corporative1->getId(), $privates));
+        static::assertTrue(\in_array($private1->getId(), $privates, true));
+        static::assertTrue(\in_array($private2->getId(), $privates, true));
+        static::assertFalse(\in_array($public1->getId(), $privates, true));
+        static::assertFalse(\in_array($public2->getId(), $privates, true));
+        static::assertFalse(\in_array($corporative1->getId(), $privates, true));
 
         $publics = $this->repo->findDistinctIdsByBroadcastTypeId(Broadcast::BROADCAST_TYPE_PUB)->toArray();
 
-        $this->assertFalse(in_array($private1->getId(), $publics));
-        $this->assertFalse(in_array($private2->getId(), $publics));
-        $this->assertTrue(in_array($public1->getId(), $publics));
-        $this->assertTrue(in_array($public2->getId(), $publics));
-        $this->assertFalse(in_array($corporative1->getId(), $publics));
+        static::assertFalse(\in_array($private1->getId(), $publics, true));
+        static::assertFalse(\in_array($private2->getId(), $publics, true));
+        static::assertTrue(\in_array($public1->getId(), $publics, true));
+        static::assertTrue(\in_array($public2->getId(), $publics, true));
+        static::assertFalse(\in_array($corporative1->getId(), $publics, true));
 
         $corporatives = $this->repo->findDistinctIdsByBroadcastTypeId(Broadcast::BROADCAST_TYPE_COR)->toArray();
 
-        $this->assertFalse(in_array($private1->getId(), $corporatives));
-        $this->assertFalse(in_array($private2->getId(), $corporatives));
-        $this->assertFalse(in_array($public1->getId(), $corporatives));
-        $this->assertFalse(in_array($public2->getId(), $corporatives));
-        $this->assertTrue(in_array($corporative1->getId(), $corporatives));
+        static::assertFalse(\in_array($private1->getId(), $corporatives, true));
+        static::assertFalse(\in_array($private2->getId(), $corporatives, true));
+        static::assertFalse(\in_array($public1->getId(), $corporatives, true));
+        static::assertFalse(\in_array($public2->getId(), $corporatives, true));
+        static::assertTrue(\in_array($corporative1->getId(), $corporatives, true));
     }
 
     private function createBroadcast($broadcastTypeId, $name)
     {
         $locale = 'en';
         $passwd = 'password';
-        $defaultSel = Broadcast::BROADCAST_TYPE_PRI == $broadcastTypeId;
+        $defaultSel = Broadcast::BROADCAST_TYPE_PRI === $broadcastTypeId;
         $description = ucfirst($broadcastTypeId).' broadcast';
 
         $broadcast = new Broadcast();

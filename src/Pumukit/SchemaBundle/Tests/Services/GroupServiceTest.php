@@ -2,34 +2,40 @@
 
 namespace Pumukit\SchemaBundle\Tests\Services;
 
+use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
+use Pumukit\SchemaBundle\Document\Group;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\User;
+use Pumukit\SchemaBundle\Services\GroupEventDispatcherService;
+use Pumukit\SchemaBundle\Services\GroupService;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Pumukit\SchemaBundle\Document\Group;
-use Pumukit\SchemaBundle\Document\User;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
-use Pumukit\SchemaBundle\Services\GroupService;
-use Pumukit\SchemaBundle\Services\GroupEventDispatcherService;
 
-class GroupServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class GroupServiceTest extends WebTestCase
 {
     private $dm;
     private $repo;
     private $userRepo;
     private $groupService;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()
-          ->get('doctrine_mongodb')->getManager();
+            ->get('doctrine_mongodb')->getManager();
         $translator = static::$kernel->getContainer()->get('translator');
         $this->repo = $this->dm
-          ->getRepository(Group::class);
+            ->getRepository(Group::class)
+        ;
         $this->userRepo = $this->dm
-          ->getRepository(User::class);
+            ->getRepository(User::class)
+        ;
 
         $dispatcher = new EventDispatcher();
         $groupDispatcher = new GroupEventDispatcherService($dispatcher);
@@ -37,12 +43,12 @@ class GroupServiceTest extends WebTestCase
 
         $this->groupService = new GroupService($this->dm, $groupDispatcher, $translator);
 
-        $this->dm->getDocumentCollection(User::class)->remove(array());
-        $this->dm->getDocumentCollection(Group::class)->remove(array());
+        $this->dm->getDocumentCollection(User::class)->remove([]);
+        $this->dm->getDocumentCollection(Group::class)->remove([]);
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -85,15 +91,15 @@ class GroupServiceTest extends WebTestCase
         $this->dm->persist($user3);
         $this->dm->flush();
 
-        $this->assertEquals(0, $this->groupService->countUsersInGroup($group1));
-        $this->assertEquals(0, $this->groupService->countUsersInGroup($group2));
+        static::assertSame(0, $this->groupService->countUsersInGroup($group1));
+        static::assertSame(0, $this->groupService->countUsersInGroup($group2));
 
         $user1->addGroup($group1);
         $this->dm->persist($user1);
         $this->dm->flush();
 
-        $this->assertEquals(1, $this->groupService->countUsersInGroup($group1));
-        $this->assertEquals(0, $this->groupService->countUsersInGroup($group2));
+        static::assertSame(1, $this->groupService->countUsersInGroup($group1));
+        static::assertSame(0, $this->groupService->countUsersInGroup($group2));
     }
 
     public function testFindUsersInGroup()
@@ -131,12 +137,12 @@ class GroupServiceTest extends WebTestCase
         $usersGroup1 = $this->groupService->findUsersInGroup($group1)->toArray();
         $usersGroup2 = $this->groupService->findUsersInGroup($group2)->toArray();
 
-        $this->assertFalse(in_array($user1, $usersGroup1));
-        $this->assertFalse(in_array($user2, $usersGroup1));
-        $this->assertFalse(in_array($user3, $usersGroup1));
-        $this->assertFalse(in_array($user1, $usersGroup2));
-        $this->assertFalse(in_array($user2, $usersGroup2));
-        $this->assertFalse(in_array($user3, $usersGroup2));
+        static::assertFalse(\in_array($user1, $usersGroup1, true));
+        static::assertFalse(\in_array($user2, $usersGroup1, true));
+        static::assertFalse(\in_array($user3, $usersGroup1, true));
+        static::assertFalse(\in_array($user1, $usersGroup2, true));
+        static::assertFalse(\in_array($user2, $usersGroup2, true));
+        static::assertFalse(\in_array($user3, $usersGroup2, true));
 
         $user1->addGroup($group1);
         $this->dm->persist($user1);
@@ -145,12 +151,12 @@ class GroupServiceTest extends WebTestCase
         $usersGroup1 = $this->groupService->findUsersInGroup($group1)->toArray();
         $usersGroup2 = $this->groupService->findUsersInGroup($group2)->toArray();
 
-        $this->assertTrue(in_array($user1, $usersGroup1));
-        $this->assertFalse(in_array($user2, $usersGroup1));
-        $this->assertFalse(in_array($user3, $usersGroup1));
-        $this->assertFalse(in_array($user1, $usersGroup2));
-        $this->assertFalse(in_array($user2, $usersGroup2));
-        $this->assertFalse(in_array($user3, $usersGroup2));
+        static::assertTrue(\in_array($user1, $usersGroup1, true));
+        static::assertFalse(\in_array($user2, $usersGroup1, true));
+        static::assertFalse(\in_array($user3, $usersGroup1, true));
+        static::assertFalse(\in_array($user1, $usersGroup2, true));
+        static::assertFalse(\in_array($user2, $usersGroup2, true));
+        static::assertFalse(\in_array($user3, $usersGroup2, true));
 
         // sort
 
@@ -160,19 +166,19 @@ class GroupServiceTest extends WebTestCase
         $this->dm->persist($user3);
         $this->dm->flush();
 
-        $sort1 = array('username' => 1);
+        $sort1 = ['username' => 1];
         $users1Group1 = $this->groupService->findUsersInGroup($group1, $sort1)->toArray();
 
-        $sort_1 = array('username' => -1);
+        $sort_1 = ['username' => -1];
         $users_1Group1 = $this->groupService->findUsersInGroup($group1, $sort_1)->toArray();
 
-        $this->assertEquals(array($user1, $user2, $user3), array_values($users1Group1));
-        $this->assertEquals(array($user3, $user2, $user1), array_values($users_1Group1));
+        static::assertSame([$user1, $user2, $user3], array_values($users1Group1));
+        static::assertSame([$user3, $user2, $user1], array_values($users_1Group1));
     }
 
     public function testCreate()
     {
-        $this->assertEquals(0, count($this->repo->findAll()));
+        static::assertSame(0, \count($this->repo->findAll()));
 
         $key = 'key';
         $name = 'name';
@@ -183,10 +189,10 @@ class GroupServiceTest extends WebTestCase
 
         $group = $this->groupService->create($group);
 
-        $this->assertEquals(1, count($this->repo->findAll()));
-        $this->assertEquals($group, $this->repo->findOneByKey($key));
-        $this->assertEquals($group, $this->repo->findOneByName($name));
-        $this->assertEquals($group, $this->repo->find($group->getId()));
+        static::assertSame(1, \count($this->repo->findAll()));
+        static::assertSame($group, $this->repo->findOneByKey($key));
+        static::assertSame($group, $this->repo->findOneByName($name));
+        static::assertSame($group, $this->repo->find($group->getId()));
     }
 
     /**
@@ -261,7 +267,7 @@ class GroupServiceTest extends WebTestCase
 
     public function testUpdate()
     {
-        $this->assertEquals(0, count($this->repo->findAll()));
+        static::assertSame(0, \count($this->repo->findAll()));
 
         $key1 = 'key1';
         $name1 = 'name1';
@@ -274,34 +280,34 @@ class GroupServiceTest extends WebTestCase
 
         $group = $this->groupService->create($group);
 
-        $this->assertEquals(1, count($this->repo->findAll()));
-        $this->assertEquals($group, $this->repo->findOneByKey($key1));
-        $this->assertEquals($group, $this->repo->findOneByName($name1));
+        static::assertSame(1, \count($this->repo->findAll()));
+        static::assertSame($group, $this->repo->findOneByKey($key1));
+        static::assertSame($group, $this->repo->findOneByName($name1));
 
         $createdGroup = $this->repo->find($group->getId());
 
-        $this->assertEquals($group, $createdGroup);
-        $this->assertEquals($key1, $createdGroup->getKey());
-        $this->assertEquals($name1, $createdGroup->getName());
-        $this->assertNotEquals($key2, $createdGroup->getKey());
-        $this->assertNotEquals($name2, $createdGroup->getName());
+        static::assertSame($group, $createdGroup);
+        static::assertSame($key1, $createdGroup->getKey());
+        static::assertSame($name1, $createdGroup->getName());
+        static::assertNotSame($key2, $createdGroup->getKey());
+        static::assertNotSame($name2, $createdGroup->getName());
 
         $group->setKey($key2);
         $group->setName($name2);
 
         $group = $this->groupService->update($group);
 
-        $this->assertEquals(1, count($this->repo->findAll()));
-        $this->assertEquals($group, $this->repo->findOneByKey($key2));
-        $this->assertEquals($group, $this->repo->findOneByName($name2));
+        static::assertSame(1, \count($this->repo->findAll()));
+        static::assertSame($group, $this->repo->findOneByKey($key2));
+        static::assertSame($group, $this->repo->findOneByName($name2));
 
         $updatedGroup = $this->repo->find($group->getId());
 
-        $this->assertEquals($group, $updatedGroup);
-        $this->assertNotEquals($key1, $updatedGroup->getKey());
-        $this->assertNotEquals($name1, $updatedGroup->getName());
-        $this->assertEquals($key2, $updatedGroup->getKey());
-        $this->assertEquals($name2, $updatedGroup->getName());
+        static::assertSame($group, $updatedGroup);
+        static::assertNotSame($key1, $updatedGroup->getKey());
+        static::assertNotSame($name1, $updatedGroup->getName());
+        static::assertSame($key2, $updatedGroup->getKey());
+        static::assertSame($name2, $updatedGroup->getName());
     }
 
     /**
@@ -362,7 +368,7 @@ class GroupServiceTest extends WebTestCase
 
     public function testDelete()
     {
-        $this->assertEquals(0, count($this->repo->findAll()));
+        static::assertSame(0, \count($this->repo->findAll()));
 
         $key = 'key';
         $name = 'name';
@@ -375,14 +381,14 @@ class GroupServiceTest extends WebTestCase
 
         $group = $this->groupService->create($group);
 
-        $this->assertEquals(1, count($this->repo->findAll()));
-        $this->assertEquals($group, $this->repo->findOneByKey($key));
-        $this->assertEquals($group, $this->repo->findOneByName($name));
-        $this->assertEquals($group, $this->repo->find($group->getId()));
+        static::assertSame(1, \count($this->repo->findAll()));
+        static::assertSame($group, $this->repo->findOneByKey($key));
+        static::assertSame($group, $this->repo->findOneByName($name));
+        static::assertSame($group, $this->repo->find($group->getId()));
 
         $group = $this->groupService->delete($group);
 
-        $this->assertEquals(0, count($this->repo->findAll()));
+        static::assertSame(0, \count($this->repo->findAll()));
     }
 
     /**
@@ -391,7 +397,7 @@ class GroupServiceTest extends WebTestCase
      */
     public function testDeleteException()
     {
-        $this->assertEquals(0, count($this->repo->findAll()));
+        static::assertSame(0, \count($this->repo->findAll()));
 
         $key = 'key';
         $name = 'name';
@@ -404,11 +410,11 @@ class GroupServiceTest extends WebTestCase
 
         $group = $this->groupService->create($group);
 
-        $this->assertEquals(1, count($this->repo->findAll()));
+        static::assertSame(1, \count($this->repo->findAll()));
 
         $group = $this->groupService->delete($group);
 
-        $this->assertEquals(1, count($this->repo->findAll()));
+        static::assertSame(1, \count($this->repo->findAll()));
     }
 
     public function testFindById()
@@ -419,7 +425,7 @@ class GroupServiceTest extends WebTestCase
         $this->dm->persist($group);
         $this->dm->flush();
 
-        $this->assertEquals($group, $this->groupService->findById($group->getId()));
+        static::assertSame($group, $this->groupService->findById($group->getId()));
     }
 
     public function testFindAll()
@@ -441,7 +447,7 @@ class GroupServiceTest extends WebTestCase
         $this->dm->persist($group3);
         $this->dm->flush();
 
-        $this->assertEquals(3, count($this->groupService->findAll()));
+        static::assertSame(3, \count($this->groupService->findAll()));
     }
 
     public function testFindByIdNotIn()
@@ -463,11 +469,11 @@ class GroupServiceTest extends WebTestCase
         $this->dm->persist($group3);
         $this->dm->flush();
 
-        $ids = array(new \MongoId($group1->getId()), new \MongoId($group3->getId()));
+        $ids = [new \MongoId($group1->getId()), new \MongoId($group3->getId())];
         $groups = $this->groupService->findByIdNotIn($ids)->toArray();
-        $this->assertFalse(in_array($group1, $groups));
-        $this->assertTrue(in_array($group2, $groups));
-        $this->assertFalse(in_array($group3, $groups));
+        static::assertFalse(\in_array($group1, $groups, true));
+        static::assertTrue(\in_array($group2, $groups, true));
+        static::assertFalse(\in_array($group3, $groups, true));
     }
 
     public function testFindByIdNotInOf()
@@ -494,37 +500,37 @@ class GroupServiceTest extends WebTestCase
         $this->dm->persist($group4);
         $this->dm->flush();
 
-        $ids = array(new \MongoId($group1->getId()), new \MongoId($group3->getId()));
-        $total = array(new \MongoId($group1->getId()), new \MongoId($group3->getId()), new \MongoId($group4->getId()));
+        $ids = [new \MongoId($group1->getId()), new \MongoId($group3->getId())];
+        $total = [new \MongoId($group1->getId()), new \MongoId($group3->getId()), new \MongoId($group4->getId())];
         $groups = $this->groupService->findByIdNotInOf($ids, $total)->toArray();
-        $this->assertFalse(in_array($group1, $groups));
-        $this->assertFalse(in_array($group2, $groups));
-        $this->assertFalse(in_array($group3, $groups));
-        $this->assertTrue(in_array($group4, $groups));
+        static::assertFalse(\in_array($group1, $groups, true));
+        static::assertFalse(\in_array($group2, $groups, true));
+        static::assertFalse(\in_array($group3, $groups, true));
+        static::assertTrue(\in_array($group4, $groups, true));
 
-        $ids = array();
-        $total = array(new \MongoId($group1->getId()), new \MongoId($group3->getId()), new \MongoId($group4->getId()));
+        $ids = [];
+        $total = [new \MongoId($group1->getId()), new \MongoId($group3->getId()), new \MongoId($group4->getId())];
         $groups = $this->groupService->findByIdNotInOf($ids, $total)->toArray();
-        $this->assertTrue(in_array($group1, $groups));
-        $this->assertFalse(in_array($group2, $groups));
-        $this->assertTrue(in_array($group3, $groups));
-        $this->assertTrue(in_array($group4, $groups));
+        static::assertTrue(\in_array($group1, $groups, true));
+        static::assertFalse(\in_array($group2, $groups, true));
+        static::assertTrue(\in_array($group3, $groups, true));
+        static::assertTrue(\in_array($group4, $groups, true));
 
-        $ids = array(new \MongoId($group1->getId()), new \MongoId($group3->getId()));
-        $total = array();
+        $ids = [new \MongoId($group1->getId()), new \MongoId($group3->getId())];
+        $total = [];
         $groups = $this->groupService->findByIdNotInOf($ids, $total)->toArray();
-        $this->assertFalse(in_array($group1, $groups));
-        $this->assertFalse(in_array($group2, $groups));
-        $this->assertFalse(in_array($group3, $groups));
-        $this->assertFalse(in_array($group4, $groups));
+        static::assertFalse(\in_array($group1, $groups, true));
+        static::assertFalse(\in_array($group2, $groups, true));
+        static::assertFalse(\in_array($group3, $groups, true));
+        static::assertFalse(\in_array($group4, $groups, true));
 
-        $ids = array();
-        $total = array();
+        $ids = [];
+        $total = [];
         $groups = $this->groupService->findByIdNotInOf($ids, $total)->toArray();
-        $this->assertFalse(in_array($group1, $groups));
-        $this->assertFalse(in_array($group2, $groups));
-        $this->assertFalse(in_array($group3, $groups));
-        $this->assertFalse(in_array($group4, $groups));
+        static::assertFalse(\in_array($group1, $groups, true));
+        static::assertFalse(\in_array($group2, $groups, true));
+        static::assertFalse(\in_array($group3, $groups, true));
+        static::assertFalse(\in_array($group4, $groups, true));
     }
 
     public function testCountAdminMultimediaObjectsInGroup()
@@ -555,8 +561,8 @@ class GroupServiceTest extends WebTestCase
         $this->dm->persist($mm2);
         $this->dm->flush();
 
-        $this->assertEquals(1, $this->groupService->countAdminMultimediaObjectsInGroup($group1));
-        $this->assertEquals(2, $this->groupService->countAdminMultimediaObjectsInGroup($group2));
+        static::assertSame(1, $this->groupService->countAdminMultimediaObjectsInGroup($group1));
+        static::assertSame(2, $this->groupService->countAdminMultimediaObjectsInGroup($group2));
     }
 
     public function testCountPlayMultimediaObjectsInGroup()
@@ -603,8 +609,8 @@ class GroupServiceTest extends WebTestCase
         $this->dm->persist($mm2);
         $this->dm->flush();
 
-        $this->assertEquals(1, $this->groupService->countPlayMultimediaObjectsInGroup($group1));
-        $this->assertEquals(2, $this->groupService->countPlayMultimediaObjectsInGroup($group2));
+        static::assertSame(1, $this->groupService->countPlayMultimediaObjectsInGroup($group1));
+        static::assertSame(2, $this->groupService->countPlayMultimediaObjectsInGroup($group2));
     }
 
     public function testCountResources()
@@ -635,8 +641,8 @@ class GroupServiceTest extends WebTestCase
         $this->dm->persist($mm2);
         $this->dm->flush();
 
-        $this->assertEquals(1, $this->groupService->countAdminMultimediaObjectsInGroup($group1));
-        $this->assertEquals(2, $this->groupService->countAdminMultimediaObjectsInGroup($group2));
+        static::assertSame(1, $this->groupService->countAdminMultimediaObjectsInGroup($group1));
+        static::assertSame(2, $this->groupService->countAdminMultimediaObjectsInGroup($group2));
 
         $type = EmbeddedBroadcast::TYPE_GROUPS;
         $name = EmbeddedBroadcast::NAME_GROUPS;
@@ -658,8 +664,8 @@ class GroupServiceTest extends WebTestCase
         $this->dm->persist($mm2);
         $this->dm->flush();
 
-        $this->assertEquals(1, $this->groupService->countPlayMultimediaObjectsInGroup($group1));
-        $this->assertEquals(2, $this->groupService->countPlayMultimediaObjectsInGroup($group2));
+        static::assertSame(1, $this->groupService->countPlayMultimediaObjectsInGroup($group1));
+        static::assertSame(2, $this->groupService->countPlayMultimediaObjectsInGroup($group2));
 
         $user1 = new User();
         $user1->setUsername('test1');
@@ -685,28 +691,28 @@ class GroupServiceTest extends WebTestCase
         $this->dm->persist($user1);
         $this->dm->flush();
 
-        $this->assertEquals(1, $this->groupService->countUsersInGroup($group1));
-        $this->assertEquals(0, $this->groupService->countUsersInGroup($group2));
+        static::assertSame(1, $this->groupService->countUsersInGroup($group1));
+        static::assertSame(0, $this->groupService->countUsersInGroup($group2));
 
         $resourcesInGroup1 = $this->groupService->countResourcesInGroup($group1);
         $resourcesInGroup2 = $this->groupService->countResourcesInGroup($group2);
 
-        $this->assertEquals(1, $resourcesInGroup1['adminMultimediaObjects']);
-        $this->assertEquals(2, $resourcesInGroup2['adminMultimediaObjects']);
-        $this->assertEquals(1, $resourcesInGroup1['playMultimediaObjects']);
-        $this->assertEquals(2, $resourcesInGroup2['playMultimediaObjects']);
-        $this->assertEquals(1, $resourcesInGroup1['users']);
-        $this->assertEquals(0, $resourcesInGroup2['users']);
+        static::assertSame(1, $resourcesInGroup1['adminMultimediaObjects']);
+        static::assertSame(2, $resourcesInGroup2['adminMultimediaObjects']);
+        static::assertSame(1, $resourcesInGroup1['playMultimediaObjects']);
+        static::assertSame(2, $resourcesInGroup2['playMultimediaObjects']);
+        static::assertSame(1, $resourcesInGroup1['users']);
+        static::assertSame(0, $resourcesInGroup2['users']);
 
         $groups = $this->repo->findAll();
         $resources = $this->groupService->countResources($groups);
 
-        $this->assertEquals(1, $resources[$group1->getId()]['adminMultimediaObjects']);
-        $this->assertEquals(2, $resources[$group2->getId()]['adminMultimediaObjects']);
-        $this->assertEquals(1, $resources[$group1->getId()]['playMultimediaObjects']);
-        $this->assertEquals(2, $resources[$group2->getId()]['playMultimediaObjects']);
-        $this->assertEquals(1, $resources[$group1->getId()]['users']);
-        $this->assertEquals(0, $resources[$group2->getId()]['users']);
+        static::assertSame(1, $resources[$group1->getId()]['adminMultimediaObjects']);
+        static::assertSame(2, $resources[$group2->getId()]['adminMultimediaObjects']);
+        static::assertSame(1, $resources[$group1->getId()]['playMultimediaObjects']);
+        static::assertSame(2, $resources[$group2->getId()]['playMultimediaObjects']);
+        static::assertSame(1, $resources[$group1->getId()]['users']);
+        static::assertSame(0, $resources[$group2->getId()]['users']);
     }
 
     public function testCanBeDeleted()
@@ -718,7 +724,7 @@ class GroupServiceTest extends WebTestCase
         $this->dm->persist($externalGroup);
         $this->dm->flush();
 
-        $this->assertFalse($this->groupService->canBeDeleted($externalGroup));
+        static::assertFalse($this->groupService->canBeDeleted($externalGroup));
 
         $group = new Group();
         $group->setKey('key1');
@@ -735,7 +741,7 @@ class GroupServiceTest extends WebTestCase
         $this->dm->persist($user);
         $this->dm->flush();
 
-        $this->assertFalse($this->groupService->canBeDeleted($group));
+        static::assertFalse($this->groupService->canBeDeleted($group));
 
         $user->removeGroup($group);
 
@@ -747,7 +753,7 @@ class GroupServiceTest extends WebTestCase
         $this->dm->persist($mm);
         $this->dm->flush();
 
-        $this->assertFalse($this->groupService->canBeDeleted($group));
+        static::assertFalse($this->groupService->canBeDeleted($group));
 
         $mm->removeGroup($group);
         $embeddedBroadcast = new EmbeddedBroadcast();
@@ -758,13 +764,13 @@ class GroupServiceTest extends WebTestCase
         $this->dm->persist($mm);
         $this->dm->flush();
 
-        $this->assertFalse($this->groupService->canBeDeleted($group));
+        static::assertFalse($this->groupService->canBeDeleted($group));
 
         $embeddedBroadcast = $mm->getEmbeddedBroadcast();
         $embeddedBroadcast->removeGroup($group);
         $this->dm->persist($mm);
         $this->dm->flush();
 
-        $this->assertTrue($this->groupService->canBeDeleted($group));
+        static::assertTrue($this->groupService->canBeDeleted($group));
     }
 }

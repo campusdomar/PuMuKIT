@@ -2,11 +2,11 @@
 
 namespace Pumukit\NewAdminBundle\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Pumukit\LiveBundle\Document\Event;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Security("is_granted('ROLE_ACCESS_LIVE_EVENTS')")
@@ -18,10 +18,10 @@ class LegacyEventPicController extends Controller implements NewAdminControllerI
      */
     public function createAction(Event $event, Request $request)
     {
-        return array(
+        return [
             'resource' => $event,
             'resource_name' => 'event',
-        );
+        ];
     }
 
     /**
@@ -51,18 +51,18 @@ class LegacyEventPicController extends Controller implements NewAdminControllerI
                 $picService->addPicFile($event, $request->files->get('file'));
             }
         } catch (\Exception $e) {
-            return array(
+            return [
                 'event' => $event,
                 'uploaded' => 'failed',
                 'message' => $e->getMessage(),
-            );
+            ];
         }
 
-        return array(
+        return [
             'event' => $event,
             'uploaded' => 'success',
             'message' => 'New Pic added.',
-        );
+        ];
     }
 
     /**

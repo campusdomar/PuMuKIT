@@ -2,19 +2,23 @@
 
 namespace Pumukit\OaiBundle\Tests\Utils;
 
-use Pumukit\OaiBundle\Utils\ResumptionToken;
 use PHPUnit\Framework\TestCase;
+use Pumukit\OaiBundle\Utils\ResumptionToken;
 
-class ResumptionTokenTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class ResumptionTokenTest extends TestCase
 {
     public function testConstructAndGetter()
     {
         $token = new ResumptionToken();
-        $this->assertSame(0, $token->getOffset());
-        $this->assertSame(null, $token->getFrom());
-        $this->assertSame(null, $token->getUntil());
-        $this->assertSame(null, $token->getMetadataPrefix());
-        $this->assertSame(null, $token->getSet());
+        static::assertSame(0, $token->getOffset());
+        static::assertNull($token->getFrom());
+        static::assertNull($token->getUntil());
+        static::assertNull($token->getMetadataPrefix());
+        static::assertNull($token->getSet());
 
         $offset = 10;
         $from = new \DateTime('yesterday');
@@ -22,13 +26,13 @@ class ResumptionTokenTest extends TestCase
         $metadataPrefix = 'oai_dc';
         $set = 'castillo';
         $token = new ResumptionToken($offset, $from, $until, $metadataPrefix, $set);
-        $this->assertSame($offset, $token->getOffset());
-        $this->assertSame($from, $token->getFrom());
-        $this->assertSame($until, $token->getUntil());
-        $this->assertSame($metadataPrefix, $token->getMetadataPrefix());
-        $this->assertSame($set, $token->getSet());
+        static::assertSame($offset, $token->getOffset());
+        static::assertSame($from, $token->getFrom());
+        static::assertSame($until, $token->getUntil());
+        static::assertSame($metadataPrefix, $token->getMetadataPrefix());
+        static::assertSame($set, $token->getSet());
 
-        $this->assertTrue(strlen($token->encode()) > 0);
+        static::assertTrue(\strlen($token->encode()) > 0);
     }
 
     /**
@@ -49,8 +53,8 @@ class ResumptionTokenTest extends TestCase
         $set = 'castillo';
         $token = ResumptionToken::decode($rawToken);
 
-        $this->assertSame($offset, $token->getOffset());
-        $this->assertSame($metadataPrefix, $token->getMetadataPrefix());
-        $this->assertSame($set, $token->getSet());
+        static::assertSame($offset, $token->getOffset());
+        static::assertSame($metadataPrefix, $token->getMetadataPrefix());
+        static::assertSame($set, $token->getSet());
     }
 }

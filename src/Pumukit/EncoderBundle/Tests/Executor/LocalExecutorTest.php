@@ -2,14 +2,18 @@
 
 namespace Pumukit\EncoderBundle\Tests\Executor;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\EncoderBundle\Executor\LocalExecutor;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class LocalExecutorTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class LocalExecutorTest extends WebTestCase
 {
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
     }
 
@@ -17,6 +21,6 @@ class LocalExecutorTest extends WebTestCase
     {
         $executor = new LocalExecutor();
         $out = $executor->execute('sleep 1 && echo a');
-        $this->assertEquals("a\n\n", "$out");
+        static::assertSame("a\n\n", "{$out}");
     }
 }

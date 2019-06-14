@@ -2,14 +2,14 @@
 
 namespace Pumukit\NewAdminBundle\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Pumukit\NewAdminBundle\Form\Type\PermissionProfileType;
 use Pumukit\SchemaBundle\Document\PermissionProfile;
 use Pumukit\SchemaBundle\Security\Permission;
-use Pumukit\NewAdminBundle\Form\Type\PermissionProfileType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @Security("is_granted('ROLE_ACCESS_PERMISSION_PROFILES')")
@@ -26,18 +26,18 @@ class PermissionProfileController extends AdminController implements NewAdminCon
      */
     public function indexAction(Request $request)
     {
-        $criteria = $this->getCriteria($request->get('criteria', array()));
+        $criteria = $this->getCriteria($request->get('criteria', []));
         $permissionProfiles = $this->getResources($request, $criteria);
 
         list($permissions, $dependencies) = $this->getPermissions();
         $scopes = PermissionProfile::$scopeDescription;
 
-        return array(
+        return [
             'permissionprofiles' => $permissionProfiles,
             'permissions' => $permissions,
             'scopes' => $scopes,
             'dependencies' => $dependencies,
-        );
+        ];
     }
 
     /**
@@ -51,7 +51,7 @@ class PermissionProfileController extends AdminController implements NewAdminCon
     {
         $session = $this->get('session');
 
-        $criteria = $this->getCriteria($request->get('criteria', array()));
+        $criteria = $this->getCriteria($request->get('criteria', []));
         $permissionProfiles = $this->getResources($request, $criteria);
 
         $page = $session->get('admin/permissionprofile/page', 1);
@@ -66,12 +66,12 @@ class PermissionProfileController extends AdminController implements NewAdminCon
         list($permissions, $dependencies) = $this->getPermissions();
         $scopes = PermissionProfile::$scopeDescription;
 
-        return array(
+        return [
             'permissionprofiles' => $permissionProfiles,
             'permissions' => $permissions,
             'scopes' => $scopes,
             'dependencies' => $dependencies,
-        );
+        ];
     }
 
     /**
@@ -91,19 +91,19 @@ class PermissionProfileController extends AdminController implements NewAdminCon
             try {
                 $permissionProfile = $permissionProfileService->update($permissionProfile, true);
             } catch (\Exception $e) {
-                return new JsonResponse(array('status' => $e->getMessage()), 409);
+                return new JsonResponse(['status' => $e->getMessage()], 409);
             }
             if (null === $permissionProfile) {
                 return $this->redirect($this->generateUrl('pumukitnewadmin_permissionprofile_list'));
             }
 
-            return $this->redirect($this->generateUrl('pumukitnewadmin_permissionprofile_list', array('id' => $permissionProfile->getId())));
+            return $this->redirect($this->generateUrl('pumukitnewadmin_permissionprofile_list', ['id' => $permissionProfile->getId()]));
         }
 
-        return array(
+        return [
             'permissionprofile' => $permissionProfile,
             'form' => $form->createView(),
-        );
+        ];
     }
 
     /**
@@ -120,26 +120,26 @@ class PermissionProfileController extends AdminController implements NewAdminCon
         $permissionProfile = $this->findOr404($request);
         $form = $this->getForm($permissionProfile, $request->getLocale());
 
-        if (in_array($request->getMethod(), array('POST', 'PUT', 'PATCH')) && $form->handleRequest($request)->isValid()) {
+        if (\in_array($request->getMethod(), ['POST', 'PUT', 'PATCH'], true) && $form->handleRequest($request)->isValid()) {
             try {
                 $permissionProfileService->update($permissionProfile);
             } catch (\Exception $e) {
-                return new JsonResponse(array('status' => $e->getMessage()), 409);
+                return new JsonResponse(['status' => $e->getMessage()], 409);
             }
 
             return $this->redirect($this->generateUrl('pumukitnewadmin_permissionprofile_list'));
         }
 
-        return array(
+        return [
             'permissionprofile' => $permissionProfile,
             'form' => $form->createView(),
-        );
+        ];
     }
 
     /**
      * Overwrite to get form with translations.
      *
-     * @param object|null $permissionProfile
+     * @param null|object $permissionProfile
      * @param string      $locale
      *
      * @return \Symfony\Component\Form\Form|\Symfony\Component\Form\FormInterface
@@ -148,9 +148,7 @@ class PermissionProfileController extends AdminController implements NewAdminCon
     {
         $translator = $this->get('translator');
 
-        $form = $this->createForm(PermissionProfileType::class, $permissionProfile, array('translator' => $translator, 'locale' => $locale));
-
-        return $form;
+        return $this->createForm(PermissionProfileType::class, $permissionProfile, ['translator' => $translator, 'locale' => $locale]);
     }
 
     /**
@@ -195,10 +193,10 @@ class PermissionProfileController extends AdminController implements NewAdminCon
         $selectedScopes = $request->get('selected_scopes');
         $checkedPermissions = $request->get('checked_permissions');
 
-        if ('string' === gettype($selectedScopes)) {
+        if ('string' === \gettype($selectedScopes)) {
             $selectedScopes = json_decode($selectedScopes, true);
         }
-        if ('string' === gettype($checkedPermissions)) {
+        if ('string' === \gettype($checkedPermissions)) {
             $checkedPermissions = json_decode($checkedPermissions, true);
         }
 
@@ -219,6 +217,7 @@ class PermissionProfileController extends AdminController implements NewAdminCon
             if (null === $permissionProfile) {
                 continue;
             }
+
             try {
                 $permissionProfile = $permissionProfileService->setScope($permissionProfile, $p['scope'], false);
                 $permissionProfileService->batchUpdate($permissionProfile, $p['permissions'], false);
@@ -232,79 +231,11 @@ class PermissionProfileController extends AdminController implements NewAdminCon
     }
 
     /**
-     * Returns an array with all permissions and there newly set (if any) permissions and scope.
-     *
-     * returns $permissionProfiles = array(
-     *             'PROFILE_NAME' => array('PERM1', 'PERM2', 'PERM3', ...),
-     *             (...) ,
-     *         );
-     */
-    private function buildPermissionProfiles($checkedPermissions, $selectedScopes)
-    {
-        $permissionProfiles = array();
-        //Adds scope and checked permissions to permissions.
-        foreach ($checkedPermissions as $permission) {
-            $data = $this->separateAttributePermissionProfilesIds($permission);
-            $permissionProfiles[$data['profileId']]['permissions'][] = $data['attribute'];
-        }
-        foreach ($selectedScopes as $selectedScope) {
-            $data = $this->separateAttributePermissionProfilesIds($selectedScope);
-            if (isset($permissionProfiles[$data['profileId']])) {
-                $permissionProfiles[$data['profileId']]['scope'] = $data['attribute'];
-            } else {
-                $permissionProfiles[$data['profileId']] = array(
-                    'permissions' => array(),
-                    'scope' => $data['attribute'],
-                );
-            }
-        }
-
-        return $permissionProfiles;
-    }
-
-    private function separateAttributePermissionProfilesIds($pair = '')
-    {
-        $data = array('attribute' => '', 'profileId' => '');
-        if ($pair) {
-            $output = explode('__', $pair);
-            if (array_key_exists(0, $output)) {
-                $data['attribute'] = $output[0];
-            }
-            if (array_key_exists(1, $output)) {
-                $data['profileId'] = $output[1];
-            }
-        }
-
-        return $data;
-    }
-
-    private function findPermissionProfile($permissionProfiles, $id = '')
-    {
-        foreach ($permissionProfiles as $permissionProfile) {
-            if ($id == $permissionProfile->getId()) {
-                return $permissionProfile;
-            }
-        }
-
-        return null;
-    }
-
-    private function isAllowedToBeDeleted(PermissionProfile $permissionProfile)
-    {
-        $userService = $this->get('pumukitschema.user');
-        $usersWithPermissionProfile = $userService->countUsersWithPermissionProfile($permissionProfile);
-
-        if (0 < $usersWithPermissionProfile) {
-            return new Response('Can not delete this permission profile "'.$permissionProfile->getName().'". There are '.$usersWithPermissionProfile.' user(s) with this permission profile.', Response::HTTP_FORBIDDEN);
-        }
-
-        return true;
-    }
-
-    /**
      * Gets the list of resources according to a criteria.
      *
      * Override to get 9 resources per page
+     *
+     * @param mixed $criteria
      */
     public function getResources(Request $request, $criteria)
     {
@@ -328,9 +259,83 @@ class PermissionProfileController extends AdminController implements NewAdminCon
         $resources
             ->setMaxPerPage($session->get($session_namespace.'/paginate', 9))
             ->setNormalizeOutOfRangePages(true)
-            ->setCurrentPage($session->get($session_namespace.'/page', 1));
+            ->setCurrentPage($session->get($session_namespace.'/page', 1))
+        ;
 
         return $resources;
+    }
+
+    /**
+     * Returns an array with all permissions and there newly set (if any) permissions and scope.
+     *
+     * returns $permissionProfiles = array(
+     *             'PROFILE_NAME' => array('PERM1', 'PERM2', 'PERM3', ...),
+     *             (...) ,
+     *         );
+     *
+     * @param mixed $checkedPermissions
+     * @param mixed $selectedScopes
+     */
+    private function buildPermissionProfiles($checkedPermissions, $selectedScopes)
+    {
+        $permissionProfiles = [];
+        //Adds scope and checked permissions to permissions.
+        foreach ($checkedPermissions as $permission) {
+            $data = $this->separateAttributePermissionProfilesIds($permission);
+            $permissionProfiles[$data['profileId']]['permissions'][] = $data['attribute'];
+        }
+        foreach ($selectedScopes as $selectedScope) {
+            $data = $this->separateAttributePermissionProfilesIds($selectedScope);
+            if (isset($permissionProfiles[$data['profileId']])) {
+                $permissionProfiles[$data['profileId']]['scope'] = $data['attribute'];
+            } else {
+                $permissionProfiles[$data['profileId']] = [
+                    'permissions' => [],
+                    'scope' => $data['attribute'],
+                ];
+            }
+        }
+
+        return $permissionProfiles;
+    }
+
+    private function separateAttributePermissionProfilesIds($pair = '')
+    {
+        $data = ['attribute' => '', 'profileId' => ''];
+        if ($pair) {
+            $output = explode('__', $pair);
+            if (\array_key_exists(0, $output)) {
+                $data['attribute'] = $output[0];
+            }
+            if (\array_key_exists(1, $output)) {
+                $data['profileId'] = $output[1];
+            }
+        }
+
+        return $data;
+    }
+
+    private function findPermissionProfile($permissionProfiles, $id = '')
+    {
+        foreach ($permissionProfiles as $permissionProfile) {
+            if ($id === $permissionProfile->getId()) {
+                return $permissionProfile;
+            }
+        }
+
+        return null;
+    }
+
+    private function isAllowedToBeDeleted(PermissionProfile $permissionProfile)
+    {
+        $userService = $this->get('pumukitschema.user');
+        $usersWithPermissionProfile = $userService->countUsersWithPermissionProfile($permissionProfile);
+
+        if (0 < $usersWithPermissionProfile) {
+            return new Response('Can not delete this permission profile "'.$permissionProfile->getName().'". There are '.$usersWithPermissionProfile.' user(s) with this permission profile.', Response::HTTP_FORBIDDEN);
+        }
+
+        return true;
     }
 
     private function getPermissions()
@@ -348,6 +353,6 @@ class PermissionProfileController extends AdminController implements NewAdminCon
 
         $dependencies = $permissionService->getAllDependencies();
 
-        return array($permissions, $dependencies);
+        return [$permissions, $dependencies];
     }
 }

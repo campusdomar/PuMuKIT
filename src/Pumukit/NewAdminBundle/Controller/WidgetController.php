@@ -2,9 +2,9 @@
 
 namespace Pumukit\NewAdminBundle\Controller;
 
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 class WidgetController extends Controller
 {
@@ -14,10 +14,10 @@ class WidgetController extends Controller
     public function languageselectAction()
     {
         $array_locales = $this->container->getParameter('pumukit.locales');
-        if (count($array_locales) <= 1) {
+        if (\count($array_locales) <= 1) {
             return new Response('');
         }
 
-        return array('languages' => $array_locales);
+        return ['languages' => $array_locales];
     }
 }

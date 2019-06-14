@@ -3,13 +3,13 @@
 namespace Pumukit\LDAPBundle\Services;
 
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Psr\Log\LoggerInterface;
+use Pumukit\SchemaBundle\Document\Group;
+use Pumukit\SchemaBundle\Document\User;
 use Pumukit\SchemaBundle\Services\GroupService;
+use Pumukit\SchemaBundle\Services\PermissionProfileService;
 use Pumukit\SchemaBundle\Services\PersonService;
 use Pumukit\SchemaBundle\Services\UserService;
-use Pumukit\SchemaBundle\Services\PermissionProfileService;
-use Pumukit\SchemaBundle\Document\User;
-use Pumukit\SchemaBundle\Document\Group;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class LDAPUserService
@@ -53,9 +53,9 @@ class LDAPUserService
      * @param $info
      * @param $username
      *
-     * @return mixed|object|User
-     *
      * @throws \Exception
+     *
+     * @return mixed|object|User
      */
     public function createUser($info, $username)
     {
@@ -63,8 +63,8 @@ class LDAPUserService
             throw new \InvalidArgumentException('Uid is not set ');
         }
 
-        $user = $this->dm->getRepository(User::class)->findOneBy(array('username' => $username));
-        if (count($user) <= 0) {
+        $user = $this->dm->getRepository(User::class)->findOneBy(['username' => $username]);
+        if (\count($user) <= 0) {
             try {
                 $user = $this->newUser($info, $username);
             } catch (\Exception $e) {
@@ -85,6 +85,20 @@ class LDAPUserService
 
     /**
      * @param $info
+     *
+     * @return mixed
+     */
+    public function getEmail($info)
+    {
+        if (isset($info['mail'][0])) {
+            return $info['mail'][0];
+        }
+
+        throw new AuthenticationException('Missing LDAP attribute email');
+    }
+
+    /**
+     * @param $info
      * @param $username
      *
      * @return object|User
@@ -93,8 +107,8 @@ class LDAPUserService
     {
         $email = $this->getEmail($info);
 
-        $user = $this->dm->getRepository(User::class)->findOneBy(array('email' => $email));
-        if (count($user) <= 0) {
+        $user = $this->dm->getRepository(User::class)->findOneBy(['email' => $email]);
+        if (\count($user) <= 0) {
             $user = new User();
             $user->setEmail($email);
         } else {
@@ -126,9 +140,9 @@ class LDAPUserService
      * @param string $key
      * @param string $type
      *
-     * @return Group
-     *
      * @throws \Exception
+     *
+     * @return Group
      */
     protected function getGroup($key, $type = null)
     {
@@ -152,7 +166,7 @@ class LDAPUserService
      * @param string $key
      * @param string $type
      *
-     * @return string|string[]|null
+     * @return null|string|string[]
      */
     protected function getGroupKey($key, $type = null)
     {
@@ -218,7 +232,7 @@ class LDAPUserService
      */
     protected function updateGroups($info, $user)
     {
-        $aGroups = array();
+        $aGroups = [];
         if (isset($info[self::EDU_PERSON_AFFILIATION][0])) {
             foreach ($info[self::EDU_PERSON_AFFILIATION] as $key => $value) {
                 if ('count' !== $key) {
@@ -263,7 +277,7 @@ class LDAPUserService
 
         foreach ($user->getGroups() as $group) {
             if (self::ORIGIN === $group->getOrigin()) {
-                if (!in_array($group->getKey(), $aGroups)) {
+                if (!\in_array($group->getKey(), $aGroups, true)) {
                     try {
                         $this->userService->deleteGroup($group, $user, true, false);
                     } catch (\Exception $e) {
@@ -280,9 +294,9 @@ class LDAPUserService
      * @param $info
      * @param $user
      *
-     * @return mixed
-     *
      * @throws \Exception
+     *
+     * @return mixed
      */
     protected function updateUser($info, $user)
     {
@@ -352,19 +366,5 @@ class LDAPUserService
     protected function isViewer($info, $username)
     {
         return false;
-    }
-
-    /**
-     * @param $info
-     *
-     * @return mixed
-     */
-    public function getEmail($info)
-    {
-        if (isset($info['mail'][0])) {
-            return $info['mail'][0];
-        } else {
-            throw new AuthenticationException('Missing LDAP attribute email');
-        }
     }
 }

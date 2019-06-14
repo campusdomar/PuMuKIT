@@ -74,7 +74,7 @@ class FilterService
     {
         list($controller, $routeParams) = $this->getEventData($event);
 
-        if (!is_array($controller)) {
+        if (!\is_array($controller)) {
             return false;
         }
 
@@ -144,7 +144,7 @@ class FilterService
 
     /**
      * @param BsonFilter $filter
-     * @param User|null  $user
+     * @param null|User  $user
      *
      * @throws \MongoException
      */
@@ -206,7 +206,7 @@ class FilterService
     }
 
     /**
-     * @return User|null
+     * @return null|User
      */
     public function checkUserActivateFilter()
     {
@@ -223,23 +223,6 @@ class FilterService
     }
 
     /**
-     * Get logged in user.
-     *
-     * @return User|null
-     */
-    private function getLoggedInUser()
-    {
-        if (null !== $token = $this->securityContext->getToken()) {
-            $user = $token->getUser();
-            if ($user instanceof User) {
-                return $user;
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * Get people mongo query.
      *
      * Match the MultimediaObjects
@@ -248,17 +231,17 @@ class FilterService
      * Query in MongoDB:
      * {"people":{"$elemMatch":{"people._id":{"$id":"___MongoID_of_Person___"},"cod":"___Role_cod___"}}}
      *
-     * @param Person|null $person
-     *
-     * @return array
+     * @param null|Person $person
      *
      * @throws \MongoException
+     *
+     * @return array
      */
     public function getPeopleMongoQuery(Person $person = null)
     {
-        $people = array();
+        $people = [];
         if ((null !== $person) && (null !== ($roleCode = $this->personService->getPersonalScopeRoleCode()))) {
-            $people['$elemMatch'] = array();
+            $people['$elemMatch'] = [];
             $people['$elemMatch']['people._id'] = new \MongoId($person->getId());
             $people['$elemMatch']['cod'] = $roleCode;
         }
@@ -282,9 +265,26 @@ class FilterService
      */
     public function getGroupsMongoQuery(User $user)
     {
-        $groups = array();
+        $groups = [];
         $groups['$in'] = $user->getGroupsIds();
 
         return $groups;
+    }
+
+    /**
+     * Get logged in user.
+     *
+     * @return null|User
+     */
+    private function getLoggedInUser()
+    {
+        if (null !== $token = $this->securityContext->getToken()) {
+            $user = $token->getUser();
+            if ($user instanceof User) {
+                return $user;
+            }
+        }
+
+        return null;
     }
 }

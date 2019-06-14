@@ -2,10 +2,14 @@
 
 namespace Pumukit\NotificationBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\NotificationBundle\Services\SenderService;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class SenderServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class SenderServiceTest extends WebTestCase
 {
     private $dm;
     private $senderService;
@@ -24,9 +28,9 @@ class SenderServiceTest extends WebTestCase
     private $locales;
     private $subjectFailsTrans;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'dev');
+        $options = ['environment' => 'dev'];
         static::bootKernel($options);
         $container = static::$kernel->getContainer();
 
@@ -39,9 +43,9 @@ class SenderServiceTest extends WebTestCase
         $this->senderEmail = 'sender@pumukit.org';
         $this->senderName = 'Sender Pumukit';
         $this->enableMultiLang = true;
-        $this->locales = array('en', 'es');
-        $this->subjectSuccessTrans = array(0 => array('locale' => 'en', 'subject' => 'Job Success'), 1 => array('locale' => 'es', 'subject' => 'Trabajo exitoso'));
-        $this->subjectFailsTrans = array(0 => array('locale' => 'en', 'subject' => 'Job Fails'), 1 => array('locale' => 'es', 'subject' => 'Trabajo fallido'));
+        $this->locales = ['en', 'es'];
+        $this->subjectSuccessTrans = [0 => ['locale' => 'en', 'subject' => 'Job Success'], 1 => ['locale' => 'es', 'subject' => 'Trabajo exitoso']];
+        $this->subjectFailsTrans = [0 => ['locale' => 'en', 'subject' => 'Job Fails'], 1 => ['locale' => 'es', 'subject' => 'Trabajo fallido']];
         $this->adminEmail = 'admin@pumukit.org';
         $this->notificateErrorsToAdmin = true;
         $this->platformName = 'Pumukit tv';
@@ -50,7 +54,7 @@ class SenderServiceTest extends WebTestCase
         $this->senderService = new SenderService($this->mailer, $this->templating, $this->translator, $this->dm, $this->enable, $this->senderEmail, $this->senderName, $this->enableMultiLang, $this->locales, $this->subjectSuccessTrans, $this->subjectFailsTrans, $this->adminEmail, $this->notificateErrorsToAdmin, $this->platformName, $this->environment);
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         if (isset($this->dm)) {
             $this->dm->close();
@@ -73,44 +77,44 @@ class SenderServiceTest extends WebTestCase
 
     public function testIsEnabled()
     {
-        $this->assertEquals($this->enable, $this->senderService->isEnabled());
+        static::assertSame($this->enable, $this->senderService->isEnabled());
     }
 
     public function testGetSenderEmail()
     {
-        $this->assertEquals($this->senderEmail, $this->senderService->getSenderEmail());
+        static::assertSame($this->senderEmail, $this->senderService->getSenderEmail());
     }
 
     public function testGetSenderName()
     {
-        $this->assertEquals($this->senderName, $this->senderService->getSenderName());
+        static::assertSame($this->senderName, $this->senderService->getSenderName());
     }
 
     public function testGetAdminEmail()
     {
-        $this->assertEquals($this->adminEmail, $this->senderService->getAdminEmail());
+        static::assertSame($this->adminEmail, $this->senderService->getAdminEmail());
     }
 
     public function testDoNotificateErrorsToAdmin()
     {
-        $this->assertEquals($this->notificateErrorsToAdmin, $this->senderService->doNotificateErrorsToAdmin());
+        static::assertSame($this->notificateErrorsToAdmin, $this->senderService->doNotificateErrorsToAdmin());
     }
 
     public function testGetPlatformName()
     {
-        $this->assertEquals($this->platformName, $this->senderService->getPlatformName());
+        static::assertSame($this->platformName, $this->senderService->getPlatformName());
     }
 
     public function testSendNotification()
     {
-        $this->markTestSkipped('S');
+        static::markTestSkipped('S');
 
         $mailTo = 'receiver@pumukit.org';
         $subject = 'Test sender service';
         $body = 'test send notification';
         $template = 'PumukitNotificationBundle:Email:notification.html.twig';
-        $parameters = array('subject' => $subject, 'body' => $body, 'sender_name' => 'Sender Pumukit');
+        $parameters = ['subject' => $subject, 'body' => $body, 'sender_name' => 'Sender Pumukit'];
         $output = $this->senderService->sendNotification($mailTo, $subject, $template, $parameters, false);
-        $this->assertEquals(1, $output);
+        static::assertSame(1, $output);
     }
 }

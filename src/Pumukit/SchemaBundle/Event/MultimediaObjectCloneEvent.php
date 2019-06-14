@@ -2,8 +2,8 @@
 
 namespace Pumukit\SchemaBundle\Event;
 
-use Symfony\Component\EventDispatcher\Event;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Symfony\Component\EventDispatcher\Event;
 
 class MultimediaObjectCloneEvent extends Event
 {
@@ -27,6 +27,6 @@ class MultimediaObjectCloneEvent extends Event
      */
     public function getMultimediaObjects()
     {
-        return array('origin' => $this->multimediaObject, 'clon' => $this->multimediaObjectCloned);
+        return ['origin' => $this->multimediaObject, 'clon' => $this->multimediaObjectCloned];
     }
 }

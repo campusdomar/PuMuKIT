@@ -2,16 +2,16 @@
 
 namespace Pumukit\OpencastBundle\Controller;
 
+use Pagerfanta\Adapter\FixedAdapter;
+use Pagerfanta\Pagerfanta;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Pagerfanta\Adapter\FixedAdapter;
-use Pagerfanta\Pagerfanta;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 
 /**
  * @Route("/admin")
@@ -44,15 +44,16 @@ class MediaPackageController extends Controller
             list($total, $mediaPackages) = $opencastClient->getMediaPackages(
                 (isset($criteria['name'])) ? $criteria['name']->regex : '',
                 $limit,
-                ($page - 1) * $limit);
+                ($page - 1) * $limit
+            );
         } catch (\Exception $e) {
-            return new Response($this->renderView('PumukitOpencastBundle:MediaPackage:error.html.twig', array('admin_url' => $opencastClient->getUrl(), 'message' => $e->getMessage())), 503);
+            return new Response($this->renderView('PumukitOpencastBundle:MediaPackage:error.html.twig', ['admin_url' => $opencastClient->getUrl(), 'message' => $e->getMessage()]), 503);
         }
 
-        $currentPageOpencastIds = array();
+        $currentPageOpencastIds = [];
 
         $opencastService = $this->get('pumukit_opencast.job');
-        $pics = array();
+        $pics = [];
         foreach ($mediaPackages as $mediaPackage) {
             $currentPageOpencastIds[] = $mediaPackage['id'];
             $pics[$mediaPackage['id']] = $opencastService->getMediaPackageThumbnail($mediaPackage);
@@ -65,16 +66,19 @@ class MediaPackageController extends Controller
         $pagerfanta->setCurrentPage($page);
 
         $repo = $repository_multimediaobjects->createQueryBuilder()
-          ->field('properties.opencast')->exists(true)
-          ->field('properties.opencast')->in($currentPageOpencastIds)
-          ->getQuery()
-          ->execute();
+            ->field('properties.opencast')->exists(true)
+            ->field('properties.opencast')->in($currentPageOpencastIds)
+            ->getQuery()
+            ->execute()
+        ;
 
-        return array('mediaPackages' => $pagerfanta, 'multimediaObjects' => $repo, 'player' => $opencastClient->getPlayerUrl(), 'pics' => $pics);
+        return ['mediaPackages' => $pagerfanta, 'multimediaObjects' => $repo, 'player' => $opencastClient->getPlayerUrl(), 'pics' => $pics];
     }
 
     /**
      * @Route("/opencast/mediapackage/{id}", name="pumukitopencast_import")
+     *
+     * @param mixed $id
      */
     public function importAction($id, Request $request)
     {
@@ -87,26 +91,28 @@ class MediaPackageController extends Controller
 
         if ($request->headers->get('referer')) {
             return $this->redirect($request->headers->get('referer'));
-        } else {
-            return $this->redirectToRoute('pumukitopencast');
         }
+
+        return $this->redirectToRoute('pumukitopencast');
     }
 
     /**
      * Gets the criteria values.
+     *
+     * @param mixed $request
      */
     public function getCriteria($request)
     {
-        $criteria = $request->get('criteria', array());
+        $criteria = $request->get('criteria', []);
 
-        if (array_key_exists('reset', $criteria)) {
+        if (\array_key_exists('reset', $criteria)) {
             $this->get('session')->remove('admin/opencast/criteria');
         } elseif ($criteria) {
             $this->get('session')->set('admin/opencast/criteria', $criteria);
         }
-        $criteria = $this->get('session')->get('admin/opencast/criteria', array());
+        $criteria = $this->get('session')->get('admin/opencast/criteria', []);
 
-        $new_criteria = array();
+        $new_criteria = [];
 
         foreach ($criteria as $property => $value) {
             //preg_match('/^\/.*?\/[imxlsu]*$/i', $e)

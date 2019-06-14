@@ -2,15 +2,15 @@
 
 namespace Pumukit\WizardBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Pumukit\EncoderBundle\Services\JobService;
-use Pumukit\SchemaBundle\Document\Series;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\NewAdminBundle\Form\Type\Base\CustomLanguageType;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Series;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Security("is_granted('ROLE_ACCESS_WIZARD_UPLOAD')")
@@ -32,21 +32,21 @@ class SimpleController extends Controller
 
         $languages = CustomLanguageType::getLanguageNames($this->container->getParameter('pumukit.customlanguages'), $this->get('translator'));
 
-        return array(
+        return [
             'series' => $series,
             'languages' => $languages,
             'show_license' => $licenseService->isEnabled(),
             'license_text' => $licenseContent,
-        );
+        ];
     }
 
     /**
      * @param Series  $series
      * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
-     *
      * @throws \Exception
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function uploadAction(Series $series, Request $request)
     {
@@ -55,7 +55,7 @@ class SimpleController extends Controller
 
         $priority = 2;
         $profile = $this->getDefaultMasterProfile();
-        $description = array();
+        $description = [];
         $language = $request->request->get('language', $request->getLocale());
         $file = $request->files->get('resource');
 
@@ -77,7 +77,7 @@ class SimpleController extends Controller
                 throw new \Exception('The file is not a valid video or audio file');
             }
 
-            if (0 == $duration) {
+            if (0 === $duration) {
                 throw new \Exception('The file is not a valid video or audio file (duration is zero)');
             }
 
@@ -86,8 +86,15 @@ class SimpleController extends Controller
             $multimediaObject->setDuration($duration);
 
             $jobService->createTrackFromLocalHardDrive(
-                $multimediaObject, $file, $profile, $priority, $language, $description,
-                array(), $duration, JobService::ADD_JOB_NOT_CHECKS
+                $multimediaObject,
+                $file,
+                $profile,
+                $priority,
+                $language,
+                $description,
+                [],
+                $duration,
+                JobService::ADD_JOB_NOT_CHECKS
             );
         } catch (\Exception $e) {
             throw $e;
@@ -95,7 +102,7 @@ class SimpleController extends Controller
 
         $this->get('pumukitschema.sorted_multimedia_object')->reorder($series);
 
-        return $this->redirect($this->generateUrl('pumukitnewadmin_mms_shortener', array('id' => $multimediaObject->getId())));
+        return $this->redirect($this->generateUrl('pumukitnewadmin_mms_shortener', ['id' => $multimediaObject->getId()]));
     }
 
     /**
@@ -122,14 +129,14 @@ class SimpleController extends Controller
         $showMmTitle = $this->getParameter('pumukit_wizard.show_simple_mm_title');
         $showSeriesTitle = $this->getParameter('pumukit_wizard.show_simple_series_title');
 
-        $seriesI18nTitle = array();
+        $seriesI18nTitle = [];
         if ($series) {
             $seriesI18nTitle = $series->getI18nTitle();
         } elseif (isset($externalData['title'])) {
             $seriesI18nTitle = $externalData['title'];
         }
 
-        return array(
+        return [
             'series' => $series,
             'languages' => $languages,
             'show_license' => $licenseService->isEnabled(),
@@ -138,15 +145,15 @@ class SimpleController extends Controller
             'show_simple_mm_title' => $showMmTitle,
             'show_simple_series_title' => $showSeriesTitle,
             'series_i18n_title' => $seriesI18nTitle,
-        );
+        ];
     }
 
     /**
      * @param Request $request
      *
-     * @return JsonResponse
-     *
      * @throws \Exception
+     *
+     * @return JsonResponse
      */
     public function embeduploadAction(Request $request)
     {
@@ -162,7 +169,7 @@ class SimpleController extends Controller
 
         $priority = 2;
         $profile = $this->getDefaultMasterProfile();
-        $description = array();
+        $description = [];
         $language = $request->request->get('language', $request->getLocale());
         $file = $request->files->get('resource');
 
@@ -184,7 +191,7 @@ class SimpleController extends Controller
                 throw new \Exception('The file is not a valid video or audio file');
             }
 
-            if (0 == $duration) {
+            if (0 === $duration) {
                 throw new \Exception('The file is not a valid video or audio file (duration is zero)');
             }
 
@@ -194,7 +201,7 @@ class SimpleController extends Controller
 
             $showMmTitle = $this->getParameter('pumukit_wizard.show_simple_mm_title');
             if ($showMmTitle) {
-                $i18nTitle = $request->request->get('multimediaobject_i18n_title', array());
+                $i18nTitle = $request->request->get('multimediaobject_i18n_title', []);
                 if (!array_filter($i18nTitle)) {
                     $title = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                     $i18nTitle = $this->createI18nTitleFromFile($title);
@@ -209,22 +216,29 @@ class SimpleController extends Controller
             $multimediaObject = $this->setExternalProperties($multimediaObject, $externalData);
 
             $jobService->createTrackFromLocalHardDrive(
-                $multimediaObject, $file, $profile, $priority, $language, $description,
-                array(), $duration, JobService::ADD_JOB_NOT_CHECKS
+                $multimediaObject,
+                $file,
+                $profile,
+                $priority,
+                $language,
+                $description,
+                [],
+                $duration,
+                JobService::ADD_JOB_NOT_CHECKS
             );
 
             $formDispatcher = $this->get('pumukit_wizard.form_dispatcher');
-            $formDispatcher->dispatchSubmit($this->getUser(), $multimediaObject, array('simple' => true, 'externalData' => $externalData));
+            $formDispatcher->dispatchSubmit($this->getUser(), $multimediaObject, ['simple' => true, 'externalData' => $externalData]);
         } catch (\Exception $e) {
             throw $e;
         }
 
         $this->get('pumukitschema.sorted_multimedia_object')->reorder($series);
 
-        $response = array(
-            'url' => $this->generateUrl('pumukitnewadmin_mms_shortener', array('id' => $multimediaObject->getId())),
+        $response = [
+            'url' => $this->generateUrl('pumukitnewadmin_mms_shortener', ['id' => $multimediaObject->getId()]),
             'mmId' => $multimediaObject->getId(),
-        );
+        ];
 
         return new JsonResponse($response);
     }
@@ -289,7 +303,7 @@ class SimpleController extends Controller
      *
      * @param $externalData
      *
-     * @return object|null
+     * @return null|object
      */
     private function getSeriesByExternalData($externalData)
     {
@@ -297,7 +311,7 @@ class SimpleController extends Controller
         $repo = $dm->getRepository(Series::class);
 
         if (isset($externalData['seriesData']['title'])) {
-            return $repo->findOneBy(array('title' => $externalData['seriesData']['title'], 'properties.owners' => $this->getUser()->getId()));
+            return $repo->findOneBy(['title' => $externalData['seriesData']['title'], 'properties.owners' => $this->getUser()->getId()]);
         }
 
         return null;
@@ -327,7 +341,7 @@ class SimpleController extends Controller
      */
     private function createI18nTitleFromFile($title)
     {
-        $i18nTitle = array();
+        $i18nTitle = [];
         foreach ($this->container->getParameter('pumukit.locales') as $locale) {
             $i18nTitle[$locale] = $title;
         }
@@ -356,7 +370,7 @@ class SimpleController extends Controller
     }
 
     /**
-     * @return mixed|null
+     * @return null|mixed
      */
     private function getDefaultMasterProfile()
     {

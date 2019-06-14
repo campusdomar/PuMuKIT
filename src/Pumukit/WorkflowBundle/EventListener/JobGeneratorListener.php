@@ -4,12 +4,12 @@ namespace Pumukit\WorkflowBundle\EventListener;
 
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Psr\Log\LoggerInterface;
+use Pumukit\EncoderBundle\Event\JobEvent;
 use Pumukit\EncoderBundle\Services\JobService;
 use Pumukit\EncoderBundle\Services\ProfileService;
-use Pumukit\EncoderBundle\Event\JobEvent;
-use Pumukit\SchemaBundle\Event\MultimediaObjectEvent;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Tag;
+use Pumukit\SchemaBundle\Event\MultimediaObjectEvent;
 
 class JobGeneratorListener
 {
@@ -78,19 +78,22 @@ class JobGeneratorListener
      * @param MultimediaObject $multimediaObject
      * @param                  $pubChannelCod
      *
-     * @return array
-     *
      * @throws \Exception
+     *
+     * @return array
      */
     private function generateJobs(MultimediaObject $multimediaObject, $pubChannelCod)
     {
-        $jobs = array();
+        $jobs = [];
         $default_profiles = $this->profileService->getDefaultProfiles();
 
         if ($this->containsTrackWithProfileWithTargetTag($multimediaObject, $pubChannelCod)) {
-            $this->logger->info(sprintf("JobGeneratorListener can't create a new job for multimedia object %s,".
+            $this->logger->info(sprintf(
+                "JobGeneratorListener can't create a new job for multimedia object %s,".
                                         'because it already contains a track with a profile with this target (%s)',
-                                        $multimediaObject->getId(), $pubChannelCod));
+                $multimediaObject->getId(),
+                $pubChannelCod
+            ));
 
             return $jobs;
         }
@@ -100,13 +103,17 @@ class JobGeneratorListener
 
             $track = $multimediaObject->getTrackWithTag('profile:'.$targetProfile);
             if ($track) {
-                $this->logger->info(sprintf("JobGeneratorListener doesn't create a new job (%s) for multimedia object %s ".
+                $this->logger->info(sprintf(
+                    "JobGeneratorListener doesn't create a new job (%s) for multimedia object %s ".
                                             'because it already contains a track created with this profile',
-                                            $targetProfile, $multimediaObject->getId()));
+                    $targetProfile,
+                    $multimediaObject->getId()
+                ));
+
                 continue;
             }
 
-            if (0 !== count($default_profiles)) {
+            if (0 !== \count($default_profiles)) {
                 if (!isset($default_profiles[$pubChannelCod])) {
                     continue;
                 }
@@ -118,15 +125,20 @@ class JobGeneratorListener
                 }
             }
 
-            if ((in_array($pubChannelCod, $targets['standard']))
-               && ($multimediaObject->isOnlyAudio() == $profile['audio'])) {
-                if (!$multimediaObject->isOnlyAudio() && 0 != $profile['resolution_ver']) {
+            if ((\in_array($pubChannelCod, $targets['standard'], true))
+               && ($multimediaObject->isOnlyAudio() === $profile['audio'])) {
+                if (!$multimediaObject->isOnlyAudio() && 0 !== $profile['resolution_ver']) {
                     $profileAspectRatio = $profile['resolution_hor'] / $profile['resolution_ver'];
                     $multimediaObjectAspectRatio = $multimediaObject->getTrackWithTag('master')->getAspectRatio();
                     if ((1.5 > $profileAspectRatio) !== (1.5 > $multimediaObjectAspectRatio)) {
-                        $this->logger->info(sprintf("JobGeneratorListener can't create a new job (%s) for multimedia object %s using standard target, ".
+                        $this->logger->info(sprintf(
+                            "JobGeneratorListener can't create a new job (%s) for multimedia object %s using standard target, ".
                                                     'because a video profile aspect ratio(%f) is diferent to video aspect ratio (%f)',
-                                                    $targetProfile, $multimediaObject->getId(), $profileAspectRatio, $multimediaObjectAspectRatio));
+                            $targetProfile,
+                            $multimediaObject->getId(),
+                            $profileAspectRatio,
+                            $multimediaObjectAspectRatio
+                        ));
 
                         continue;
                     }
@@ -137,7 +149,7 @@ class JobGeneratorListener
                 $jobs[] = $this->jobService->addUniqueJob($master->getPath(), $targetProfile, 2, $multimediaObject, $master->getLanguage());
             }
 
-            if (in_array($pubChannelCod, $targets['force'])) {
+            if (\in_array($pubChannelCod, $targets['force'], true)) {
                 /*if ($multimediaObject->isOnlyAudio() && !$profile['audio']) {
                     $this->logger->info(sprintf("JobGeneratorListener can't create a new job (%s) for multimedia object %s using forced target, because a video profile can't be created from an audio",
                                                 $targetProfile, $multimediaObject->getId()));
@@ -157,14 +169,16 @@ class JobGeneratorListener
      * Process the target string (See test)
      * "TAGA* TAGB, TAGC*, TAGD" => array('standard' => array('TAGB', 'TAGD'), 'force' => array('TAGA', 'TAGC')).
      *
+     * @param mixed $targets
+     *
      * @return array
      */
     private function getTargets($targets)
     {
-        $return = array('standard' => array(), 'force' => array());
+        $return = ['standard' => [], 'force' => []];
 
         foreach (array_filter(preg_split('/[,\s]+/', $targets)) as $target) {
-            if ('*' == substr($target, -1)) {
+            if ('*' === substr($target, -1)) {
                 $return['force'][] = substr($target, 0, -1);
             } else {
                 $return['standard'][] = $target;
@@ -180,7 +194,7 @@ class JobGeneratorListener
             $profileName = $track->getProfileName();
             if ($profileName && isset($this->profiles[$profileName])) {
                 $targets = $this->getTargets($this->profiles[$profileName]['target']);
-                if (in_array($pubChannelCod, $targets['standard'])) {
+                if (\in_array($pubChannelCod, $targets['standard'], true)) {
                     return true;
                 }
             }

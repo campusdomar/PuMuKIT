@@ -2,13 +2,13 @@
 
 namespace Pumukit\EncoderBundle\Services;
 
+use Doctrine\ODM\MongoDB\DocumentManager;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Pic;
+use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Services\MultimediaObjectPicService;
 use Symfony\Component\Filesystem;
 use Symfony\Component\Finder\Finder;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Pumukit\SchemaBundle\Services\MultimediaObjectPicService;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\SchemaBundle\Document\Series;
 
 class PicService
 {
@@ -35,81 +35,81 @@ class PicService
     }
 
     /**
-     * @param string|null $id
-     * @param string|null $size
-     * @param string|null $path
-     * @param string|null $extension
-     * @param string|null $tags
-     * @param string|null $exists
-     * @param string|null $type
-     *
-     * @return \Doctrine\MongoDB\Iterator|mixed|null
+     * @param null|string $id
+     * @param null|string $size
+     * @param null|string $path
+     * @param null|string $extension
+     * @param null|string $tags
+     * @param null|string $exists
+     * @param null|string $type
      *
      * @throws \Doctrine\ODM\MongoDB\MongoDBException
+     *
+     * @return null|\Doctrine\MongoDB\Iterator|mixed
      */
     public function findPicsByOptions($id = null, $size = null, $path = null, $extension = null, $tags = null, $exists = null, $type = null)
     {
-        if ('series' == $type) {
+        if ('series' === $type) {
             $collection = $this->dm->getDocumentCollection(Series::class);
         } else {
             $collection = $this->dm->getDocumentCollection(MultimediaObject::class);
         }
 
-        $pipeline = array(array('$match' => array('pics' => array('$exists' => true))));
-        array_push($pipeline, array('$unwind' => '$pics'));
+        $pipeline = [['$match' => ['pics' => ['$exists' => true]]]];
+        array_push($pipeline, ['$unwind' => '$pics']);
 
-        $match = array(
-            '$match' => array('pics.path' => array('$exists' => true)),
-        );
+        $match = [
+            '$match' => ['pics.path' => ['$exists' => true]],
+        ];
 
         array_push($pipeline, $match);
 
         if ($id) {
-            $match = array(
-                '$match' => array('_id' => new \MongoId($id)),
-            );
+            $match = [
+                '$match' => ['_id' => new \MongoId($id)],
+            ];
 
             array_push($pipeline, $match);
         }
         if ($path) {
-            $match = array(
-                '$match' => array('pics.path' => array('$regex' => $path, '$options' => 'i')),
-            );
+            $match = [
+                '$match' => ['pics.path' => ['$regex' => $path, '$options' => 'i']],
+            ];
 
             array_push($pipeline, $match);
         }
 
         if ($tags) {
-            $match = array(
-                '$match' => array('pics.tags' => array('$in' => $tags)),
-            );
+            $match = [
+                '$match' => ['pics.tags' => ['$in' => $tags]],
+            ];
 
             array_push($pipeline, $match);
         }
 
         if ($extension) {
-            $orCondition = array();
+            $orCondition = [];
             foreach ($extension as $ext) {
                 if (false !== strpos($ext, '.')) {
-                    $orCondition[] = array('pics.path' => array('$regex' => $ext, '$options' => 'i'));
+                    $orCondition[] = ['pics.path' => ['$regex' => $ext, '$options' => 'i']];
                 } else {
-                    $orCondition[] = array('pics.path' => array('$regex' => '.'.$ext, '$options' => 'i'));
+                    $orCondition[] = ['pics.path' => ['$regex' => '.'.$ext, '$options' => 'i']];
                 }
             }
 
-            $match = array('$match' => array('$or' => $orCondition));
+            $match = ['$match' => ['$or' => $orCondition]];
 
             array_push($pipeline, $match);
         }
 
-        $group = array('$group' => array(
+        $group = ['$group' => [
             '_id' => null,
-            'pics' => array('$addToSet' => '$pics'),
-        ));
+            'pics' => ['$addToSet' => '$pics'],
+        ]];
 
         array_push($pipeline, $group);
 
-        $pics = $collection->aggregate($pipeline, array('cursor' => array()));
+        $pics = $collection->aggregate($pipeline, ['cursor' => []]);
         $data = $pics->toArray();
         $pics = reset($data);
 
@@ -134,7 +134,7 @@ class PicService
      */
     public function checkExistsFiles($data, $exists)
     {
-        $filterResult = array();
+        $filterResult = [];
 
         foreach ($data['pics'] as $pic) {
             if ('true' === $exists || '1' === $exists) {
@@ -161,14 +161,14 @@ class PicService
      */
     public function checkSizeFiles($data, $size)
     {
-        $filterResult = array();
+        $filterResult = [];
 
         foreach ($data['pics'] as $pic) {
             $this->finder = new Finder();
             if (!$this->fileSystem->exists($pic['path'])) {
                 $filterResult[] = 'File not found '.$pic['path'];
             } else {
-                $files = $this->finder->files()->name(basename($pic['path']))->size('> '.$size.'K')->in(dirname($pic['path']));
+                $files = $this->finder->files()->name(basename($pic['path']))->size('> '.$size.'K')->in(\dirname($pic['path']));
                 foreach ($files as $file) {
                     if ($file->getPathName() === $pic['path']) {
                         $filterResult[] = $pic;
@@ -191,9 +191,9 @@ class PicService
      * @param $exists
      * @param $type
      *
-     * @return array
-     *
      * @throws \Exception
+     *
+     * @return array
      */
     public function formatInputs($id, $size, $path, $extension, $tags, $exists, $type)
     {
@@ -218,7 +218,7 @@ class PicService
             }
         }
 
-        return array($id, $size, $path, $extension, $tags, $exists, $type);
+        return [$id, $size, $path, $extension, $tags, $exists, $type];
     }
 
     /**
@@ -226,9 +226,9 @@ class PicService
      * @param array $params
      * @param bool  $no_replace
      *
-     * @return array
-     *
      * @throws \Exception
+     *
+     * @return array
      */
     public function convertImage($data, array $params, $no_replace = false)
     {
@@ -236,18 +236,19 @@ class PicService
             throw new \Exception('No pics found');
         }
 
-        $output = array();
+        $output = [];
 
         foreach ($data['pics'] as $pic) {
             $ext = pathinfo($pic['path'], PATHINFO_EXTENSION);
             $picPath = $this->createFromPic($pic, $params, $no_replace, $ext);
 
             $multimediaObject = $this->dm->getRepository(MultimediaObject::class)->findOneBy(
-                array('pics.path' => $pic['path'])
+                ['pics.path' => $pic['path']]
             );
 
             if (!$multimediaObject) {
                 $output[] = 'Multimedia Object not found by path '.$pic['path'];
+
                 continue;
             }
 
@@ -261,6 +262,7 @@ class PicService
                     $output[] = 'Create new image - Multimedia object '.$multimediaObject->getId().' and image path '.$picPath;
                 } catch (\Exception $exception) {
                     $output[] = 'Create new image - Multimedia object '.$multimediaObject->getId().' error trying to add new pic';
+
                     continue;
                 }
             } else {
@@ -269,6 +271,7 @@ class PicService
                         $this->updateOriginalImage($multimediaObject, $picPath, $pic);
                     } catch (\Exception $exception) {
                         $output[] = 'Override - Multimedia object '.$multimediaObject->getId().' error trying to update original image '.$picPath;
+
                         continue;
                     }
                     $output[] = 'Override - Updated path for multimedia object '.$picPath;
@@ -294,7 +297,7 @@ class PicService
         if (false !== strpos($extension, ',')) {
             $aExtensions = explode(',', $extension);
         } else {
-            $aExtensions = array($extension);
+            $aExtensions = [$extension];
         }
 
         array_map('trim', $aExtensions);
@@ -326,7 +329,7 @@ class PicService
         if (false !== strpos($tags, ',')) {
             $aTags = explode(',', $tags);
         } else {
-            $aTags = array($tags);
+            $aTags = [$tags];
         }
 
         array_map('trim', $aTags);
@@ -349,27 +352,27 @@ class PicService
     {
         list($originalWidth, $originalHeight) = getimagesize($pic['path']);
 
-        $width = isset($params['max_width']) ? $params['max_width'] : 0;
-        $height = isset($params['max_height']) ? $params['max_height'] : 0;
+        $width = $params['max_width'] ?? 0;
+        $height = $params['max_height'] ?? 0;
 
         list($width, $height) = $this->preserveAspectRatio($width, $height, $originalWidth, $originalHeight);
 
-        $image_p = \imagecreatetruecolor($width, $height);
+        $image_p = imagecreatetruecolor($width, $height);
         if ('png' === $ext) {
-            $image = \imagecreatefrompng($pic['path']);
+            $image = imagecreatefrompng($pic['path']);
         } else {
-            $image = \imagecreatefromjpeg($pic['path']);
+            $image = imagecreatefromjpeg($pic['path']);
         }
 
-        \imagecopyresampled($image_p, $image, 0, 0, 0, 0, $width, $height, $originalWidth, $originalHeight);
+        imagecopyresampled($image_p, $image, 0, 0, 0, 0, $width, $height, $originalWidth, $originalHeight);
 
         if ($no_replace) {
-            $name = dirname($pic['path']).'/'.rand().'.jpg';
-            \imagejpeg($image_p, $name, $params['quality']);
+            $name = \dirname($pic['path']).'/'.rand().'.jpg';
+            imagejpeg($image_p, $name, $params['quality']);
         } else {
             $name = $pic['path'];
             $name = str_replace($ext, 'jpg', $name);
-            \imagejpeg($image_p, $name, $params['quality']);
+            imagejpeg($image_p, $name, $params['quality']);
         }
 
         return $name;
@@ -385,7 +388,7 @@ class PicService
      */
     private function preserveAspectRatio($width, $height, $originalWidth, $originalHeight)
     {
-        if (0 == $width && 0 == $height) {
+        if (0 === $width && 0 === $height) {
             $width = $this->max_width;
         }
 
@@ -404,7 +407,7 @@ class PicService
             $height = $originalHeight;
         }
 
-        return array($width, $height);
+        return [$width, $height];
     }
 
     /**
@@ -426,11 +429,11 @@ class PicService
         $newPic->setHide(false);
         $newPic->addTag('refactor_image');
 
-        list($width, $height, $type, $attributes) = \getimagesize($picPath);
+        list($width, $height, $type, $attributes) = getimagesize($picPath);
 
         $newPic->setWidth($width);
         $newPic->setHeight($height);
-        $newPic->setMimeType(\image_type_to_mime_type($type));
+        $newPic->setMimeType(image_type_to_mime_type($type));
 
         $newPic->setProperty('referer', $pic['path']);
 
@@ -448,6 +451,7 @@ class PicService
         foreach ($multimediaObject->getPics() as $mmsPic) {
             if ($mmsPic->getPath() === $pic['path']) {
                 $mmsPic->setHide(true);
+
                 break;
             }
         }
@@ -463,7 +467,7 @@ class PicService
         $url = $this->mmsPicService->getTargetUrl($multimediaObject);
         $url .= '/'.basename($picPath);
 
-        list($width, $height, $type, $attributes) = \getimagesize($picPath);
+        list($width, $height, $type, $attributes) = getimagesize($picPath);
 
         foreach ($multimediaObject->getPics() as $mmsPic) {
             if ($mmsPic->getPath() === $pic['path']) {
@@ -472,8 +476,9 @@ class PicService
                 $mmsPic->setSize(filesize($picPath));
                 $mmsPic->setWidth($width);
                 $mmsPic->setHeight($height);
-                $mmsPic->setMimeType(\image_type_to_mime_type($type));
+                $mmsPic->setMimeType(image_type_to_mime_type($type));
                 $mmsPic->addTag('overrided');
+
                 break;
             }
         }

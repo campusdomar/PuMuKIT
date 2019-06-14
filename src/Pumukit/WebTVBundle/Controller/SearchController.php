@@ -2,19 +2,19 @@
 
 namespace Pumukit\WebTVBundle\Controller;
 
+use Pagerfanta\Pagerfanta;
+use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
 use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Document\Tag;
+use Pumukit\SchemaBundle\Utils\Mongo\TextIndexUtils;
+use Pumukit\SchemaBundle\Utils\Pagerfanta\Adapter\DoctrineODMMongoDBAdapter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Pagerfanta\Pagerfanta;
-use Pumukit\SchemaBundle\Document\Series;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\SchemaBundle\Document\Tag;
-use Pumukit\SchemaBundle\Utils\Pagerfanta\Adapter\DoctrineODMMongoDBAdapter;
-use Pumukit\SchemaBundle\Utils\Mongo\TextIndexUtils;
-use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
 
 /**
  * Class SearchController.
@@ -49,7 +49,7 @@ class SearchController extends Controller implements WebTVControllerInterface
         $queryBuilder = $queryBuilder->field('_id')->in($validSeries);
         $queryBuilder = $this->searchQueryBuilder($queryBuilder, $searchFound);
         $queryBuilder = $this->dateQueryBuilder($queryBuilder, $startFound, $endFound, $yearFound, 'public_date');
-        if ('' == $searchFound) {
+        if ('' === $searchFound) {
             $queryBuilder = $queryBuilder->sort('public_date', 'desc');
         } else {
             $queryBuilder = $queryBuilder->sortMeta('score', 'textScore');
@@ -85,6 +85,8 @@ class SearchController extends Controller implements WebTVControllerInterface
      * @Route("/searchmultimediaobjects/{tagCod}/{useTagAsGeneral}", defaults={"tagCod": null, "useTagAsGeneral": false}, name="pumukit_webtv_search_multimediaobjects")
      * @ParamConverter("blockedTag", class="PumukitSchemaBundle:Tag", options={"mapping": {"tagCod": "cod"}})
      * @Template("PumukitWebTVBundle:Search:template.html.twig")
+     *
+     * @param mixed $useTagAsGeneral
      */
     public function multimediaObjectsAction(Request $request, Tag $blockedTag = null, $useTagAsGeneral = false)
     {
@@ -119,7 +121,7 @@ class SearchController extends Controller implements WebTVControllerInterface
         $queryBuilder = $this->dateQueryBuilder($queryBuilder, $startFound, $endFound, $yearFound);
         $queryBuilder = $this->languageQueryBuilder($queryBuilder, $languageFound);
         $queryBuilder = $this->tagsQueryBuilder($queryBuilder, $tagsFound, $blockedTag, $useTagAsGeneral);
-        if ('' == $searchFound) {
+        if ('' === $searchFound) {
             $queryBuilder = $queryBuilder->sort('record_date', 'desc');
         } else {
             $queryBuilder = $queryBuilder->sortMeta('score', 'textScore');
@@ -186,9 +188,9 @@ class SearchController extends Controller implements WebTVControllerInterface
     }
 
     /**
-     * @return \Doctrine\Common\Persistence\ObjectRepository
-     *
      * @throws \Exception
+     *
+     * @return \Doctrine\Common\Persistence\ObjectRepository
      */
     protected function getParentTag()
     {
@@ -209,7 +211,7 @@ class SearchController extends Controller implements WebTVControllerInterface
     }
 
     /**
-     * @return \Doctrine\Common\Persistence\ObjectRepository|null
+     * @return null|\Doctrine\Common\Persistence\ObjectRepository
      */
     protected function getOptionalParentTag()
     {
@@ -237,10 +239,10 @@ class SearchController extends Controller implements WebTVControllerInterface
 
         if ((false !== strpos($searchFound, '*')) && (false === strpos($searchFound, ' '))) {
             $searchFound = str_replace('*', '.*', $searchFound);
-            $mRegex = new \MongoRegex("/$searchFound/i");
+            $mRegex = new \MongoRegex("/{$searchFound}/i");
             $queryBuilder->addOr($queryBuilder->expr()->field('title.'.$request->getLocale())->equals($mRegex));
             $queryBuilder->addOr($queryBuilder->expr()->field('people.people.name')->equals($mRegex));
-        } elseif ('' != $searchFound) {
+        } elseif ('' !== $searchFound) {
             $queryBuilder->field('$text')->equals([
                 '$search' => TextIndexUtils::cleanTextIndex($searchFound),
                 '$language' => TextIndexUtils::getCloseLanguage($request->getLocale()),
@@ -258,9 +260,9 @@ class SearchController extends Controller implements WebTVControllerInterface
      */
     protected function typeQueryBuilder($queryBuilder, $typeFound)
     {
-        if ('' != $typeFound) {
+        if ('' !== $typeFound) {
             $queryBuilder->field('type')->equals(
-                ('audio' == $typeFound) ? Multimediaobject::TYPE_AUDIO : Multimediaobject::TYPE_VIDEO
+                ('audio' === $typeFound) ? Multimediaobject::TYPE_AUDIO : Multimediaobject::TYPE_VIDEO
             );
         }
 
@@ -275,20 +277,20 @@ class SearchController extends Controller implements WebTVControllerInterface
      */
     protected function durationQueryBuilder($queryBuilder, $durationFound)
     {
-        if ('' != $durationFound) {
-            if ('-5' == $durationFound) {
+        if ('' !== $durationFound) {
+            if ('-5' === $durationFound) {
                 $queryBuilder->field('tracks.duration')->lte(300);
             }
-            if ('-10' == $durationFound) {
+            if ('-10' === $durationFound) {
                 $queryBuilder->field('tracks.duration')->lte(600);
             }
-            if ('-30' == $durationFound) {
+            if ('-30' === $durationFound) {
                 $queryBuilder->field('tracks.duration')->lte(1800);
             }
-            if ('-60' == $durationFound) {
+            if ('-60' === $durationFound) {
                 $queryBuilder->field('tracks.duration')->lte(3600);
             }
-            if ('+60' == $durationFound) {
+            if ('+60' === $durationFound) {
                 $queryBuilder->field('tracks.duration')->gt(3600);
             }
         }
@@ -313,11 +315,11 @@ class SearchController extends Controller implements WebTVControllerInterface
             $queryBuilder->field($dateField)->gte($start);
             $queryBuilder->field($dateField)->lt($end);
         } else {
-            if ('' != $startFound) {
+            if ('' !== $startFound) {
                 $start = \DateTime::createFromFormat('!Y-m-d', $startFound);
                 $queryBuilder->field($dateField)->gt($start);
             }
-            if ('' != $endFound) {
+            if ('' !== $endFound) {
                 $end = \DateTime::createFromFormat('!Y-m-d', $endFound);
                 $end->modify('+1 day');
                 $queryBuilder->field($dateField)->lt($end);
@@ -335,7 +337,7 @@ class SearchController extends Controller implements WebTVControllerInterface
      */
     protected function languageQueryBuilder($queryBuilder, $languageFound)
     {
-        if ('' != $languageFound) {
+        if ('' !== $languageFound) {
             $queryBuilder->field('tracks.language')->equals($languageFound);
         }
 
@@ -359,7 +361,7 @@ class SearchController extends Controller implements WebTVControllerInterface
             $tagsFound = array_values(array_diff($tagsFound, ['All', '']));
         }
 
-        if ($tagsFound && count($tagsFound) > 0) {
+        if ($tagsFound && \count($tagsFound) > 0) {
             $queryBuilder->field('tags.cod')->all($tagsFound);
         }
 
@@ -381,7 +383,7 @@ class SearchController extends Controller implements WebTVControllerInterface
             ['$group' => ['_id' => ['$year' => '$record_date']]],
             ['$sort' => ['_id' => 1]],
         ];
-        $yearResults = $mmObjColl->aggregate($pipeline, array('cursor' => array()));
+        $yearResults = $mmObjColl->aggregate($pipeline, ['cursor' => []]);
         $years = [];
         foreach ($yearResults as $year) {
             $years[] = $year['_id'];
@@ -400,7 +402,7 @@ class SearchController extends Controller implements WebTVControllerInterface
             ['$group' => ['_id' => ['$year' => '$public_date']]],
             ['$sort' => ['_id' => 1]],
         ];
-        $yearResults = $mmObjColl->aggregate($pipeline, array('cursor' => array()));
+        $yearResults = $mmObjColl->aggregate($pipeline, ['cursor' => []]);
         $years = [];
         foreach ($yearResults as $year) {
             $years[] = $year['_id'];

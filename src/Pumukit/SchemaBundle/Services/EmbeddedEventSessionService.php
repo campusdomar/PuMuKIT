@@ -2,18 +2,18 @@
 
 namespace Pumukit\SchemaBundle\Services;
 
-use Pumukit\SchemaBundle\Document\EmbeddedEvent;
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Pumukit\SchemaBundle\Document\EmbeddedEvent;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 
 class EmbeddedEventSessionService
 {
+    const DEFAULT_COLOR = '#ffffff';
     private $dm;
     private $collection;
     private $defaultPoster;
     private $defaultThumbnail;
-    const DEFAULT_COLOR = '#ffffff';
-    private $validColors = array(
+    private $validColors = [
         'aliceblue',
         'antiquewhite',
         'aqua',
@@ -154,7 +154,7 @@ class EmbeddedEventSessionService
         'whitesmoke',
         'yellow',
         'yellowgreen',
-    );
+    ];
 
     /**
      * EmbeddedEventSessionService constructor.
@@ -200,21 +200,21 @@ class EmbeddedEventSessionService
     {
         $now = new \MongoDate();
         $pipeline = $this->initPipeline();
-        $pipeline[] = array(
-            '$match' => array(
-                'sessionEnds' => array('$gte' => $now),
-                'sessions.start' => array('$lte' => $now),
-            ),
-        );
-        $pipeline[] = array(
-            '$sort' => array(
+        $pipeline[] = [
+            '$match' => [
+                'sessionEnds' => ['$gte' => $now],
+                'sessions.start' => ['$lte' => $now],
+            ],
+        ];
+        $pipeline[] = [
+            '$sort' => [
                 'sessions.start' => -1,
-            ),
-        );
+            ],
+        ];
         $this->endPipeline($pipeline);
-        $pipeline[] = array('$limit' => 10);
+        $pipeline[] = ['$limit' => 10];
 
-        return $this->collection->aggregate($pipeline, array('cursor' => array()))->toArray();
+        return $this->collection->aggregate($pipeline, ['cursor' => []])->toArray();
     }
 
     /**
@@ -225,16 +225,16 @@ class EmbeddedEventSessionService
         $todayStarts = mktime(00, 00, 00, date('m'), date('d'), date('Y'));
         $todayEnds = mktime(23, 59, 59, date('m'), date('d'), date('Y'));
         $pipeline = $this->initPipeline();
-        $pipeline[] = array(
-            '$match' => array('$and' => array(
-                array('sessions.start' => array('$gte' => new \MongoDate($todayStarts))),
-                array('sessions.start' => array('$lte' => new \MongoDate($todayEnds))),
-            )),
-        );
+        $pipeline[] = [
+            '$match' => ['$and' => [
+                ['sessions.start' => ['$gte' => new \MongoDate($todayStarts)]],
+                ['sessions.start' => ['$lte' => new \MongoDate($todayEnds)]],
+            ]],
+        ];
         $this->endPipeline($pipeline);
-        $pipeline[] = array('$limit' => 20);
+        $pipeline[] = ['$limit' => 20];
 
-        return $this->collection->aggregate($pipeline, array('cursor' => array()))->toArray();
+        return $this->collection->aggregate($pipeline, ['cursor' => []])->toArray();
     }
 
     /**
@@ -244,19 +244,19 @@ class EmbeddedEventSessionService
     {
         $todayEnds = mktime(23, 59, 59, date('m'), date('d'), date('Y'));
         $pipeline = $this->initPipeline();
-        $pipeline[] = array(
-            '$match' => array(
-                'sessions.start' => array('$gte' => new \MongoDate($todayEnds)),
-            ),
-        );
-        $pipeline[] = array(
-            '$sort' => array(
+        $pipeline[] = [
+            '$match' => [
+                'sessions.start' => ['$gte' => new \MongoDate($todayEnds)],
+            ],
+        ];
+        $pipeline[] = [
+            '$sort' => [
                 'sessions.start' => 1,
-            ),
-        );
+            ],
+        ];
         $this->endPipeline($pipeline);
 
-        return $this->collection->aggregate($pipeline, array('cursor' => array()))->toArray();
+        return $this->collection->aggregate($pipeline, ['cursor' => []])->toArray();
     }
 
     /**
@@ -269,24 +269,24 @@ class EmbeddedEventSessionService
         $pipeline = $this->initPipeline();
         $date = new \DateTime('now');
         $now = new \MongoDate($date->format('U'));
-        $pipeline[] = array(
-            '$match' => array(
-                'sessions.start' => array('$exists' => true),
-                'sessions.ends' => array('$gte' => $now),
-            ),
-        );
-        $pipeline[] = array(
-            '$sort' => array(
+        $pipeline[] = [
+            '$match' => [
+                'sessions.start' => ['$exists' => true],
+                'sessions.ends' => ['$gte' => $now],
+            ],
+        ];
+        $pipeline[] = [
+            '$sort' => [
                 'sessions.start' => 1,
-            ),
-        );
+            ],
+        ];
         $this->endPipeline($pipeline);
 
         if ($limit > 0) {
-            $pipeline[] = array('$limit' => $limit);
+            $pipeline[] = ['$limit' => $limit];
         }
 
-        return $this->collection->aggregate($pipeline, array('cursor' => array()))->toArray();
+        return $this->collection->aggregate($pipeline, ['cursor' => []])->toArray();
     }
 
     /**
@@ -298,11 +298,11 @@ class EmbeddedEventSessionService
      *
      * @return array
      */
-    public function findCurrentSessions($criteria = array(), $limit = 0, $all = false)
+    public function findCurrentSessions($criteria = [], $limit = 0, $all = false)
     {
-        static $currentSessions = array();
+        static $currentSessions = [];
 
-        $encryptCriteria = md5(json_encode($criteria).strval($limit).strval($all));
+        $encryptCriteria = md5(json_encode($criteria).(string) $limit.(string) $all);
 
         if (isset($currentSessions[$encryptCriteria])) {
             return $currentSessions[$encryptCriteria];
@@ -311,47 +311,47 @@ class EmbeddedEventSessionService
         $pipeline = $this->initPipeline($all);
 
         if ($criteria && !empty($criteria)) {
-            $pipeline[] = array(
+            $pipeline[] = [
                 '$match' => $criteria,
-            );
+            ];
         }
 
-        $pipeline[] = array(
-            '$match' => array(
-                'sessions.start' => array('$lt' => new \MongoDate()),
-                'sessionEnds' => array('$gt' => new \MongoDate()),
-            ),
-        );
+        $pipeline[] = [
+            '$match' => [
+                'sessions.start' => ['$lt' => new \MongoDate()],
+                'sessionEnds' => ['$gt' => new \MongoDate()],
+            ],
+        ];
 
-        $pipeline[] = array(
-            '$project' => array(
+        $pipeline[] = [
+            '$project' => [
                 'multimediaObjectId' => '$multimediaObjectId',
                 'event' => '$event',
                 'sessions' => '$sessions',
                 'session' => '$sessions',
                 'sessionEnds' => '$sessionEnds',
-            ),
-        );
+            ],
+        ];
 
-        $pipeline[] = array(
-            '$group' => array(
+        $pipeline[] = [
+            '$group' => [
                 '_id' => '$multimediaObjectId',
-                'data' => array(
-                    '$addToSet' => array(
+                'data' => [
+                    '$addToSet' => [
                         'event' => '$event',
                         'session' => '$session',
                         'multimediaObjectId' => '$multimediaObjectId',
                         'sessionEnds' => '$sessionEnds',
-                    ),
-                ),
-            ),
-        );
+                    ],
+                ],
+            ],
+        ];
 
         if ($limit > 0) {
-            $pipeline[] = array('$limit' => $limit);
+            $pipeline[] = ['$limit' => $limit];
         }
 
-        $currentSessions[$encryptCriteria] = $this->collection->aggregate($pipeline, array('cursor' => array()))->toArray();
+        $currentSessions[$encryptCriteria] = $this->collection->aggregate($pipeline, ['cursor' => []])->toArray();
 
         return $currentSessions[$encryptCriteria];
     }
@@ -365,11 +365,11 @@ class EmbeddedEventSessionService
      *
      * @return array
      */
-    public function findNextSessions($criteria = array(), $limit = 0, $all = false)
+    public function findNextSessions($criteria = [], $limit = 0, $all = false)
     {
         static $findNextSessions;
 
-        $encryptCriteria = md5(json_encode($criteria).strval($limit).strval($all));
+        $encryptCriteria = md5(json_encode($criteria).(string) $limit.(string) $all);
 
         if (isset($findNextSessions[$encryptCriteria])) {
             return $findNextSessions[$encryptCriteria];
@@ -378,51 +378,51 @@ class EmbeddedEventSessionService
         $pipeline = $this->initPipeline($all);
 
         if ($criteria && !empty($criteria)) {
-            $pipeline[] = array(
+            $pipeline[] = [
                 '$match' => $criteria,
-            );
+            ];
         }
 
-        $pipeline[] = array(
-            '$match' => array(
-                '$and' => array(
-                    array('sessions.start' => array('$exists' => true)),
-                    array('sessions.start' => array('$gt' => new \MongoDate())),
-                ),
-            ),
-        );
+        $pipeline[] = [
+            '$match' => [
+                '$and' => [
+                    ['sessions.start' => ['$exists' => true]],
+                    ['sessions.start' => ['$gt' => new \MongoDate()]],
+                ],
+            ],
+        ];
 
-        $pipeline[] = array(
-            '$project' => array(
+        $pipeline[] = [
+            '$project' => [
                 'multimediaObjectId' => '$multimediaObjectId',
                 'event' => '$event',
                 'pics' => '$pics',
                 'session' => '$sessions',
-            ),
-        );
+            ],
+        ];
 
-        $pipeline[] = array(
-            '$group' => array(
+        $pipeline[] = [
+            '$group' => [
                 '_id' => '$multimediaObjectId',
-                'data' => array(
-                    '$addToSet' => array(
+                'data' => [
+                    '$addToSet' => [
                         'event' => '$event',
                         'session' => '$session',
                         'multimediaObjectId' => '$multimediaObjectId',
                         'pics' => '$pics',
-                    ),
-                ),
-            ),
-        );
+                    ],
+                ],
+            ],
+        ];
 
         if ($limit > 0) {
-            $pipeline[] = array('$limit' => $limit);
+            $pipeline[] = ['$limit' => $limit];
         }
 
-        $result = $this->collection->aggregate($pipeline, array('cursor' => array()))->toArray();
+        $result = $this->collection->aggregate($pipeline, ['cursor' => []])->toArray();
 
         foreach ($result as $key => $element) {
-            $orderSession = array();
+            $orderSession = [];
             foreach ($element['data'] as $eventData) {
                 $orderSession[$eventData['session']['start']->sec] = $eventData;
             }
@@ -443,86 +443,86 @@ class EmbeddedEventSessionService
      *
      * @return array
      */
-    public function findEventsMenu($criteria = array(), $limit = 0)
+    public function findEventsMenu($criteria = [], $limit = 0)
     {
         $todayStarts = mktime(00, 00, 00, date('m'), date('d'), date('Y'));
 
-        $pipeline = array();
+        $pipeline = [];
 
-        $pipeline[] = array(
-            '$match' => array(
+        $pipeline[] = [
+            '$match' => [
                 'type' => MultimediaObject::TYPE_LIVE,
                 'embeddedEvent.display' => true,
-                'embeddedEvent.embeddedEventSession' => array('$exists' => true),
-            ),
-        );
+                'embeddedEvent.embeddedEventSession' => ['$exists' => true],
+            ],
+        ];
 
         if ($criteria && !empty($criteria)) {
-            $pipeline[] = array(
+            $pipeline[] = [
                 '$match' => $criteria,
-            );
+            ];
         }
 
-        $pipeline[] = array(
-            '$project' => array(
+        $pipeline[] = [
+            '$project' => [
                 'multimediaObjectId' => '$_id',
                 'event' => '$embeddedEvent',
                 'sessions' => '$embeddedEvent.embeddedEventSession',
-            ),
-        );
+            ],
+        ];
 
-        $pipeline[] = array('$unwind' => '$sessions');
+        $pipeline[] = ['$unwind' => '$sessions'];
 
-        $pipeline[] = array(
-            '$project' => array(
+        $pipeline[] = [
+            '$project' => [
                 'multimediaObjectId' => '$_id',
                 'event' => '$event',
                 'sessions' => '$sessions',
                 'seriesTitle' => '$seriesTitle',
-            ),
-        );
+            ],
+        ];
 
         $time = new \MongoDate(time());
-        $pipeline[] = array(
-            '$match' => array(
-                '$or' => array(
-                    array(
-                        'sessions.start' => array('$gte' => new \MongoDate($todayStarts)),
-                    ),
-                    array(
-                        'sessions.start' => array('$lt' => $time),
-                        'sessions.ends' => array('$gt' => $time),
-                    ),
-                ),
-            ),
-        );
+        $pipeline[] = [
+            '$match' => [
+                '$or' => [
+                    [
+                        'sessions.start' => ['$gte' => new \MongoDate($todayStarts)],
+                    ],
+                    [
+                        'sessions.start' => ['$lt' => $time],
+                        'sessions.ends' => ['$gt' => $time],
+                    ],
+                ],
+            ],
+        ];
 
-        $pipeline[] = array(
-            '$project' => array(
+        $pipeline[] = [
+            '$project' => [
                 'multimediaObjectId' => '$multimediaObjectId',
                 'event' => '$event',
                 'seriesTitle' => '$seriesTitle',
                 'session' => '$sessions',
-            ),
-        );
+            ],
+        ];
 
-        $pipeline[] = array(
-            '$group' => array(
+        $pipeline[] = [
+            '$group' => [
                 '_id' => '$multimediaObjectId',
-                'data' => array(
-                    '$addToSet' => array(
+                'data' => [
+                    '$addToSet' => [
                         'event' => '$event',
                         'session' => '$session',
-                    ),
-                ),
-            ),
-        );
+                    ],
+                ],
+            ],
+        ];
 
         if ($limit > 0) {
-            $pipeline[] = array('$limit' => $limit);
+            $pipeline[] = ['$limit' => $limit];
         }
 
-        return $this->collection->aggregate($pipeline, array('cursor' => array()))->toArray();
+        return $this->collection->aggregate($pipeline, ['cursor' => []])->toArray();
     }
 
     /**
@@ -599,6 +599,7 @@ class EmbeddedEventSessionService
      * Get first thumbnail.
      *
      * @param array pics
+     * @param mixed $pics
      *
      * @return string
      */
@@ -608,7 +609,7 @@ class EmbeddedEventSessionService
             if ($pic['hide']) {
                 continue;
             }
-            if (isset($pic['tags']) && in_array('poster', $pic['tags'])) {
+            if (isset($pic['tags']) && \in_array('poster', $pic['tags'], true)) {
                 continue;
             }
             if (isset($pic['url'])) {
@@ -662,13 +663,13 @@ class EmbeddedEventSessionService
      *
      * @param $color
      *
-     * @return string
-     *
      * @throws \Exception
+     *
+     * @return string
      */
     public function validateHtmlColor($color)
     {
-        if (in_array(strtolower($color), $this->validColors) ||
+        if (\in_array(strtolower($color), $this->validColors, true) ||
         preg_match('/^#[a-f0-9]{3}$/i', $color) ||
         preg_match('/^#[a-f0-9]{6}$/i', $color)) {
             return $color;
@@ -677,6 +678,7 @@ class EmbeddedEventSessionService
         preg_match('/^[a-f0-9]{3}$/i', $color)) {
             return '#'.$color;
         }
+
         throw new \Exception('Invalid text color: must be a hexadecimal number or a color name.');
     }
 
@@ -754,9 +756,9 @@ class EmbeddedEventSessionService
                 }
                 if ($start) {
                     return $dateStartSession;
-                } else {
-                    return $dateEndsSession;
                 }
+
+                return $dateEndsSession;
             }
 
             return $date->toDateTime();
@@ -780,9 +782,11 @@ class EmbeddedEventSessionService
         foreach ($sessions as $session) {
             if ($session->getStart() < $now && $session->getEnds() > $now) {
                 return $start ? $session->getStart() : $session->getEnds();
-            } elseif ($session->getStart() > $now) {
+            }
+            if ($session->getStart() > $now) {
                 return $start ? $session->getStart() : $session->getEnds();
-            } elseif ($session->getStart() < $now) {
+            }
+            if ($session->getStart() < $now) {
                 $date = $start ? $session->getStart() : $session->getEnds();
             }
         }
@@ -796,7 +800,7 @@ class EmbeddedEventSessionService
     /**
      * Find future events.
      *
-     * @param string|null $multimediaObjectId
+     * @param null|string $multimediaObjectId
      * @param int         $limit
      *
      * @return array
@@ -804,8 +808,8 @@ class EmbeddedEventSessionService
     public function findFutureEvents($multimediaObjectId = null, $limit = 0)
     {
         $pipeline = $this->getFutureEventsPipeline($multimediaObjectId);
-        $result = $this->collection->aggregate($pipeline, array('cursor' => array()))->toArray();
-        $orderSession = array();
+        $result = $this->collection->aggregate($pipeline, ['cursor' => []])->toArray();
+        $orderSession = [];
         $now = new \DateTime('now');
         foreach ($result as $key => $element) {
             foreach ($element['data'] as $eventData) {
@@ -816,13 +820,14 @@ class EmbeddedEventSessionService
                     $startDate = $embeddedSession['start']->toDateTime();
                     if ($startDate > $now) {
                         $orderSession = $this->addElementWithSessionSec($orderSession, $element, $embeddedSession['start']->sec);
+
                         break;
                     }
                 }
             }
         }
         ksort($orderSession);
-        $output = array();
+        $output = [];
         foreach (array_values($orderSession) as $key => $session) {
             if (0 !== $limit && $key >= $limit) {
                 break;
@@ -836,16 +841,16 @@ class EmbeddedEventSessionService
     /**
      * Count future events.
      *
-     * @param string|null $multimediaObjectId
+     * @param null|string $multimediaObjectId
      *
      * @return array
      */
     public function countFutureEvents($multimediaObjectId = null)
     {
         $pipeline = $this->getFutureEventsPipeline($multimediaObjectId);
-        $result = $this->collection->aggregate($pipeline, array('cursor' => array()))->toArray();
+        $result = $this->collection->aggregate($pipeline, ['cursor' => []])->toArray();
 
-        return count($result);
+        return \count($result);
     }
 
     /**
@@ -855,46 +860,129 @@ class EmbeddedEventSessionService
      */
     public function findAllEvents()
     {
-        $pipeline[] = array(
-            '$match' => array(
+        $pipeline[] = [
+            '$match' => [
                 'type' => MultimediaObject::TYPE_LIVE,
                 'embeddedEvent.display' => true,
-                'embeddedEvent.embeddedEventSession' => array('$exists' => true),
-            ),
-        );
-        $pipeline[] = array(
-            '$project' => array(
+                'embeddedEvent.embeddedEventSession' => ['$exists' => true],
+            ],
+        ];
+        $pipeline[] = [
+            '$project' => [
                 'multimediaObjectId' => '$_id',
                 'event' => '$embeddedEvent',
                 'sessions' => '$embeddedEvent.embeddedEventSession',
-            ),
-        );
-        $pipeline[] = array('$unwind' => '$sessions');
-        $pipeline[] = array(
-            '$match' => array(
-                'sessions.start' => array('$exists' => true),
-            ),
-        );
-        $pipeline[] = array(
-            '$project' => array(
+            ],
+        ];
+        $pipeline[] = ['$unwind' => '$sessions'];
+        $pipeline[] = [
+            '$match' => [
+                'sessions.start' => ['$exists' => true],
+            ],
+        ];
+        $pipeline[] = [
+            '$project' => [
                 'multimediaObjectId' => '$multimediaObjectId',
                 'event' => '$event',
                 'sessions' => '$sessions',
                 'session' => '$sessions',
-            ),
-        );
-        $pipeline[] = array(
-            '$group' => array(
+            ],
+        ];
+        $pipeline[] = [
+            '$group' => [
                 '_id' => '$multimediaObjectId',
-                'data' => array(
-                    '$addToSet' => array(
+                'data' => [
+                    '$addToSet' => [
                         'event' => '$event',
-                    ),
-                ),
-            ),
-        );
+                    ],
+                ],
+            ],
+        ];
 
-        return $this->collection->aggregate($pipeline, array('cursor' => array()))->toArray();
+        return $this->collection->aggregate($pipeline, ['cursor' => []])->toArray();
+    }
+
+    /**
+     * Find next live events.
+     *
+     * @param null|string $multimediaObjectId
+     * @param int         $limit
+     *
+     * @return array
+     */
+    public function findNextLiveEvents($multimediaObjectId = null, $limit = 0)
+    {
+        $pipeline = $this->getNextLiveEventsPipeline($multimediaObjectId);
+        $result = $this->collection->aggregate($pipeline, ['cursor' => []])->toArray();
+        $orderSession = [];
+        $now = new \DateTime('now');
+        foreach ($result as $key => $element) {
+            foreach ($element['data'] as $eventData) {
+                usort($eventData['event']['embeddedEventSession'], function ($a, $b) {
+                    return $a['start'] >= $b['start'];
+                });
+                foreach ($eventData['event']['embeddedEventSession'] as $embeddedSession) {
+                    $startDate = $embeddedSession['start']->toDateTime();
+                    if ($startDate > $now) {
+                        $orderSession = $this->addElementWithSessionSec($orderSession, $element, $embeddedSession['start']->sec);
+
+                        break;
+                    }
+                }
+            }
+        }
+        ksort($orderSession);
+        $output = [];
+        foreach (array_values($orderSession) as $key => $session) {
+            if (0 !== $limit && $key >= $limit) {
+                break;
+            }
+            $output[$key] = $session;
+        }
+
+        return $output;
+    }
+
+    /**
+     * Is live broadcasting.
+     *
+     * @throws \Doctrine\ODM\MongoDB\MongoDBException
+     *
+     * @return bool
+     */
+    public function isLiveBroadcasting()
+    {
+        static $isLiveBroadcasting = null;
+
+        if (null !== $isLiveBroadcasting) {
+            return $isLiveBroadcasting;
+        }
+
+        $events = $this->findCurrentSessions();
+
+        $isLiveBroadcasting = \count($events) > 0;
+
+        return $isLiveBroadcasting;
+    }
+
+    /**
+     * Add element with session sec.
+     *
+     * @param array $orderSession
+     * @param array $element
+     * @param int   $indexSec
+     *
+     * @return array
+     */
+    protected function addElementWithSessionSec($orderSession, $element, $indexSec)
+    {
+        $index = 0;
+        while (isset($orderSession[$indexSec + $index])) {
+            ++$index;
+        }
+        $orderSession[$indexSec + $index] = $element;
+
+        return $orderSession;
     }
 
     /**
@@ -906,46 +994,46 @@ class EmbeddedEventSessionService
      */
     private function initPipeline($all = false)
     {
-        $pipeline = array();
-        $pipeline[] = array(
-            '$match' => array(
+        $pipeline = [];
+        $pipeline[] = [
+            '$match' => [
                 'type' => MultimediaObject::TYPE_LIVE,
-                'embeddedEvent.embeddedEventSession' => array('$exists' => true),
-            ),
-        );
+                'embeddedEvent.embeddedEventSession' => ['$exists' => true],
+            ],
+        ];
         if (!$all) {
             $pipeline[0]['$match']['embeddedEvent.display'] = true;
         }
-        $pipeline[] = array(
-            '$project' => array(
+        $pipeline[] = [
+            '$project' => [
                 'multimediaObjectId' => '$_id',
                 'event' => '$embeddedEvent',
                 'sessions' => '$embeddedEvent.embeddedEventSession',
                 'pics' => '$pics',
                 'embeddedBroadcast' => '$embeddedBroadcast',
-            ),
-        );
-        $pipeline[] = array('$unwind' => '$sessions');
-        $pipeline[] = array(
-            '$project' => array(
+            ],
+        ];
+        $pipeline[] = ['$unwind' => '$sessions'];
+        $pipeline[] = [
+            '$project' => [
                 'multimediaObjectId' => '$multimediaObjectId',
                 'event' => '$event',
                 'sessions' => '$sessions',
                 'pics' => '$pics',
                 'embeddedBroadcast' => '$embeddedBroadcast',
-                'sessionEnds' => array(
-                    '$add' => array(
+                'sessionEnds' => [
+                    '$add' => [
                         '$sessions.start',
-                        array(
-                            '$multiply' => array(
+                        [
+                            '$multiply' => [
                                 '$sessions.duration',
                                 1000,
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-        );
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
 
         return $pipeline;
     }
@@ -954,86 +1042,88 @@ class EmbeddedEventSessionService
      * End pipeline.
      *
      * @param array pipeline
+     * @param mixed $pipeline
      */
     private function endPipeline(&$pipeline)
     {
-        $pipeline[] = array(
-            '$group' => array(
+        $pipeline[] = [
+            '$group' => [
                 '_id' => '$multimediaObjectId',
-                'data' => array(
-                    '$first' => array(
+                'data' => [
+                    '$first' => [
                         'event' => '$event',
                         'session' => '$sessions',
                         'multimediaObjectId' => '$multimediaObjectId',
                         'pics' => '$pics',
-                    ),
-                ),
-            ),
-        );
-        $pipeline[] = array(
-            '$sort' => array(
+                    ],
+                ],
+            ],
+        ];
+        $pipeline[] = [
+            '$sort' => [
                 'data.session.start' => 1,
-            ),
-        );
+            ],
+        ];
     }
 
     /**
      * Get future events pipeline.
      *
      * @param string MultimediaObjectId
+     * @param mixed $multimediaObjectId
      *
      * @return array
      */
     private function getFutureEventsPipeline($multimediaObjectId)
     {
         if ($multimediaObjectId) {
-            $pipeline[] = array(
-                '$match' => array(
+            $pipeline[] = [
+                '$match' => [
                     '_id' => new \MongoId($multimediaObjectId),
                     'type' => MultimediaObject::TYPE_LIVE,
-                    'embeddedEvent.embeddedEventSession' => array('$exists' => true),
-                ),
-            );
+                    'embeddedEvent.embeddedEventSession' => ['$exists' => true],
+                ],
+            ];
         } else {
-            $pipeline[] = array(
-                '$match' => array(
+            $pipeline[] = [
+                '$match' => [
                     'type' => MultimediaObject::TYPE_LIVE,
                     'embeddedEvent.display' => true,
-                    'embeddedEvent.embeddedEventSession' => array('$exists' => true),
-                ),
-            );
+                    'embeddedEvent.embeddedEventSession' => ['$exists' => true],
+                ],
+            ];
         }
-        $pipeline[] = array(
-            '$project' => array(
+        $pipeline[] = [
+            '$project' => [
                 'multimediaObjectId' => '$_id',
                 'event' => '$embeddedEvent',
                 'sessions' => '$embeddedEvent.embeddedEventSession',
-            ),
-        );
-        $pipeline[] = array('$unwind' => '$sessions');
-        $pipeline[] = array(
-            '$match' => array(
-                'sessions.start' => array('$gt' => new \MongoDate()),
-            ),
-        );
-        $pipeline[] = array(
-            '$project' => array(
+            ],
+        ];
+        $pipeline[] = ['$unwind' => '$sessions'];
+        $pipeline[] = [
+            '$match' => [
+                'sessions.start' => ['$gt' => new \MongoDate()],
+            ],
+        ];
+        $pipeline[] = [
+            '$project' => [
                 'multimediaObjectId' => '$multimediaObjectId',
                 'event' => '$event',
                 'sessions' => '$sessions',
                 'session' => '$sessions',
-            ),
-        );
-        $pipeline[] = array(
-            '$group' => array(
+            ],
+        ];
+        $pipeline[] = [
+            '$group' => [
                 '_id' => '$multimediaObjectId',
-                'data' => array(
-                    '$addToSet' => array(
+                'data' => [
+                    '$addToSet' => [
                         'event' => '$event',
-                    ),
-                ),
-            ),
-        );
+                    ],
+                ],
+            ],
+        ];
 
         return $pipeline;
     }
@@ -1042,40 +1132,41 @@ class EmbeddedEventSessionService
      * Get multimedia object pics.
      *
      * @param string eventId
+     * @param mixed $eventId
      *
      * @return array
      */
     private function getMultimediaObjectPics($eventId)
     {
-        $pipeline = array();
-        $pipeline[] = array(
-            '$match' => array(
+        $pipeline = [];
+        $pipeline[] = [
+            '$match' => [
                 'embeddedEvent._id' => new \MongoId($eventId),
-            ),
-        );
-        $pipeline[] = array(
-            '$project' => array(
+            ],
+        ];
+        $pipeline[] = [
+            '$project' => [
                 'multimediaObjectId' => '$_id',
                 'pics' => '$pics',
-            ),
-        );
-        $pipeline[] = array(
-            '$group' => array(
+            ],
+        ];
+        $pipeline[] = [
+            '$group' => [
                 '_id' => '$multimediaObjectId',
-                'data' => array(
-                    '$first' => array(
+                'data' => [
+                    '$first' => [
                         'multimediaObjectId' => '$multimediaObjectId',
                         'pics' => '$pics',
-                    ),
-                ),
-            ),
-        );
-        $data = $this->collection->aggregate($pipeline, array('cursor' => array()))->toArray();
+                    ],
+                ],
+            ],
+        ];
+        $data = $this->collection->aggregate($pipeline, ['cursor' => []])->toArray();
         if (isset($data[0]['data']['pics'])) {
             return $data[0]['data']['pics'];
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -1084,6 +1175,7 @@ class EmbeddedEventSessionService
      * @deprecated: Use getPicPoster
      *
      * @param array
+     * @param mixed $pics
      *
      * @return string
      */
@@ -1091,7 +1183,7 @@ class EmbeddedEventSessionService
     {
         foreach ($pics as $pic) {
             if (isset($pic['tags'])) {
-                if (in_array('poster', $pic['tags']) && isset($pic['url'])) {
+                if (\in_array('poster', $pic['tags'], true) && isset($pic['url'])) {
                     return $pic['url'];
                 }
             }
@@ -1121,187 +1213,107 @@ class EmbeddedEventSessionService
      * Get multimedia object properties.
      *
      * @param string eventId
+     * @param mixed $eventId
      *
      * @return array
      */
     private function getMultimediaObjectProperties($eventId)
     {
-        $pipeline = array();
-        $pipeline[] = array(
-            '$match' => array(
+        $pipeline = [];
+        $pipeline[] = [
+            '$match' => [
                 'embeddedEvent._id' => new \MongoId($eventId),
-            ),
-        );
-        $pipeline[] = array(
-            '$project' => array(
+            ],
+        ];
+        $pipeline[] = [
+            '$project' => [
                 'multimediaObjectId' => '$_id',
                 'properties' => '$properties',
-            ),
-        );
-        $pipeline[] = array(
-            '$group' => array(
+            ],
+        ];
+        $pipeline[] = [
+            '$group' => [
                 '_id' => '$multimediaObjectId',
-                'data' => array(
-                    '$first' => array(
+                'data' => [
+                    '$first' => [
                         'multimediaObjectId' => '$multimediaObjectId',
                         'properties' => '$properties',
-                    ),
-                ),
-            ),
-        );
-        $data = $this->collection->aggregate($pipeline, array('cursor' => array()))->toArray();
+                    ],
+                ],
+            ],
+        ];
+        $data = $this->collection->aggregate($pipeline, ['cursor' => []])->toArray();
         if (isset($data[0]['data']['properties'])) {
             return $data[0]['data']['properties'];
         }
 
-        return array();
-    }
-
-    /**
-     * Find next live events.
-     *
-     * @param string|null $multimediaObjectId
-     * @param int         $limit
-     *
-     * @return array
-     */
-    public function findNextLiveEvents($multimediaObjectId = null, $limit = 0)
-    {
-        $pipeline = $this->getNextLiveEventsPipeline($multimediaObjectId);
-        $result = $this->collection->aggregate($pipeline, array('cursor' => array()))->toArray();
-        $orderSession = array();
-        $now = new \DateTime('now');
-        foreach ($result as $key => $element) {
-            foreach ($element['data'] as $eventData) {
-                usort($eventData['event']['embeddedEventSession'], function ($a, $b) {
-                    return $a['start'] >= $b['start'];
-                });
-                foreach ($eventData['event']['embeddedEventSession'] as $embeddedSession) {
-                    $startDate = $embeddedSession['start']->toDateTime();
-                    if ($startDate > $now) {
-                        $orderSession = $this->addElementWithSessionSec($orderSession, $element, $embeddedSession['start']->sec);
-                        break;
-                    }
-                }
-            }
-        }
-        ksort($orderSession);
-        $output = array();
-        foreach (array_values($orderSession) as $key => $session) {
-            if (0 !== $limit && $key >= $limit) {
-                break;
-            }
-            $output[$key] = $session;
-        }
-
-        return $output;
+        return [];
     }
 
     /**
      * Get next live events pipeline.
      *
      * @param string multimediaObjectId
+     * @param mixed $multimediaObjectId
      *
      * @return array
      */
     private function getNextLiveEventsPipeline($multimediaObjectId)
     {
         if ($multimediaObjectId) {
-            $pipeline[] = array(
-                '$match' => array(
-                    '_id' => array('$nin' => array(new \MongoId($multimediaObjectId))),
+            $pipeline[] = [
+                '$match' => [
+                    '_id' => ['$nin' => [new \MongoId($multimediaObjectId)]],
                     'type' => MultimediaObject::TYPE_LIVE,
                     'embeddedEvent.display' => true,
-                    'embeddedEvent.embeddedEventSession' => array('$exists' => true),
-                ),
-            );
+                    'embeddedEvent.embeddedEventSession' => ['$exists' => true],
+                ],
+            ];
         } else {
-            $pipeline[] = array(
-                '$match' => array(
+            $pipeline[] = [
+                '$match' => [
                     'type' => MultimediaObject::TYPE_LIVE,
                     'embeddedEvent.display' => true,
-                    'embeddedEvent.embeddedEventSession' => array('$exists' => true),
-                ),
-            );
+                    'embeddedEvent.embeddedEventSession' => ['$exists' => true],
+                ],
+            ];
         }
-        $pipeline[] = array(
-            '$project' => array(
+        $pipeline[] = [
+            '$project' => [
                 'multimediaObjectId' => '$_id',
                 'event' => '$embeddedEvent',
                 'sessions' => '$embeddedEvent.embeddedEventSession',
-            ),
-        );
-        $pipeline[] = array('$unwind' => '$sessions');
+            ],
+        ];
+        $pipeline[] = ['$unwind' => '$sessions'];
         $now = new \MongoDate();
         $todayDate = new \DateTime('now');
         $today = new \MongoDate($todayDate->setTime(0, 0)->format('U'));
-        $pipeline[] = array(
-            '$match' => array(
-                'sessions.start' => array('$gte' => $today),
-                'sessions.ends' => array('$gte' => $now),
-            ),
-        );
-        $pipeline[] = array(
-            '$project' => array(
+        $pipeline[] = [
+            '$match' => [
+                'sessions.start' => ['$gte' => $today],
+                'sessions.ends' => ['$gte' => $now],
+            ],
+        ];
+        $pipeline[] = [
+            '$project' => [
                 'multimediaObjectId' => '$multimediaObjectId',
                 'event' => '$event',
                 'sessions' => '$sessions',
                 'session' => '$sessions',
-            ),
-        );
-        $pipeline[] = array(
-            '$group' => array(
+            ],
+        ];
+        $pipeline[] = [
+            '$group' => [
                 '_id' => '$multimediaObjectId',
-                'data' => array(
-                    '$addToSet' => array(
+                'data' => [
+                    '$addToSet' => [
                         'event' => '$event',
-                    ),
-                ),
-            ),
-        );
+                    ],
+                ],
+            ],
+        ];
 
         return $pipeline;
-    }
-
-    /**
-     * Add element with session sec.
-     *
-     * @param array $orderSession
-     * @param array $element
-     * @param int   $indexSec
-     *
-     * @return array
-     */
-    protected function addElementWithSessionSec($orderSession, $element, $indexSec)
-    {
-        $index = 0;
-        while (isset($orderSession[$indexSec + $index])) {
-            ++$index;
-        }
-        $orderSession[$indexSec + $index] = $element;
-
-        return $orderSession;
-    }
-
-    /**
-     * Is live broadcasting.
-     *
-     * @return bool
-     *
-     * @throws \Doctrine\ODM\MongoDB\MongoDBException
-     */
-    public function isLiveBroadcasting()
-    {
-        static $isLiveBroadcasting = null;
-
-        if (null !== $isLiveBroadcasting) {
-            return $isLiveBroadcasting;
-        }
-
-        $events = $this->findCurrentSessions();
-
-        $isLiveBroadcasting = count($events) > 0;
-
-        return $isLiveBroadcasting;
     }
 }

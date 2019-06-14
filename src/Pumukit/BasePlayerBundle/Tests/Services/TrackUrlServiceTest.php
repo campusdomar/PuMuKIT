@@ -8,16 +8,20 @@ use Pumukit\SchemaBundle\Document\Tag;
 use Pumukit\SchemaBundle\Document\Track;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class TrackUrlServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class TrackUrlServiceTest extends WebTestCase
 {
     private $client;
     private $dm;
     private $trackurlService;
     private $mmobjRepo;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
 
         $this->client = static::createClient();
         $this->dm = static::$kernel->getContainer()->get('doctrine_mongodb')->getManager();
@@ -25,7 +29,7 @@ class TrackUrlServiceTest extends WebTestCase
         $this->trackurlService = static::$kernel->getContainer()->get('pumukit_baseplayer.trackurl');
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -52,45 +56,45 @@ class TrackUrlServiceTest extends WebTestCase
         $this->dm->persist($mmobj);
         $this->dm->flush();
 
-        $this->assertEquals(0, $mmobj->getNumview());
+        static::assertSame(0, $mmobj->getNumview());
 
         $genUrl = $this->trackurlService->generateTrackFileUrl($track);
         $this->client->request('GET', $genUrl);
         // @Route("/trackfile/{id}.{ext}", name="pumukit_trackfile_index" )
-        $this->assertEquals($genUrl, '/trackfile/'.$track->getId().'.mp4');
-        $this->assertEquals(302, $this->client->getResponse()->getStatusCode());
-        $this->assertEquals($track->getUrl(), $this->client->getResponse()->getTargetUrl());
+        static::assertSame($genUrl, '/trackfile/'.$track->getId().'.mp4');
+        static::assertSame(302, $this->client->getResponse()->getStatusCode());
+        static::assertSame($track->getUrl(), $this->client->getResponse()->getTargetUrl());
         //Reload mmobj to check for new views.
         $this->dm->clear();
         $mmobj = $this->mmobjRepo->find($mmobj->getId());
-        $this->assertEquals(1, $mmobj->getNumview());
-        $this->client->request('GET', $genUrl, array(), array(), array('HTTP_RANGE' => 'bytes=123-246'));
+        static::assertSame(1, $mmobj->getNumview());
+        $this->client->request('GET', $genUrl, [], [], ['HTTP_RANGE' => 'bytes=123-246']);
         $this->dm->clear();
         $mmobj = $this->mmobjRepo->find($mmobj->getId());
-        $this->assertEquals(1, $mmobj->getNumview());
+        static::assertSame(1, $mmobj->getNumview());
         //Views should work if range = 0
-        $this->client->request('GET', $genUrl, array(), array(), array('HTTP_RANGE' => 'bytes=0-1256'));
-        $this->client->request('GET', $genUrl, array(), array(), array('HTTP_RANGE' => 'bytes=0-'));
+        $this->client->request('GET', $genUrl, [], [], ['HTTP_RANGE' => 'bytes=0-1256']);
+        $this->client->request('GET', $genUrl, [], [], ['HTTP_RANGE' => 'bytes=0-']);
         $this->dm->clear();
         $mmobj = $this->mmobjRepo->find($mmobj->getId());
-        $this->assertEquals(3, $mmobj->getNumview());
+        static::assertSame(3, $mmobj->getNumview());
         //Start should also work
-        $this->client->request('GET', $genUrl, array(), array(), array('HTTP_START' => 0));
+        $this->client->request('GET', $genUrl, [], [], ['HTTP_START' => 0]);
         //xTreme case: If either 'start' or 'range' is valid, it adds a numView.
-        $this->client->request('GET', $genUrl, array(), array(), array('HTTP_START' => 1254, 'HTTP_RANGE' => 'bytes=0-1256'));
-        $this->client->request('GET', $genUrl, array(), array(), array('HTTP_START' => 0, 'HTTP_RANGE' => 'bytes=123-1256'));
-        $this->client->request('GET', $genUrl, array(), array(), array('HTTP_START' => 1254, 'HTTP_RANGE' => 'bytes=123-1256'));
+        $this->client->request('GET', $genUrl, [], [], ['HTTP_START' => 1254, 'HTTP_RANGE' => 'bytes=0-1256']);
+        $this->client->request('GET', $genUrl, [], [], ['HTTP_START' => 0, 'HTTP_RANGE' => 'bytes=123-1256']);
+        $this->client->request('GET', $genUrl, [], [], ['HTTP_START' => 1254, 'HTTP_RANGE' => 'bytes=123-1256']);
         $this->dm->clear();
         $mmobj = $this->mmobjRepo->find($mmobj->getId());
-        $this->assertEquals(6, $mmobj->getNumview());
+        static::assertSame(6, $mmobj->getNumview());
         //With GET params
         $getParams = '?1=2&forcedl=1';
         $genUrl = $this->trackurlService->generateTrackFileUrl($track);
         $this->client->request('GET', $genUrl.$getParams);
         // @Route("/trackfile/{id}.{ext}", name="pumukit_trackfile_index" )
-        $this->assertEquals($genUrl, '/trackfile/'.$track->getId().'.mp4');
-        $this->assertEquals(302, $this->client->getResponse()->getStatusCode());
-        $this->assertEquals($track->getUrl().$getParams, $this->client->getResponse()->getTargetUrl());
+        static::assertSame($genUrl, '/trackfile/'.$track->getId().'.mp4');
+        static::assertSame(302, $this->client->getResponse()->getStatusCode());
+        static::assertSame($track->getUrl().$getParams, $this->client->getResponse()->getTargetUrl());
     }
 
     public function testGenerateTrackFileUrlBadExt()
@@ -109,6 +113,6 @@ class TrackUrlServiceTest extends WebTestCase
 
         $genUrlExt = pathinfo(parse_url($genUrl, PHP_URL_PATH), PATHINFO_EXTENSION);
         $trackExt = pathinfo(parse_url($track->getUrl(), PHP_URL_PATH), PATHINFO_EXTENSION);
-        $this->assertEquals($trackExt, $genUrlExt);
+        static::assertSame($trackExt, $genUrlExt);
     }
 }

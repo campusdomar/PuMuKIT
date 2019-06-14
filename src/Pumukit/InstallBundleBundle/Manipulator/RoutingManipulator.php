@@ -30,10 +30,12 @@ class RoutingManipulator extends Manipulator
      * @param string $prefix
      * @param string $path
      * @param bool   $appendToEnd
-     *
-     * @return bool true if it worked, false otherwise
+     * @param mixed  $type
+     * @param mixed  $defaults
      *
      * @throws \RuntimeException If bundle is already imported
+     *
+     * @return bool true if it worked, false otherwise
      */
     public function addResource($bundle, $format, $prefix = '/', $type = '', $path = 'routing', $defaults = [], $appendToEnd = false)
     {
@@ -46,11 +48,11 @@ class RoutingManipulator extends Manipulator
             if (false !== strpos($current, $code)) {
                 throw new \RuntimeException(sprintf('Bundle "%s" is already imported.', $bundle));
             }
-        } elseif (!is_dir($dir = dirname($this->file))) {
+        } elseif (!is_dir($dir = \dirname($this->file))) {
             mkdir($dir, 0777, true);
         }
 
-        if ('annotation' == $format) {
+        if ('annotation' === $format) {
             $code .= sprintf("    resource: \"@%s/Controller/\"\n    type:     annotation\n", $bundle);
         } else {
             $code .= sprintf("    resource: \"@%s/Resources/config/%s.%s\"\n", $bundle, $path, $format);

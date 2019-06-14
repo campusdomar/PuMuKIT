@@ -2,10 +2,10 @@
 
 namespace Pumukit\WebTVBundle\Controller;
 
-use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
 use Pumukit\SchemaBundle\Document\Annotation;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 /**
  * Class PlayerController.

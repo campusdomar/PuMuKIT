@@ -2,15 +2,15 @@
 
 namespace Pumukit\WebTVBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Pagerfanta\Adapter\DoctrineODMMongoDBAdapter;
 use Pagerfanta\Pagerfanta;
-use Pumukit\SchemaBundle\Document\Series;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Series;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class SeriesController.
@@ -30,7 +30,8 @@ class SeriesController extends Controller implements WebTVControllerInterface
     {
         $mmobjRepo = $this
             ->get('doctrine_mongodb.odm.document_manager')
-            ->getRepository(MultimediaObject::class);
+            ->getRepository(MultimediaObject::class)
+        ;
 
         $objects = $mmobjRepo->createBuilderWithSeriesAndStatus($series, [MultimediaObject::STATUS_PUBLISHED], ['rank' => 1]);
 
@@ -59,7 +60,8 @@ class SeriesController extends Controller implements WebTVControllerInterface
 
         $mmobjRepo = $this
             ->get('doctrine_mongodb.odm.document_manager')
-            ->getRepository(MultimediaObject::class);
+            ->getRepository(MultimediaObject::class)
+        ;
 
         $objects = $mmobjRepo->createBuilderWithSeries($series, ['rank' => 1]);
 
@@ -93,7 +95,7 @@ class SeriesController extends Controller implements WebTVControllerInterface
     {
         $limit = $this->container->getParameter('limit_objs_series');
 
-        if (0 == $limit) {
+        if (0 === $limit) {
             return $objects->getQuery()->execute();
         }
         $adapter = new DoctrineODMMongoDBAdapter($objects);

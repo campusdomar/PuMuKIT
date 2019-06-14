@@ -2,14 +2,18 @@
 
 namespace Pumukit\SchemaBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Pumukit\SchemaBundle\Document\User;
 use Pumukit\SchemaBundle\Event\SchemaEvents;
 use Pumukit\SchemaBundle\Event\UserEvent;
 use Pumukit\SchemaBundle\Services\UserEventDispatcherService;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
-class UserEventDispatcherServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class UserEventDispatcherServiceTest extends WebTestCase
 {
     const EMPTY_NAME = 'EMTPY_NAME';
 
@@ -17,16 +21,17 @@ class UserEventDispatcherServiceTest extends WebTestCase
     private $userDispatcher;
     private $dispatcher;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()
-          ->get('doctrine_mongodb.odm.document_manager');
+            ->get('doctrine_mongodb.odm.document_manager')
+        ;
         $this->dispatcher = new EventDispatcher();
 
-        $this->dm->getDocumentCollection(User::class)->remove(array());
+        $this->dm->getDocumentCollection(User::class)->remove([]);
         $this->dm->flush();
 
         MockUpUserListener::$called = false;
@@ -35,7 +40,7 @@ class UserEventDispatcherServiceTest extends WebTestCase
         $this->userDispatcher = new UserEventDispatcherService($this->dispatcher);
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -48,8 +53,8 @@ class UserEventDispatcherServiceTest extends WebTestCase
     public function testDispatchCreate()
     {
         $this->dispatcher->addListener(SchemaEvents::USER_CREATE, function ($event, $name) {
-            $this->assertTrue($event instanceof UserEvent);
-            $this->assertEquals(SchemaEvents::USER_CREATE, $name);
+            static::assertTrue($event instanceof UserEvent);
+            static::assertSame(SchemaEvents::USER_CREATE, $name);
 
             $user = $event->getUser();
 
@@ -57,8 +62,8 @@ class UserEventDispatcherServiceTest extends WebTestCase
             MockUpUserListener::$name = $user->getUsername();
         });
 
-        $this->assertFalse(MockUpUserListener::$called);
-        $this->assertEquals(self::EMPTY_NAME, MockUpUserListener::$name);
+        static::assertFalse(MockUpUserListener::$called);
+        static::assertSame(self::EMPTY_NAME, MockUpUserListener::$name);
 
         $name = 'test_name';
 
@@ -70,15 +75,15 @@ class UserEventDispatcherServiceTest extends WebTestCase
 
         $this->userDispatcher->dispatchCreate($user);
 
-        $this->assertTrue(MockUpUserListener::$called);
-        $this->assertEquals($name, MockUpUserListener::$name);
+        static::assertTrue(MockUpUserListener::$called);
+        static::assertSame($name, MockUpUserListener::$name);
     }
 
     public function testDispatchUpdate()
     {
         $this->dispatcher->addListener(SchemaEvents::USER_UPDATE, function ($event, $name) {
-            $this->assertTrue($event instanceof UserEvent);
-            $this->assertEquals(SchemaEvents::USER_UPDATE, $name);
+            static::assertTrue($event instanceof UserEvent);
+            static::assertSame(SchemaEvents::USER_UPDATE, $name);
 
             $user = $event->getUser();
 
@@ -86,8 +91,8 @@ class UserEventDispatcherServiceTest extends WebTestCase
             MockUpUserListener::$name = $user->getUsername();
         });
 
-        $this->assertFalse(MockUpUserListener::$called);
-        $this->assertEquals(self::EMPTY_NAME, MockUpUserListener::$name);
+        static::assertFalse(MockUpUserListener::$called);
+        static::assertSame(self::EMPTY_NAME, MockUpUserListener::$name);
 
         $name = 'test_name';
 
@@ -105,15 +110,15 @@ class UserEventDispatcherServiceTest extends WebTestCase
 
         $this->userDispatcher->dispatchUpdate($user);
 
-        $this->assertTrue(MockUpUserListener::$called);
-        $this->assertEquals($updateUsername, MockUpUserListener::$name);
+        static::assertTrue(MockUpUserListener::$called);
+        static::assertSame($updateUsername, MockUpUserListener::$name);
     }
 
     public function testDispatchDelete()
     {
         $this->dispatcher->addListener(SchemaEvents::USER_DELETE, function ($event, $name) {
-            $this->assertTrue($event instanceof UserEvent);
-            $this->assertEquals(SchemaEvents::USER_DELETE, $name);
+            static::assertTrue($event instanceof UserEvent);
+            static::assertSame(SchemaEvents::USER_DELETE, $name);
 
             $user = $event->getUser();
 
@@ -121,8 +126,8 @@ class UserEventDispatcherServiceTest extends WebTestCase
             MockUpUserListener::$name = $user->getUsername();
         });
 
-        $this->assertFalse(MockUpUserListener::$called);
-        $this->assertEquals(self::EMPTY_NAME, MockUpUserListener::$name);
+        static::assertFalse(MockUpUserListener::$called);
+        static::assertSame(self::EMPTY_NAME, MockUpUserListener::$name);
 
         $name = 'test_name';
 
@@ -134,8 +139,8 @@ class UserEventDispatcherServiceTest extends WebTestCase
 
         $this->userDispatcher->dispatchDelete($user);
 
-        $this->assertTrue(MockUpUserListener::$called);
-        $this->assertEquals($name, MockUpUserListener::$name);
+        static::assertTrue(MockUpUserListener::$called);
+        static::assertSame($name, MockUpUserListener::$name);
     }
 }
 

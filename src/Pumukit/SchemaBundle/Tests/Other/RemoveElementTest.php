@@ -2,13 +2,17 @@
 
 namespace Pumukit\SchemaBundle\Tests\Other;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
 use Pumukit\SchemaBundle\Document\Group;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\User;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class RemoveElementTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class RemoveElementTest extends WebTestCase
 {
     private $dm;
     private $mmRepo;
@@ -23,41 +27,52 @@ class RemoveElementTest extends WebTestCase
     private $tagService;
     private $userRepo;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()
             ->get('doctrine_mongodb')->getManager();
         $this->mmRepo = $this->dm
-            ->getRepository(MultimediaObject::class);
+            ->getRepository(MultimediaObject::class)
+        ;
         $this->userRepo = $this->dm
-            ->getRepository(User::class);
+            ->getRepository(User::class)
+        ;
         $this->groupRepo = $this->dm
-            ->getRepository(Group::class);
+            ->getRepository(Group::class)
+        ;
         $this->factoryService = static::$kernel->getContainer()
-            ->get('pumukitschema.factory');
+            ->get('pumukitschema.factory')
+        ;
         $this->mmService = static::$kernel->getContainer()
-            ->get('pumukitschema.multimedia_object');
+            ->get('pumukitschema.multimedia_object')
+        ;
         $this->userService = static::$kernel->getContainer()
-            ->get('pumukitschema.user');
+            ->get('pumukitschema.user')
+        ;
         $this->ebService = static::$kernel->getContainer()
-            ->get('pumukitschema.embeddedbroadcast');
+            ->get('pumukitschema.embeddedbroadcast')
+        ;
         $this->groupService = static::$kernel->getContainer()
-            ->get('pumukitschema.group');
+            ->get('pumukitschema.group')
+        ;
 
         //DELETE DATABASE
         $this->dm->getDocumentCollection(MultimediaObject::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Group::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(User::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -103,18 +118,18 @@ class RemoveElementTest extends WebTestCase
         $this->dm->persist($mm4);
         $this->dm->flush();
 
-        $this->assertTrue($mm1->containsGroup($group1));
-        $this->assertFalse($mm1->containsGroup($group2));
-        $this->assertTrue($mm2->containsGroup($group1));
-        $this->assertTrue($mm2->containsGroup($group2));
-        $this->assertTrue($mm3->containsGroup($group1));
-        $this->assertFalse($mm3->containsGroup($group2));
-        $this->assertTrue($mm4->containsGroup($group1));
-        $this->assertTrue($mm4->containsGroup($group2));
-        $this->assertEquals(1, $mm1->getGroups()->count());
-        $this->assertEquals(2, $mm2->getGroups()->count());
-        $this->assertEquals(1, $mm3->getGroups()->count());
-        $this->assertEquals(2, $mm4->getGroups()->count());
+        static::assertTrue($mm1->containsGroup($group1));
+        static::assertFalse($mm1->containsGroup($group2));
+        static::assertTrue($mm2->containsGroup($group1));
+        static::assertTrue($mm2->containsGroup($group2));
+        static::assertTrue($mm3->containsGroup($group1));
+        static::assertFalse($mm3->containsGroup($group2));
+        static::assertTrue($mm4->containsGroup($group1));
+        static::assertTrue($mm4->containsGroup($group2));
+        static::assertSame(1, $mm1->getGroups()->count());
+        static::assertSame(2, $mm2->getGroups()->count());
+        static::assertSame(1, $mm3->getGroups()->count());
+        static::assertSame(2, $mm4->getGroups()->count());
 
         $this->dm->clear();
 
@@ -136,18 +151,18 @@ class RemoveElementTest extends WebTestCase
         $this->dm->persist($mm4);
         $this->dm->flush();
 
-        $this->assertFalse($mm1->containsGroup($group1));
-        $this->assertFalse($mm1->containsGroup($group2));
-        $this->assertFalse($mm2->containsGroup($group1));
-        $this->assertTrue($mm2->containsGroup($group2));
-        $this->assertFalse($mm3->containsGroup($group1));
-        $this->assertFalse($mm3->containsGroup($group2));
-        $this->assertFalse($mm4->containsGroup($group1));
-        $this->assertTrue($mm4->containsGroup($group2));
-        $this->assertEquals(0, $mm1->getGroups()->count());
-        $this->assertEquals(1, $mm2->getGroups()->count());
-        $this->assertEquals(0, $mm3->getGroups()->count());
-        $this->assertEquals(1, $mm4->getGroups()->count());
+        static::assertFalse($mm1->containsGroup($group1));
+        static::assertFalse($mm1->containsGroup($group2));
+        static::assertFalse($mm2->containsGroup($group1));
+        static::assertTrue($mm2->containsGroup($group2));
+        static::assertFalse($mm3->containsGroup($group1));
+        static::assertFalse($mm3->containsGroup($group2));
+        static::assertFalse($mm4->containsGroup($group1));
+        static::assertTrue($mm4->containsGroup($group2));
+        static::assertSame(0, $mm1->getGroups()->count());
+        static::assertSame(1, $mm2->getGroups()->count());
+        static::assertSame(0, $mm3->getGroups()->count());
+        static::assertSame(1, $mm4->getGroups()->count());
 
         $this->dm->clear();
 
@@ -169,18 +184,18 @@ class RemoveElementTest extends WebTestCase
         $this->dm->persist($mm4);
         $this->dm->flush();
 
-        $this->assertTrue($mm1->containsGroup($group1));
-        $this->assertFalse($mm1->containsGroup($group2));
-        $this->assertTrue($mm2->containsGroup($group1));
-        $this->assertTrue($mm2->containsGroup($group2));
-        $this->assertTrue($mm3->containsGroup($group1));
-        $this->assertFalse($mm3->containsGroup($group2));
-        $this->assertTrue($mm4->containsGroup($group1));
-        $this->assertTrue($mm4->containsGroup($group2));
-        $this->assertEquals(1, $mm1->getGroups()->count());
-        $this->assertEquals(2, $mm2->getGroups()->count());
-        $this->assertEquals(1, $mm3->getGroups()->count());
-        $this->assertEquals(2, $mm4->getGroups()->count());
+        static::assertTrue($mm1->containsGroup($group1));
+        static::assertFalse($mm1->containsGroup($group2));
+        static::assertTrue($mm2->containsGroup($group1));
+        static::assertTrue($mm2->containsGroup($group2));
+        static::assertTrue($mm3->containsGroup($group1));
+        static::assertFalse($mm3->containsGroup($group2));
+        static::assertTrue($mm4->containsGroup($group1));
+        static::assertTrue($mm4->containsGroup($group2));
+        static::assertSame(1, $mm1->getGroups()->count());
+        static::assertSame(2, $mm2->getGroups()->count());
+        static::assertSame(1, $mm3->getGroups()->count());
+        static::assertSame(2, $mm4->getGroups()->count());
 
         $this->dm->clear();
 
@@ -202,18 +217,18 @@ class RemoveElementTest extends WebTestCase
         $this->dm->persist($mm4);
         $this->dm->flush();
 
-        $this->assertFalse($mm1->containsGroup($group1));
-        $this->assertFalse($mm1->containsGroup($group2));
-        $this->assertFalse($mm2->containsGroup($group1));
-        $this->assertTrue($mm2->containsGroup($group2));
-        $this->assertFalse($mm3->containsGroup($group1));
-        $this->assertFalse($mm3->containsGroup($group2));
-        $this->assertFalse($mm4->containsGroup($group1));
-        $this->assertTrue($mm4->containsGroup($group2));
-        $this->assertEquals(0, $mm1->getGroups()->count());
-        $this->assertEquals(1, $mm2->getGroups()->count());
-        $this->assertEquals(0, $mm3->getGroups()->count());
-        $this->assertEquals(1, $mm4->getGroups()->count());
+        static::assertFalse($mm1->containsGroup($group1));
+        static::assertFalse($mm1->containsGroup($group2));
+        static::assertFalse($mm2->containsGroup($group1));
+        static::assertTrue($mm2->containsGroup($group2));
+        static::assertFalse($mm3->containsGroup($group1));
+        static::assertFalse($mm3->containsGroup($group2));
+        static::assertFalse($mm4->containsGroup($group1));
+        static::assertTrue($mm4->containsGroup($group2));
+        static::assertSame(0, $mm1->getGroups()->count());
+        static::assertSame(1, $mm2->getGroups()->count());
+        static::assertSame(0, $mm3->getGroups()->count());
+        static::assertSame(1, $mm4->getGroups()->count());
     }
 
     public function testMultimediaObjectRemoveGroupService()
@@ -286,18 +301,18 @@ class RemoveElementTest extends WebTestCase
         $mm3 = $this->mmRepo->find($mm3->getId());
         $mm4 = $this->mmRepo->find($mm4->getId());
 
-        $this->assertTrue($mm1->containsGroup($group1));
-        $this->assertFalse($mm1->containsGroup($group2));
-        $this->assertTrue($mm2->containsGroup($group1));
-        $this->assertTrue($mm2->containsGroup($group2));
-        $this->assertTrue($mm3->containsGroup($group1));
-        $this->assertFalse($mm3->containsGroup($group2));
-        $this->assertTrue($mm4->containsGroup($group1));
-        $this->assertTrue($mm4->containsGroup($group2));
-        $this->assertEquals(1, $mm1->getGroups()->count());
-        $this->assertEquals(2, $mm2->getGroups()->count());
-        $this->assertEquals(1, $mm3->getGroups()->count());
-        $this->assertEquals(2, $mm4->getGroups()->count());
+        static::assertTrue($mm1->containsGroup($group1));
+        static::assertFalse($mm1->containsGroup($group2));
+        static::assertTrue($mm2->containsGroup($group1));
+        static::assertTrue($mm2->containsGroup($group2));
+        static::assertTrue($mm3->containsGroup($group1));
+        static::assertFalse($mm3->containsGroup($group2));
+        static::assertTrue($mm4->containsGroup($group1));
+        static::assertTrue($mm4->containsGroup($group2));
+        static::assertSame(1, $mm1->getGroups()->count());
+        static::assertSame(2, $mm2->getGroups()->count());
+        static::assertSame(1, $mm3->getGroups()->count());
+        static::assertSame(2, $mm4->getGroups()->count());
 
         $this->dm->clear();
 
@@ -360,18 +375,18 @@ class RemoveElementTest extends WebTestCase
         $mm3 = $this->mmRepo->find($mm3->getId());
         $mm4 = $this->mmRepo->find($mm4->getId());
 
-        $this->assertFalse($mm1->containsGroup($group1));
-        $this->assertFalse($mm1->containsGroup($group2));
-        $this->assertFalse($mm2->containsGroup($group1));
-        $this->assertTrue($mm2->containsGroup($group2));
-        $this->assertFalse($mm3->containsGroup($group1));
-        $this->assertFalse($mm3->containsGroup($group2));
-        $this->assertFalse($mm4->containsGroup($group1));
-        $this->assertTrue($mm4->containsGroup($group2));
-        $this->assertEquals(0, $mm1->getGroups()->count());
-        $this->assertEquals(1, $mm2->getGroups()->count());
-        $this->assertEquals(0, $mm3->getGroups()->count());
-        $this->assertEquals(1, $mm4->getGroups()->count());
+        static::assertFalse($mm1->containsGroup($group1));
+        static::assertFalse($mm1->containsGroup($group2));
+        static::assertFalse($mm2->containsGroup($group1));
+        static::assertTrue($mm2->containsGroup($group2));
+        static::assertFalse($mm3->containsGroup($group1));
+        static::assertFalse($mm3->containsGroup($group2));
+        static::assertFalse($mm4->containsGroup($group1));
+        static::assertTrue($mm4->containsGroup($group2));
+        static::assertSame(0, $mm1->getGroups()->count());
+        static::assertSame(1, $mm2->getGroups()->count());
+        static::assertSame(0, $mm3->getGroups()->count());
+        static::assertSame(1, $mm4->getGroups()->count());
 
         $this->dm->clear();
 
@@ -434,18 +449,18 @@ class RemoveElementTest extends WebTestCase
         $mm3 = $this->mmRepo->find($mm3->getId());
         $mm4 = $this->mmRepo->find($mm4->getId());
 
-        $this->assertTrue($mm1->containsGroup($group1));
-        $this->assertFalse($mm1->containsGroup($group2));
-        $this->assertTrue($mm2->containsGroup($group1));
-        $this->assertTrue($mm2->containsGroup($group2));
-        $this->assertTrue($mm3->containsGroup($group1));
-        $this->assertFalse($mm3->containsGroup($group2));
-        $this->assertTrue($mm4->containsGroup($group1));
-        $this->assertTrue($mm4->containsGroup($group2));
-        $this->assertEquals(1, $mm1->getGroups()->count());
-        $this->assertEquals(2, $mm2->getGroups()->count());
-        $this->assertEquals(1, $mm3->getGroups()->count());
-        $this->assertEquals(2, $mm4->getGroups()->count());
+        static::assertTrue($mm1->containsGroup($group1));
+        static::assertFalse($mm1->containsGroup($group2));
+        static::assertTrue($mm2->containsGroup($group1));
+        static::assertTrue($mm2->containsGroup($group2));
+        static::assertTrue($mm3->containsGroup($group1));
+        static::assertFalse($mm3->containsGroup($group2));
+        static::assertTrue($mm4->containsGroup($group1));
+        static::assertTrue($mm4->containsGroup($group2));
+        static::assertSame(1, $mm1->getGroups()->count());
+        static::assertSame(2, $mm2->getGroups()->count());
+        static::assertSame(1, $mm3->getGroups()->count());
+        static::assertSame(2, $mm4->getGroups()->count());
 
         $this->dm->clear();
 
@@ -508,26 +523,26 @@ class RemoveElementTest extends WebTestCase
         $mm3 = $this->mmRepo->find($mm3->getId());
         $mm4 = $this->mmRepo->find($mm4->getId());
 
-        $this->assertFalse($mm1->containsGroup($group1));
-        $this->assertFalse($mm1->containsGroup($group2));
+        static::assertFalse($mm1->containsGroup($group1));
+        static::assertFalse($mm1->containsGroup($group2));
         // This test should fail using removeElement from ArrayCollection
         // Solved with strategy="setArray"
-        $this->assertFalse($mm2->containsGroup($group1));
+        static::assertFalse($mm2->containsGroup($group1));
         //This test should fail using removeElement from ArrayCollection
         // Solved with strategy="setArray"
-        $this->assertTrue($mm2->containsGroup($group2));
-        $this->assertFalse($mm3->containsGroup($group1));
-        $this->assertFalse($mm3->containsGroup($group2));
+        static::assertTrue($mm2->containsGroup($group2));
+        static::assertFalse($mm3->containsGroup($group1));
+        static::assertFalse($mm3->containsGroup($group2));
         // This test should fail using removeElement from ArrayCollection
         // Solved with strategy="setArray"
-        $this->assertFalse($mm4->containsGroup($group1));
+        static::assertFalse($mm4->containsGroup($group1));
         // This test should fail using removeElement from ArrayCollection
         // Solved with strategy="setArray"
-        $this->assertTrue($mm4->containsGroup($group2));
-        $this->assertEquals(0, $mm1->getGroups()->count());
-        $this->assertEquals(1, $mm2->getGroups()->count());
-        $this->assertEquals(0, $mm3->getGroups()->count());
-        $this->assertEquals(1, $mm4->getGroups()->count());
+        static::assertTrue($mm4->containsGroup($group2));
+        static::assertSame(0, $mm1->getGroups()->count());
+        static::assertSame(1, $mm2->getGroups()->count());
+        static::assertSame(0, $mm3->getGroups()->count());
+        static::assertSame(1, $mm4->getGroups()->count());
     }
 
     public function testUserRemoveGroupService()
@@ -604,18 +619,18 @@ class RemoveElementTest extends WebTestCase
         $user3 = $this->userRepo->find($user3->getId());
         $user4 = $this->userRepo->find($user4->getId());
 
-        $this->assertTrue($user1->containsGroup($group1));
-        $this->assertFalse($user1->containsGroup($group2));
-        $this->assertTrue($user2->containsGroup($group1));
-        $this->assertTrue($user2->containsGroup($group2));
-        $this->assertTrue($user3->containsGroup($group1));
-        $this->assertFalse($user3->containsGroup($group2));
-        $this->assertTrue($user4->containsGroup($group1));
-        $this->assertTrue($user4->containsGroup($group2));
-        $this->assertEquals(1, $user1->getGroups()->count());
-        $this->assertEquals(2, $user2->getGroups()->count());
-        $this->assertEquals(1, $user3->getGroups()->count());
-        $this->assertEquals(2, $user4->getGroups()->count());
+        static::assertTrue($user1->containsGroup($group1));
+        static::assertFalse($user1->containsGroup($group2));
+        static::assertTrue($user2->containsGroup($group1));
+        static::assertTrue($user2->containsGroup($group2));
+        static::assertTrue($user3->containsGroup($group1));
+        static::assertFalse($user3->containsGroup($group2));
+        static::assertTrue($user4->containsGroup($group1));
+        static::assertTrue($user4->containsGroup($group2));
+        static::assertSame(1, $user1->getGroups()->count());
+        static::assertSame(2, $user2->getGroups()->count());
+        static::assertSame(1, $user3->getGroups()->count());
+        static::assertSame(2, $user4->getGroups()->count());
 
         $this->dm->clear();
 
@@ -678,18 +693,18 @@ class RemoveElementTest extends WebTestCase
         $user3 = $this->userRepo->find($user3->getId());
         $user4 = $this->userRepo->find($user4->getId());
 
-        $this->assertFalse($user1->containsGroup($group1));
-        $this->assertFalse($user1->containsGroup($group2));
-        $this->assertFalse($user2->containsGroup($group1));
-        $this->assertTrue($user2->containsGroup($group2));
-        $this->assertFalse($user3->containsGroup($group1));
-        $this->assertFalse($user3->containsGroup($group2));
-        $this->assertFalse($user4->containsGroup($group1));
-        $this->assertTrue($user4->containsGroup($group2));
-        $this->assertEquals(0, $user1->getGroups()->count());
-        $this->assertEquals(1, $user2->getGroups()->count());
-        $this->assertEquals(0, $user3->getGroups()->count());
-        $this->assertEquals(1, $user4->getGroups()->count());
+        static::assertFalse($user1->containsGroup($group1));
+        static::assertFalse($user1->containsGroup($group2));
+        static::assertFalse($user2->containsGroup($group1));
+        static::assertTrue($user2->containsGroup($group2));
+        static::assertFalse($user3->containsGroup($group1));
+        static::assertFalse($user3->containsGroup($group2));
+        static::assertFalse($user4->containsGroup($group1));
+        static::assertTrue($user4->containsGroup($group2));
+        static::assertSame(0, $user1->getGroups()->count());
+        static::assertSame(1, $user2->getGroups()->count());
+        static::assertSame(0, $user3->getGroups()->count());
+        static::assertSame(1, $user4->getGroups()->count());
 
         $this->dm->clear();
 
@@ -752,18 +767,18 @@ class RemoveElementTest extends WebTestCase
         $user3 = $this->userRepo->find($user3->getId());
         $user4 = $this->userRepo->find($user4->getId());
 
-        $this->assertTrue($user1->containsGroup($group1));
-        $this->assertFalse($user1->containsGroup($group2));
-        $this->assertTrue($user2->containsGroup($group1));
-        $this->assertTrue($user2->containsGroup($group2));
-        $this->assertTrue($user3->containsGroup($group1));
-        $this->assertFalse($user3->containsGroup($group2));
-        $this->assertTrue($user4->containsGroup($group1));
-        $this->assertTrue($user4->containsGroup($group2));
-        $this->assertEquals(1, $user1->getGroups()->count());
-        $this->assertEquals(2, $user2->getGroups()->count());
-        $this->assertEquals(1, $user3->getGroups()->count());
-        $this->assertEquals(2, $user4->getGroups()->count());
+        static::assertTrue($user1->containsGroup($group1));
+        static::assertFalse($user1->containsGroup($group2));
+        static::assertTrue($user2->containsGroup($group1));
+        static::assertTrue($user2->containsGroup($group2));
+        static::assertTrue($user3->containsGroup($group1));
+        static::assertFalse($user3->containsGroup($group2));
+        static::assertTrue($user4->containsGroup($group1));
+        static::assertTrue($user4->containsGroup($group2));
+        static::assertSame(1, $user1->getGroups()->count());
+        static::assertSame(2, $user2->getGroups()->count());
+        static::assertSame(1, $user3->getGroups()->count());
+        static::assertSame(2, $user4->getGroups()->count());
 
         $this->dm->clear();
 
@@ -826,26 +841,26 @@ class RemoveElementTest extends WebTestCase
         $user3 = $this->userRepo->find($user3->getId());
         $user4 = $this->userRepo->find($user4->getId());
 
-        $this->assertFalse($user1->containsGroup($group1));
-        $this->assertFalse($user1->containsGroup($group2));
+        static::assertFalse($user1->containsGroup($group1));
+        static::assertFalse($user1->containsGroup($group2));
         // This test should fail using removeElement from ArrayCollection
         // Solved with strategy="setArray"
-        $this->assertFalse($user2->containsGroup($group1));
+        static::assertFalse($user2->containsGroup($group1));
         //This test should fail using removeElement from ArrayCollection
         // Solved with strategy="setArray"
-        $this->assertTrue($user2->containsGroup($group2));
-        $this->assertFalse($user3->containsGroup($group1));
-        $this->assertFalse($user3->containsGroup($group2));
+        static::assertTrue($user2->containsGroup($group2));
+        static::assertFalse($user3->containsGroup($group1));
+        static::assertFalse($user3->containsGroup($group2));
         // This test should fail using removeElement from ArrayCollection
         // Solved with strategy="setArray"
-        $this->assertFalse($user4->containsGroup($group1));
+        static::assertFalse($user4->containsGroup($group1));
         // This test should fail using removeElement from ArrayCollection
         // Solved with strategy="setArray"
-        $this->assertTrue($user4->containsGroup($group2));
-        $this->assertEquals(0, $user1->getGroups()->count());
-        $this->assertEquals(1, $user2->getGroups()->count());
-        $this->assertEquals(0, $user3->getGroups()->count());
-        $this->assertEquals(1, $user4->getGroups()->count());
+        static::assertTrue($user4->containsGroup($group2));
+        static::assertSame(0, $user1->getGroups()->count());
+        static::assertSame(1, $user2->getGroups()->count());
+        static::assertSame(0, $user3->getGroups()->count());
+        static::assertSame(1, $user4->getGroups()->count());
     }
 
     public function testEmbeddedBroadcastRemoveGroupService()
@@ -939,18 +954,18 @@ class RemoveElementTest extends WebTestCase
         $eb3 = $mm3->getEmbeddedBroadcast();
         $eb4 = $mm4->getEmbeddedBroadcast();
 
-        $this->assertTrue($eb1->containsGroup($group1));
-        $this->assertFalse($eb1->containsGroup($group2));
-        $this->assertTrue($eb2->containsGroup($group1));
-        $this->assertTrue($eb2->containsGroup($group2));
-        $this->assertTrue($eb3->containsGroup($group1));
-        $this->assertFalse($eb3->containsGroup($group2));
-        $this->assertTrue($eb4->containsGroup($group1));
-        $this->assertTrue($eb4->containsGroup($group2));
-        $this->assertEquals(1, $eb1->getGroups()->count());
-        $this->assertEquals(2, $eb2->getGroups()->count());
-        $this->assertEquals(1, $eb3->getGroups()->count());
-        $this->assertEquals(2, $eb4->getGroups()->count());
+        static::assertTrue($eb1->containsGroup($group1));
+        static::assertFalse($eb1->containsGroup($group2));
+        static::assertTrue($eb2->containsGroup($group1));
+        static::assertTrue($eb2->containsGroup($group2));
+        static::assertTrue($eb3->containsGroup($group1));
+        static::assertFalse($eb3->containsGroup($group2));
+        static::assertTrue($eb4->containsGroup($group1));
+        static::assertTrue($eb4->containsGroup($group2));
+        static::assertSame(1, $eb1->getGroups()->count());
+        static::assertSame(2, $eb2->getGroups()->count());
+        static::assertSame(1, $eb3->getGroups()->count());
+        static::assertSame(2, $eb4->getGroups()->count());
 
         $this->dm->clear();
 
@@ -1033,18 +1048,18 @@ class RemoveElementTest extends WebTestCase
         $eb3 = $mm3->getEmbeddedBroadcast();
         $eb4 = $mm4->getEmbeddedBroadcast();
 
-        $this->assertFalse($eb1->containsGroup($group1));
-        $this->assertFalse($eb1->containsGroup($group2));
-        $this->assertFalse($eb2->containsGroup($group1));
-        $this->assertTrue($eb2->containsGroup($group2));
-        $this->assertFalse($eb3->containsGroup($group1));
-        $this->assertFalse($eb3->containsGroup($group2));
-        $this->assertFalse($eb4->containsGroup($group1));
-        $this->assertTrue($eb4->containsGroup($group2));
-        $this->assertEquals(0, $eb1->getGroups()->count());
-        $this->assertEquals(1, $eb2->getGroups()->count());
-        $this->assertEquals(0, $eb3->getGroups()->count());
-        $this->assertEquals(1, $eb4->getGroups()->count());
+        static::assertFalse($eb1->containsGroup($group1));
+        static::assertFalse($eb1->containsGroup($group2));
+        static::assertFalse($eb2->containsGroup($group1));
+        static::assertTrue($eb2->containsGroup($group2));
+        static::assertFalse($eb3->containsGroup($group1));
+        static::assertFalse($eb3->containsGroup($group2));
+        static::assertFalse($eb4->containsGroup($group1));
+        static::assertTrue($eb4->containsGroup($group2));
+        static::assertSame(0, $eb1->getGroups()->count());
+        static::assertSame(1, $eb2->getGroups()->count());
+        static::assertSame(0, $eb3->getGroups()->count());
+        static::assertSame(1, $eb4->getGroups()->count());
 
         $this->dm->clear();
 
@@ -1127,18 +1142,18 @@ class RemoveElementTest extends WebTestCase
         $eb3 = $mm3->getEmbeddedBroadcast();
         $eb4 = $mm4->getEmbeddedBroadcast();
 
-        $this->assertTrue($eb1->containsGroup($group1));
-        $this->assertFalse($eb1->containsGroup($group2));
-        $this->assertTrue($eb2->containsGroup($group1));
-        $this->assertTrue($eb2->containsGroup($group2));
-        $this->assertTrue($eb3->containsGroup($group1));
-        $this->assertFalse($eb3->containsGroup($group2));
-        $this->assertTrue($eb4->containsGroup($group1));
-        $this->assertTrue($eb4->containsGroup($group2));
-        $this->assertEquals(1, $eb1->getGroups()->count());
-        $this->assertEquals(2, $eb2->getGroups()->count());
-        $this->assertEquals(1, $eb3->getGroups()->count());
-        $this->assertEquals(2, $eb4->getGroups()->count());
+        static::assertTrue($eb1->containsGroup($group1));
+        static::assertFalse($eb1->containsGroup($group2));
+        static::assertTrue($eb2->containsGroup($group1));
+        static::assertTrue($eb2->containsGroup($group2));
+        static::assertTrue($eb3->containsGroup($group1));
+        static::assertFalse($eb3->containsGroup($group2));
+        static::assertTrue($eb4->containsGroup($group1));
+        static::assertTrue($eb4->containsGroup($group2));
+        static::assertSame(1, $eb1->getGroups()->count());
+        static::assertSame(2, $eb2->getGroups()->count());
+        static::assertSame(1, $eb3->getGroups()->count());
+        static::assertSame(2, $eb4->getGroups()->count());
 
         $this->dm->clear();
 
@@ -1221,26 +1236,26 @@ class RemoveElementTest extends WebTestCase
         $eb3 = $mm3->getEmbeddedBroadcast();
         $eb4 = $mm4->getEmbeddedBroadcast();
 
-        $this->assertFalse($eb1->containsGroup($group1));
-        $this->assertFalse($eb1->containsGroup($group2));
+        static::assertFalse($eb1->containsGroup($group1));
+        static::assertFalse($eb1->containsGroup($group2));
         // This test should fail using removeElement from ArrayCollection
         // Solved with strategy="setArray"
-        $this->assertFalse($eb2->containsGroup($group1));
+        static::assertFalse($eb2->containsGroup($group1));
         //This test should fail using removeElement from ArrayCollection
         // Solved with strategy="setArray"
-        $this->assertTrue($eb2->containsGroup($group2));
-        $this->assertFalse($eb3->containsGroup($group1));
-        $this->assertFalse($eb3->containsGroup($group2));
+        static::assertTrue($eb2->containsGroup($group2));
+        static::assertFalse($eb3->containsGroup($group1));
+        static::assertFalse($eb3->containsGroup($group2));
         // This test should fail using removeElement from ArrayCollection
         // Solved with strategy="setArray"
-        $this->assertFalse($eb4->containsGroup($group1));
+        static::assertFalse($eb4->containsGroup($group1));
         // This test should fail using removeElement from ArrayCollection
         // Solved with strategy="setArray"
-        $this->assertTrue($eb4->containsGroup($group2));
-        $this->assertEquals(0, $eb1->getGroups()->count());
-        $this->assertEquals(1, $eb2->getGroups()->count());
-        $this->assertEquals(0, $eb3->getGroups()->count());
-        $this->assertEquals(1, $eb4->getGroups()->count());
+        static::assertTrue($eb4->containsGroup($group2));
+        static::assertSame(0, $eb1->getGroups()->count());
+        static::assertSame(1, $eb2->getGroups()->count());
+        static::assertSame(0, $eb3->getGroups()->count());
+        static::assertSame(1, $eb4->getGroups()->count());
     }
 
     private function createGroup($key = 'Group1', $name = 'Group 1', $persist = true)

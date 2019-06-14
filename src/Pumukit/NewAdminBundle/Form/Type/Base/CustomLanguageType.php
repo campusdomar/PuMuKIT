@@ -3,10 +3,10 @@
 namespace Pumukit\NewAdminBundle\Form\Type\Base;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Intl\Intl;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Translation\TranslatorInterface;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class CustomLanguageType extends AbstractType
 {
@@ -46,8 +46,7 @@ class CustomLanguageType extends AbstractType
             $choices = [];
             foreach ($customLanguages as $aux) {
                 $code = strtolower($aux);
-                $choices[$code] = isset($languageNames[$code]) ?
-                    $languageNames[$code] :
+                $choices[$code] = $languageNames[$code] ??
                     (isset(self::$addonLanguages[$code]) ? $translator->trans(self::$addonLanguages[$code]) : $code);
             }
         } else {

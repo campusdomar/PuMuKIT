@@ -2,16 +2,20 @@
 
 namespace Pumukit\SchemaBundle\Tests\EventListener;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Pumukit\EncoderBundle\Services\ProfileService;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Track;
+use Pumukit\SchemaBundle\EventListener\MultimediaObjectListener;
 use Pumukit\SchemaBundle\Services\MultimediaObjectEventDispatcherService;
 use Pumukit\SchemaBundle\Services\TrackService;
-use Pumukit\EncoderBundle\Services\ProfileService;
-use Pumukit\SchemaBundle\EventListener\MultimediaObjectListener;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
-class MultimediaObjectListenerTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class MultimediaObjectListenerTest extends WebTestCase
 {
     private $dm;
     private $mmRepo;
@@ -25,29 +29,31 @@ class MultimediaObjectListenerTest extends WebTestCase
     private $localhost;
     private $picService;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()->get('doctrine_mongodb')->getManager();
         $this->mmRepo = $this->dm->getRepository(MultimediaObject::class);
 
         $dispatcher = new EventDispatcher();
-        /* $mmDispatcher = new MultimediaObjectEventDispatcherService($dispatcher); */
+        // $mmDispatcher = new MultimediaObjectEventDispatcherService($dispatcher);
         $this->listener = new MultimediaObjectListener($this->dm);
-        $dispatcher->addListener('multimediaobject.update', array($this->listener, 'postUpdate'));
+        $dispatcher->addListener('multimediaobject.update', [$this->listener, 'postUpdate']);
         $this->trackDispatcher = static::$kernel->getContainer()
-          ->get('pumukitschema.track_dispatcher');
+            ->get('pumukitschema.track_dispatcher')
+        ;
         $profileService = new ProfileService($this->getDemoProfiles(), $this->dm);
         $this->trackService = new TrackService($this->dm, $this->trackDispatcher, $profileService, null, true);
 
         $this->dm->getDocumentCollection(MultimediaObject::class)
-          ->remove(array());
+            ->remove([])
+        ;
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm = null;
         $this->mmRepo = null;
@@ -88,13 +94,13 @@ class MultimediaObjectListenerTest extends WebTestCase
         $this->trackService->addTrackToMultimediaObject($mm, $t4, false);
         $this->trackService->addTrackToMultimediaObject($mm, $t5, true);
 
-        $this->assertTrue($mm->isOnlyAudio());
+        static::assertTrue($mm->isOnlyAudio());
 
         $t5->setOnlyAudio(false);
 
         $this->trackService->updateTrackInMultimediaObject($mm, $t5);
 
-        $this->assertFalse($mm->isOnlyAudio());
+        static::assertFalse($mm->isOnlyAudio());
 
         // TEST GET MASTER
         $mm = new MultimediaObject();
@@ -106,22 +112,22 @@ class MultimediaObjectListenerTest extends WebTestCase
         $track1 = new Track();
         $track1->setOnlyAudio(true);
 
-        $this->assertEquals(null, $mm->getMaster());
+        static::assertNull($mm->getMaster());
         $this->trackService->addTrackToMultimediaObject($mm, $track1, true);
-        $this->assertEquals($track1, $mm->getMaster());
-        $this->assertEquals(null, $mm->getMaster(false));
+        static::assertSame($track1, $mm->getMaster());
+        static::assertNull($mm->getMaster(false));
         $this->trackService->addTrackToMultimediaObject($mm, $track2, true);
-        $this->assertEquals($track2, $mm->getMaster());
-        $this->assertEquals(null, $mm->getMaster(false));
+        static::assertSame($track2, $mm->getMaster());
+        static::assertNull($mm->getMaster(false));
         $this->trackService->addTrackToMultimediaObject($mm, $track3, true);
-        $this->assertEquals($track3, $mm->getMaster());
-        $this->assertEquals($track3, $mm->getMaster(false));
+        static::assertSame($track3, $mm->getMaster());
+        static::assertSame($track3, $mm->getMaster(false));
     }
 
     private function getDemoProfiles()
     {
-        $profiles = array(
-            'MASTER_COPY' => array(
+        return [
+            'MASTER_COPY' => [
                 'display' => false,
                 'wizard' => true,
                 'master' => true,
@@ -131,18 +137,18 @@ class MultimediaObjectListenerTest extends WebTestCase
                 'channels' => 1,
                 'audio' => false,
                 'bat' => 'cp "{{input}}" "{{output}}"',
-                'streamserver' => array(
+                'streamserver' => [
                     'type' => ProfileService::STREAMSERVER_STORE,
                     'host' => '127.0.0.1',
                     'name' => 'Localmaster',
                     'description' => 'Local masters server',
                     'dir_out' => __DIR__.'/../Resources/dir_out',
-                ),
+                ],
                 'app' => 'cp',
                 'rel_duration_size' => 1,
                 'rel_duration_trans' => 1,
-            ),
-            'MASTER_VIDEO_H264' => array(
+            ],
+            'MASTER_VIDEO_H264' => [
                 'display' => false,
                 'wizard' => true,
                 'master' => true,
@@ -157,20 +163,18 @@ class MultimediaObjectListenerTest extends WebTestCase
                 'channels' => 1,
                 'audio' => false,
                 'bat' => 'ffmpeg -y -i "{{input}}" -acodec aac -vcodec libx264 -preset slow -crf 15 -threads 0 "{{output}}"',
-                'streamserver' => array(
+                'streamserver' => [
                     'type' => ProfileService::STREAMSERVER_STORE,
                     'host' => '192.168.5.125',
                     'name' => 'Download',
                     'description' => 'Download server',
                     'dir_out' => __DIR__.'/../Resources/dir_out',
                     'url_out' => 'http://localhost:8000/downloads/',
-                ),
+                ],
                 'app' => 'ffmpeg',
                 'rel_duration_size' => 1,
                 'rel_duration_trans' => 1,
-            ),
-        );
-
-        return $profiles;
+            ],
+        ];
     }
 }

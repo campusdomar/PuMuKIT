@@ -2,14 +2,14 @@
 
 namespace Pumukit\WebTVBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\Tag;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class MediaLibraryController.
@@ -62,6 +62,7 @@ class MediaLibraryController extends Controller implements WebTVControllerInterf
                     }
                     $result[$key][] = $serie;
                 }
+
                 break;
             case 'date':
                 $sortField = 'public_date';
@@ -131,6 +132,7 @@ class MediaLibraryController extends Controller implements WebTVControllerInterf
                         $result[$key][] = $serie;
                     }
                 }
+
                 break;
         }
 

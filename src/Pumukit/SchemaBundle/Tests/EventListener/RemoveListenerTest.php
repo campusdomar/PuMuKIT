@@ -2,16 +2,20 @@
 
 namespace Pumukit\SchemaBundle\Tests\EventListener;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Pumukit\SchemaBundle\Document\Group;
-use Pumukit\SchemaBundle\Document\User;
-use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
 use Pumukit\EncoderBundle\Document\Job;
 use Pumukit\EncoderBundle\Services\ProfileService;
-use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
+use Pumukit\SchemaBundle\Document\Group;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Document\User;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class RemoveListenerTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class RemoveListenerTest extends WebTestCase
 {
     private $dm;
     private $repoJobs;
@@ -24,9 +28,9 @@ class RemoveListenerTest extends WebTestCase
     private $logger;
     private $tokenStorage;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->logger = static::$kernel->getContainer()->get('logger');
@@ -37,23 +41,28 @@ class RemoveListenerTest extends WebTestCase
         $this->repoUser = $this->dm->getRepository(User::class);
         $this->factoryService = static::$kernel->getContainer()->get('pumukitschema.factory');
         $this->embeddedBroadcastService = static::$kernel->getContainer()
-            ->get('pumukitschema.embeddedbroadcast');
+            ->get('pumukitschema.embeddedbroadcast')
+        ;
         $this->tokenStorage = static::$kernel->getContainer()->get('security.token_storage');
 
         $this->resourcesDir = realpath(__DIR__.'/../Resources');
 
         $this->dm->getDocumentCollection(MultimediaObject::class)
-          ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Series::class)
-          ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Group::class)
-          ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Job::class)
-          ->remove(array());
+            ->remove([])
+        ;
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->logger = null;
@@ -75,15 +84,15 @@ class RemoveListenerTest extends WebTestCase
 
         $this->createJobWithStatus(Job::STATUS_FINISHED, $multimediaObject);
 
-        $this->assertEquals(1, count($this->repoSeries->findAll()));
-        $this->assertEquals(2, count($this->repoMmobj->findAll()));
-        $this->assertEquals(1, count($this->repoJobs->findAll()));
+        static::assertSame(1, \count($this->repoSeries->findAll()));
+        static::assertSame(2, \count($this->repoMmobj->findAll()));
+        static::assertSame(1, \count($this->repoJobs->findAll()));
 
         $this->factoryService->deleteMultimediaObject($multimediaObject);
 
-        $this->assertEquals(1, count($this->repoSeries->findAll()));
-        $this->assertEquals(1, count($this->repoMmobj->findAll()));
-        $this->assertEquals(0, count($this->repoJobs->findAll()));
+        static::assertSame(1, \count($this->repoSeries->findAll()));
+        static::assertSame(1, \count($this->repoMmobj->findAll()));
+        static::assertSame(0, \count($this->repoJobs->findAll()));
     }
 
     /**
@@ -97,15 +106,15 @@ class RemoveListenerTest extends WebTestCase
 
         $this->createJobWithStatus(Job::STATUS_EXECUTING, $multimediaObject);
 
-        $this->assertEquals(1, count($this->repoSeries->findAll()));
-        $this->assertEquals(2, count($this->repoMmobj->findAll()));
-        $this->assertEquals(1, count($this->repoJobs->findAll()));
+        static::assertSame(1, \count($this->repoSeries->findAll()));
+        static::assertSame(2, \count($this->repoMmobj->findAll()));
+        static::assertSame(1, \count($this->repoJobs->findAll()));
 
         $this->factoryService->deleteMultimediaObject($multimediaObject);
 
-        $this->assertEquals(1, count($this->repoSeries->findAll()));
-        $this->assertEquals(2, count($this->repoMmobj->findAll()));
-        $this->assertEquals(1, count($this->repoJobs->findAll()));
+        static::assertSame(1, \count($this->repoSeries->findAll()));
+        static::assertSame(2, \count($this->repoMmobj->findAll()));
+        static::assertSame(1, \count($this->repoJobs->findAll()));
 
         $this->deleteCreatedFiles();
     }
@@ -146,19 +155,19 @@ class RemoveListenerTest extends WebTestCase
         $embeddedBroadcast1 = $mm1->getEmbeddedBroadcast();
         $embeddedBroadcast2 = $mm2->getEmbeddedBroadcast();
 
-        $this->assertEquals(2, count($mm1->getGroups()));
-        $this->assertEquals(1, count($mm2->getGroups()));
-        $this->assertTrue(in_array($group1, $mm1->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $mm1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $mm2->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $mm2->getGroups()->toArray()));
+        static::assertSame(2, \count($mm1->getGroups()));
+        static::assertSame(1, \count($mm2->getGroups()));
+        static::assertTrue(\in_array($group1, $mm1->getGroups()->toArray(), true));
+        static::assertTrue(\in_array($group2, $mm1->getGroups()->toArray(), true));
+        static::assertFalse(\in_array($group1, $mm2->getGroups()->toArray(), true));
+        static::assertTrue(\in_array($group2, $mm2->getGroups()->toArray(), true));
 
-        $this->assertEquals(2, count($embeddedBroadcast1->getGroups()));
-        $this->assertEquals(1, count($embeddedBroadcast2->getGroups()));
-        $this->assertTrue(in_array($group1, $embeddedBroadcast1->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $embeddedBroadcast1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $embeddedBroadcast2->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $embeddedBroadcast2->getGroups()->toArray()));
+        static::assertSame(2, \count($embeddedBroadcast1->getGroups()));
+        static::assertSame(1, \count($embeddedBroadcast2->getGroups()));
+        static::assertTrue(\in_array($group1, $embeddedBroadcast1->getGroups()->toArray(), true));
+        static::assertTrue(\in_array($group2, $embeddedBroadcast1->getGroups()->toArray(), true));
+        static::assertFalse(\in_array($group1, $embeddedBroadcast2->getGroups()->toArray(), true));
+        static::assertTrue(\in_array($group2, $embeddedBroadcast2->getGroups()->toArray(), true));
 
         $this->dm->remove($group1);
         $this->dm->flush();
@@ -166,19 +175,19 @@ class RemoveListenerTest extends WebTestCase
         $mm1 = $this->repoMmobj->find($mm1->getId());
         $mm2 = $this->repoMmobj->find($mm2->getId());
 
-        $this->assertEquals(1, count($mm1->getGroups()));
-        $this->assertEquals(1, count($mm2->getGroups()));
-        $this->assertFalse(in_array($group1, $mm1->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $mm1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $mm2->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $mm2->getGroups()->toArray()));
+        static::assertSame(1, \count($mm1->getGroups()));
+        static::assertSame(1, \count($mm2->getGroups()));
+        static::assertFalse(\in_array($group1, $mm1->getGroups()->toArray(), true));
+        static::assertTrue(\in_array($group2, $mm1->getGroups()->toArray(), true));
+        static::assertFalse(\in_array($group1, $mm2->getGroups()->toArray(), true));
+        static::assertTrue(\in_array($group2, $mm2->getGroups()->toArray(), true));
 
-        $this->assertEquals(1, count($embeddedBroadcast1->getGroups()));
-        $this->assertEquals(1, count($embeddedBroadcast2->getGroups()));
-        $this->assertFalse(in_array($group1, $embeddedBroadcast1->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $embeddedBroadcast1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $embeddedBroadcast2->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $embeddedBroadcast2->getGroups()->toArray()));
+        static::assertSame(1, \count($embeddedBroadcast1->getGroups()));
+        static::assertSame(1, \count($embeddedBroadcast2->getGroups()));
+        static::assertFalse(\in_array($group1, $embeddedBroadcast1->getGroups()->toArray(), true));
+        static::assertTrue(\in_array($group2, $embeddedBroadcast1->getGroups()->toArray(), true));
+        static::assertFalse(\in_array($group1, $embeddedBroadcast2->getGroups()->toArray(), true));
+        static::assertTrue(\in_array($group2, $embeddedBroadcast2->getGroups()->toArray(), true));
 
         $this->dm->remove($group2);
         $this->dm->flush();
@@ -186,19 +195,19 @@ class RemoveListenerTest extends WebTestCase
         $mm1 = $this->repoMmobj->find($mm1->getId());
         $mm2 = $this->repoMmobj->find($mm2->getId());
 
-        $this->assertEquals(0, count($mm1->getGroups()));
-        $this->assertEquals(0, count($mm2->getGroups()));
-        $this->assertFalse(in_array($group1, $mm1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group2, $mm1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $mm2->getGroups()->toArray()));
-        $this->assertFalse(in_array($group2, $mm2->getGroups()->toArray()));
+        static::assertSame(0, \count($mm1->getGroups()));
+        static::assertSame(0, \count($mm2->getGroups()));
+        static::assertFalse(\in_array($group1, $mm1->getGroups()->toArray(), true));
+        static::assertFalse(\in_array($group2, $mm1->getGroups()->toArray(), true));
+        static::assertFalse(\in_array($group1, $mm2->getGroups()->toArray(), true));
+        static::assertFalse(\in_array($group2, $mm2->getGroups()->toArray(), true));
 
-        $this->assertEquals(0, count($embeddedBroadcast1->getGroups()));
-        $this->assertEquals(0, count($embeddedBroadcast2->getGroups()));
-        $this->assertFalse(in_array($group1, $embeddedBroadcast1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group2, $embeddedBroadcast1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $embeddedBroadcast2->getGroups()->toArray()));
-        $this->assertFalse(in_array($group2, $embeddedBroadcast2->getGroups()->toArray()));
+        static::assertSame(0, \count($embeddedBroadcast1->getGroups()));
+        static::assertSame(0, \count($embeddedBroadcast2->getGroups()));
+        static::assertFalse(\in_array($group1, $embeddedBroadcast1->getGroups()->toArray(), true));
+        static::assertFalse(\in_array($group2, $embeddedBroadcast1->getGroups()->toArray(), true));
+        static::assertFalse(\in_array($group1, $embeddedBroadcast2->getGroups()->toArray(), true));
+        static::assertFalse(\in_array($group2, $embeddedBroadcast2->getGroups()->toArray(), true));
 
         $key1 = 'Group1';
         $name1 = 'Group 1';
@@ -216,32 +225,32 @@ class RemoveListenerTest extends WebTestCase
         $this->dm->persist($user1);
         $this->dm->persist($user2);
         $this->dm->flush();
-        $this->assertEquals(2, count($user1->getGroups()));
-        $this->assertEquals(1, count($user2->getGroups()));
-        $this->assertTrue(in_array($group1, $user1->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $user1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $user2->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $user2->getGroups()->toArray()));
+        static::assertSame(2, \count($user1->getGroups()));
+        static::assertSame(1, \count($user2->getGroups()));
+        static::assertTrue(\in_array($group1, $user1->getGroups()->toArray(), true));
+        static::assertTrue(\in_array($group2, $user1->getGroups()->toArray(), true));
+        static::assertFalse(\in_array($group1, $user2->getGroups()->toArray(), true));
+        static::assertTrue(\in_array($group2, $user2->getGroups()->toArray(), true));
         $this->dm->remove($group1);
         $this->dm->flush();
         $user1 = $this->repoUser->find($user1->getId());
         $user2 = $this->repoUser->find($user2->getId());
-        $this->assertEquals(1, count($user1->getGroups()));
-        $this->assertEquals(1, count($user2->getGroups()));
-        $this->assertFalse(in_array($group1, $user1->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $user1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $user2->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $user2->getGroups()->toArray()));
+        static::assertSame(1, \count($user1->getGroups()));
+        static::assertSame(1, \count($user2->getGroups()));
+        static::assertFalse(\in_array($group1, $user1->getGroups()->toArray(), true));
+        static::assertTrue(\in_array($group2, $user1->getGroups()->toArray(), true));
+        static::assertFalse(\in_array($group1, $user2->getGroups()->toArray(), true));
+        static::assertTrue(\in_array($group2, $user2->getGroups()->toArray(), true));
         $this->dm->remove($group2);
         $this->dm->flush();
         $user1 = $this->repoUser->find($user1->getId());
         $user2 = $this->repoUser->find($user2->getId());
-        $this->assertEquals(0, count($user1->getGroups()));
-        $this->assertEquals(0, count($user2->getGroups()));
-        $this->assertFalse(in_array($group1, $user1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group2, $user1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $user2->getGroups()->toArray()));
-        $this->assertFalse(in_array($group2, $user2->getGroups()->toArray()));
+        static::assertSame(0, \count($user1->getGroups()));
+        static::assertSame(0, \count($user2->getGroups()));
+        static::assertFalse(\in_array($group1, $user1->getGroups()->toArray(), true));
+        static::assertFalse(\in_array($group2, $user1->getGroups()->toArray(), true));
+        static::assertFalse(\in_array($group1, $user2->getGroups()->toArray(), true));
+        static::assertFalse(\in_array($group2, $user2->getGroups()->toArray(), true));
     }
 
     private function createJobWithStatus($status, $multimediaObject)
@@ -310,8 +319,8 @@ class RemoveListenerTest extends WebTestCase
 
     private function getDemoProfiles()
     {
-        $profiles = array(
-            'MASTER_COPY' => array(
+        return [
+            'MASTER_COPY' => [
                 'display' => false,
                 'wizard' => true,
                 'master' => true,
@@ -321,18 +330,18 @@ class RemoveListenerTest extends WebTestCase
                 'channels' => 1,
                 'audio' => false,
                 'bat' => 'cp "{{input}}" "{{output}}"',
-                'streamserver' => array(
+                'streamserver' => [
                     'type' => ProfileService::STREAMSERVER_STORE,
                     'host' => '127.0.0.1',
                     'name' => 'Localmaster',
                     'description' => 'Local masters server',
                     'dir_out' => __DIR__.'/../Resources/dir_out',
-                ),
+                ],
                 'app' => 'cp',
                 'rel_duration_size' => 1,
                 'rel_duration_trans' => 1,
-            ),
-            'MASTER_VIDEO_H264' => array(
+            ],
+            'MASTER_VIDEO_H264' => [
                 'display' => false,
                 'wizard' => true,
                 'master' => true,
@@ -347,20 +356,18 @@ class RemoveListenerTest extends WebTestCase
                 'channels' => 1,
                 'audio' => false,
                 'bat' => 'ffmpeg -y -i "{{input}}" -acodec aac -vcodec libx264 -preset slow -crf 15 -threads 0 "{{output}}"',
-                'streamserver' => array(
+                'streamserver' => [
                     'type' => ProfileService::STREAMSERVER_STORE,
                     'host' => '192.168.5.125',
                     'name' => 'Download',
                     'description' => 'Download server',
                     'dir_out' => __DIR__.'/../Resources/dir_out',
                     'url_out' => 'http://localhost:8000/downloads/',
-                ),
+                ],
                 'app' => 'ffmpeg',
                 'rel_duration_size' => 1,
                 'rel_duration_trans' => 1,
-            ),
-        );
-
-        return $profiles;
+            ],
+        ];
     }
 }

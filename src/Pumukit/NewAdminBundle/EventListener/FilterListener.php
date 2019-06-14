@@ -3,13 +3,13 @@
 namespace Pumukit\NewAdminBundle\EventListener;
 
 use Doctrine\ODM\MongoDB\DocumentManager;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
-use Pumukit\SchemaBundle\Services\PersonService;
+use Pumukit\NewAdminBundle\Controller\NewAdminControllerInterface;
 use Pumukit\SchemaBundle\Document\PermissionProfile;
 use Pumukit\SchemaBundle\Document\Person;
 use Pumukit\SchemaBundle\Document\User;
-use Pumukit\NewAdminBundle\Controller\NewAdminControllerInterface;
+use Pumukit\SchemaBundle\Services\PersonService;
+use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 
 class FilterListener
 {
@@ -39,7 +39,7 @@ class FilterListener
          * From Symfony Docs: http://symfony.com/doc/current/cookbook/event_dispatcher/before_after_filters.html
          */
         $controller = $event->getController();
-        if (!is_array($controller)) {
+        if (!\is_array($controller)) {
             return;
         }
 
@@ -86,15 +86,15 @@ class FilterListener
      * Query in MongoDB:
      * {"people":{"$elemMatch":{"people._id":{"$id":"___MongoID_of_Person___"},"cod":"___Role_cod___"}}}
      *
-     * @param Person|null $person
+     * @param null|Person $person
      *
      * @return array $people
      */
     private function getPeopleMongoQuery(Person $person = null)
     {
-        $people = array();
+        $people = [];
         if ((null !== $person) && (null !== ($roleCode = $this->personService->getPersonalScopeRoleCode()))) {
-            $people['$elemMatch'] = array();
+            $people['$elemMatch'] = [];
             $people['$elemMatch']['people._id'] = new \MongoId($person->getId());
             $people['$elemMatch']['cod'] = $roleCode;
         }
@@ -130,7 +130,7 @@ class FilterListener
      */
     private function getGroupsMongoQuery(User $user)
     {
-        $groups = array();
+        $groups = [];
         $groups['$in'] = $user->getGroupsIds();
 
         return $groups;

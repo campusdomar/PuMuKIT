@@ -6,20 +6,19 @@ use Doctrine\ODM\MongoDB\DocumentManager;
 
 class ProfileService
 {
-    private $dm;
-    private $profiles;
-    private $default_profiles;
-
     const STREAMSERVER_STORE = 'store';
     const STREAMSERVER_DOWNLOAD = 'download';
     const STREAMSERVER_WMV = 'wmv';
     const STREAMSERVER_FMS = 'fms';
     const STREAMSERVER_RED5 = 'red5';
+    private $dm;
+    private $profiles;
+    private $default_profiles;
 
     /**
      * Constructor.
      */
-    public function __construct(array $profiles, DocumentManager $documentManager, array $default_profiles = array())
+    public function __construct(array $profiles, DocumentManager $documentManager, array $default_profiles = [])
     {
         $this->dm = $documentManager;
         $this->profiles = $profiles;
@@ -30,22 +29,22 @@ class ProfileService
      * Get available profiles
      * See #7482.
      *
-     * @param bool|null $display if not null used to filter
-     * @param bool|null $wizard  if not null used to filter
-     * @param bool|null $master  if not null used to filter
+     * @param null|bool $display if not null used to filter
+     * @param null|bool $wizard  if not null used to filter
+     * @param null|bool $master  if not null used to filter
      *
      * @return array filtered profiles
      */
     public function getProfiles($display = null, $wizard = null, $master = null)
     {
-        if (is_null($display) && is_null($wizard) && is_null($master)) {
+        if (null === $display && null === $wizard && null === $master) {
             return $this->profiles;
         }
 
         return array_filter($this->profiles, function ($profile) use ($display, $wizard, $master) {
-            return (is_null($display) || $profile['display'] === $display) &&
-                    (is_null($wizard) || $profile['wizard'] === $wizard) &&
-                    (is_null($master) || $profile['master'] === $master);
+            return (null === $display || $profile['display'] === $display) &&
+                    (null === $wizard || $profile['wizard'] === $wizard) &&
+                    (null === $master || $profile['master'] === $master);
         });
     }
 
@@ -53,16 +52,16 @@ class ProfileService
      * Get available profiles
      * See #7482.
      *
-     * @param string|array $tags Tags used to filter profiles
+     * @param array|string $tags Tags used to filter profiles
      *
      * @return array filtered profiles
      */
     public function getProfilesByTags($tags)
     {
-        $tags = is_array($tags) ? $tags : array($tags);
+        $tags = \is_array($tags) ? $tags : [$tags];
 
         return array_filter($this->profiles, function ($profile) use ($tags) {
-            return 0 == count(array_diff($tags, array_filter(preg_split('/[,\s]+/', $profile['tags']))));
+            return 0 === \count(array_diff($tags, array_filter(preg_split('/[,\s]+/', $profile['tags']))));
         });
     }
 
@@ -86,10 +85,10 @@ class ProfileService
     {
         $masterProfiles = $this->getMasterProfiles(true);
 
-        $tags = array('copy');
+        $tags = ['copy'];
         $masterNotCopyProfiles = array_filter($masterProfiles, function ($profile) use ($tags) {
             if (isset($profile['tags'])) {
-                return 0 != count(array_diff($tags, array_filter(preg_split('/[,\s]+/', $profile['tags']))));
+                return 0 !== \count(array_diff($tags, array_filter(preg_split('/[,\s]+/', $profile['tags']))));
             }
         });
 
@@ -109,6 +108,7 @@ class ProfileService
      * Get given profile.
      *
      * @param string the profile name (case sensitive)
+     * @param mixed $profile
      */
     public function getProfile($profile)
     {
@@ -129,9 +129,9 @@ class ProfileService
         };
         $shares = array_unique(array_values(array_map($f, $this->profiles)));
         $info = array_map(function ($e) {
-            return array('dir' => $e,
-                                                    'free' => disk_free_space($e),
-                                                    'total' => disk_total_space($e), );
+            return ['dir' => $e,
+                'free' => disk_free_space($e),
+                'total' => disk_total_space($e), ];
         }, $shares);
 
         return $info;
@@ -164,10 +164,10 @@ class ProfileService
      */
     public function getDefaultProfiles()
     {
-        if (is_null($this->default_profiles)) {
+        if (null === $this->default_profiles) {
             throw new \InvalidArgumentException('No target default profiles.');
-        } else {
-            return $this->default_profiles;
         }
+
+        return $this->default_profiles;
     }
 }

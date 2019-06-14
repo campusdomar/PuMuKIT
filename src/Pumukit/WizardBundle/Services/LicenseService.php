@@ -46,11 +46,12 @@ class LicenseService
     /**
      * Is license enabled and accepted.
      *
-     * @param array $formData
+     * @param array      $formData
+     * @param null|mixed $locale
      *
      * @return bool Returns FALSE if not enabled and not accepted, TRUE otherwise
      */
-    public function isLicenseEnabledAndAccepted($formData = array(), $locale = null)
+    public function isLicenseEnabledAndAccepted($formData = [], $locale = null)
     {
         if ($this->isEnabled()) {
             if (isset($formData['license']['accept']) && $formData['license']['accept']) {
@@ -66,11 +67,11 @@ class LicenseService
     /**
      * Get license content file.
      *
-     * @param string|null $locale
-     *
-     * @return bool|string
+     * @param null|string $locale
      *
      * @throws \Exception
+     *
+     * @return bool|string
      */
     public function getLicenseContent($locale = null)
     {
@@ -86,6 +87,7 @@ class LicenseService
         if (!$licenseFile) {
             throw new \Exception($this->translator->trans('Not valid locale "'.$locale.'". There is no license file in the directory "'.$this->licenseDir.'" in the format "{locale}.txt".'));
         }
+
         try {
             $licenseContent = file_get_contents($licenseFile);
         } catch (\Exception $exception) {
@@ -101,9 +103,9 @@ class LicenseService
      * Checks if there is any valid file in license directory.
      * Valid file names are {locale}.txt
      *
-     * @return bool
-     *
      * @throws \Exception
+     *
+     * @return bool
      */
     private function checkLicenseFiles()
     {

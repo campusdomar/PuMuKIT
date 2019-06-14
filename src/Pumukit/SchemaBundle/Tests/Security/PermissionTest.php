@@ -2,210 +2,214 @@
 
 namespace Pumukit\SchemaBundle\Tests\Security;
 
-use Pumukit\SchemaBundle\Security\Permission;
-use Pumukit\SchemaBundle\Document\PermissionProfile;
 use PHPUnit\Framework\TestCase;
+use Pumukit\SchemaBundle\Document\PermissionProfile;
+use Pumukit\SchemaBundle\Security\Permission;
 
-class PermissionTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class PermissionTest extends TestCase
 {
     public function testStaticConstants()
     {
-        $this->assertTrue(array_key_exists(Permission::ACCESS_DASHBOARD, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_MULTIMEDIA_SERIES, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_LIVE_CHANNELS, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_LIVE_EVENTS, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_JOBS, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_PEOPLE, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_TAGS, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_BROADCASTS, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_SERIES_TYPES, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_ADMIN_USERS, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_GROUPS, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_ROLES, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_PERMISSION_PROFILES, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::CHANGE_MMOBJECT_STATUS, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::CHANGE_MMOBJECT_PUBCHANNEL, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_PUBLICATION_TAB, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_WIZARD_UPLOAD, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_ADVANCED_UPLOAD, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_API, Permission::$permissionDescription));
-        $this->assertTrue(array_key_exists(Permission::ACCESS_INBOX, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_DASHBOARD, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_MULTIMEDIA_SERIES, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_LIVE_CHANNELS, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_LIVE_EVENTS, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_JOBS, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_PEOPLE, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_TAGS, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_BROADCASTS, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_SERIES_TYPES, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_ADMIN_USERS, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_GROUPS, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_ROLES, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_PERMISSION_PROFILES, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::CHANGE_MMOBJECT_STATUS, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::CHANGE_MMOBJECT_PUBCHANNEL, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_PUBLICATION_TAB, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_WIZARD_UPLOAD, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_ADVANCED_UPLOAD, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_API, Permission::$permissionDescription));
+        static::assertTrue(\array_key_exists(Permission::ACCESS_INBOX, Permission::$permissionDescription));
 
-        $accessDashboard = array(
+        $accessDashboard = [
             'description' => 'Access Dashboard',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessMultimediaSeries = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessMultimediaSeries = [
             'description' => 'Access Media Manager',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessLiveChannels = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessLiveChannels = [
             'description' => 'Access Live Channels',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessLiveEvents = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessLiveEvents = [
             'description' => 'Access Live Events',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessJobs = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessJobs = [
             'description' => 'Access Jobs',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessPeople = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessPeople = [
             'description' => 'Access People',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessTags = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessTags = [
             'description' => 'Access Tags',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessBroadcasts = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessBroadcasts = [
             'description' => 'Access Broadcasts',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessSeriesTypes = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessSeriesTypes = [
             'description' => 'Access Series Types',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessAdminUsers = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessAdminUsers = [
             'description' => 'Access Admin Users',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessGroups = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessGroups = [
             'description' => 'Access Groups',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessPermissionProfiles = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessPermissionProfiles = [
             'description' => 'Access Permission Profiles',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessRoles = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessRoles = [
             'description' => 'Access Roles',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessImporter = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessImporter = [
             'description' => 'Access Importer',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $changeMmObjectStatus = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $changeMmObjectStatus = [
             'description' => 'Change Multimedia Object Status',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $changeMmObjectPubChannel = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $changeMmObjectPubChannel = [
             'description' => 'Change Multimedia Object Publication Channel',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessPublicationTab = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessPublicationTab = [
             'description' => 'Access Publication Tab',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessAdvancedUpload = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessAdvancedUpload = [
             'description' => 'Access Advanced Upload',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessWizardUpload = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessWizardUpload = [
             'description' => 'Access Wizard Upload',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessApi = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessApi = [
             'description' => 'Access API',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $accessInbox = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $accessInbox = [
             'description' => 'Access Inbox',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
-        $modifyOwner = array(
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
+        $modifyOwner = [
             'description' => 'Modify Owners & Groups',
-            'dependencies' => array(
-                PermissionProfile::SCOPE_GLOBAL => array(),
-                PermissionProfile::SCOPE_PERSONAL => array(),
-            ),
-        );
+            'dependencies' => [
+                PermissionProfile::SCOPE_GLOBAL => [],
+                PermissionProfile::SCOPE_PERSONAL => [],
+            ],
+        ];
 
-        $this->assertEquals($accessDashboard, Permission::$permissionDescription[Permission::ACCESS_DASHBOARD]);
-        $this->assertEquals($accessMultimediaSeries, Permission::$permissionDescription[Permission::ACCESS_MULTIMEDIA_SERIES]);
-        $this->assertEquals($accessLiveChannels, Permission::$permissionDescription[Permission::ACCESS_LIVE_CHANNELS]);
-        $this->assertEquals($accessLiveEvents, Permission::$permissionDescription[Permission::ACCESS_LIVE_EVENTS]);
-        $this->assertEquals($accessJobs, Permission::$permissionDescription[Permission::ACCESS_JOBS]);
-        $this->assertEquals($accessPeople, Permission::$permissionDescription[Permission::ACCESS_PEOPLE]);
-        $this->assertEquals($accessTags, Permission::$permissionDescription[Permission::ACCESS_TAGS]);
-        $this->assertEquals($accessBroadcasts, Permission::$permissionDescription[Permission::ACCESS_BROADCASTS]);
-        $this->assertEquals($accessSeriesTypes, Permission::$permissionDescription[Permission::ACCESS_SERIES_TYPES]);
-        $this->assertEquals($accessAdminUsers, Permission::$permissionDescription[Permission::ACCESS_ADMIN_USERS]);
-        $this->assertEquals($accessGroups, Permission::$permissionDescription[Permission::ACCESS_GROUPS]);
-        $this->assertEquals($accessRoles, Permission::$permissionDescription[Permission::ACCESS_ROLES]);
-        $this->assertEquals($accessPermissionProfiles, Permission::$permissionDescription[Permission::ACCESS_PERMISSION_PROFILES]);
-        $this->assertEquals($changeMmObjectStatus, Permission::$permissionDescription[Permission::CHANGE_MMOBJECT_STATUS]);
-        $this->assertEquals($changeMmObjectPubChannel, Permission::$permissionDescription[Permission::CHANGE_MMOBJECT_PUBCHANNEL]);
-        $this->assertEquals($accessPublicationTab, Permission::$permissionDescription[Permission::ACCESS_PUBLICATION_TAB]);
-        $this->assertEquals($accessWizardUpload, Permission::$permissionDescription[Permission::ACCESS_WIZARD_UPLOAD]);
-        $this->assertEquals($accessAdvancedUpload, Permission::$permissionDescription[Permission::ACCESS_ADVANCED_UPLOAD]);
-        $this->assertEquals($accessApi, Permission::$permissionDescription[Permission::ACCESS_API]);
-        $this->assertEquals($accessInbox, Permission::$permissionDescription[Permission::ACCESS_INBOX]);
-        $this->assertEquals($modifyOwner, Permission::$permissionDescription[Permission::MODIFY_OWNER]);
+        static::assertSame($accessDashboard, Permission::$permissionDescription[Permission::ACCESS_DASHBOARD]);
+        static::assertSame($accessMultimediaSeries, Permission::$permissionDescription[Permission::ACCESS_MULTIMEDIA_SERIES]);
+        static::assertSame($accessLiveChannels, Permission::$permissionDescription[Permission::ACCESS_LIVE_CHANNELS]);
+        static::assertSame($accessLiveEvents, Permission::$permissionDescription[Permission::ACCESS_LIVE_EVENTS]);
+        static::assertSame($accessJobs, Permission::$permissionDescription[Permission::ACCESS_JOBS]);
+        static::assertSame($accessPeople, Permission::$permissionDescription[Permission::ACCESS_PEOPLE]);
+        static::assertSame($accessTags, Permission::$permissionDescription[Permission::ACCESS_TAGS]);
+        static::assertSame($accessBroadcasts, Permission::$permissionDescription[Permission::ACCESS_BROADCASTS]);
+        static::assertSame($accessSeriesTypes, Permission::$permissionDescription[Permission::ACCESS_SERIES_TYPES]);
+        static::assertSame($accessAdminUsers, Permission::$permissionDescription[Permission::ACCESS_ADMIN_USERS]);
+        static::assertSame($accessGroups, Permission::$permissionDescription[Permission::ACCESS_GROUPS]);
+        static::assertSame($accessRoles, Permission::$permissionDescription[Permission::ACCESS_ROLES]);
+        static::assertSame($accessPermissionProfiles, Permission::$permissionDescription[Permission::ACCESS_PERMISSION_PROFILES]);
+        static::assertSame($changeMmObjectStatus, Permission::$permissionDescription[Permission::CHANGE_MMOBJECT_STATUS]);
+        static::assertSame($changeMmObjectPubChannel, Permission::$permissionDescription[Permission::CHANGE_MMOBJECT_PUBCHANNEL]);
+        static::assertSame($accessPublicationTab, Permission::$permissionDescription[Permission::ACCESS_PUBLICATION_TAB]);
+        static::assertSame($accessWizardUpload, Permission::$permissionDescription[Permission::ACCESS_WIZARD_UPLOAD]);
+        static::assertSame($accessAdvancedUpload, Permission::$permissionDescription[Permission::ACCESS_ADVANCED_UPLOAD]);
+        static::assertSame($accessApi, Permission::$permissionDescription[Permission::ACCESS_API]);
+        static::assertSame($accessInbox, Permission::$permissionDescription[Permission::ACCESS_INBOX]);
+        static::assertSame($modifyOwner, Permission::$permissionDescription[Permission::MODIFY_OWNER]);
     }
 }

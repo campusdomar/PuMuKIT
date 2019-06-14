@@ -2,15 +2,19 @@
 
 namespace Pumukit\SchemaBundle\Tests\Document;
 
-use Pumukit\SchemaBundle\Document\Material;
 use PHPUnit\Framework\TestCase;
+use Pumukit\SchemaBundle\Document\Material;
 
-class MaterialTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class MaterialTest extends TestCase
 {
     public function testGetterAndSetter()
     {
         $name = 'name';
-        $tags = array('tag_a', 'tag_b');
+        $tags = ['tag_a', 'tag_b'];
         $url = '/mnt/video/123/23435.mp4';
         $path = '/mnt/video/123/23435.mp4';
         $mime = 'video/mpeg4';
@@ -27,17 +31,17 @@ class MaterialTest extends TestCase
         $material->setHide($hide);
         $material->setLanguage($language);
 
-        $this->assertEquals($name, $material->getName());
-        $this->assertEquals($tags, $material->getTags());
-        $this->assertEquals($url, $material->getUrl());
-        $this->assertEquals($path, $material->getPath());
-        $this->assertEquals($mime, $material->getMimeType());
-        $this->assertFalse($hide, $material->getHide());
-        $this->assertEquals($language, $material->getLanguage());
+        static::assertSame($name, $material->getName());
+        static::assertSame($tags, $material->getTags());
+        static::assertSame($url, $material->getUrl());
+        static::assertSame($path, $material->getPath());
+        static::assertSame($mime, $material->getMimeType());
+        static::assertFalse($hide, $material->getHide());
+        static::assertSame($language, $material->getLanguage());
 
         $name = null;
         $material->setName(null);
-        $this->assertEquals($name, $material->getName());
+        static::assertSame($name, $material->getName());
     }
 
     public function testMaxSize()
@@ -46,38 +50,38 @@ class MaterialTest extends TestCase
 
         $material = new material();
         $material->setSize($size);
-        $this->assertEquals($size, $material->getSize());
+        static::assertSame($size, $material->getSize());
     }
 
     public function testTagCollection()
     {
         $material = new material();
-        $this->assertFalse($material->containsTag('t'));
+        static::assertFalse($material->containsTag('t'));
         $material->addTag('t');
-        $this->assertTrue($material->containsTag('t'));
+        static::assertTrue($material->containsTag('t'));
         $material->removeTag('t');
-        $this->assertFalse($material->containsTag('t'));
+        static::assertFalse($material->containsTag('t'));
 
         //Repeat Tag
-        $this->assertFalse($material->containsTag('t'));
+        static::assertFalse($material->containsTag('t'));
         $material->addTag('t');
         $material->addTag('t');
-        $this->assertTrue($material->containsTag('t'));
+        static::assertTrue($material->containsTag('t'));
         $material->removeTag('t');
-        $this->assertFalse($material->containsTag('t'));
-        $this->assertFalse($material->removeTag('t'));
+        static::assertFalse($material->containsTag('t'));
+        static::assertFalse($material->removeTag('t'));
 
         //containsAllTag and containsAnyTag
         $material->addTag('t1');
         $material->addTag('t2');
         $material->addTag('t3');
-        $this->assertTrue($material->containsAnyTag(array('t0', 't2')));
-        $this->assertTrue($material->containsAnyTag(array('t2', 't3')));
-        $this->assertFalse($material->containsAnyTag(array('t0', 't4')));
-        $this->assertTrue($material->containsAllTags(array('t1', 't2')));
-        $this->assertTrue($material->containsAllTags(array('t1')));
-        $this->assertFalse($material->containsAllTags(array('t0', 't2')));
-        $this->assertFalse($material->containsAllTags(array('t0', 't1', 't2', 't3')));
+        static::assertTrue($material->containsAnyTag(['t0', 't2']));
+        static::assertTrue($material->containsAnyTag(['t2', 't3']));
+        static::assertFalse($material->containsAnyTag(['t0', 't4']));
+        static::assertTrue($material->containsAllTags(['t1', 't2']));
+        static::assertTrue($material->containsAllTags(['t1']));
+        static::assertFalse($material->containsAllTags(['t0', 't2']));
+        static::assertFalse($material->containsAllTags(['t0', 't1', 't2', 't3']));
     }
 
     /*public function testRef()

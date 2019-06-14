@@ -2,35 +2,42 @@
 
 namespace Pumukit\SchemaBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class MultimediaObjectDurationServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class MultimediaObjectDurationServiceTest extends WebTestCase
 {
     private $dm;
     private $mmRepo;
     private $factory;
     private $mmsService;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()
-                           ->get('doctrine_mongodb')->getManager();
+            ->get('doctrine_mongodb')->getManager();
         $this->mmRepo = $this->dm
-                             ->getRepository(MultimediaObject::class);
+            ->getRepository(MultimediaObject::class)
+        ;
         $this->factory = static::$kernel->getContainer()
-                                ->get('pumukitschema.factory');
+            ->get('pumukitschema.factory')
+        ;
         $this->mmsService = static::$kernel->getContainer()
-                                   ->get('pumukitschema.mmsduration');
+            ->get('pumukitschema.mmsduration')
+        ;
 
-        $this->dm->getDocumentCollection(MultimediaObject::class)->remove(array());
+        $this->dm->getDocumentCollection(MultimediaObject::class)->remove([]);
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -51,6 +58,6 @@ class MultimediaObjectDurationServiceTest extends WebTestCase
         $mm->setDuration(100);
 
         $duration = $this->mmsService->getMmobjDuration($mm);
-        $this->assertEquals(100, $duration);
+        static::assertSame(100, $duration);
     }
 }

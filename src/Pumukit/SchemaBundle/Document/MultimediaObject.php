@@ -2,8 +2,8 @@
 
 namespace Pumukit\SchemaBundle\Document;
 
-use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
@@ -34,27 +34,27 @@ class MultimediaObject
     const STATUS_NEW = -1;
     const STATUS_PROTOTYPE = -2;
 
-    public static $statusTexts = array(
-        self::STATUS_PUBLISHED => 'Published',
-        self::STATUS_BLOCKED => 'Blocked',
-        self::STATUS_HIDDEN => 'Hidden',
-        self::STATUS_NEW => 'New',
-        self::STATUS_PROTOTYPE => 'Prototype',
-    );
-
     const TYPE_UNKNOWN = 0;
     const TYPE_VIDEO = 1;
     const TYPE_AUDIO = 2;
     const TYPE_EXTERNAL = 3;
     const TYPE_LIVE = 4;
 
-    public static $typeTexts = array(
+    public static $statusTexts = [
+        self::STATUS_PUBLISHED => 'Published',
+        self::STATUS_BLOCKED => 'Blocked',
+        self::STATUS_HIDDEN => 'Hidden',
+        self::STATUS_NEW => 'New',
+        self::STATUS_PROTOTYPE => 'Prototype',
+    ];
+
+    public static $typeTexts = [
         self::TYPE_UNKNOWN => '',
         self::TYPE_VIDEO => 'Video',
         self::TYPE_AUDIO => 'Audio',
         self::TYPE_EXTERNAL => 'External',
         self::TYPE_LIVE => 'Live',
-    );
+    ];
 
     /**
      * @var int
@@ -99,7 +99,7 @@ class MultimediaObject
      * @var string
      * @MongoDB\Field(type="raw")
      */
-    private $seriesTitle = array('en' => '');
+    private $seriesTitle = ['en' => ''];
 
     /**
      * @var Broadcast
@@ -183,19 +183,19 @@ class MultimediaObject
      * @var array
      * @MongoDB\Field(type="raw")
      */
-    private $title = array('en' => '');
+    private $title = ['en' => ''];
 
     /**
      * @var string
      * @MongoDB\Field(type="raw")
      */
-    private $subtitle = array('en' => '');
+    private $subtitle = ['en' => ''];
 
     /**
      * @var array
      * @MongoDB\Field(type="raw")
      */
-    private $description = array('en' => '');
+    private $description = ['en' => ''];
 
     /**
      * @var string
@@ -207,7 +207,7 @@ class MultimediaObject
      * @var array
      * @MongoDB\Field(type="raw")
      */
-    private $line2 = array('en' => '');
+    private $line2 = ['en' => ''];
 
     /**
      * @var string
@@ -244,13 +244,13 @@ class MultimediaObject
      * @var array
      * @MongoDB\Raw
      */
-    private $textindex = array();
+    private $textindex = [];
 
     /**
      * @var array
      * @MongoDB\Raw
      */
-    private $secondarytextindex = array();
+    private $secondarytextindex = [];
 
     /**
      * Used locale to override Translation listener`s locale
@@ -314,6 +314,8 @@ class MultimediaObject
 
     /**
      * Set numerical id.
+     *
+     * @param mixed $numericalID
      *
      * @return int
      */
@@ -536,7 +538,7 @@ class MultimediaObject
      * Set title.
      *
      * @param string      $title
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setTitle($title, $locale = null)
     {
@@ -549,7 +551,7 @@ class MultimediaObject
     /**
      * Get title.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -589,7 +591,7 @@ class MultimediaObject
      * Set subtitle.
      *
      * @param string      $subtitle
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setSubtitle($subtitle, $locale = null)
     {
@@ -602,7 +604,7 @@ class MultimediaObject
     /**
      * Get subtitle.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -642,7 +644,7 @@ class MultimediaObject
      * Set description.
      *
      * @param string      $description
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setDescription($description, $locale = null)
     {
@@ -655,7 +657,7 @@ class MultimediaObject
     /**
      * Get description.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -715,7 +717,7 @@ class MultimediaObject
      * Set line2.
      *
      * @param string      $line2
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setLine2($line2, $locale = null)
     {
@@ -728,7 +730,7 @@ class MultimediaObject
     /**
      * Get line2.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -839,16 +841,16 @@ class MultimediaObject
                 $seg = '0'.$seg;
             }
 
-            if (0 == $min) {
+            if (0 === $min) {
                 $aux = $seg."''";
             } else {
                 $aux = $min."' ".$seg."''";
             }
 
             return $aux;
-        } else {
-            return "0''";
         }
+
+        return "0''";
     }
 
     /**
@@ -894,7 +896,7 @@ class MultimediaObject
         if (!$series->isHide()) {
             $this->seriesTitle = $series->getI18nTitle();
         } else {
-            $this->seriesTitle = array();
+            $this->seriesTitle = [];
         }
     }
 
@@ -917,7 +919,7 @@ class MultimediaObject
     /**
      * Get series title, only for performace use.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -942,11 +944,11 @@ class MultimediaObject
      */
     public function setBroadcast(Broadcast $broadcast)
     {
-        if (($this->broadcast instanceof Broadcast) && (self::STATUS_PROTOTYPE != $this->status)) {
+        if (($this->broadcast instanceof Broadcast) && (self::STATUS_PROTOTYPE !== $this->status)) {
             $this->broadcast->decreaseNumberMultimediaObjects();
         }
         $this->broadcast = $broadcast;
-        if (self::STATUS_PROTOTYPE != $this->status) {
+        if (self::STATUS_PROTOTYPE !== $this->status) {
             $broadcast->increaseNumberMultimediaObjects();
         }
     }
@@ -972,7 +974,7 @@ class MultimediaObject
      */
     public function isPublicBroadcast()
     {
-        return (bool) (!$this->broadcast || Broadcast::BROADCAST_TYPE_PUB == $this->broadcast->getBroadcastTypeId());
+        return (bool) (!$this->broadcast || Broadcast::BROADCAST_TYPE_PUB === $this->broadcast->getBroadcastTypeId());
     }
 
     /**
@@ -1065,7 +1067,7 @@ class MultimediaObject
     /**
      * Get embeddedBroadcast.
      *
-     * @return EmbeddedBroadcast|null
+     * @return null|EmbeddedBroadcast
      */
     public function getEmbeddedBroadcast()
     {
@@ -1149,14 +1151,14 @@ class MultimediaObject
      * The original string tag logic used array_search to seek the tag element in array.
      * This function uses doctrine2 arrayCollection contains function instead.
      *
-     * @param Tag|EmbeddedTag $tagToRemove
+     * @param EmbeddedTag|Tag $tagToRemove
      *
      * @return bool TRUE if this multimedia_object contained the specified tag, FALSE otherwise
      */
     public function removeTag($tagToRemove)
     {
         foreach ($this->tags as $tag) {
-            if ($tag->getCod() == $tagToRemove->getCod()) {
+            if ($tag->getCod() === $tagToRemove->getCod()) {
                 return $this->tags->removeElement($tag);
             }
         }
@@ -1169,14 +1171,14 @@ class MultimediaObject
      * The original string tag logic used in_array to check it.
      * This function uses doctrine2 arrayCollection contains function instead.
      *
-     * @param Tag|EmbeddedTag $tagToCheck
+     * @param EmbeddedTag|Tag $tagToCheck
      *
      * @return bool TRUE if this multimedia_object contained the specified tag, FALSE otherwise
      */
     public function containsTag($tagToCheck)
     {
         foreach ($this->tags as $tag) {
-            if ($tag->getCod() == $tagToCheck->getCod()) {
+            if ($tag->getCod() === $tagToCheck->getCod()) {
                 return true;
             }
         }
@@ -1194,7 +1196,7 @@ class MultimediaObject
     public function containsTagWithCod($tagCod)
     {
         foreach ($this->tags as $tag) {
-            if ($tag->getCod() == $tagCod) {
+            if ($tag->getCod() === $tagCod) {
                 return true;
             }
         }
@@ -1345,32 +1347,6 @@ class MultimediaObject
     }
 
     /**
-     * Reorder track by id.
-     *
-     * @param string $trackId
-     * @param bool   $up
-     */
-    private function reorderTrackById($trackId, $up = true)
-    {
-        $snapshot = array_values($this->tracks->toArray());
-        $this->tracks->clear();
-
-        $out = array();
-        foreach ($snapshot as $key => $track) {
-            if ($track->getId() === $trackId) {
-                $out[($key * 10) + ($up ? -11 : 11)] = $track;
-            } else {
-                $out[$key * 10] = $track;
-            }
-        }
-
-        ksort($out);
-        foreach ($out as $track) {
-            $this->tracks->add($track);
-        }
-    }
-
-    /**
      * Contains track.
      *
      * @param Track $track
@@ -1397,12 +1373,12 @@ class MultimediaObject
      *
      * @param $trackId
      *
-     * @return Track|null
+     * @return null|Track
      */
     public function getTrackById($trackId)
     {
         foreach ($this->tracks as $track) {
-            if ($track->getId() == $trackId) {
+            if ($track->getId() === $trackId) {
                 return $track;
             }
         }
@@ -1419,7 +1395,7 @@ class MultimediaObject
      */
     public function getTracksWithTag($tag)
     {
-        $r = array();
+        $r = [];
 
         foreach ($this->tracks as $track) {
             if ($track->containsTag($tag)) {
@@ -1435,7 +1411,7 @@ class MultimediaObject
      *
      * @param string $tag
      *
-     * @return Track|null
+     * @return null|Track
      */
     public function getTrackWithTag($tag)
     {
@@ -1457,7 +1433,7 @@ class MultimediaObject
      */
     public function getTracksWithAllTags(array $tags)
     {
-        $r = array();
+        $r = [];
 
         foreach ($this->tracks as $track) {
             if ($track->containsAllTags($tags)) {
@@ -1473,7 +1449,7 @@ class MultimediaObject
      *
      * @param array $tags
      *
-     * @return Track|null
+     * @return null|Track
      */
     public function getTrackWithAllTags(array $tags)
     {
@@ -1495,7 +1471,7 @@ class MultimediaObject
      */
     public function getTracksWithAnyTag(array $tags)
     {
-        $r = array();
+        $r = [];
 
         foreach ($this->tracks as $track) {
             if ($track->containsAnyTag($tags)) {
@@ -1511,7 +1487,7 @@ class MultimediaObject
      *
      * @param array $tags
      *
-     * @return Track|null
+     * @return null|Track
      */
     public function getTrackWithAnyTag(array $tags)
     {
@@ -1549,7 +1525,7 @@ class MultimediaObject
      *
      * @param bool $any to get only tagged tracks
      *
-     * @return Track|null
+     * @return null|Track
      */
     public function getMaster($any = true)
     {
@@ -1573,11 +1549,11 @@ class MultimediaObject
     /**
      * Get audio/video track with tag display. Get an audio track if the object is an audio.
      *
-     * @return Track|null
+     * @return null|Track
      */
     public function getDisplayTrack()
     {
-        return $this->isOnlyAudio() ? $this->getFilteredTrackWithTags(array('display')) : $this->getFilteredTrackWithTags(array('display'), array(), array('audio'));
+        return $this->isOnlyAudio() ? $this->getFilteredTrackWithTags(['display']) : $this->getFilteredTrackWithTags(['display'], [], ['audio']);
     }
 
     /**
@@ -1591,9 +1567,9 @@ class MultimediaObject
      *
      * @return array
      */
-    public function getFilteredTracksWithTags(array $any_tags = array(), array $all_tags = array(), array $not_any_tags = array(), array $not_all_tags = array(), $all = true)
+    public function getFilteredTracksWithTags(array $any_tags = [], array $all_tags = [], array $not_any_tags = [], array $not_all_tags = [], $all = true)
     {
-        $r = array();
+        $r = [];
 
         foreach ($this->tracks as $track) {
             if ($track->getHide() && $all) {
@@ -1627,9 +1603,9 @@ class MultimediaObject
      * @param array $not_all_tags
      * @param bool  $all
      *
-     * @return Track|null
+     * @return null|Track
      */
-    public function getFilteredTrackWithTags(array $any_tags = array(), array $all_tags = array(), array $not_any_tags = array(), array $not_all_tags = array(), $all = true)
+    public function getFilteredTrackWithTags(array $any_tags = [], array $all_tags = [], array $not_any_tags = [], array $not_all_tags = [], $all = true)
     {
         foreach ($this->tracks as $track) {
             if ($track->getHide() && $all) {
@@ -1665,11 +1641,11 @@ class MultimediaObject
      */
     public function getPeople()
     {
-        $aux = array();
+        $aux = [];
 
         foreach ($this->people as $role) {
             foreach ($role->getPeople() as $person) {
-                if (!in_array($person, $aux)) {
+                if (!\in_array($person, $aux, true)) {
                     $aux[] = $person;
                 }
             }
@@ -1687,7 +1663,7 @@ class MultimediaObject
      */
     public function getAllEmbeddedPeopleByPerson($person)
     {
-        $aux = array();
+        $aux = [];
 
         foreach ($this->people as $role) {
             foreach ($role->getPeople() as $embeddedPerson) {
@@ -1709,12 +1685,13 @@ class MultimediaObject
      */
     public function getAllEmbeddedRolesByPerson($person)
     {
-        $aux = array();
+        $aux = [];
 
         foreach ($this->people as $embeddedRole) {
             foreach ($embeddedRole->getPeople() as $embeddedPerson) {
                 if ($embeddedPerson->getId() === $person->getId()) {
                     $aux[] = $embeddedRole;
+
                     break;
                 }
             }
@@ -1727,14 +1704,14 @@ class MultimediaObject
      * Contains EmbeddedPerson without mattering the role
      * Use containsPersonWithRole instead.
      *
-     * @param Person|EmbeddedPerson $person
+     * @param EmbeddedPerson|Person $person
      *
      * @return bool TRUE if this multimedia_object contains the specified person, FALSE otherwise
      */
     public function containsPerson($person)
     {
         foreach ($this->getPeople() as $embeddedPerson) {
-            if ($person->getId() == $embeddedPerson->getId()) {
+            if ($person->getId() === $embeddedPerson->getId()) {
                 return true;
             }
         }
@@ -1745,15 +1722,15 @@ class MultimediaObject
     /**
      * Contains person with role.
      *
-     * @param Person|EmbeddedPerson $person
-     * @param Role|EmbeddedRole     $role
+     * @param EmbeddedPerson|Person $person
+     * @param EmbeddedRole|Role     $role
      *
      * @return bool
      */
     public function containsPersonWithRole($person, $role)
     {
         foreach ($this->getPeopleByRole($role, true) as $embeddedPerson) {
-            if ($person->getId() == $embeddedPerson->getId()) {
+            if ($person->getId() === $embeddedPerson->getId()) {
                 return true;
             }
         }
@@ -1764,7 +1741,7 @@ class MultimediaObject
     /**
      * Contains person with all roles.
      *
-     * @param Person|EmbeddedPerson $person
+     * @param EmbeddedPerson|Person $person
      * @param array                 $roles
      *
      * @return bool
@@ -1783,7 +1760,7 @@ class MultimediaObject
     /**
      * Contains person with any role.
      *
-     * @param Person|EmbeddedPerson $person
+     * @param EmbeddedPerson|Person $person
      * @param array                 $roles
      *
      * @return bool
@@ -1802,7 +1779,7 @@ class MultimediaObject
     /**
      * Get people in multimedia object by role.
      *
-     * @param Role|EmbeddedRole $role
+     * @param EmbeddedRole|Role $role
      * @param bool              $always
      *
      * @return array
@@ -1822,16 +1799,17 @@ class MultimediaObject
      */
     public function getPeopleByRoleCod($roleCod = null, $always = false)
     {
-        $aux = array();
+        $aux = [];
 
         if (null !== $roleCod) {
             foreach ($this->people as $embeddedRole) {
-                if ($roleCod == $embeddedRole->getCod()) {
+                if ($roleCod === $embeddedRole->getCod()) {
                     if ($always || $embeddedRole->getDisplay()) {
                         foreach ($embeddedRole->getPeople() as $embeddedPerson) {
                             $aux[] = $embeddedPerson;
                         }
                     }
+
                     break;
                 }
             }
@@ -1839,7 +1817,7 @@ class MultimediaObject
             foreach ($this->people as $embeddedRole) {
                 if ($always || $embeddedRole->getDisplay()) {
                     foreach ($embeddedRole->getPeople() as $embeddedPerson) {
-                        if (!in_array($embeddedPerson, $aux)) {
+                        if (!\in_array($embeddedPerson, $aux, true)) {
                             $aux[] = $embeddedPerson;
                         }
                     }
@@ -1853,8 +1831,8 @@ class MultimediaObject
     /**
      * Add Person with Role.
      *
-     * @param Person|EmbeddedPerson $person
-     * @param Role|EmbeddedRole     $role
+     * @param EmbeddedPerson|Person $person
+     * @param EmbeddedRole|Role     $role
      */
     public function addPersonWithRole($person, $role)
     {
@@ -1872,8 +1850,8 @@ class MultimediaObject
     /**
      * Remove Person With Role.
      *
-     * @param Person|EmbeddedPerson $person
-     * @param Role|EmbeddedRole     $role
+     * @param EmbeddedPerson|Person $person
+     * @param EmbeddedRole|Role     $role
      *
      * @return bool TRUE if this multimedia_object contained the specified person_in_multimedia_object, FALSE otherwise
      */
@@ -1887,7 +1865,7 @@ class MultimediaObject
 
         $hasRemoved = $embeddedRole->removePerson($person);
 
-        if (0 === count($embeddedRole->getPeople())) {
+        if (0 === \count($embeddedRole->getPeople())) {
             $this->people->removeElement($embeddedRole);
         }
 
@@ -1897,10 +1875,10 @@ class MultimediaObject
     /**
      * Get person with role.
      *
-     * @param Person|EmbeddedPerson $person
-     * @param Role|EmbeddedRole     $role
+     * @param EmbeddedPerson|Person $person
+     * @param EmbeddedRole|Role     $role
      *
-     * @return EmbeddedPerson|bool EmbeddedPerson if found, FALSE otherwise
+     * @return bool|EmbeddedPerson EmbeddedPerson if found, FALSE otherwise
      */
     public function getPersonWithRole($person, $role)
     {
@@ -1914,8 +1892,8 @@ class MultimediaObject
     /**
      * Up person with role.
      *
-     * @param Person|EmbeddedPerson $person
-     * @param Role|EmbeddedRole     $role
+     * @param EmbeddedPerson|Person $person
+     * @param EmbeddedRole|Role     $role
      */
     public function upPersonWithRole($person, $role)
     {
@@ -1925,8 +1903,8 @@ class MultimediaObject
     /**
      * Down person with role.
      *
-     * @param Person|EmbeddedPerson $person
-     * @param Role|EmbeddedRole     $role
+     * @param EmbeddedPerson|Person $person
+     * @param EmbeddedRole|Role     $role
      */
     public function downPersonWithRole($person, $role)
     {
@@ -1936,8 +1914,8 @@ class MultimediaObject
     /**
      * Reorder person with role.
      *
-     * @param Person|EmbeddedRole $person
-     * @param Role|EmbeddedRole   $role
+     * @param EmbeddedRole|Person $person
+     * @param EmbeddedRole|Role   $role
      * @param bool                $up
      */
     public function reorderPersonWithRole($person, $role, $up = true)
@@ -1945,9 +1923,9 @@ class MultimediaObject
         $people = array_values($this->getPeopleByRole($role, true));
         $this->getEmbeddedRole($role)->getPeople()->clear();
 
-        $out = array();
+        $out = [];
         foreach ($people as $key => $embeddedPerson) {
-            if ($person->getId() == $embeddedPerson->getId()) {
+            if ($person->getId() === $embeddedPerson->getId()) {
                 $out[($key * 10) + ($up ? -11 : 11)] = $embeddedPerson;
             } else {
                 $out[($key * 10)] = $embeddedPerson;
@@ -1963,9 +1941,10 @@ class MultimediaObject
     /**
      * Get embedded role.
      *
-     * @param Role|EmbeddedRole
+     * @param EmbeddedRole|Role
+     * @param mixed $role
      *
-     * @return EmbeddedRole|bool EmbeddedRole if found, FALSE otherwise
+     * @return bool|EmbeddedRole EmbeddedRole if found, FALSE otherwise
      */
     public function getEmbeddedRole($role)
     {
@@ -1989,10 +1968,9 @@ class MultimediaObject
     {
         if ($role instanceof EmbeddedRole) {
             return $role;
-        } elseif ($role instanceof Role) {
-            $embeddedRole = new EmbeddedRole($role);
-
-            return $embeddedRole;
+        }
+        if ($role instanceof Role) {
+            return new EmbeddedRole($role);
         }
 
         throw new \InvalidArgumentException('Only Role or EmbeddedRole are allowed.');
@@ -2056,32 +2034,6 @@ class MultimediaObject
         return $this->groups;
     }
 
-    // End of Group section
-
-    /**
-     * Update duration.
-     */
-    private function updateDuration()
-    {
-        if (0 == count($this->tracks)) {
-            $this->setDuration(0);
-
-            return;
-        }
-
-        $trackMinDuration = $this->tracks->first()->getDuration();
-        foreach ($this->tracks as $mmTrack) {
-            if ($mmTrack->getDuration() < $trackMinDuration) {
-                $trackMinDuration = $mmTrack->getDuration();
-            }
-        }
-
-        $minDuration = $this->getDuration();
-        if ($minDuration > $trackMinDuration) {
-            $this->setDuration($trackMinDuration);
-        }
-    }
-
     /**
      * Is only audio.
      *
@@ -2091,9 +2043,9 @@ class MultimediaObject
     {
         if (self::TYPE_AUDIO === $this->type) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -2109,16 +2061,17 @@ class MultimediaObject
 
         //if ($seconds < 10 ) $minutes = '0' . $seconds;
 
-        return array(
+        return [
             'minutes' => $minutes,
             'seconds' => $seconds,
-        );
+        ];
     }
 
     /**
      * Set duration in minutes and seconds.
      *
      * @param array
+     * @param mixed $durationInMinutesAndSeconds
      */
     public function setDurationInMinutesAndSeconds($durationInMinutesAndSeconds)
     {
@@ -2134,13 +2087,13 @@ class MultimediaObject
      */
     public function isMultistream()
     {
-        $presenterTracks = $this->getFilteredTracksWithTags(array('presenter/delivery'));
-        $presentationTracks = $this->getFilteredTracksWithTags(array('presentation/delivery'));
+        $presenterTracks = $this->getFilteredTracksWithTags(['presenter/delivery']);
+        $presentationTracks = $this->getFilteredTracksWithTags(['presentation/delivery']);
         if ($presenterTracks && $presentationTracks) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -2155,7 +2108,6 @@ class MultimediaObject
 
     /**
      * Get textindex.
-     *
      *
      * @return array
      */
@@ -2177,11 +2129,62 @@ class MultimediaObject
     /**
      * Get secondarytextindex.
      *
-     *
      * @return array
      */
     public function getSecondaryTextIndex()
     {
         return $this->secondarytextindex;
+    }
+
+    /**
+     * Reorder track by id.
+     *
+     * @param string $trackId
+     * @param bool   $up
+     */
+    private function reorderTrackById($trackId, $up = true)
+    {
+        $snapshot = array_values($this->tracks->toArray());
+        $this->tracks->clear();
+
+        $out = [];
+        foreach ($snapshot as $key => $track) {
+            if ($track->getId() === $trackId) {
+                $out[($key * 10) + ($up ? -11 : 11)] = $track;
+            } else {
+                $out[$key * 10] = $track;
+            }
+        }
+
+        ksort($out);
+        foreach ($out as $track) {
+            $this->tracks->add($track);
+        }
+    }
+
+    // End of Group section
+
+    /**
+     * Update duration.
+     */
+    private function updateDuration()
+    {
+        if (0 === \count($this->tracks)) {
+            $this->setDuration(0);
+
+            return;
+        }
+
+        $trackMinDuration = $this->tracks->first()->getDuration();
+        foreach ($this->tracks as $mmTrack) {
+            if ($mmTrack->getDuration() < $trackMinDuration) {
+                $trackMinDuration = $mmTrack->getDuration();
+            }
+        }
+
+        $minDuration = $this->getDuration();
+        if ($minDuration > $trackMinDuration) {
+            $this->setDuration($trackMinDuration);
+        }
     }
 }

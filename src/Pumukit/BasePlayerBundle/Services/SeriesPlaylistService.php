@@ -2,11 +2,11 @@
 
 namespace Pumukit\BasePlayerBundle\Services;
 
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Pumukit\BasePlayerBundle\Utils\CountableAppendIterator;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
-use Doctrine\Common\Collections\Criteria;
-use Pumukit\BasePlayerBundle\Utils\CountableAppendIterator;
 
 class SeriesPlaylistService
 {
@@ -20,74 +20,6 @@ class SeriesPlaylistService
     }
 
     /**
-     * Returns a query builder for the mmobjs of a series playlist embed document.
-     *
-     * @param array $playlistMmobjIds List of MongoIds to find
-     * @param array $criteria         (optional) The criteria to filter the mmobj with. In case personalized requirements are needed
-     *
-     * @return \Doctrine\MongoDB\Query\Builder
-     */
-    protected function createQueryPlaylistMmobjs($playlistMmobjIds, $criteria = array())
-    {
-        $qb = $this->mmobjRepo->createQueryBuilder()->field('id')->in($playlistMmobjIds);
-        if ($criteria) {
-            $qb->addAnd($criteria);
-        }
-
-        return $qb;
-    }
-
-    /**
-     * Returns a query builder for the mmobjs of a series.
-     *
-     * @param Series $series   The series to get mmobjs from
-     * @param array  $criteria (optional) The criteria to filter the mmobj with. In case personalized requirements are needed
-     *
-     * @return mixed
-     */
-    protected function createSortedQuerySeriesMmobjs($series, $criteria = array())
-    {
-        $qb = $this->mmobjRepo->createStandardQueryBuilder()
-                    ->field('series')->references($series);
-        if ($criteria) {
-            $qb->addAnd($criteria);
-        }
-        $qb->sort('rank', 'asc');
-
-        return $qb;
-    }
-
-    /**
-     * Returns an array with all valid mmobj from the playlist embed document.
-     *
-     * First it gets all ids, then it makes a query for all (to reduce them, in case a filter is activated)
-     * Then it sorts the result according to the original embed ids sorting.
-     *
-     * @param Series $series   The series to return mmobjs from
-     * @param array  $criteria (optional) The criteria to filter the mmobj with. In case personalized requirements are needed
-     *
-     * @return array
-     */
-    protected function retrieveSortedPlaylistMmobjs(Series $series, $criteria = array())
-    {
-        $playlistMmobjs = $series->getPlaylist()->getMultimediaObjectsIdList();
-        $playlistMmobjsFiltered = $this->createQueryPlaylistMmobjs($playlistMmobjs, $criteria)->getQuery()->execute();
-
-        $playlist = array();
-        //This foreach orders the $playlistMmobjsFiltered results according to the order they appear in $playlistMmobjs.
-        //Ideally, mongo should return them ordered already, but I couldn't find how to achieve that.
-        foreach ($playlistMmobjs as $playMmobj) {
-            foreach ($playlistMmobjsFiltered as $mmobj) {
-                if ($playMmobj == $mmobj->getId()) {
-                    $playlist[] = $mmobj;
-                }
-            }
-        }
-
-        return $playlist;
-    }
-
-    /**
      * Returns an iterator with all mmobjs belonging to the playlist.
      *
      * This function returns an iterator with the 'series' mmobjs (mmobj whose series ref is this Collection)
@@ -98,7 +30,7 @@ class SeriesPlaylistService
      *
      * @return CountableAppendIterator
      */
-    public function getPlaylistMmobjs(Series $series, $criteria = array())
+    public function getPlaylistMmobjs(Series $series, $criteria = [])
     {
         $qb = $this->createSortedQuerySeriesMmobjs($series, $criteria);
         $seriesMmobjs = $qb->getQuery()->execute();
@@ -125,7 +57,7 @@ class SeriesPlaylistService
      *
      * @return MultimediaObject
      */
-    public function getPlaylistFirstMmobj(Series $series, $criteria = array())
+    public function getPlaylistFirstMmobj(Series $series, $criteria = [])
     {
         $qb = $this->createSortedQuerySeriesMmobjs($series, $criteria);
         $mmobj = $qb->getQuery()->getSingleResult();
@@ -151,21 +83,89 @@ class SeriesPlaylistService
      *
      * @return MultimediaObject
      */
-    public function getMmobjFromIdAndPlaylist($mmobjId, Series $series, $criteria = array())
+    public function getMmobjFromIdAndPlaylist($mmobjId, Series $series, $criteria = [])
     {
         $qb = $this->createSortedQuerySeriesMmobjs($series, $criteria)
-                   ->field('id')->equals(new \MongoId($mmobjId));
+            ->field('id')->equals(new \MongoId($mmobjId));
         $mmobj = $qb->getQuery()->getSingleResult();
 
         if (!$mmobj) {
             $playlistMmobjs = $this->retrieveSortedPlaylistMmobjs($series, $criteria);
             foreach ($playlistMmobjs as $playMmobj) {
-                if ($playMmobj->getId() == $mmobjId) {
+                if ($playMmobj->getId() === $mmobjId) {
                     return $playMmobj;
                 }
             }
         }
 
         return $mmobj;
+    }
+
+    /**
+     * Returns a query builder for the mmobjs of a series playlist embed document.
+     *
+     * @param array $playlistMmobjIds List of MongoIds to find
+     * @param array $criteria         (optional) The criteria to filter the mmobj with. In case personalized requirements are needed
+     *
+     * @return \Doctrine\MongoDB\Query\Builder
+     */
+    protected function createQueryPlaylistMmobjs($playlistMmobjIds, $criteria = [])
+    {
+        $qb = $this->mmobjRepo->createQueryBuilder()->field('id')->in($playlistMmobjIds);
+        if ($criteria) {
+            $qb->addAnd($criteria);
+        }
+
+        return $qb;
+    }
+
+    /**
+     * Returns a query builder for the mmobjs of a series.
+     *
+     * @param Series $series   The series to get mmobjs from
+     * @param array  $criteria (optional) The criteria to filter the mmobj with. In case personalized requirements are needed
+     *
+     * @return mixed
+     */
+    protected function createSortedQuerySeriesMmobjs($series, $criteria = [])
+    {
+        $qb = $this->mmobjRepo->createStandardQueryBuilder()
+            ->field('series')->references($series);
+        if ($criteria) {
+            $qb->addAnd($criteria);
+        }
+        $qb->sort('rank', 'asc');
+
+        return $qb;
+    }
+
+    /**
+     * Returns an array with all valid mmobj from the playlist embed document.
+     *
+     * First it gets all ids, then it makes a query for all (to reduce them, in case a filter is activated)
+     * Then it sorts the result according to the original embed ids sorting.
+     *
+     * @param Series $series   The series to return mmobjs from
+     * @param array  $criteria (optional) The criteria to filter the mmobj with. In case personalized requirements are needed
+     *
+     * @return array
+     */
+    protected function retrieveSortedPlaylistMmobjs(Series $series, $criteria = [])
+    {
+        $playlistMmobjs = $series->getPlaylist()->getMultimediaObjectsIdList();
+        $playlistMmobjsFiltered = $this->createQueryPlaylistMmobjs($playlistMmobjs, $criteria)->getQuery()->execute();
+
+        $playlist = [];
+        //This foreach orders the $playlistMmobjsFiltered results according to the order they appear in $playlistMmobjs.
+        //Ideally, mongo should return them ordered already, but I couldn't find how to achieve that.
+        foreach ($playlistMmobjs as $playMmobj) {
+            foreach ($playlistMmobjsFiltered as $mmobj) {
+                if ($playMmobj === $mmobj->getId()) {
+                    $playlist[] = $mmobj;
+                }
+            }
+        }
+
+        return $playlist;
     }
 }

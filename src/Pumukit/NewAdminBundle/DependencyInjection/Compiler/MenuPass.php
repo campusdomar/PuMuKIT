@@ -2,8 +2,8 @@
 
 namespace Pumukit\NewAdminBundle\DependencyInjection\Compiler;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 class MenuPass implements CompilerPassInterface
@@ -33,7 +33,7 @@ class MenuPass implements CompilerPassInterface
         $taggedServices = $container->findTaggedServiceIds($serviceName.'item');
         foreach ($taggedServices as $id => $tags) {
             // add the transport service to the ItemsList service
-            $definition->addMethodCall('add', array(new Reference($id)));
+            $definition->addMethodCall('add', [new Reference($id)]);
         }
     }
 }

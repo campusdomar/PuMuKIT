@@ -2,14 +2,16 @@
 
 namespace Pumukit\SchemaBundle\Tests\Document;
 
-use Pumukit\SchemaBundle\Document\Broadcast;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
-/*
- * @deprecated in version 2.3
- */
 use PHPUnit\Framework\TestCase;
+use Pumukit\SchemaBundle\Document\Broadcast;
+// @deprecated in version 2.3
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 
-class BroadcastTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class BroadcastTest extends TestCase
 {
     public function testSetterAndGetter()
     {
@@ -28,37 +30,37 @@ class BroadcastTest extends TestCase
         $broadcast->setDefaultSel($defaultSel);
         $broadcast->setDescription($descriptionEn, $locale);
 
-        $this->assertEquals($locale, $broadcast->getLocale());
-        $this->assertEquals($name, $broadcast->getName());
-        $this->assertEquals($broadcastTypeId, $broadcast->getBroadcastTypeId());
-        $this->assertEquals($passwd, $broadcast->getPasswd());
-        $this->assertEquals($defaultSel, $broadcast->getDefaultSel());
-        $this->assertEquals($descriptionEn, $broadcast->getDescription());
-        $this->assertEquals($descriptionEn, $broadcast->getDescription($locale));
+        static::assertSame($locale, $broadcast->getLocale());
+        static::assertSame($name, $broadcast->getName());
+        static::assertSame($broadcastTypeId, $broadcast->getBroadcastTypeId());
+        static::assertSame($passwd, $broadcast->getPasswd());
+        static::assertSame($defaultSel, $broadcast->getDefaultSel());
+        static::assertSame($descriptionEn, $broadcast->getDescription());
+        static::assertSame($descriptionEn, $broadcast->getDescription($locale));
 
         $descriptionEs = 'Difusión privada';
-        $i18nDescription = array('en' => $descriptionEn, 'es' => $descriptionEs);
+        $i18nDescription = ['en' => $descriptionEn, 'es' => $descriptionEs];
 
         $broadcast->setI18nDescription($i18nDescription);
 
-        $this->assertEquals($i18nDescription, $broadcast->getI18nDescription());
+        static::assertSame($i18nDescription, $broadcast->getI18nDescription());
 
-        $this->assertEquals('', $broadcast->getDescription('fr'));
-        $this->assertNull($broadcast->getId());
+        static::assertSame('', $broadcast->getDescription('fr'));
+        static::assertNull($broadcast->getId());
     }
 
     public function testCloneResource()
     {
         $broadcast = $this->createBroadcast(Broadcast::BROADCAST_TYPE_PRI);
 
-        $this->assertEquals($broadcast, $broadcast->cloneResource());
+        static::assertSame($broadcast, $broadcast->cloneResource());
     }
 
     public function testToString()
     {
         $broadcast = $this->createBroadcast(Broadcast::BROADCAST_TYPE_PRI);
 
-        $this->assertEquals($broadcast->getName(), $broadcast->__toString());
+        static::assertSame($broadcast->getName(), $broadcast->__toString());
     }
 
     public function testNumberMultimediaObjects()
@@ -85,16 +87,16 @@ class BroadcastTest extends TestCase
         $mm4->setBroadcast($corporativeBroadcast);
         $mm5->setBroadcast($privateBroadcast);
 
-        $this->assertEquals(2, $privateBroadcast->getNumberMultimediaObjects());
-        $this->assertEquals(1, $publicBroadcast->getNumberMultimediaObjects());
-        $this->assertEquals(1, $corporativeBroadcast->getNumberMultimediaObjects());
+        static::assertSame(2, $privateBroadcast->getNumberMultimediaObjects());
+        static::assertSame(1, $publicBroadcast->getNumberMultimediaObjects());
+        static::assertSame(1, $corporativeBroadcast->getNumberMultimediaObjects());
 
         $publicBroadcast->setNumberMultimediaObjects(3);
-        $this->assertEquals(3, $publicBroadcast->getNumberMultimediaObjects());
+        static::assertSame(3, $publicBroadcast->getNumberMultimediaObjects());
 
         $privateBroadcast->setNumberMultimediaObjects(3);
         $privateBroadcast->decreaseNumberMultimediaObjects();
-        $this->assertEquals(2, $privateBroadcast->getNumberMultimediaObjects());
+        static::assertSame(2, $privateBroadcast->getNumberMultimediaObjects());
     }
 
     private function createBroadcast($broadcastTypeId)

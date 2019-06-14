@@ -2,12 +2,12 @@
 
 namespace Pumukit\OpencastBundle\Command;
 
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 
 class OpencastSingleImportCommand extends ContainerAwareCommand
 {
@@ -39,7 +39,7 @@ class OpencastSingleImportCommand extends ContainerAwareCommand
                 $output->writeln('No multimedia object with id '.$mmObjId);
             }
         } else {
-            if ($mmobjRepo->findOneBy(array('properties.opencast' => $opencastId))) {
+            if ($mmobjRepo->findOneBy(['properties.opencast' => $opencastId])) {
                 $output->writeln('Mediapackage '.$opencastId.' has already been imported, skipping to next mediapackage');
             } else {
                 $opencastImportService->importRecording($opencastId, $input->getOption('invert'));
@@ -60,19 +60,19 @@ class OpencastSingleImportCommand extends ContainerAwareCommand
             $multimediaObject->setProperty('opencast', $properties);
             $multimediaObject->setProperty('opencasturl', $opencastClient->getPlayerUrl().'?id='.$properties);
         }
-        $multimediaObject->setProperty('opencastinvert', boolval($invert));
+        $multimediaObject->setProperty('opencastinvert', (bool) $invert);
 
         $media = $opencastImportService->getMediaPackageField($mediaPackage, 'media');
         $tracks = $opencastImportService->getMediaPackageField($media, 'track');
         if (isset($tracks[0])) {
             // NOTE: Multiple tracks
-            $limit = count($tracks);
+            $limit = \count($tracks);
             for ($i = 0; $i < $limit; ++$i) {
-                $opencastImportService->createTrackFromMediaPackage($mediaPackage, $multimediaObject, $i, array('display'), $language);
+                $opencastImportService->createTrackFromMediaPackage($mediaPackage, $multimediaObject, $i, ['display'], $language);
             }
         } else {
             // NOTE: Single track
-            $opencastImportService->createTrackFromMediaPackage($mediaPackage, $multimediaObject, null, array('display'), $language);
+            $opencastImportService->createTrackFromMediaPackage($mediaPackage, $multimediaObject, null, ['display'], $language);
         }
 
         $mmsService->updateMultimediaObject($multimediaObject);

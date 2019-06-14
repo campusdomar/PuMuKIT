@@ -2,13 +2,17 @@
 
 namespace Pumukit\EncoderBundle\Tests\EventListener;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Pumukit\SchemaBundle\Document\Track;
 use Pumukit\EncoderBundle\Document\Job;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Document\Track;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class RemoveListenerTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class RemoveListenerTest extends WebTestCase
 {
     private $dm;
     private $repoJobs;
@@ -20,9 +24,9 @@ class RemoveListenerTest extends WebTestCase
     private $logger;
     private $tokenStorage;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->logger = static::$kernel->getContainer()->get('logger');
@@ -37,15 +41,18 @@ class RemoveListenerTest extends WebTestCase
         $this->resourcesDir = realpath(__DIR__.'/../Resources');
 
         $this->dm->getDocumentCollection(MultimediaObject::class)
-          ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Series::class)
-          ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Job::class)
-          ->remove(array());
+            ->remove([])
+        ;
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->logger = null;
@@ -77,15 +84,15 @@ class RemoveListenerTest extends WebTestCase
 
         $this->createJobWithStatusAndPathEnd(Job::STATUS_FINISHED, $multimediaObject, $pathEnd);
 
-        $this->assertEquals(1, count($this->repoSeries->findAll()));
-        $this->assertEquals(2, count($this->repoMmobj->findAll()));
-        $this->assertEquals(1, count($this->repoJobs->findAll()));
+        static::assertSame(1, \count($this->repoSeries->findAll()));
+        static::assertSame(2, \count($this->repoMmobj->findAll()));
+        static::assertSame(1, \count($this->repoJobs->findAll()));
 
         $this->trackService->removeTrackFromMultimediaObject($multimediaObject, $track->getId());
 
-        $this->assertEquals(1, count($this->repoSeries->findAll()));
-        $this->assertEquals(2, count($this->repoMmobj->findAll()));
-        $this->assertEquals(0, count($this->repoJobs->findAll()));
+        static::assertSame(1, \count($this->repoSeries->findAll()));
+        static::assertSame(2, \count($this->repoMmobj->findAll()));
+        static::assertSame(0, \count($this->repoJobs->findAll()));
     }
 
     private function createJobWithStatusAndPathEnd($status, $multimediaObject, $pathEnd)

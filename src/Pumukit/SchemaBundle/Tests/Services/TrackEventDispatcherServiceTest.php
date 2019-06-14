@@ -2,14 +2,18 @@
 
 namespace Pumukit\SchemaBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Track;
 use Pumukit\SchemaBundle\Event\SchemaEvents;
 use Pumukit\SchemaBundle\Event\TrackEvent;
 use Pumukit\SchemaBundle\Services\TrackEventDispatcherService;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class TrackEventDispatcherServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class TrackEventDispatcherServiceTest extends WebTestCase
 {
     const EMPTY_TITLE = 'EMTPY TITLE';
     const EMPTY_URL = 'EMTPY URL';
@@ -17,13 +21,14 @@ class TrackEventDispatcherServiceTest extends WebTestCase
     private $trackDispatcher;
     private $dispatcher;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dispatcher = static::$kernel->getContainer()
-          ->get('event_dispatcher');
+            ->get('event_dispatcher')
+        ;
 
         MockUpTrackListener::$called = false;
         MockUpTrackListener::$title = self::EMPTY_TITLE;
@@ -32,7 +37,7 @@ class TrackEventDispatcherServiceTest extends WebTestCase
         $this->trackDispatcher = new TrackEventDispatcherService($this->dispatcher);
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dispatcher = null;
         $this->trackDispatcher = null;
@@ -43,8 +48,8 @@ class TrackEventDispatcherServiceTest extends WebTestCase
     public function testDispatchCreate()
     {
         $this->dispatcher->addListener(SchemaEvents::TRACK_CREATE, function ($event, $name) {
-            $this->assertTrue($event instanceof TrackEvent);
-            $this->assertEquals(SchemaEvents::TRACK_CREATE, $name);
+            static::assertTrue($event instanceof TrackEvent);
+            static::assertSame(SchemaEvents::TRACK_CREATE, $name);
 
             $multimediaObject = $event->getMultimediaObject();
             $track = $event->getTrack();
@@ -54,9 +59,9 @@ class TrackEventDispatcherServiceTest extends WebTestCase
             MockUpTrackListener::$url = $track->getUrl();
         });
 
-        $this->assertFalse(MockUpTrackListener::$called);
-        $this->assertEquals(self::EMPTY_TITLE, MockUpTrackListener::$title);
-        $this->assertEquals(self::EMPTY_URL, MockUpTrackListener::$url);
+        static::assertFalse(MockUpTrackListener::$called);
+        static::assertSame(self::EMPTY_TITLE, MockUpTrackListener::$title);
+        static::assertSame(self::EMPTY_URL, MockUpTrackListener::$url);
 
         $title = 'test title';
         $url = 'http://testtrack.com';
@@ -69,16 +74,16 @@ class TrackEventDispatcherServiceTest extends WebTestCase
 
         $this->trackDispatcher->dispatchCreate($multimediaObject, $track);
 
-        $this->assertTrue(MockUpTrackListener::$called);
-        $this->assertEquals($title, MockUpTrackListener::$title);
-        $this->assertEquals($url, MockUpTrackListener::$url);
+        static::assertTrue(MockUpTrackListener::$called);
+        static::assertSame($title, MockUpTrackListener::$title);
+        static::assertSame($url, MockUpTrackListener::$url);
     }
 
     public function testDispatchUpdate()
     {
         $this->dispatcher->addListener(SchemaEvents::TRACK_UPDATE, function ($event, $name) {
-            $this->assertTrue($event instanceof TrackEvent);
-            $this->assertEquals(SchemaEvents::TRACK_UPDATE, $name);
+            static::assertTrue($event instanceof TrackEvent);
+            static::assertSame(SchemaEvents::TRACK_UPDATE, $name);
 
             $multimediaObject = $event->getMultimediaObject();
             $track = $event->getTrack();
@@ -88,9 +93,9 @@ class TrackEventDispatcherServiceTest extends WebTestCase
             MockUpTrackListener::$url = $track->getUrl();
         });
 
-        $this->assertFalse(MockUpTrackListener::$called);
-        $this->assertEquals(self::EMPTY_TITLE, MockUpTrackListener::$title);
-        $this->assertEquals(self::EMPTY_URL, MockUpTrackListener::$url);
+        static::assertFalse(MockUpTrackListener::$called);
+        static::assertSame(self::EMPTY_TITLE, MockUpTrackListener::$title);
+        static::assertSame(self::EMPTY_URL, MockUpTrackListener::$url);
 
         $title = 'test title';
         $url = 'http://testtrack.com';
@@ -106,16 +111,16 @@ class TrackEventDispatcherServiceTest extends WebTestCase
 
         $this->trackDispatcher->dispatchUpdate($multimediaObject, $track);
 
-        $this->assertTrue(MockUpTrackListener::$called);
-        $this->assertEquals($title, MockUpTrackListener::$title);
-        $this->assertEquals($updateUrl, MockUpTrackListener::$url);
+        static::assertTrue(MockUpTrackListener::$called);
+        static::assertSame($title, MockUpTrackListener::$title);
+        static::assertSame($updateUrl, MockUpTrackListener::$url);
     }
 
     public function testDispatchDelete()
     {
         $this->dispatcher->addListener(SchemaEvents::TRACK_DELETE, function ($event, $name) {
-            $this->assertTrue($event instanceof TrackEvent);
-            $this->assertEquals(SchemaEvents::TRACK_DELETE, $name);
+            static::assertTrue($event instanceof TrackEvent);
+            static::assertSame(SchemaEvents::TRACK_DELETE, $name);
 
             $multimediaObject = $event->getMultimediaObject();
             $track = $event->getTrack();
@@ -125,9 +130,9 @@ class TrackEventDispatcherServiceTest extends WebTestCase
             MockUpTrackListener::$url = $track->getUrl();
         });
 
-        $this->assertFalse(MockUpTrackListener::$called);
-        $this->assertEquals(self::EMPTY_TITLE, MockUpTrackListener::$title);
-        $this->assertEquals(self::EMPTY_URL, MockUpTrackListener::$url);
+        static::assertFalse(MockUpTrackListener::$called);
+        static::assertSame(self::EMPTY_TITLE, MockUpTrackListener::$title);
+        static::assertSame(self::EMPTY_URL, MockUpTrackListener::$url);
 
         $title = 'test title';
         $url = 'http://testtrack.com';
@@ -140,9 +145,9 @@ class TrackEventDispatcherServiceTest extends WebTestCase
 
         $this->trackDispatcher->dispatchDelete($multimediaObject, $track);
 
-        $this->assertTrue(MockUpTrackListener::$called);
-        $this->assertEquals($title, MockUpTrackListener::$title);
-        $this->assertEquals($url, MockUpTrackListener::$url);
+        static::assertTrue(MockUpTrackListener::$called);
+        static::assertSame($title, MockUpTrackListener::$title);
+        static::assertSame($url, MockUpTrackListener::$url);
     }
 }
 

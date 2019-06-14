@@ -2,10 +2,10 @@
 
 namespace Pumukit\EncoderBundle\Command;
 
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 
 class PumukitPicsConvertCommand extends ContainerAwareCommand
 {
@@ -45,7 +45,8 @@ class PumukitPicsConvertCommand extends ContainerAwareCommand
             ->addOption('convert_max_width', null, InputOption::VALUE_OPTIONAL, 'Set max width of the new image')
             ->addOption('convert_max_height', null, InputOption::VALUE_OPTIONAL, 'Set max height of the new image')
             ->addOption('no_replace', null, InputOption::VALUE_NONE, 'Replace original image or not')
-            ->setHelp(<<<'EOT'
+            ->setHelp(
+                <<<'EOT'
         
 Command to get all pics like selected filters and create new images with low size. The predefined filter is that the pics must have "path" attribute.
 
@@ -85,7 +86,8 @@ php app/console pumukit:pics:convert --path="/var/www/html/pumukit2/web/uploads/
 
 
 EOT
-            );
+            )
+        ;
     }
 
     /**
@@ -118,13 +120,13 @@ EOT
      * @param InputInterface  $input
      * @param OutputInterface $output
      *
-     * @return bool|int|null
-     *
      * @throws \Exception
+     *
+     * @return null|bool|int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if (!extension_loaded('gd')) {
+        if (!\extension_loaded('gd')) {
             throw new \Exception('GD extension not installed. See http://php.net/manual/en/image.installation.php for installation options.');
         }
         $validInput = $this->checkInputOptions();
@@ -142,13 +144,13 @@ EOT
         $pics = $this->picService->findPicsByOptions($this->id, $this->size, $this->path, $this->extension, $this->tags, $this->exists, $this->type);
 
         if ($this->convert) {
-            $params = array(
+            $params = [
                 'size' => $this->convert_size,
                 'ext' => $this->convert_ext,
                 'quality' => $this->convert_quality,
                 'max_width' => $this->convert_max_width,
                 'max_height' => $this->convert_max_height,
-            );
+            ];
             $data = $this->picService->convertImage($pics, $params, $this->no_replace);
             $this->showOutput($data);
         } else {
@@ -164,33 +166,33 @@ EOT
      */
     private function checkInputOptions()
     {
-        $isValidInput = array('success' => true);
-        if ($this->size && !is_string($this->size)) {
+        $isValidInput = ['success' => true];
+        if ($this->size && !\is_string($this->size)) {
             $isValidInput['success'] = false;
             $isValidInput['message'] = 'Size must be string, then will be converted';
         }
 
-        if ($this->extension && !is_string($this->extension)) {
+        if ($this->extension && !\is_string($this->extension)) {
             $isValidInput['success'] = false;
             $isValidInput['message'] = 'Extension must be string';
         }
 
-        if ($this->path && !is_string($this->path)) {
+        if ($this->path && !\is_string($this->path)) {
             $isValidInput['success'] = false;
             $isValidInput['message'] = 'Path must be string';
         }
 
-        if ($this->tags && !is_string($this->tags)) {
+        if ($this->tags && !\is_string($this->tags)) {
             $isValidInput['success'] = false;
             $isValidInput['message'] = 'Tags must be string';
         }
 
-        if ($this->exists && !in_array(strtolower($this->exists), array('false', 'true', '1', '0'))) {
+        if ($this->exists && !\in_array(strtolower($this->exists), ['false', 'true', '1', '0'], true)) {
             $isValidInput['success'] = false;
             $isValidInput['message'] = 'Exists must be boolean';
         }
 
-        if (!in_array($this->type, array('mm', 'series'))) {
+        if (!\in_array($this->type, ['mm', 'series'], true)) {
             $isValidInput['success'] = false;
             $isValidInput['message'] = 'Type must be have the value series or mm';
         }

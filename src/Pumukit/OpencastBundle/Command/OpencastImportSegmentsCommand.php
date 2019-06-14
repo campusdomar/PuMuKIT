@@ -2,13 +2,13 @@
 
 namespace Pumukit\OpencastBundle\Command;
 
+use Pumukit\OpencastBundle\Services\ClientService;
 use Pumukit\SchemaBundle\Document\EmbeddedSegment;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Pumukit\OpencastBundle\Services\ClientService;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 
 /**
  * Class OpencastImportSegmentsCommand.
@@ -36,7 +36,8 @@ class OpencastImportSegmentsCommand extends ContainerAwareCommand
             ->addOption('host', null, InputOption::VALUE_REQUIRED, 'Path to selected tracks from PMK using regex')
             ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'ID of multimedia object to import')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Set this parameter to execute this action')
-            ->setHelp(<<<'EOT'
+            ->setHelp(
+                <<<'EOT'
 
             Important:
 
@@ -59,7 +60,8 @@ class OpencastImportSegmentsCommand extends ContainerAwareCommand
             <comment>php app/console pumukit:opencast:import:segments --user="myuser" --password="mypassword" --host="https://opencast-local.teltek.es" --id="5bcd806ebf435c25008b4581" --force</comment>
 
 EOT
-            );
+            )
+        ;
     }
 
     /**
@@ -101,9 +103,9 @@ EOT
      * @param InputInterface  $input
      * @param OutputInterface $output
      *
-     * @return int|void|null
-     *
      * @throws \Exception
+     *
+     * @return null|int|void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -153,21 +155,19 @@ EOT
      */
     private function getMultimediaObjects()
     {
-        $criteria = array(
-            'properties.opencasturl' => new \MongoRegex("/$this->host/i"),
-        );
+        $criteria = [
+            'properties.opencasturl' => new \MongoRegex("/{$this->host}/i"),
+        ];
 
         if ($this->force) {
-            $criteria['embeddedSegments'] = array('$exists' => false);
+            $criteria['embeddedSegments'] = ['$exists' => false];
         }
 
         if ($this->id) {
             $criteria['_id'] = new \MongoId($this->id);
         }
 
-        $multimediaObjects = $this->dm->getRepository(MultimediaObject::class)->findBy($criteria);
-
-        return $multimediaObjects;
+        return $this->dm->getRepository(MultimediaObject::class)->findBy($criteria);
     }
 
     /**
@@ -176,25 +176,25 @@ EOT
     private function importSegments($multimediaObjects)
     {
         $this->output->writeln(
-            array(
+            [
                 '',
                 '<info> **** Import segments on multimedia object **** </info>',
                 '',
-                '<comment> ----- Total: </comment>'.count($multimediaObjects),
-            )
+                '<comment> ----- Total: </comment>'.\count($multimediaObjects),
+            ]
         );
 
         foreach ($multimediaObjects as $multimediaObject) {
             $mediaPackage = $this->clientService->getFullMediaPackage($multimediaObject->getProperty('opencast'));
 
             $segments = 0;
-            if (isset($mediaPackage['segments']) && isset($mediaPackage['segments']['segment'])) {
+            if (isset($mediaPackage['segments'], $mediaPackage['segments']['segment'])) {
                 if (!isset($mediaPackage['segments']['segment'][0])) {
-                    $segments = array($mediaPackage['segments']['segment']);
+                    $segments = [$mediaPackage['segments']['segment']];
                 } else {
                     $segments = $mediaPackage['segments']['segment'];
                 }
-                $embeddedSegments = array();
+                $embeddedSegments = [];
                 foreach ($segments as $segment) {
                     $embeddedSegments[] = $this->createNewSegment($segment);
                 }
@@ -204,7 +204,7 @@ EOT
                     $this->dm->flush();
                 }
             }
-            $numSegments = isset($mediaPackage['segments']['segment']) ? count($segments) : 0;
+            $numSegments = isset($mediaPackage['segments']['segment']) ? \count($segments) : 0;
             $this->output->writeln(' Multimedia object: '.$multimediaObject->getId().' MediaPackage: -'.$multimediaObject->getProperty('opencast').' - Segments: '.$numSegments);
         }
     }
@@ -215,12 +215,12 @@ EOT
     private function showMultimediaObjects($multimediaObjects)
     {
         $this->output->writeln(
-            array(
+            [
                 '',
                 '<info> **** Finding Multimedia Objects **** </info>',
                 '',
-                '<comment> ----- Total: </comment>'.count($multimediaObjects),
-            )
+                '<comment> ----- Total: </comment>'.\count($multimediaObjects),
+            ]
         );
 
         foreach ($multimediaObjects as $multimediaObject) {
@@ -228,12 +228,12 @@ EOT
             $numSegments = 0;
             if (isset($mediaPackage['segments'])) {
                 if (!isset($mediaPackage['segments']['segment'][0])) {
-                    $segments = array($mediaPackage['segments']['segment']);
+                    $segments = [$mediaPackage['segments']['segment']];
                 } else {
                     $segments = $mediaPackage['segments']['segment'];
                 }
 
-                $numSegments = isset($mediaPackage['segments']['segment']) ? count($segments) : 0;
+                $numSegments = isset($mediaPackage['segments']['segment']) ? \count($segments) : 0;
             }
             $this->output->writeln(' Multimedia object: '.$multimediaObject->getId().' MediaPackage: -'.$multimediaObject->getProperty('opencast').' - Segments: '.$numSegments);
         }
@@ -252,7 +252,7 @@ EOT
         $embeddedSegment->setTime($segment['time']);
         $embeddedSegment->setDuration($segment['duration']);
         $embeddedSegment->setRelevance($segment['relevance']);
-        $embeddedSegment->setHit(boolval($segment['hit']));
+        $embeddedSegment->setHit((bool) ($segment['hit']));
         $embeddedSegment->setText($segment['text']);
 
         $image = $segment['previews']['preview']['$'] ?? '';

@@ -2,10 +2,10 @@
 
 namespace Pumukit\WebTVBundle\Services;
 
-use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * Class BreadcrumbsService.
@@ -104,7 +104,7 @@ class BreadcrumbsService
      */
     public function addSeries(Series $series)
     {
-        if (1 == count($this->breadcrumbs)) {
+        if (1 === \count($this->breadcrumbs)) {
             $this->add(
                 $this->session->get('breadcrumbs/title', $this->allTitle),
                 $this->session->get('breadcrumbs/routeName', $this->allRoute),

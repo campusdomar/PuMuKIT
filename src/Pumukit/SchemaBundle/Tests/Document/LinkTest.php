@@ -2,10 +2,14 @@
 
 namespace Pumukit\SchemaBundle\Tests\Document;
 
-use Pumukit\SchemaBundle\Document\Link;
 use PHPUnit\Framework\TestCase;
+use Pumukit\SchemaBundle\Document\Link;
 
-class LinkTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class LinkTest extends TestCase
 {
     public function testGetterAndSetter()
     {
@@ -15,20 +19,20 @@ class LinkTest extends TestCase
         $link = new Link();
         $link->setName($name);
 
-        $this->assertEquals($name, $link->getName());
+        static::assertSame($name, $link->getName());
 
         $nameEs = 'nombre';
         $localeEs = 'es';
 
-        $nameI18n = array($locale => $name, $localeEs => $nameEs);
+        $nameI18n = [$locale => $name, $localeEs => $nameEs];
 
         $link->setI18nName($nameI18n);
 
-        $this->assertEquals($nameI18n, $link->getI18nName());
+        static::assertSame($nameI18n, $link->getI18nName());
 
         $name = null;
 
         $link->setName($name);
-        $this->assertEquals($name, $link->getName());
+        static::assertSame($name, $link->getName());
     }
 }

@@ -2,12 +2,12 @@
 
 namespace Pumukit\LiveBundle\Controller;
 
+use Pumukit\LiveBundle\Document\Event;
+use Pumukit\LiveBundle\Document\Live;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Pumukit\LiveBundle\Document\Event;
-use Pumukit\LiveBundle\Document\Live;
 
 /**
  * @Route("/api/live")
@@ -27,8 +27,8 @@ class APIController extends Controller
             $limit = 100;
         }
 
-        $criteria = $request->get('criteria') ?: array();
-        $sort = $request->get('sort') ?: array();
+        $criteria = $request->get('criteria') ?: [];
+        $sort = $request->get('sort') ?: [];
 
         $qb = $eventRepo->createQueryBuilder();
 
@@ -38,18 +38,19 @@ class APIController extends Controller
 
         $qb_series = clone $qb;
         $qb_series = $qb_series->limit($limit)
-                               ->sort($sort);
+            ->sort($sort)
+        ;
 
         $qb_event = clone $qb;
 
         $total = $qb->count()->getQuery()->execute();
         $event = $qb_event->getQuery()->execute()->toArray();
 
-        $counts = array('total' => $total,
-                        'limit' => $limit,
-                        'criteria' => $criteria,
-                        'sort' => $sort,
-                        'event' => $event, );
+        $counts = ['total' => $total,
+            'limit' => $limit,
+            'criteria' => $criteria,
+            'sort' => $sort,
+            'event' => $event, ];
 
         $data = $serializer->serialize($counts, $request->getRequestFormat());
 
@@ -69,8 +70,8 @@ class APIController extends Controller
             $limit = 100;
         }
 
-        $criteria = $request->get('criteria') ?: array();
-        $sort = $request->get('sort') ?: array();
+        $criteria = $request->get('criteria') ?: [];
+        $sort = $request->get('sort') ?: [];
 
         $qb = $liveRepo->createQueryBuilder();
 
@@ -80,18 +81,19 @@ class APIController extends Controller
 
         $qb_series = clone $qb;
         $qb_series = $qb_series->limit($limit)
-                               ->sort($sort);
+            ->sort($sort)
+        ;
 
         $qb_live = clone $qb;
 
         $total = $qb->count()->getQuery()->execute();
         $live = $qb_live->getQuery()->execute()->toArray();
 
-        $counts = array('total' => $total,
-                        'limit' => $limit,
-                        'criteria' => $criteria,
-                        'sort' => $sort,
-                        'live' => $live, );
+        $counts = ['total' => $total,
+            'limit' => $limit,
+            'criteria' => $criteria,
+            'sort' => $sort,
+            'live' => $live, ];
 
         $data = $serializer->serialize($counts, $request->getRequestFormat());
 

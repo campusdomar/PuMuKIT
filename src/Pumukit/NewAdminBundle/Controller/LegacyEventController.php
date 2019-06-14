@@ -2,11 +2,11 @@
 
 namespace Pumukit\NewAdminBundle\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Pumukit\LiveBundle\Document\Event;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Security("is_granted('ROLE_ACCESS_LIVE_EVENTS')")
@@ -19,7 +19,7 @@ class LegacyEventController extends AdminController implements NewAdminControlle
     /**
      * @var array
      */
-    public static $daysInMonth = array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+    public static $daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
     /**
      * Overwrite to get the calendar.
@@ -28,12 +28,12 @@ class LegacyEventController extends AdminController implements NewAdminControlle
      */
     public function indexAction(Request $request)
     {
-        $criteria = $this->getCriteria($request->get('criteria', array()));
+        $criteria = $this->getCriteria($request->get('criteria', []));
         list($events, $month, $year, $calendar) = $this->getResources($request, $criteria);
 
         $update_session = true;
         foreach ($events as $event) {
-            if ($event->getId() == $this->get('session')->get('admin/event/id')) {
+            if ($event->getId() === $this->get('session')->get('admin/event/id')) {
                 $update_session = false;
             }
         }
@@ -43,18 +43,19 @@ class LegacyEventController extends AdminController implements NewAdminControlle
         }
 
         $repo = $this
-              ->get('doctrine_mongodb.odm.document_manager')
-              ->getRepository(Event::class);
+            ->get('doctrine_mongodb.odm.document_manager')
+            ->getRepository(Event::class)
+        ;
 
         $eventsMonth = $repo->findInMonth($month, $year);
 
-        return array(
+        return [
             'events' => $events,
             'calendar_all_events' => $eventsMonth,
             'm' => $month,
             'y' => $year,
             'calendar' => $calendar,
-        );
+        ];
     }
 
     /**
@@ -75,18 +76,20 @@ class LegacyEventController extends AdminController implements NewAdminControlle
             $resource = $this->update($resource);
 
             if (null === $resource) {
-                return new JsonResponse(array('eventId' => null));
+                return new JsonResponse(['eventId' => null]);
             }
             $this->get('session')->set('admin/event/id', $resource->getId());
 
-            return new JsonResponse(array('eventId' => $resource->getId()));
+            return new JsonResponse(['eventId' => $resource->getId()]);
         }
 
-        return $this->render('PumukitNewAdminBundle:LegacyEvent:create.html.twig',
-                             array(
-                                 'event' => $resource,
-                                 'form' => $form->createView(),
-                             ));
+        return $this->render(
+            'PumukitNewAdminBundle:LegacyEvent:create.html.twig',
+            [
+                'event' => $resource,
+                'form' => $form->createView(),
+            ]
+        );
     }
 
     /**
@@ -96,22 +99,23 @@ class LegacyEventController extends AdminController implements NewAdminControlle
      */
     public function listAction(Request $request)
     {
-        $criteria = $this->getCriteria($request->get('criteria', array()));
+        $criteria = $this->getCriteria($request->get('criteria', []));
         list($events, $month, $year, $calendar) = $this->getResources($request, $criteria);
 
         $repo = $this
-              ->get('doctrine_mongodb.odm.document_manager')
-              ->getRepository(Event::class);
+            ->get('doctrine_mongodb.odm.document_manager')
+            ->getRepository(Event::class)
+        ;
 
         $eventsMonth = $repo->findInMonth($month, $year);
 
-        return array(
+        return [
             'events' => $events,
             'calendar_all_events' => $eventsMonth,
             'm' => $month,
             'y' => $year,
             'calendar' => $calendar,
-        );
+        ];
     }
 
     /**
@@ -129,7 +133,7 @@ class LegacyEventController extends AdminController implements NewAdminControlle
             $tabValue = 'Active tab: listTab';
         }
 
-        return new JsonResponse(array('tabValue' => $tabValue));
+        return new JsonResponse(['tabValue' => $tabValue]);
     }
 
     /**
@@ -139,8 +143,9 @@ class LegacyEventController extends AdminController implements NewAdminControlle
     {
         $data = $this->findOr404($request);
 
-        return $this->render('PumukitNewAdminBundle:LegacyEvent:show.html.twig',
-                             array($this->getResourceName() => $data)
+        return $this->render(
+            'PumukitNewAdminBundle:LegacyEvent:show.html.twig',
+            [$this->getResourceName() => $data]
         );
     }
 
@@ -162,106 +167,27 @@ class LegacyEventController extends AdminController implements NewAdminControlle
         $resource = $this->findOr404($request);
         $form = $this->getForm($resource, $request->getLocale());
 
-        if (in_array($request->getMethod(), array('POST', 'PUT', 'PATCH'))) {
+        if (\in_array($request->getMethod(), ['POST', 'PUT', 'PATCH'], true)) {
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
                 try {
                     $dm->persist($resource);
                     $dm->flush();
                 } catch (\Exception $e) {
-                    return new JsonResponse(array('status' => $e->getMessage()), 409);
+                    return new JsonResponse(['status' => $e->getMessage()], 409);
                 }
 
                 return $this->redirect($this->generateUrl('pumukitnewadmin_'.$resourceName.'_list'));
             }
         }
 
-        return $this->render('PumukitNewAdminBundle:LegacyEvent:update.html.twig',
-                             array(
-                                 $resourceName => $resource,
-                                 'form' => $form->createView(),
-                             ));
-    }
-
-    /**
-     * Get calendar.
-     */
-    private function getCalendar($request)
-    {
-        /*if (!$this->getUser()->hasAttribute('page', 'tv_admin/event'))
-          $this->getUser()->setAttribute('page', 1, 'tv_admin/event');*/
-
-        if (!$this->get('session')->get('admin/event/month')) {
-            $this->get('session')->set('admin/event/month', date('m'));
-        }
-        if (!$this->get('session')->get('admin/event/year')) {
-            $this->get('session')->set('admin/event/year', date('Y'));
-        }
-
-        $m = $this->get('session')->get('admin/event/month');
-        $y = $this->get('session')->get('admin/event/year');
-
-        if ('next' == $request->query->get('month')) {
-            $changed_date = mktime(0, 0, 0, $m + 1, 1, $y);
-            $this->get('session')->set('admin/event/year', date('Y', $changed_date));
-            $this->get('session')->set('admin/event/month', date('m', $changed_date));
-        } elseif ('previous' == $request->query->get('month')) {
-            $changed_date = mktime(0, 0, 0, $m - 1, 1, $y);
-            $this->get('session')->set('admin/event/year', date('Y', $changed_date));
-            $this->get('session')->set('admin/event/month', date('m', $changed_date));
-        } elseif ('today' == $request->query->get('month')) {
-            $this->get('session')->set('admin/event/year', date('Y'));
-            $this->get('session')->set('admin/event/month', date('m'));
-        }
-
-        $m = $this->get('session')->get('admin/event/month', date('m'));
-        $y = $this->get('session')->get('admin/event/year', date('Y'));
-
-        $calendar = $this->generateArray($m, $y);
-
-        return array($m, $y, $calendar);
-    }
-
-    /**
-     * Get days in month.
-     */
-    private static function getDaysInMonth($month, $year)
-    {
-        if ($month < 1 || $month > 12) {
-            return 0;
-        }
-
-        $d = self::$daysInMonth[$month - 1];
-
-        if (2 == $month) {
-            if (0 == $year % 4) {
-                if (0 == $year % 100) {
-                    if (0 == $year % 400) {
-                        $d = 29;
-                    }
-                } else {
-                    $d = 29;
-                }
-            }
-        }
-
-        return $d;
-    }
-
-    /**
-     * Generate array.
-     */
-    private static function generateArray($month, $year)
-    {
-        $aux = array();
-
-        $dweek = date('N', mktime(0, 0, 0, $month, 1, $year)) - 1;
-        foreach (range(1, self::getDaysInMonth($month, $year)) as $i) {
-            $aux[intval($dweek / 7)][($dweek % 7)] = $i;
-            ++$dweek;
-        }
-
-        return $aux;
+        return $this->render(
+            'PumukitNewAdminBundle:LegacyEvent:update.html.twig',
+            [
+                $resourceName => $resource,
+                'form' => $form->createView(),
+            ]
+        );
     }
 
     /**
@@ -273,14 +199,14 @@ class LegacyEventController extends AdminController implements NewAdminControlle
      */
     public function getCriteria($criteria)
     {
-        if (array_key_exists('reset', $criteria)) {
+        if (\array_key_exists('reset', $criteria)) {
             $this->get('session')->remove('admin/event/criteria');
         } elseif ($criteria) {
             $this->get('session')->set('admin/event/criteria', $criteria);
         }
-        $criteria = $this->get('session')->get('admin/event/criteria', array());
+        $criteria = $this->get('session')->get('admin/event/criteria', []);
 
-        $new_criteria = array();
+        $new_criteria = [];
 
         $date_from = null;
         $date_to = null;
@@ -289,7 +215,7 @@ class LegacyEventController extends AdminController implements NewAdminControlle
             //preg_match('/^\/.*?\/[imxlsu]*$/i', $e)
             if (('' !== $value) && ('date' !== $property)) {
                 $new_criteria[$property] = new \MongoRegex('/'.$value.'/i');
-            } elseif (('' !== $value) && ('date' == $property)) {
+            } elseif (('' !== $value) && ('date' === $property)) {
                 if ('' !== $value['from']) {
                     $date_from = new \DateTime($value['from']);
                 }
@@ -297,11 +223,11 @@ class LegacyEventController extends AdminController implements NewAdminControlle
                     $date_to = new \DateTime($value['to']);
                 }
                 if (('' !== $value['from']) && ('' !== $value['to'])) {
-                    $new_criteria[$property] = array('$gte' => $date_from, '$lt' => $date_to);
+                    $new_criteria[$property] = ['$gte' => $date_from, '$lt' => $date_to];
                 } elseif ('' !== $value['from']) {
-                    $new_criteria[$property] = array('$gte' => $date_from);
+                    $new_criteria[$property] = ['$gte' => $date_from];
                 } elseif ('' !== $value['to']) {
-                    $new_criteria[$property] = array('$lt' => $date_to);
+                    $new_criteria[$property] = ['$lt' => $date_to];
                 }
             }
         }
@@ -311,10 +237,12 @@ class LegacyEventController extends AdminController implements NewAdminControlle
 
     /**
      * Gets the list of resources according to a criteria.
+     *
+     * @param mixed $criteria
      */
     public function getResources(Request $request, $criteria)
     {
-        $sorting = array('date' => -1);
+        $sorting = ['date' => -1];
         $session = $this->get('session');
         $session_namespace = 'admin/event';
 
@@ -334,17 +262,107 @@ class LegacyEventController extends AdminController implements NewAdminControlle
 
         $resources
             ->setMaxPerPage(10)
-            ->setNormalizeOutOfRangePages(true);
+            ->setNormalizeOutOfRangePages(true)
+        ;
 
         $resources->setCurrentPage($page);
 
         list($m, $y, $calendar) = $this->getCalendar($request);
 
-        return array($resources, $m, $y, $calendar);
+        return [$resources, $m, $y, $calendar];
     }
 
     public function createNew()
     {
         return new Event();
+    }
+
+    /**
+     * Get calendar.
+     *
+     * @param mixed $request
+     */
+    private function getCalendar($request)
+    {
+        /*if (!$this->getUser()->hasAttribute('page', 'tv_admin/event'))
+          $this->getUser()->setAttribute('page', 1, 'tv_admin/event');*/
+
+        if (!$this->get('session')->get('admin/event/month')) {
+            $this->get('session')->set('admin/event/month', date('m'));
+        }
+        if (!$this->get('session')->get('admin/event/year')) {
+            $this->get('session')->set('admin/event/year', date('Y'));
+        }
+
+        $m = $this->get('session')->get('admin/event/month');
+        $y = $this->get('session')->get('admin/event/year');
+
+        if ('next' === $request->query->get('month')) {
+            $changed_date = mktime(0, 0, 0, $m + 1, 1, $y);
+            $this->get('session')->set('admin/event/year', date('Y', $changed_date));
+            $this->get('session')->set('admin/event/month', date('m', $changed_date));
+        } elseif ('previous' === $request->query->get('month')) {
+            $changed_date = mktime(0, 0, 0, $m - 1, 1, $y);
+            $this->get('session')->set('admin/event/year', date('Y', $changed_date));
+            $this->get('session')->set('admin/event/month', date('m', $changed_date));
+        } elseif ('today' === $request->query->get('month')) {
+            $this->get('session')->set('admin/event/year', date('Y'));
+            $this->get('session')->set('admin/event/month', date('m'));
+        }
+
+        $m = $this->get('session')->get('admin/event/month', date('m'));
+        $y = $this->get('session')->get('admin/event/year', date('Y'));
+
+        $calendar = $this->generateArray($m, $y);
+
+        return [$m, $y, $calendar];
+    }
+
+    /**
+     * Get days in month.
+     *
+     * @param mixed $month
+     * @param mixed $year
+     */
+    private static function getDaysInMonth($month, $year)
+    {
+        if ($month < 1 || $month > 12) {
+            return 0;
+        }
+
+        $d = self::$daysInMonth[$month - 1];
+
+        if (2 === $month) {
+            if (0 === $year % 4) {
+                if (0 === $year % 100) {
+                    if (0 === $year % 400) {
+                        $d = 29;
+                    }
+                } else {
+                    $d = 29;
+                }
+            }
+        }
+
+        return $d;
+    }
+
+    /**
+     * Generate array.
+     *
+     * @param mixed $month
+     * @param mixed $year
+     */
+    private static function generateArray($month, $year)
+    {
+        $aux = [];
+
+        $dweek = date('N', mktime(0, 0, 0, $month, 1, $year)) - 1;
+        foreach (range(1, self::getDaysInMonth($month, $year)) as $i) {
+            $aux[(int) ($dweek / 7)][($dweek % 7)] = $i;
+            ++$dweek;
+        }
+
+        return $aux;
     }
 }

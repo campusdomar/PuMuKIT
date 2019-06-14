@@ -22,11 +22,6 @@ class Person
     protected $id;
 
     /**
-     * @MongoDB\ReferenceOne(targetDocument="User", inversedBy="person", simple=true, cascade={"persist"})
-     */
-    private $user;
-
-    /**
      * @var string
      *
      * @MongoDB\Field(type="string")
@@ -61,28 +56,28 @@ class Person
      *
      * @MongoDB\Field(type="raw")
      */
-    protected $honorific = array('en' => '');
+    protected $honorific = ['en' => ''];
 
     /**
      * @var string
      *
      * @MongoDB\Field(type="raw")
      */
-    protected $firm = array('en' => '');
+    protected $firm = ['en' => ''];
 
     /**
      * @var string
      *
      * @MongoDB\Field(type="raw")
      */
-    protected $post = array('en' => '');
+    protected $post = ['en' => ''];
 
     /**
      * @var string
      *
      * @MongoDB\Field(type="raw")
      */
-    protected $bio = array('en' => '');
+    protected $bio = ['en' => ''];
 
     /**
      * Locale.
@@ -90,6 +85,11 @@ class Person
      * @var string
      */
     protected $locale = 'en';
+
+    /**
+     * @MongoDB\ReferenceOne(targetDocument="User", inversedBy="person", simple=true, cascade={"persist"})
+     */
+    private $user;
 
     /**
      * Get id.
@@ -205,7 +205,7 @@ class Person
      * Set honorific.
      *
      * @param string      $honorific
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setHonorific($honorific, $locale = null)
     {
@@ -218,7 +218,7 @@ class Person
     /**
      * Get honorific.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -254,7 +254,7 @@ class Person
      * Set firm.
      *
      * @param string      $firm
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setFirm($firm, $locale = null)
     {
@@ -267,7 +267,7 @@ class Person
     /**
      * Get firm.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -303,7 +303,7 @@ class Person
      * Set post.
      *
      * @param string      $post
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setPost($post, $locale = null)
     {
@@ -316,7 +316,7 @@ class Person
     /**
      * Get post.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -352,7 +352,7 @@ class Person
      * Set bio.
      *
      * @param string      $bio
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setBio($bio, $locale = null)
     {
@@ -365,7 +365,7 @@ class Person
     /**
      * Get bio.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -455,10 +455,10 @@ class Person
     public function getInfo($withBio = true)
     {
         $aux = $withBio ?
-             array($this->getPost(), $this->getFirm(), $this->getBio()) :
-             array($this->getPost(), $this->getFirm());
+             [$this->getPost(), $this->getFirm(), $this->getBio()] :
+             [$this->getPost(), $this->getFirm()];
         $aux = array_filter($aux, function ($a) {
-            return !is_null($a) && ('' != $a);
+            return null !== $a && ('' !== $a);
         });
 
         return implode(', ', $aux);

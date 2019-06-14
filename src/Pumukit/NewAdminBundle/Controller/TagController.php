@@ -2,14 +2,14 @@
 
 namespace Pumukit\NewAdminBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Pumukit\NewAdminBundle\Form\Type\TagType;
+use Pumukit\SchemaBundle\Document\Tag;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Pumukit\SchemaBundle\Document\Tag;
-use Pumukit\NewAdminBundle\Form\Type\TagType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Security("is_granted('ROLE_ACCESS_TAGS')")
@@ -30,11 +30,11 @@ class TagController extends Controller implements NewAdminControllerInterface
         if (null !== $root) {
             $children = $root->getChildren();
         } else {
-            $children = array();
+            $children = [];
         }
 
-        return array('root' => $root,
-                     'children' => $children, );
+        return ['root' => $root,
+            'children' => $children, ];
     }
 
     /**
@@ -43,8 +43,8 @@ class TagController extends Controller implements NewAdminControllerInterface
      */
     public function childrenAction(Tag $tag, Request $request)
     {
-        return array('tag' => $tag,
-                     'children' => $tag->getChildren(), );
+        return ['tag' => $tag,
+            'children' => $tag->getChildren(), ];
     }
 
     /**
@@ -55,14 +55,16 @@ class TagController extends Controller implements NewAdminControllerInterface
         try {
             $this->get('pumukitschema.tag')->deleteTag($tag);
         } catch (\Exception $e) {
-            $msg = sprintf('Tag with children (%d) and multimedia objects (%d)',
-                           count($tag->getChildren()),
-                           $tag->getNumberMultimediaObjects());
+            $msg = sprintf(
+                'Tag with children (%d) and multimedia objects (%d)',
+                \count($tag->getChildren()),
+                $tag->getNumberMultimediaObjects()
+            );
 
-            return new JsonResponse(array('status' => $msg), JsonResponse::HTTP_CONFLICT);
+            return new JsonResponse(['status' => $msg], JsonResponse::HTTP_CONFLICT);
         }
 
-        return new JsonResponse(array('status' => 'Deleted'), 200);
+        return new JsonResponse(['status' => 'Deleted'], 200);
     }
 
     /**
@@ -73,20 +75,20 @@ class TagController extends Controller implements NewAdminControllerInterface
     {
         $translator = $this->get('translator');
         $locale = $request->getLocale();
-        $form = $this->createForm(TagType::class, $tag, array('translator' => $translator, 'locale' => $locale));
+        $form = $this->createForm(TagType::class, $tag, ['translator' => $translator, 'locale' => $locale]);
 
         $form->handleRequest($request);
         if (($request->isMethod('PUT') || $request->isMethod('POST')) && $form->isValid()) {
             try {
                 $this->get('pumukitschema.tag')->updateTag($tag);
             } catch (\Exception $e) {
-                return new JsonResponse(array('status' => $e->getMessage()), JsonResponse::HTTP_CONFLICT);
+                return new JsonResponse(['status' => $e->getMessage()], JsonResponse::HTTP_CONFLICT);
             }
 
             return $this->redirect($this->generateUrl('pumukitnewadmin_tag_list'));
         }
 
-        return array('tag' => $tag, 'form' => $form->createView());
+        return ['tag' => $tag, 'form' => $form->createView()];
     }
 
     /**
@@ -103,7 +105,7 @@ class TagController extends Controller implements NewAdminControllerInterface
         $translator = $this->get('translator');
         $locale = $request->getLocale();
 
-        $form = $this->createForm(TagType::class, $tag, array('translator' => $translator, 'locale' => $locale));
+        $form = $this->createForm(TagType::class, $tag, ['translator' => $translator, 'locale' => $locale]);
 
         $form->handleRequest($request);
         if (($request->isMethod('PUT') || $request->isMethod('POST')) && $form->isValid()) {
@@ -111,13 +113,13 @@ class TagController extends Controller implements NewAdminControllerInterface
                 $dm->persist($tag);
                 $dm->flush();
             } catch (\Exception $e) {
-                return new JsonResponse(array('status' => $e->getMessage()), JsonResponse::HTTP_CONFLICT);
+                return new JsonResponse(['status' => $e->getMessage()], JsonResponse::HTTP_CONFLICT);
             }
 
             return $this->redirect($this->generateUrl('pumukitnewadmin_tag_list'));
         }
 
-        return array('tag' => $tag, 'form' => $form->createView());
+        return ['tag' => $tag, 'form' => $form->createView()];
     }
 
     /**
@@ -136,13 +138,13 @@ class TagController extends Controller implements NewAdminControllerInterface
         if (null !== $root) {
             $children = $root->getChildren();
         } else {
-            $children = array();
+            $children = [];
         }
 
-        return array(
+        return [
             'root' => $root,
             'children' => $children,
-        );
+        ];
     }
 
     public function batchDeleteAction(Request $request)
@@ -152,12 +154,12 @@ class TagController extends Controller implements NewAdminControllerInterface
 
         $ids = $request->get('ids');
 
-        if ('string' === gettype($ids)) {
+        if ('string' === \gettype($ids)) {
             $ids = json_decode($ids, true);
         }
 
-        $tags = array();
-        $tagsWithChildren = array();
+        $tags = [];
+        $tagsWithChildren = [];
         foreach ($ids as $id) {
             $tag = $repo->find($id);
             if ($this->get('pumukitschema.tag')->canDeleteTag($tag)) {
@@ -167,19 +169,18 @@ class TagController extends Controller implements NewAdminControllerInterface
             }
         }
 
-        if (0 !== count($tagsWithChildren)) {
+        if (0 !== \count($tagsWithChildren)) {
             $message = '';
             foreach ($tagsWithChildren as $tag) {
-                $message .= "Tag '".$tag->getCod()."' with children (".count($tag->getChildren()).'). ';
+                $message .= "Tag '".$tag->getCod()."' with children (".\count($tag->getChildren()).'). ';
             }
 
-            return new JsonResponse(array('status' => $message), JsonResponse::HTTP_CONFLICT);
-        } else {
-            foreach ($tags as $tag) {
-                $dm->remove($tag);
-            }
-            $dm->flush();
+            return new JsonResponse(['status' => $message], JsonResponse::HTTP_CONFLICT);
         }
+        foreach ($tags as $tag) {
+            $dm->remove($tag);
+        }
+        $dm->flush();
 
         $this->addFlash('success', 'delete');
 

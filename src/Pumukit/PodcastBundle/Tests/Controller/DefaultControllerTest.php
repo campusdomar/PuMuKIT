@@ -2,11 +2,15 @@
 
 namespace Pumukit\PodcastBundle\Tests\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Series;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class DefaultControllerTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class DefaultControllerTest extends WebTestCase
 {
     private $dm;
     private $client;
@@ -14,13 +18,13 @@ class DefaultControllerTest extends WebTestCase
     private $factory;
     private $skipTests = false;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
-        if (!array_key_exists('PumukitPodcastBundle', static::$kernel->getContainer()->getParameter('kernel.bundles'))) {
-            $this->markTestSkipped('PodcastBundle is not installed');
+        if (!\array_key_exists('PumukitPodcastBundle', static::$kernel->getContainer()->getParameter('kernel.bundles'))) {
+            static::markTestSkipped('PodcastBundle is not installed');
         }
 
         $this->client = static::createClient();
@@ -30,12 +34,14 @@ class DefaultControllerTest extends WebTestCase
         $this->factory = static::$kernel->getContainer()->get('pumukitschema.factory');
 
         $this->dm->getDocumentCollection(MultimediaObject::class)
-            ->remove(array());
+            ->remove([])
+        ;
         $this->dm->getDocumentCollection(Series::class)
-            ->remove(array());
+            ->remove([])
+        ;
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         if (isset($this->dm)) {
             $this->dm->close();
@@ -53,24 +59,24 @@ class DefaultControllerTest extends WebTestCase
 
     public function testVideo()
     {
-        $route = $this->router->generate('pumukit_podcast_video', array());
+        $route = $this->router->generate('pumukit_podcast_video', []);
         $crawler = $this->client->request('GET', $route);
         $response = $this->client->getResponse();
 
-        $this->assertTrue($response->isSuccessful());
-        $this->assertTrue($response->headers->contains('Content-Type', 'text/xml; charset=UTF-8'));
+        static::assertTrue($response->isSuccessful());
+        static::assertTrue($response->headers->contains('Content-Type', 'text/xml; charset=UTF-8'));
 
-        $this->assertCount(1, $crawler->filter('channel'));
-        $this->assertCount(2, $crawler->filter('title'));
-        $this->assertCount(2, $crawler->filter('link'));
-        $this->assertCount(1, $crawler->filter('description'));
-        $this->assertCount(1, $crawler->filter('generator'));
+        static::assertCount(1, $crawler->filter('channel'));
+        static::assertCount(2, $crawler->filter('title'));
+        static::assertCount(2, $crawler->filter('link'));
+        static::assertCount(1, $crawler->filter('description'));
+        static::assertCount(1, $crawler->filter('generator'));
         //$this->assertCount(1, $crawler->filter('lastBuildDate'));
-        $this->assertCount(1, $crawler->filter('language'));
-        $this->assertCount(1, $crawler->filter('copyright'));
+        static::assertCount(1, $crawler->filter('language'));
+        static::assertCount(1, $crawler->filter('copyright'));
         //$this->assertCount(1, $crawler->filter('itunes:image'));
-        $this->assertCount(1, $crawler->filter('image'));
-        $this->assertCount(2, $crawler->filter('link'));
+        static::assertCount(1, $crawler->filter('image'));
+        static::assertCount(2, $crawler->filter('link'));
         //$this->assertCount(1, $crawler->filter('itunes:category'));
         //$this->assertCount(1, $crawler->filter('itunes:summary'));
         //$this->assertCount(1, $crawler->filter('itunes:subtitle'));
@@ -83,24 +89,24 @@ class DefaultControllerTest extends WebTestCase
 
     public function testAudio()
     {
-        $route = $this->router->generate('pumukit_podcast_audio', array());
+        $route = $this->router->generate('pumukit_podcast_audio', []);
         $crawler = $this->client->request('GET', $route);
         $response = $this->client->getResponse();
 
-        $this->assertTrue($response->isSuccessful());
-        $this->assertTrue($response->headers->contains('Content-Type', 'text/xml; charset=UTF-8'));
+        static::assertTrue($response->isSuccessful());
+        static::assertTrue($response->headers->contains('Content-Type', 'text/xml; charset=UTF-8'));
 
-        $this->assertCount(1, $crawler->filter('channel'));
-        $this->assertCount(2, $crawler->filter('title'));
-        $this->assertCount(2, $crawler->filter('link'));
-        $this->assertCount(1, $crawler->filter('description'));
-        $this->assertCount(1, $crawler->filter('generator'));
+        static::assertCount(1, $crawler->filter('channel'));
+        static::assertCount(2, $crawler->filter('title'));
+        static::assertCount(2, $crawler->filter('link'));
+        static::assertCount(1, $crawler->filter('description'));
+        static::assertCount(1, $crawler->filter('generator'));
         //$this->assertCount(1, $crawler->filter('lastBuildDate'));
-        $this->assertCount(1, $crawler->filter('language'));
-        $this->assertCount(1, $crawler->filter('copyright'));
+        static::assertCount(1, $crawler->filter('language'));
+        static::assertCount(1, $crawler->filter('copyright'));
         //$this->assertCount(1, $crawler->filter('itunes:image'));
-        $this->assertCount(1, $crawler->filter('image'));
-        $this->assertCount(2, $crawler->filter('link'));
+        static::assertCount(1, $crawler->filter('image'));
+        static::assertCount(2, $crawler->filter('link'));
         //$this->assertCount(1, $crawler->filter('itunes:category'));
         //$this->assertCount(1, $crawler->filter('itunes:summary'));
         //$this->assertCount(1, $crawler->filter('itunes:subtitle'));
@@ -114,24 +120,24 @@ class DefaultControllerTest extends WebTestCase
     public function testSeriesVideo()
     {
         $series = $this->factory->createSeries();
-        $route = $this->router->generate('pumukit_podcast_series_video', array('id' => $series->getId()));
+        $route = $this->router->generate('pumukit_podcast_series_video', ['id' => $series->getId()]);
         $crawler = $this->client->request('GET', $route);
         $response = $this->client->getResponse();
 
-        $this->assertTrue($response->isSuccessful());
-        $this->assertTrue($response->headers->contains('Content-Type', 'text/xml; charset=UTF-8'));
+        static::assertTrue($response->isSuccessful());
+        static::assertTrue($response->headers->contains('Content-Type', 'text/xml; charset=UTF-8'));
 
-        $this->assertCount(1, $crawler->filter('channel'));
-        $this->assertCount(2, $crawler->filter('title'));
-        $this->assertCount(2, $crawler->filter('link'));
-        $this->assertCount(1, $crawler->filter('description'));
-        $this->assertCount(1, $crawler->filter('generator'));
+        static::assertCount(1, $crawler->filter('channel'));
+        static::assertCount(2, $crawler->filter('title'));
+        static::assertCount(2, $crawler->filter('link'));
+        static::assertCount(1, $crawler->filter('description'));
+        static::assertCount(1, $crawler->filter('generator'));
         //$this->assertCount(1, $crawler->filter('lastBuildDate'));
-        $this->assertCount(1, $crawler->filter('language'));
-        $this->assertCount(1, $crawler->filter('copyright'));
+        static::assertCount(1, $crawler->filter('language'));
+        static::assertCount(1, $crawler->filter('copyright'));
         //$this->assertCount(1, $crawler->filter('itunes:image'));
-        $this->assertCount(1, $crawler->filter('image'));
-        $this->assertCount(2, $crawler->filter('link'));
+        static::assertCount(1, $crawler->filter('image'));
+        static::assertCount(2, $crawler->filter('link'));
         //$this->assertCount(1, $crawler->filter('itunes:category'));
         //$this->assertCount(1, $crawler->filter('itunes:summary'));
         //$this->assertCount(1, $crawler->filter('itunes:subtitle'));
@@ -145,24 +151,24 @@ class DefaultControllerTest extends WebTestCase
     public function testSeriesAudio()
     {
         $series = $this->factory->createSeries();
-        $route = $this->router->generate('pumukit_podcast_series_audio', array('id' => $series->getId()));
+        $route = $this->router->generate('pumukit_podcast_series_audio', ['id' => $series->getId()]);
         $crawler = $this->client->request('GET', $route);
         $response = $this->client->getResponse();
 
-        $this->assertTrue($response->isSuccessful());
-        $this->assertTrue($response->headers->contains('Content-Type', 'text/xml; charset=UTF-8'));
+        static::assertTrue($response->isSuccessful());
+        static::assertTrue($response->headers->contains('Content-Type', 'text/xml; charset=UTF-8'));
 
-        $this->assertCount(1, $crawler->filter('channel'));
-        $this->assertCount(2, $crawler->filter('title'));
-        $this->assertCount(2, $crawler->filter('link'));
-        $this->assertCount(1, $crawler->filter('description'));
-        $this->assertCount(1, $crawler->filter('generator'));
+        static::assertCount(1, $crawler->filter('channel'));
+        static::assertCount(2, $crawler->filter('title'));
+        static::assertCount(2, $crawler->filter('link'));
+        static::assertCount(1, $crawler->filter('description'));
+        static::assertCount(1, $crawler->filter('generator'));
         //$this->assertCount(1, $crawler->filter('lastBuildDate'));
-        $this->assertCount(1, $crawler->filter('language'));
-        $this->assertCount(1, $crawler->filter('copyright'));
+        static::assertCount(1, $crawler->filter('language'));
+        static::assertCount(1, $crawler->filter('copyright'));
         //$this->assertCount(1, $crawler->filter('itunes:image'));
-        $this->assertCount(1, $crawler->filter('image'));
-        $this->assertCount(2, $crawler->filter('link'));
+        static::assertCount(1, $crawler->filter('image'));
+        static::assertCount(2, $crawler->filter('link'));
         //$this->assertCount(1, $crawler->filter('itunes:category'));
         //$this->assertCount(1, $crawler->filter('itunes:summary'));
         //$this->assertCount(1, $crawler->filter('itunes:subtitle'));
@@ -176,24 +182,24 @@ class DefaultControllerTest extends WebTestCase
     public function testSeriesCollection()
     {
         $series = $this->factory->createSeries();
-        $route = $this->router->generate('pumukit_podcast_series_collection', array('id' => $series->getId()));
+        $route = $this->router->generate('pumukit_podcast_series_collection', ['id' => $series->getId()]);
         $crawler = $this->client->request('GET', $route);
         $response = $this->client->getResponse();
 
-        $this->assertTrue($response->isSuccessful());
-        $this->assertTrue($response->headers->contains('Content-Type', 'text/xml; charset=UTF-8'));
+        static::assertTrue($response->isSuccessful());
+        static::assertTrue($response->headers->contains('Content-Type', 'text/xml; charset=UTF-8'));
 
-        $this->assertCount(1, $crawler->filter('channel'));
-        $this->assertCount(2, $crawler->filter('title'));
-        $this->assertCount(2, $crawler->filter('link'));
-        $this->assertCount(1, $crawler->filter('description'));
-        $this->assertCount(1, $crawler->filter('generator'));
+        static::assertCount(1, $crawler->filter('channel'));
+        static::assertCount(2, $crawler->filter('title'));
+        static::assertCount(2, $crawler->filter('link'));
+        static::assertCount(1, $crawler->filter('description'));
+        static::assertCount(1, $crawler->filter('generator'));
         //$this->assertCount(1, $crawler->filter('lastBuildDate'));
-        $this->assertCount(1, $crawler->filter('language'));
-        $this->assertCount(1, $crawler->filter('copyright'));
+        static::assertCount(1, $crawler->filter('language'));
+        static::assertCount(1, $crawler->filter('copyright'));
         //$this->assertCount(1, $crawler->filter('itunes:image'));
-        $this->assertCount(1, $crawler->filter('image'));
-        $this->assertCount(2, $crawler->filter('link'));
+        static::assertCount(1, $crawler->filter('image'));
+        static::assertCount(2, $crawler->filter('link'));
         //$this->assertCount(1, $crawler->filter('itunes:category'));
         //$this->assertCount(1, $crawler->filter('itunes:summary'));
         //$this->assertCount(1, $crawler->filter('itunes:subtitle'));

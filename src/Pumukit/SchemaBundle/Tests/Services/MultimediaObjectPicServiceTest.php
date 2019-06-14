@@ -2,14 +2,18 @@
 
 namespace Pumukit\SchemaBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Pumukit\SchemaBundle\Document\Pic;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Pumukit\SchemaBundle\Services\MultimediaObjectPicService;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Pic;
 use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Services\MultimediaObjectPicService;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class MultimediaObjectPicServiceTest extends WebTestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class MultimediaObjectPicServiceTest extends WebTestCase
 {
     private $dm;
     private $repo;
@@ -19,31 +23,35 @@ class MultimediaObjectPicServiceTest extends WebTestCase
     private $uploadsPath;
     private $picDispatcher;
 
-    public function setUp()
+    protected function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()
-          ->get('doctrine_mongodb')->getManager();
+            ->get('doctrine_mongodb')->getManager();
         $this->repo = $this->dm
-          ->getRepository(MultimediaObject::class);
+            ->getRepository(MultimediaObject::class)
+        ;
         $this->factoryService = static::$kernel->getContainer()
-          ->get('pumukitschema.factory');
+            ->get('pumukitschema.factory')
+        ;
         $this->mmsPicService = static::$kernel->getContainer()
-          ->get('pumukitschema.mmspic');
+            ->get('pumukitschema.mmspic')
+        ;
         $this->picDispatcher = static::$kernel->getContainer()
-          ->get('pumukitschema.pic_dispatcher');
+            ->get('pumukitschema.pic_dispatcher')
+        ;
 
-        $this->originalPicPath = realpath(__DIR__.'/../Resources').DIRECTORY_SEPARATOR.'logo.png';
+        $this->originalPicPath = realpath(__DIR__.'/../Resources').\DIRECTORY_SEPARATOR.'logo.png';
         $this->uploadsPath = realpath(__DIR__.'/../../../../../web/uploads/pic');
 
-        $this->dm->getDocumentCollection(MultimediaObject::class)->remove(array());
-        $this->dm->getDocumentCollection(Series::class)->remove(array());
+        $this->dm->getDocumentCollection(MultimediaObject::class)->remove([]);
+        $this->dm->getDocumentCollection(Series::class)->remove([]);
         $this->dm->flush();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->dm->close();
         $this->dm = null;
@@ -109,7 +117,7 @@ class MultimediaObjectPicServiceTest extends WebTestCase
         $this->dm->persist($mm21);
         $this->dm->flush();
 
-        $this->assertEquals(4, count($this->mmsPicService->getRecommendedPics($series1)));
+        static::assertSame(4, \count($this->mmsPicService->getRecommendedPics($series1)));
     }
 
     public function testAddPicUrl()
@@ -117,14 +125,14 @@ class MultimediaObjectPicServiceTest extends WebTestCase
         $series = $this->factoryService->createSeries();
         $mm = $this->factoryService->createMultimediaObject($series);
 
-        $this->assertEquals(0, count($mm->getPics()));
+        static::assertSame(0, \count($mm->getPics()));
 
         $url = 'http://domain.com/pic.png';
 
         $mm = $this->mmsPicService->addPicUrl($mm, $url);
 
-        $this->assertEquals(1, count($mm->getPics()));
-        $this->assertEquals(1, count($this->repo->find($mm->getId())->getPics()));
+        static::assertSame(1, \count($mm->getPics()));
+        static::assertSame(1, \count($this->repo->find($mm->getId())->getPics()));
     }
 
     public function testAddPicFile()
@@ -132,21 +140,21 @@ class MultimediaObjectPicServiceTest extends WebTestCase
         $series = $this->factoryService->createSeries();
         $mm = $this->factoryService->createMultimediaObject($series);
 
-        $this->assertEquals(0, count($mm->getPics()));
+        static::assertSame(0, \count($mm->getPics()));
 
-        $picPath = realpath(__DIR__.'/../Resources').DIRECTORY_SEPARATOR.'picCopy.png';
+        $picPath = realpath(__DIR__.'/../Resources').\DIRECTORY_SEPARATOR.'picCopy.png';
         if (copy($this->originalPicPath, $picPath)) {
             $picFile = new UploadedFile($picPath, 'pic.png', null, null, null, true);
             $mm = $this->mmsPicService->addPicFile($mm, $picFile);
             $mm = $this->repo->find($mm->getId());
 
-            $this->assertEquals(1, count($mm->getPics()));
+            static::assertSame(1, \count($mm->getPics()));
 
             $pic = $mm->getPics()[0];
-            $this->assertTrue($mm->containsPic($pic));
+            static::assertTrue($mm->containsPic($pic));
 
-            $uploadedPic = '/uploads/pic/series/'.$mm->getSeries()->getId().'/video/'.$mm->getId().DIRECTORY_SEPARATOR.$picFile->getClientOriginalName();
-            $this->assertEquals($uploadedPic, $pic->getUrl());
+            $uploadedPic = '/uploads/pic/series/'.$mm->getSeries()->getId().'/video/'.$mm->getId().\DIRECTORY_SEPARATOR.$picFile->getClientOriginalName();
+            static::assertSame($uploadedPic, $pic->getUrl());
         }
 
         $this->deleteCreatedFiles();
@@ -157,17 +165,17 @@ class MultimediaObjectPicServiceTest extends WebTestCase
         $series = $this->factoryService->createSeries();
         $mm = $this->factoryService->createMultimediaObject($series);
 
-        $picPath = realpath(__DIR__.'/../Resources').DIRECTORY_SEPARATOR.'picCopy.png';
+        $picPath = realpath(__DIR__.'/../Resources').\DIRECTORY_SEPARATOR.'picCopy.png';
         if (copy($this->originalPicPath, $picPath)) {
             $picFile = new UploadedFile($picPath, 'pic.png', null, null, null, true);
             $mm = $this->mmsPicService->addPicFile($mm, $picFile);
 
-            $this->assertEquals(1, count($mm->getPics()));
+            static::assertSame(1, \count($mm->getPics()));
 
             $pic = $mm->getPics()[0];
             $mm = $this->mmsPicService->removePicFromMultimediaObject($mm, $pic->getId());
 
-            $this->assertEquals(0, count($mm->getPics()));
+            static::assertSame(0, \count($mm->getPics()));
         }
 
         $this->deleteCreatedFiles();
@@ -187,7 +195,7 @@ class MultimediaObjectPicServiceTest extends WebTestCase
         $mmobjs = $this->repo->findAll();
 
         foreach ($mmobjs as $mm) {
-            $mmDir = $this->uploadsPath.DIRECTORY_SEPARATOR.$mm->getId().DIRECTORY_SEPARATOR;
+            $mmDir = $this->uploadsPath.\DIRECTORY_SEPARATOR.$mm->getId().\DIRECTORY_SEPARATOR;
 
             if (is_dir($mmDir)) {
                 $files = glob($mmDir.'*', GLOB_MARK);

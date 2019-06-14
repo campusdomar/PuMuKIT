@@ -2,10 +2,10 @@
 
 namespace Pumukit\WebTVBundle\Controller;
 
+use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
-use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
 
 /**
  * Class TemplateController.
@@ -20,11 +20,11 @@ class TemplateController implements WebTVControllerInterface, ContainerAwareInte
      * @param null         $maxAge
      * @param null         $sharedAge
      * @param null         $private
-     * @param Request|null $request
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param null|Request $request
      *
      * @throws \Twig\Error\Error
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function templateAction($template, $title = null, $maxAge = null, $sharedAge = null, $private = null, Request $request = null)
     {

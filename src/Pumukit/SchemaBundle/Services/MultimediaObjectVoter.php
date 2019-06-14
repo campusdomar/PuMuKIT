@@ -2,13 +2,13 @@
 
 namespace Pumukit\SchemaBundle\Services;
 
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\PermissionProfile;
 use Pumukit\SchemaBundle\Document\User;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class MultimediaObjectVoter extends Voter
 {
@@ -27,7 +27,7 @@ class MultimediaObjectVoter extends Voter
     protected function supports($attribute, $subject)
     {
         // if the attribute isn't one we support, return false
-        if (!in_array($attribute, array(self::EDIT, self::PLAY))) {
+        if (!\in_array($attribute, [self::EDIT, self::PLAY], true)) {
             return false;
         }
 
@@ -100,7 +100,7 @@ class MultimediaObjectVoter extends Voter
             return true;
         }
 
-        /* Legacy code */
+        // Legacy code
         if ($this->mmobjService->isHidden($multimediaObject, 'PUCHOPENEDX')) {
             return true;
         }
@@ -124,8 +124,6 @@ class MultimediaObjectVoter extends Voter
         $userGroups = $user->getGroups()->toArray();
         $playGroups = $broadcast->getGroups()->toArray();
 
-        $commonPlayGroups = array_intersect($playGroups, $userGroups);
-
-        return $commonPlayGroups;
+        return array_intersect($playGroups, $userGroups);
     }
 }

@@ -110,6 +110,16 @@ class Track extends Element
     }
 
     /**
+     * To string.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getUrl() ? $this->getUrl() : $this->getPath();
+    }
+
+    /**
      * Set language.
      *
      * @param string $language
@@ -242,6 +252,8 @@ class Track extends Element
     /**
      * Get frame number of a instant in seg.
      *
+     * @param mixed $seg
+     *
      * @return int
      */
     public function getFrameNumber($seg)
@@ -249,14 +261,16 @@ class Track extends Element
         if (false !== strpos($this->getFramerate(), '/')) {
             $aux = explode('/', $this->getFramerate());
 
-            return intval($seg * intval($aux[0]) / intval($aux[1]));
-        } else {
-            return intval($seg * $this->getFramerate());
+            return (int) ($seg * (int) ($aux[0]) / (int) ($aux[1]));
         }
+
+        return (int) ($seg * $this->getFramerate());
     }
 
     /**
      * Get instant in seg of a frame number.
+     *
+     * @param mixed $frame
      *
      * @return float
      */
@@ -269,10 +283,10 @@ class Track extends Element
         if (false !== strpos($this->getFramerate(), '/')) {
             $aux = explode('/', $this->getFramerate());
 
-            return floatval($frame * intval($aux[1]) / intval($aux[0]));
-        } else {
-            return floatval($frame / $this->getFramerate());
+            return (float) ($frame * (int) ($aux[1]) / (int) ($aux[0]));
         }
+
+        return (float) ($frame / $this->getFramerate());
     }
 
     /**
@@ -440,16 +454,17 @@ class Track extends Element
      */
     public function getResolution()
     {
-        return array(
+        return [
             'width' => $this->width,
             'height' => $this->height,
-        );
+        ];
     }
 
     /**
      * Set Resolution.
      *
      * @param array
+     * @param mixed $resolution
      */
     public function setResolution($resolution)
     {
@@ -466,7 +481,7 @@ class Track extends Element
      */
     public function getAspectRatio()
     {
-        return (0 == $this->height) ? 0 : $this->width / $this->height;
+        return (0 === $this->height) ? 0 : $this->width / $this->height;
     }
 
     /**
@@ -481,13 +496,14 @@ class Track extends Element
         $seconds = $this->getDuration() % 60;
         //if ($seconds < 10 ) $minutes = '0' . $seconds;
 
-        return array('minutes' => $minutes, 'seconds' => $seconds);
+        return ['minutes' => $minutes, 'seconds' => $seconds];
     }
 
     /**
      * Set duration in minutes and seconds.
      *
      * @param array
+     * @param mixed $durationInMinutesAndSeconds
      */
     public function setDurationInMinutesAndSeconds($durationInMinutesAndSeconds)
     {
@@ -509,7 +525,7 @@ class Track extends Element
     /**
      * Return the profiles used to generate the track.
      *
-     * @return string|null
+     * @return null|string
      */
     public function getProfileName()
     {
@@ -520,15 +536,5 @@ class Track extends Element
         }
 
         return null;
-    }
-
-    /**
-     * To string.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->getUrl() ? $this->getUrl() : $this->getPath();
     }
 }

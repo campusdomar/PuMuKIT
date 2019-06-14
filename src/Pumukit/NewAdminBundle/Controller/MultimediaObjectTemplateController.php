@@ -2,10 +2,10 @@
 
 namespace Pumukit\NewAdminBundle\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Pumukit\NewAdminBundle\Form\Type\MultimediaObjectTemplateMetaType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Security("is_granted('ROLE_ACCESS_MULTIMEDIA_SERIES')")
@@ -17,9 +17,9 @@ class MultimediaObjectTemplateController extends MultimediaObjectController impl
      *
      * @param Request $request
      *
-     * @return JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
-     *
      * @throws \Exception
+     *
+     * @return JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function updatemetaAction(Request $request)
     {
@@ -48,20 +48,21 @@ class MultimediaObjectTemplateController extends MultimediaObjectController impl
 
         $translator = $this->get('translator');
         $locale = $request->getLocale();
-        $formMeta = $this->createForm(MultimediaObjectTemplateMetaType::class, $mmTemplate, array('translator' => $translator, 'locale' => $locale));
+        $formMeta = $this->createForm(MultimediaObjectTemplateMetaType::class, $mmTemplate, ['translator' => $translator, 'locale' => $locale]);
 
         $pubDecisionsTags = $factoryService->getTagsByCod('PUBDECISIONS', true);
 
         $method = $request->getMethod();
-        if (in_array($method, array('POST', 'PUT', 'PATCH')) &&
+        if (\in_array($method, ['POST', 'PUT', 'PATCH'], true) &&
             $formMeta->handleRequest($request)->isValid()) {
             $this->update($mmTemplate);
 
-            return new JsonResponse(array('mmtemplate' => 'updatemeta'));
+            return new JsonResponse(['mmtemplate' => 'updatemeta']);
         }
 
-        return $this->render('PumukitNewAdminBundle:MultimediaObjectTemplate:edit.html.twig',
-            array(
+        return $this->render(
+            'PumukitNewAdminBundle:MultimediaObjectTemplate:edit.html.twig',
+            [
                 'mm' => $mmTemplate,
                 'form_meta' => $formMeta->createView(),
                 'series' => $series,
@@ -70,7 +71,7 @@ class MultimediaObjectTemplateController extends MultimediaObjectController impl
                 'pub_decisions' => $pubDecisionsTags,
                 'parent_tags' => $parentTags,
                 'groups' => $allGroups,
-            )
+            ]
         );
     }
 }

@@ -2,14 +2,18 @@
 
 namespace Pumukit\SchemaBundle\Tests\Document;
 
-use Pumukit\SchemaBundle\Document\Pic;
 use PHPUnit\Framework\TestCase;
+use Pumukit\SchemaBundle\Document\Pic;
 
-class PicTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class PicTest extends TestCase
 {
     public function testGetterAndSetter()
     {
-        $tags = array('tag_a', 'tag_b');
+        $tags = ['tag_a', 'tag_b'];
         $url = '/mnt/video/123/23435.mp4';
         $path = '/mnt/video/123/23435.mp4';
         $mime = 'image/jpg';
@@ -30,45 +34,45 @@ class PicTest extends TestCase
         $pic->setHeight($height);
         $pic->setHide($hide);
 
-        $this->assertEquals($tags, $pic->getTags());
-        $this->assertEquals($url, $pic->getUrl());
-        $this->assertEquals($path, $pic->getPath());
-        $this->assertEquals($mime, $pic->getMimeType());
-        $this->assertEquals($size, $pic->getSize());
-        $this->assertEquals($width, $pic->getWidth());
-        $this->assertEquals($height, $pic->getHeight());
-        $this->assertTrue($pic->getHide());
+        static::assertSame($tags, $pic->getTags());
+        static::assertSame($url, $pic->getUrl());
+        static::assertSame($path, $pic->getPath());
+        static::assertSame($mime, $pic->getMimeType());
+        static::assertSame($size, $pic->getSize());
+        static::assertSame($width, $pic->getWidth());
+        static::assertSame($height, $pic->getHeight());
+        static::assertTrue($pic->getHide());
     }
 
     public function testTagCollection()
     {
         $pic = new Pic();
-        $this->assertFalse($pic->containsTag('t'));
+        static::assertFalse($pic->containsTag('t'));
         $pic->addTag('t');
-        $this->assertTrue($pic->containsTag('t'));
+        static::assertTrue($pic->containsTag('t'));
         $pic->removeTag('t');
-        $this->assertFalse($pic->containsTag('t'));
+        static::assertFalse($pic->containsTag('t'));
 
         //Repeat Tag
-        $this->assertFalse($pic->containsTag('t'));
+        static::assertFalse($pic->containsTag('t'));
         $pic->addTag('t');
         $pic->addTag('t');
-        $this->assertTrue($pic->containsTag('t'));
+        static::assertTrue($pic->containsTag('t'));
         $pic->removeTag('t');
-        $this->assertFalse($pic->containsTag('t'));
-        $this->assertFalse($pic->removeTag('t'));
+        static::assertFalse($pic->containsTag('t'));
+        static::assertFalse($pic->removeTag('t'));
 
         //containsAllTag and containsAnyTag
         $pic->addTag('t1');
         $pic->addTag('t2');
         $pic->addTag('t3');
-        $this->assertTrue($pic->containsAnyTag(array('t0', 't2')));
-        $this->assertTrue($pic->containsAnyTag(array('t2', 't3')));
-        $this->assertFalse($pic->containsAnyTag(array('t0', 't4')));
-        $this->assertTrue($pic->containsAllTags(array('t1', 't2')));
-        $this->assertTrue($pic->containsAllTags(array('t1')));
-        $this->assertFalse($pic->containsAllTags(array('t0', 't2')));
-        $this->assertFalse($pic->containsAllTags(array('t0', 't1', 't2', 't3')));
+        static::assertTrue($pic->containsAnyTag(['t0', 't2']));
+        static::assertTrue($pic->containsAnyTag(['t2', 't3']));
+        static::assertFalse($pic->containsAnyTag(['t0', 't4']));
+        static::assertTrue($pic->containsAllTags(['t1', 't2']));
+        static::assertTrue($pic->containsAllTags(['t1']));
+        static::assertFalse($pic->containsAllTags(['t0', 't2']));
+        static::assertFalse($pic->containsAllTags(['t0', 't1', 't2', 't3']));
     }
 
     /*public function testRef()

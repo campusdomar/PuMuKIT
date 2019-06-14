@@ -2,20 +2,24 @@
 
 namespace Pumukit\EncoderBundle\Tests\Document;
 
-use Pumukit\EncoderBundle\Document\Job;
 use PHPUnit\Framework\TestCase;
+use Pumukit\EncoderBundle\Document\Job;
 
-class JobTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class JobTest extends TestCase
 {
     public function testDefaults()
     {
         $job = new Job();
 
-        $this->assertEquals(Job::STATUS_WAITING, $job->getStatus());
-        $this->assertEquals(array('en' => ''), $job->getI18nName());
-        $this->assertEquals(0, $job->getDuration());
-        $this->assertEquals('0', $job->getSize());
-        $this->assertEquals('en', $job->getLocale());
+        static::assertSame(Job::STATUS_WAITING, $job->getStatus());
+        static::assertSame(['en' => ''], $job->getI18nName());
+        static::assertSame(0, $job->getDuration());
+        static::assertSame('0', $job->getSize());
+        static::assertSame('en', $job->getLocale());
     }
 
     public function testGetterAndSetter()
@@ -42,7 +46,7 @@ class JobTest extends TestCase
         $duration = 40;
         $size = '12000';
         $email = 'test@mail.com';
-        $initVars = array('ocurls' => array('presenter/master' => 'http://presentatermaster.com', 'presentation/master' => 'http://presentationmaster'));
+        $initVars = ['ocurls' => ['presenter/master' => 'http://presentatermaster.com', 'presentation/master' => 'http://presentationmaster']];
         $locale = 'en';
 
         $job->setLocale('en');
@@ -68,38 +72,38 @@ class JobTest extends TestCase
         $job->setEmail($email);
         $job->setInitVars($initVars);
 
-        $this->assertEquals($mm_id, $job->getMmId());
-        $this->assertEquals($language_id, $job->getLanguageId());
-        $this->assertEquals($profile, $job->getProfile());
-        $this->assertEquals($cpu, $job->getCpu());
-        $this->assertEquals($url, $job->getUrl());
-        $this->assertEquals($status, $job->getStatus());
-        $this->assertEquals($priority, $job->getPriority());
-        $this->assertEquals($name, $job->getName());
-        $this->assertEquals($description, $job->getDescription());
-        $this->assertEquals($timeini, $job->getTimeini());
-        $this->assertEquals($timestart, $job->getTimestart());
-        $this->assertEquals($timeend, $job->getTimeend());
-        $this->assertEquals($pid, $job->getPid());
-        $this->assertEquals($path_ini, $job->getPathIni());
-        $this->assertEquals($path_end, $job->getPathEnd());
-        $this->assertEquals($ext_ini, $job->getExtIni());
-        $this->assertEquals($ext_end, $job->getExtEnd());
-        $this->assertEquals($duration, $job->getDuration());
-        $this->assertEquals($size, $job->getSize());
-        $this->assertEquals($email, $job->getEmail());
-        $this->assertEquals($initVars, $job->getInitVars());
-        $this->assertEquals($locale, $job->getLocale());
+        static::assertSame($mm_id, $job->getMmId());
+        static::assertSame($language_id, $job->getLanguageId());
+        static::assertSame($profile, $job->getProfile());
+        static::assertSame($cpu, $job->getCpu());
+        static::assertSame($url, $job->getUrl());
+        static::assertSame($status, $job->getStatus());
+        static::assertSame($priority, $job->getPriority());
+        static::assertSame($name, $job->getName());
+        static::assertSame($description, $job->getDescription());
+        static::assertSame($timeini, $job->getTimeini());
+        static::assertSame($timestart, $job->getTimestart());
+        static::assertSame($timeend, $job->getTimeend());
+        static::assertSame($pid, $job->getPid());
+        static::assertSame($path_ini, $job->getPathIni());
+        static::assertSame($path_end, $job->getPathEnd());
+        static::assertSame($ext_ini, $job->getExtIni());
+        static::assertSame($ext_end, $job->getExtEnd());
+        static::assertSame($duration, $job->getDuration());
+        static::assertSame($size, $job->getSize());
+        static::assertSame($email, $job->getEmail());
+        static::assertSame($initVars, $job->getInitVars());
+        static::assertSame($locale, $job->getLocale());
 
-        $descriptionI18n = array('en' => 'description', 'es' => 'descripción');
-        $nameI18n = array('en' => 'name', 'es' => 'nombre');
+        $descriptionI18n = ['en' => 'description', 'es' => 'descripción'];
+        $nameI18n = ['en' => 'name', 'es' => 'nombre'];
 
         $job->setI18nDescription($descriptionI18n);
         $job->setI18nName($nameI18n);
 
-        $this->assertEquals($descriptionI18n, $job->getI18nDescription());
-        $this->assertEquals($nameI18n, $job->getI18nName());
+        static::assertSame($descriptionI18n, $job->getI18nDescription());
+        static::assertSame($nameI18n, $job->getI18nName());
 
-        $this->assertEquals('Waiting', $job->getStatusText());
+        static::assertSame('Waiting', $job->getStatusText());
     }
 }

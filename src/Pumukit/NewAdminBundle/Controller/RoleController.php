@@ -2,13 +2,13 @@
 
 namespace Pumukit\NewAdminBundle\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Pumukit\NewAdminBundle\Form\Type\RoleType;
 use Pumukit\SchemaBundle\Document\Role;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @Security("is_granted('ROLE_ACCESS_ROLES')")
@@ -30,7 +30,7 @@ class RoleController extends SortableAdminController implements NewAdminControll
 
         $translator = $this->get('translator');
         $locale = $request->getLocale();
-        $form = $this->createForm(RoleType::class, $role, array('translator' => $translator, 'locale' => $locale));
+        $form = $this->createForm(RoleType::class, $role, ['translator' => $translator, 'locale' => $locale]);
 
         if (($request->isMethod('PUT') || $request->isMethod('POST'))) {
             $form->handleRequest($request);
@@ -38,29 +38,30 @@ class RoleController extends SortableAdminController implements NewAdminControll
                 try {
                     $personService->updateRole($role);
                 } catch (\Exception $e) {
-                    return new JsonResponse(array('status' => $e->getMessage()), 409);
+                    return new JsonResponse(['status' => $e->getMessage()], 409);
                 }
 
                 return $this->redirect($this->generateUrl('pumukitnewadmin_role_list'));
-            } else {
-                $errors = $this->get('validator')->validate($role);
-                $textStatus = '';
-                foreach ($errors as $error) {
-                    $textStatus .= $error->getPropertyPath().' value '.$error->getInvalidValue().': '.$error->getMessage().'. ';
-                }
-
-                return new Response($textStatus, 409);
             }
+            $errors = $this->get('validator')->validate($role);
+            $textStatus = '';
+            foreach ($errors as $error) {
+                $textStatus .= $error->getPropertyPath().' value '.$error->getInvalidValue().': '.$error->getMessage().'. ';
+            }
+
+            return new Response($textStatus, 409);
         }
 
-        return array(
+        return [
             'role' => $role,
             'form' => $form->createView(),
-        );
+        ];
     }
 
     /**
      * Gets the list of resources according to a criteria.
+     *
+     * @param mixed $criteria
      */
     public function getResources(Request $request, $criteria)
     {
@@ -82,7 +83,8 @@ class RoleController extends SortableAdminController implements NewAdminControll
         $resources
             ->setMaxPerPage($session->get($session_namespace.'/paginate', 10))
             ->setNormalizeOutOfRangePages(true)
-            ->setCurrentPage($session->get($session_namespace.'/page', 1));
+            ->setCurrentPage($session->get($session_namespace.'/page', 1))
+        ;
 
         return $resources;
     }
@@ -112,7 +114,7 @@ class RoleController extends SortableAdminController implements NewAdminControll
     {
         $ids = $request->get('ids');
 
-        if ('string' === gettype($ids)) {
+        if ('string' === \gettype($ids)) {
             $ids = json_decode($ids, true);
         }
 

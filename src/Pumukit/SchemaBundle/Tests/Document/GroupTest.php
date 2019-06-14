@@ -2,10 +2,14 @@
 
 namespace Pumukit\SchemaBundle\Tests\Document;
 
-use Pumukit\SchemaBundle\Document\Group;
 use PHPUnit\Framework\TestCase;
+use Pumukit\SchemaBundle\Document\Group;
 
-class GroupTest extends TestCase
+/**
+ * @internal
+ * @coversNothing
+ */
+final class GroupTest extends TestCase
 {
     public function testSetterAndGetter()
     {
@@ -23,12 +27,12 @@ class GroupTest extends TestCase
         $group->setOrigin($origin);
         $group->setUpdatedAt($updatedAt);
 
-        $this->assertEquals($key, $group->getKey());
-        $this->assertEquals($key, (string) $group);
-        $this->assertEquals($name, $group->getName());
-        $this->assertEquals($comments, $group->getComments());
-        $this->assertEquals($origin, $group->getOrigin());
-        $this->assertEquals($updatedAt, $group->getUpdatedAt());
+        static::assertSame($key, $group->getKey());
+        static::assertSame($key, (string) $group);
+        static::assertSame($name, $group->getName());
+        static::assertSame($comments, $group->getComments());
+        static::assertSame($origin, $group->getOrigin());
+        static::assertSame($updatedAt, $group->getUpdatedAt());
     }
 
     public function testGroupInterface()
@@ -41,10 +45,10 @@ class GroupTest extends TestCase
         $group->setKey($key);
         $group->setName($name);
 
-        $this->assertEquals($group, $group->addRole('role_test'));
-        $this->assertFalse($group->hasRole('role_test'));
-        $this->assertEquals(array(), $group->getRoles());
-        $this->assertEquals($group, $group->removeRole('role_test'));
-        $this->assertEquals($group, $group->setRoles(array()));
+        static::assertSame($group, $group->addRole('role_test'));
+        static::assertFalse($group->hasRole('role_test'));
+        static::assertSame([], $group->getRoles());
+        static::assertSame($group, $group->removeRole('role_test'));
+        static::assertSame($group, $group->setRoles([]));
     }
 }
