@@ -87,7 +87,8 @@ class TrackController extends Controller implements NewAdminController
      * @ParamConverter("multimediaObject", class="PumukitSchemaBundle:MultimediaObject", options={"id" = "mmId"})
      *
      * @param MultimediaObject $multimediaObject
-     * @param Request $request
+     * @param Request          $request
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function toggleHideAction(MultimediaObject $multimediaObject, Request $request)
