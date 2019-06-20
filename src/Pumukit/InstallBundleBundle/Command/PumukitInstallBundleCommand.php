@@ -111,7 +111,7 @@ EOT
             $bundleName = substr($bundle, 1 + strrpos($bundle, '\\'));
             try {
                 if (!$this->uninstall) {
-                    $ret = $routing->addResource($bundleName, $format, $prefix, $type, 'routing', $appendToEnd);
+                    $ret = $routing->addResource($bundleName, $format, $prefix, $type, 'routing', [], $appendToEnd);
                 } else {
                     $ret = $this->removeResource($bundleName, $format, $prefix, 'routing');
                 }
