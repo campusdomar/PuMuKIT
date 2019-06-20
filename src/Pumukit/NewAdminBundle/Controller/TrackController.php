@@ -85,6 +85,27 @@ class TrackController extends Controller implements NewAdminController
 
     /**
      * @ParamConverter("multimediaObject", class="PumukitSchemaBundle:MultimediaObject", options={"id" = "mmId"})
+     *
+     * @param MultimediaObject $multimediaObject
+     * @param Request          $request
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     */
+    public function toggleHideAction(MultimediaObject $multimediaObject, Request $request)
+    {
+        $track = $multimediaObject->getTrackById($request->get('id'));
+        $track->setHide(!$track->getHide());
+        try {
+            $multimediaObject = $this->get('pumukitschema.track')->updateTrackInMultimediaObject($multimediaObject, $track);
+        } catch (\Exception $e) {
+            return new Response($e->getMessage(), 400);
+        }
+
+        return $this->redirect($this->generateUrl('pumukitnewadmin_track_list', array('reload_links' => true, 'id' => $multimediaObject->getId())));
+    }
+
+    /**
+     * @ParamConverter("multimediaObject", class="PumukitSchemaBundle:MultimediaObject", options={"id" = "mmId"})
      */
     public function updateAction(MultimediaObject $multimediaObject, Request $request)
     {
