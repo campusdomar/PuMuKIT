@@ -10,6 +10,7 @@ return PhpCsFixer\Config::create()
         '@PhpCsFixer' => true,
 
         'array_syntax' => ['syntax' => 'short'],
+        'comment_to_phpdoc' => true,
         'combine_nested_dirname' => true,
         'is_null' => true,
         'list_syntax' => ['syntax' => 'short'],
