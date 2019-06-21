@@ -32,7 +32,7 @@ class ByUserController extends Controller implements WebTVControllerInterface
      */
     public function multimediaObjectsAction(User $user, Request $request)
     {
-        list($scroll_list, $numberCols, $limit, $roleCode) = $this->getParameters();
+        [$scroll_list, $numberCols, $limit, $roleCode] = $this->getParameters();
         $person = $user->getPerson();
 
         $repo = $this->get('doctrine_mongodb')->getRepository(MultimediaObject::class);
@@ -69,7 +69,7 @@ class ByUserController extends Controller implements WebTVControllerInterface
      */
     public function seriesAction(User $user, Request $request)
     {
-        list($scroll_list, $numberCols, $limit, $roleCode) = $this->getParameters();
+        [$scroll_list, $numberCols, $limit, $roleCode] = $this->getParameters();
         $repo = $this->get('doctrine_mongodb')->getRepository(Series::class);
         $person = $user->getPerson();
         $series = $repo->createBuilderByPersonIdAndRoleCod($person->getId(), $roleCode, ['public_date' => -1]);
@@ -111,7 +111,7 @@ class ByUserController extends Controller implements WebTVControllerInterface
      */
     public function userObjectsPagerAction(User $user, Request $request)
     {
-        list($scroll_list, $numberCols, $limit, $roleCode) = $this->getParameters();
+        [$scroll_list, $numberCols, $limit, $roleCode] = $this->getParameters();
         $type = $request->get('type');
         $person = $user->getPerson();
 
@@ -129,7 +129,7 @@ class ByUserController extends Controller implements WebTVControllerInterface
             $qb = $repo->createBuilderByPersonIdAndRoleCod($person->getId(), $roleCode, ['public_date' => -1]);
         }
 
-        list($date, $last) = $this->getNextLatestUploads($date, $qb);
+        [$date, $last] = $this->getNextLatestUploads($date, $qb);
         if (empty($last)) {
             $dateHeader = '---';
         } else {
