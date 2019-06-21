@@ -198,14 +198,14 @@ class UserServiceTest extends WebTestCase
         $this->assertEquals(1, $this->userService->countUsersWithPermissionProfile($permissionProfile2));
 
         $usersProfile1 = $this->userService->getUsersWithPermissionProfile($permissionProfile1)->toArray();
-        $this->assertTrue(in_array($user1, $usersProfile1));
-        $this->assertFalse(in_array($user2, $usersProfile1));
-        $this->assertTrue(in_array($user3, $usersProfile1));
+        $this->assertTrue(in_array($user1, $usersProfile1, true));
+        $this->assertFalse(in_array($user2, $usersProfile1, true));
+        $this->assertTrue(in_array($user3, $usersProfile1, true));
 
         $usersProfile2 = $this->userService->getUsersWithPermissionProfile($permissionProfile2)->toArray();
-        $this->assertFalse(in_array($user1, $usersProfile2));
-        $this->assertTrue(in_array($user2, $usersProfile2));
-        $this->assertFalse(in_array($user3, $usersProfile2));
+        $this->assertFalse(in_array($user1, $usersProfile2, true));
+        $this->assertTrue(in_array($user2, $usersProfile2, true));
+        $this->assertFalse(in_array($user3, $usersProfile2, true));
     }
 
     public function testGetUserPermissions()
@@ -240,23 +240,23 @@ class UserServiceTest extends WebTestCase
         $this->dm->persist($user);
         $this->dm->flush();
 
-        $this->assertFalse(in_array(PermissionProfile::SCOPE_GLOBAL, $user->getRoles()));
-        $this->assertFalse(in_array(PermissionProfile::SCOPE_PERSONAL, $user->getRoles()));
-        $this->assertFalse(in_array(PermissionProfile::SCOPE_NONE, $user->getRoles()));
+        $this->assertFalse(in_array(PermissionProfile::SCOPE_GLOBAL, $user->getRoles(), true));
+        $this->assertFalse(in_array(PermissionProfile::SCOPE_PERSONAL, $user->getRoles(), true));
+        $this->assertFalse(in_array(PermissionProfile::SCOPE_NONE, $user->getRoles(), true));
 
         $user = $this->userService->addUserScope($user, PermissionProfile::SCOPE_PERSONAL);
 
-        $this->assertFalse(in_array(PermissionProfile::SCOPE_GLOBAL, $user->getRoles()));
-        $this->assertTrue(in_array(PermissionProfile::SCOPE_PERSONAL, $user->getRoles()));
-        $this->assertFalse(in_array(PermissionProfile::SCOPE_NONE, $user->getRoles()));
-        $this->assertFalse(in_array($notValidScope, $user->getRoles()));
+        $this->assertFalse(in_array(PermissionProfile::SCOPE_GLOBAL, $user->getRoles(), true));
+        $this->assertTrue(in_array(PermissionProfile::SCOPE_PERSONAL, $user->getRoles(), true));
+        $this->assertFalse(in_array(PermissionProfile::SCOPE_NONE, $user->getRoles(), true));
+        $this->assertFalse(in_array($notValidScope, $user->getRoles(), true));
 
         $user = $this->userService->addUserScope($user, $notValidScope);
 
-        $this->assertFalse(in_array(PermissionProfile::SCOPE_GLOBAL, $user->getRoles()));
-        $this->assertTrue(in_array(PermissionProfile::SCOPE_PERSONAL, $user->getRoles()));
-        $this->assertFalse(in_array(PermissionProfile::SCOPE_NONE, $user->getRoles()));
-        $this->assertFalse(in_array($notValidScope, $user->getRoles()));
+        $this->assertFalse(in_array(PermissionProfile::SCOPE_GLOBAL, $user->getRoles(), true));
+        $this->assertTrue(in_array(PermissionProfile::SCOPE_PERSONAL, $user->getRoles(), true));
+        $this->assertFalse(in_array(PermissionProfile::SCOPE_NONE, $user->getRoles(), true));
+        $this->assertFalse(in_array($notValidScope, $user->getRoles(), true));
     }
 
     public function testGetUserScope()
@@ -817,10 +817,10 @@ class UserServiceTest extends WebTestCase
 
         $usersLocalGroup = $this->userService->findWithGroup($localGroup)->toArray();
         $usersCasGroup = $this->userService->findWithGroup($casGroup)->toArray();
-        $this->assertTrue(in_array($localUser, $usersLocalGroup));
-        $this->assertFalse(in_array($casUser, $usersLocalGroup));
-        $this->assertFalse(in_array($localUser, $usersCasGroup));
-        $this->assertTrue(in_array($casUser, $usersCasGroup));
+        $this->assertTrue(in_array($localUser, $usersLocalGroup, true));
+        $this->assertFalse(in_array($casUser, $usersLocalGroup, true));
+        $this->assertFalse(in_array($localUser, $usersCasGroup, true));
+        $this->assertTrue(in_array($casUser, $usersCasGroup, true));
     }
 
     public function testDeleteAllFromGroup()

@@ -131,11 +131,11 @@ class Playlist
         $multimediaObjects = [];
         foreach ($this->multimedia_objects as $multimediaObject) {
             try {
-                if (in_array(MultimediaObject::STATUS_PUBLISHED, $status) && $multimediaObject->isPublished()) {
+                if (in_array(MultimediaObject::STATUS_PUBLISHED, $status, true) && $multimediaObject->isPublished()) {
                     $multimediaObjects[] = $multimediaObject;
-                } elseif (in_array(MultimediaObject::STATUS_HIDDEN, $status) && $multimediaObject->isHidden()) {
+                } elseif (in_array(MultimediaObject::STATUS_HIDDEN, $status, true) && $multimediaObject->isHidden()) {
                     $multimediaObjects[] = $multimediaObject;
-                } elseif (in_array(MultimediaObject::STATUS_BLOCKED, $status) && $multimediaObject->isBlocked()) {
+                } elseif (in_array(MultimediaObject::STATUS_BLOCKED, $status, true) && $multimediaObject->isBlocked()) {
                     $multimediaObjects[] = $multimediaObject;
                 }
             } catch (\Exception $exception) {

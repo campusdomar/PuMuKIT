@@ -148,7 +148,7 @@ class EventController extends Controller implements WebTVControllerInterface
 
         $result = [];
         foreach ($eventsToday as $event) {
-            if (in_array($event['_id'], $now)) {
+            if (in_array($event['_id'], $now, true)) {
                 continue;
             }
             $result[] = $event;

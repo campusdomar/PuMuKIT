@@ -108,7 +108,7 @@ EOT
 
         $seriesTitle = basename(dirname($path));
 
-        if (in_array($seriesTitle, ['INBOX_MASTER_COPY', 'INBOX_MASTER_H264'])) {
+        if (in_array($seriesTitle, ['INBOX_MASTER_COPY', 'INBOX_MASTER_H264'], true)) {
             $seriesTitle = 'AUTOIMPORT';
         }
 

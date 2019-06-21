@@ -277,7 +277,7 @@ class LDAPUserService
 
         foreach ($user->getGroups() as $group) {
             if (self::ORIGIN === $group->getOrigin()) {
-                if (!in_array($group->getKey(), $aGroups)) {
+                if (!in_array($group->getKey(), $aGroups, true)) {
                     try {
                         $this->userService->deleteGroup($group, $user, true, false);
                     } catch (\Exception $e) {

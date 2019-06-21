@@ -53,7 +53,7 @@ class MultimediaObjectTemplateController extends MultimediaObjectController impl
         $pubDecisionsTags = $factoryService->getTagsByCod('PUBDECISIONS', true);
 
         $method = $request->getMethod();
-        if (in_array($method, ['POST', 'PUT', 'PATCH']) &&
+        if (in_array($method, ['POST', 'PUT', 'PATCH'], true) &&
             $formMeta->handleRequest($request)->isValid()) {
             $this->update($mmTemplate);
 

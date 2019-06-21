@@ -609,7 +609,7 @@ class EmbeddedEventSessionService
             if ($pic['hide']) {
                 continue;
             }
-            if (isset($pic['tags']) && in_array('poster', $pic['tags'])) {
+            if (isset($pic['tags']) && in_array('poster', $pic['tags'], true)) {
                 continue;
             }
             if (isset($pic['url'])) {
@@ -669,7 +669,7 @@ class EmbeddedEventSessionService
      */
     public function validateHtmlColor($color)
     {
-        if (in_array(strtolower($color), $this->validColors) ||
+        if (in_array(strtolower($color), $this->validColors, true) ||
         preg_match('/^#[a-f0-9]{3}$/i', $color) ||
         preg_match('/^#[a-f0-9]{6}$/i', $color)) {
             return $color;
@@ -1183,7 +1183,7 @@ class EmbeddedEventSessionService
     {
         foreach ($pics as $pic) {
             if (isset($pic['tags'])) {
-                if (in_array('poster', $pic['tags']) && isset($pic['url'])) {
+                if (in_array('poster', $pic['tags'], true) && isset($pic['url'])) {
                     return $pic['url'];
                 }
             }

@@ -70,27 +70,27 @@ class BroadcastRepositoryTest extends WebTestCase
 
         $privates = $this->repo->findDistinctIdsByBroadcastTypeId(Broadcast::BROADCAST_TYPE_PRI)->toArray();
 
-        $this->assertTrue(in_array($private1->getId(), $privates));
-        $this->assertTrue(in_array($private2->getId(), $privates));
-        $this->assertFalse(in_array($public1->getId(), $privates));
-        $this->assertFalse(in_array($public2->getId(), $privates));
-        $this->assertFalse(in_array($corporative1->getId(), $privates));
+        $this->assertTrue(in_array($private1->getId(), $privates, true));
+        $this->assertTrue(in_array($private2->getId(), $privates, true));
+        $this->assertFalse(in_array($public1->getId(), $privates, true));
+        $this->assertFalse(in_array($public2->getId(), $privates, true));
+        $this->assertFalse(in_array($corporative1->getId(), $privates, true));
 
         $publics = $this->repo->findDistinctIdsByBroadcastTypeId(Broadcast::BROADCAST_TYPE_PUB)->toArray();
 
-        $this->assertFalse(in_array($private1->getId(), $publics));
-        $this->assertFalse(in_array($private2->getId(), $publics));
-        $this->assertTrue(in_array($public1->getId(), $publics));
-        $this->assertTrue(in_array($public2->getId(), $publics));
-        $this->assertFalse(in_array($corporative1->getId(), $publics));
+        $this->assertFalse(in_array($private1->getId(), $publics, true));
+        $this->assertFalse(in_array($private2->getId(), $publics, true));
+        $this->assertTrue(in_array($public1->getId(), $publics, true));
+        $this->assertTrue(in_array($public2->getId(), $publics, true));
+        $this->assertFalse(in_array($corporative1->getId(), $publics, true));
 
         $corporatives = $this->repo->findDistinctIdsByBroadcastTypeId(Broadcast::BROADCAST_TYPE_COR)->toArray();
 
-        $this->assertFalse(in_array($private1->getId(), $corporatives));
-        $this->assertFalse(in_array($private2->getId(), $corporatives));
-        $this->assertFalse(in_array($public1->getId(), $corporatives));
-        $this->assertFalse(in_array($public2->getId(), $corporatives));
-        $this->assertTrue(in_array($corporative1->getId(), $corporatives));
+        $this->assertFalse(in_array($private1->getId(), $corporatives, true));
+        $this->assertFalse(in_array($private2->getId(), $corporatives, true));
+        $this->assertFalse(in_array($public1->getId(), $corporatives, true));
+        $this->assertFalse(in_array($public2->getId(), $corporatives, true));
+        $this->assertTrue(in_array($corporative1->getId(), $corporatives, true));
     }
 
     private function createBroadcast($broadcastTypeId, $name)

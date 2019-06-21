@@ -115,30 +115,30 @@ class PermissionProfileListenerTest extends WebTestCase
         $user3 = $this->userService->create($user3);
 
         $user1Roles = $user1->getRoles();
-        $this->assertTrue(in_array('ROLE_USER', $user1Roles));
-        $this->assertFalse(in_array(Permission::ACCESS_DASHBOARD, $user1Roles));
+        $this->assertTrue(in_array('ROLE_USER', $user1Roles, true));
+        $this->assertFalse(in_array(Permission::ACCESS_DASHBOARD, $user1Roles, true));
 
         $user2Roles = $user2->getRoles();
-        $this->assertTrue(in_array('ROLE_USER', $user2Roles));
-        $this->assertFalse(in_array(Permission::ACCESS_DASHBOARD, $user2Roles));
+        $this->assertTrue(in_array('ROLE_USER', $user2Roles, true));
+        $this->assertFalse(in_array(Permission::ACCESS_DASHBOARD, $user2Roles, true));
 
         $user3Roles = $user3->getRoles();
-        $this->assertTrue(in_array('ROLE_USER', $user3Roles));
-        $this->assertFalse(in_array(Permission::ACCESS_DASHBOARD, $user3Roles));
+        $this->assertTrue(in_array('ROLE_USER', $user3Roles, true));
+        $this->assertFalse(in_array(Permission::ACCESS_DASHBOARD, $user3Roles, true));
 
         $permissionProfile1->addPermission(Permission::ACCESS_DASHBOARD);
         $this->permissionProfileService->update($permissionProfile1);
 
         $user1Roles = $user1->getRoles();
-        $this->assertTrue(in_array('ROLE_USER', $user1Roles));
-        $this->assertTrue(in_array(Permission::ACCESS_DASHBOARD, $user1Roles));
+        $this->assertTrue(in_array('ROLE_USER', $user1Roles, true));
+        $this->assertTrue(in_array(Permission::ACCESS_DASHBOARD, $user1Roles, true));
 
         $user2Roles = $user2->getRoles();
-        $this->assertTrue(in_array('ROLE_USER', $user2Roles));
-        $this->assertFalse(in_array(Permission::ACCESS_DASHBOARD, $user2Roles));
+        $this->assertTrue(in_array('ROLE_USER', $user2Roles, true));
+        $this->assertFalse(in_array(Permission::ACCESS_DASHBOARD, $user2Roles, true));
 
         $user3Roles = $user3->getRoles();
-        $this->assertTrue(in_array('ROLE_USER', $user3Roles));
-        $this->assertTrue(in_array(Permission::ACCESS_DASHBOARD, $user3Roles));
+        $this->assertTrue(in_array('ROLE_USER', $user3Roles, true));
+        $this->assertTrue(in_array(Permission::ACCESS_DASHBOARD, $user3Roles, true));
     }
 }

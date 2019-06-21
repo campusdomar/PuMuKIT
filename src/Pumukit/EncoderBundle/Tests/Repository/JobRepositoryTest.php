@@ -106,40 +106,40 @@ class JobRepositoryTest extends WebTestCase
         $this->assertCount(2, $pausedAndWaitingJobs);
         $this->assertCount(3, $pausedFinishedAndErrorJobs);
 
-        $this->assertTrue(in_array($pausedJob, $pausedJobs));
-        $this->assertFalse(in_array($waitingJob, $pausedJobs));
-        $this->assertFalse(in_array($executingJob, $pausedJobs));
-        $this->assertFalse(in_array($executingJob2, $pausedJobs));
-        $this->assertFalse(in_array($finishedJob, $pausedJobs));
-        $this->assertFalse(in_array($errorJob, $pausedJobs));
+        $this->assertTrue(in_array($pausedJob, $pausedJobs, true));
+        $this->assertFalse(in_array($waitingJob, $pausedJobs, true));
+        $this->assertFalse(in_array($executingJob, $pausedJobs, true));
+        $this->assertFalse(in_array($executingJob2, $pausedJobs, true));
+        $this->assertFalse(in_array($finishedJob, $pausedJobs, true));
+        $this->assertFalse(in_array($errorJob, $pausedJobs, true));
 
-        $this->assertFalse(in_array($pausedJob, $waitingJobs));
-        $this->assertTrue(in_array($waitingJob, $waitingJobs));
-        $this->assertFalse(in_array($executingJob, $waitingJobs));
-        $this->assertFalse(in_array($executingJob2, $waitingJobs));
-        $this->assertFalse(in_array($finishedJob, $waitingJobs));
-        $this->assertFalse(in_array($errorJob, $waitingJobs));
+        $this->assertFalse(in_array($pausedJob, $waitingJobs, true));
+        $this->assertTrue(in_array($waitingJob, $waitingJobs, true));
+        $this->assertFalse(in_array($executingJob, $waitingJobs, true));
+        $this->assertFalse(in_array($executingJob2, $waitingJobs, true));
+        $this->assertFalse(in_array($finishedJob, $waitingJobs, true));
+        $this->assertFalse(in_array($errorJob, $waitingJobs, true));
 
-        $this->assertFalse(in_array($pausedJob, $executingJobs));
-        $this->assertFalse(in_array($waitingJob, $executingJobs));
-        $this->assertTrue(in_array($executingJob, $executingJobs));
-        $this->assertTrue(in_array($executingJob2, $executingJobs));
-        $this->assertFalse(in_array($finishedJob, $executingJobs));
-        $this->assertFalse(in_array($errorJob, $executingJobs));
+        $this->assertFalse(in_array($pausedJob, $executingJobs, true));
+        $this->assertFalse(in_array($waitingJob, $executingJobs, true));
+        $this->assertTrue(in_array($executingJob, $executingJobs, true));
+        $this->assertTrue(in_array($executingJob2, $executingJobs, true));
+        $this->assertFalse(in_array($finishedJob, $executingJobs, true));
+        $this->assertFalse(in_array($errorJob, $executingJobs, true));
 
-        $this->assertFalse(in_array($pausedJob, $finishedJobs));
-        $this->assertFalse(in_array($waitingJob, $finishedJobs));
-        $this->assertFalse(in_array($executingJob, $finishedJobs));
-        $this->assertFalse(in_array($executingJob2, $finishedJobs));
-        $this->assertTrue(in_array($finishedJob, $finishedJobs));
-        $this->assertFalse(in_array($errorJob, $finishedJobs));
+        $this->assertFalse(in_array($pausedJob, $finishedJobs, true));
+        $this->assertFalse(in_array($waitingJob, $finishedJobs, true));
+        $this->assertFalse(in_array($executingJob, $finishedJobs, true));
+        $this->assertFalse(in_array($executingJob2, $finishedJobs, true));
+        $this->assertTrue(in_array($finishedJob, $finishedJobs, true));
+        $this->assertFalse(in_array($errorJob, $finishedJobs, true));
 
-        $this->assertFalse(in_array($pausedJob, $errorJobs));
-        $this->assertFalse(in_array($waitingJob, $errorJobs));
-        $this->assertFalse(in_array($executingJob, $errorJobs));
-        $this->assertFalse(in_array($executingJob2, $errorJobs));
-        $this->assertFalse(in_array($finishedJob, $errorJobs));
-        $this->assertTrue(in_array($errorJob, $errorJobs));
+        $this->assertFalse(in_array($pausedJob, $errorJobs, true));
+        $this->assertFalse(in_array($waitingJob, $errorJobs, true));
+        $this->assertFalse(in_array($executingJob, $errorJobs, true));
+        $this->assertFalse(in_array($executingJob2, $errorJobs, true));
+        $this->assertFalse(in_array($finishedJob, $errorJobs, true));
+        $this->assertTrue(in_array($errorJob, $errorJobs, true));
     }
 
     public function testFindHigherPriorityWithStatus()

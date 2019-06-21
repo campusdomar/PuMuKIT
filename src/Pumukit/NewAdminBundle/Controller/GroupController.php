@@ -68,7 +68,7 @@ class GroupController extends AdminController implements NewAdminControllerInter
         $group = $this->createNew();
         $form = $this->getForm($group, $request->getLocale());
 
-        if (in_array($request->getMethod(), ['POST', 'PUT'])) {
+        if (in_array($request->getMethod(), ['POST', 'PUT'], true)) {
             $formHandleRequest = $form->handleRequest($request);
             if ($formHandleRequest->isValid()) {
                 try {
@@ -115,7 +115,7 @@ class GroupController extends AdminController implements NewAdminControllerInter
 
         $form = $this->getForm($group, $request->getLocale());
 
-        if (in_array($request->getMethod(), ['POST', 'PUT', 'PATCH']) && $form->handleRequest($request)->isValid()) {
+        if (in_array($request->getMethod(), ['POST', 'PUT', 'PATCH'], true) && $form->handleRequest($request)->isValid()) {
             try {
                 $group = $this->get('pumukitschema.group')->update($group);
             } catch (\Exception $e) {

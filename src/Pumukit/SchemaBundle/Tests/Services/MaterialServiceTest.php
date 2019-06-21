@@ -282,11 +282,11 @@ class MaterialServiceTest extends WebTestCase
         $captions = $this->materialService->getCaptions($mm)->toArray();
         $this->assertEquals(3, count($captions));
 
-        $this->assertFalse(in_array($material1, $captions));
-        $this->assertTrue(in_array($material2, $captions));
-        $this->assertTrue(in_array($material3, $captions));
-        $this->assertFalse(in_array($material4, $captions));
-        $this->assertTrue(in_array($material5, $captions));
+        $this->assertFalse(in_array($material1, $captions, true));
+        $this->assertTrue(in_array($material2, $captions, true));
+        $this->assertTrue(in_array($material3, $captions, true));
+        $this->assertFalse(in_array($material4, $captions, true));
+        $this->assertTrue(in_array($material5, $captions, true));
     }
 
     private function deleteCreatedFiles()

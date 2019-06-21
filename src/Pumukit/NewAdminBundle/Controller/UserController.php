@@ -100,7 +100,7 @@ class UserController extends AdminController implements NewAdminControllerInterf
         $locale = $request->getLocale();
         $form = $this->createForm(UserUpdateType::class, $user, ['translator' => $translator, 'locale' => $locale]);
 
-        if (in_array($request->getMethod(), ['POST', 'PUT', 'PATCH'])) {
+        if (in_array($request->getMethod(), ['POST', 'PUT', 'PATCH'], true)) {
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
                 try {

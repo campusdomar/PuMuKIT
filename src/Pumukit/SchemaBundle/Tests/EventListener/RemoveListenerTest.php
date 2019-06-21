@@ -157,17 +157,17 @@ class RemoveListenerTest extends WebTestCase
 
         $this->assertEquals(2, count($mm1->getGroups()));
         $this->assertEquals(1, count($mm2->getGroups()));
-        $this->assertTrue(in_array($group1, $mm1->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $mm1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $mm2->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $mm2->getGroups()->toArray()));
+        $this->assertTrue(in_array($group1, $mm1->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $mm1->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group1, $mm2->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $mm2->getGroups()->toArray(), true));
 
         $this->assertEquals(2, count($embeddedBroadcast1->getGroups()));
         $this->assertEquals(1, count($embeddedBroadcast2->getGroups()));
-        $this->assertTrue(in_array($group1, $embeddedBroadcast1->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $embeddedBroadcast1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $embeddedBroadcast2->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $embeddedBroadcast2->getGroups()->toArray()));
+        $this->assertTrue(in_array($group1, $embeddedBroadcast1->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $embeddedBroadcast1->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group1, $embeddedBroadcast2->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $embeddedBroadcast2->getGroups()->toArray(), true));
 
         $this->dm->remove($group1);
         $this->dm->flush();
@@ -177,17 +177,17 @@ class RemoveListenerTest extends WebTestCase
 
         $this->assertEquals(1, count($mm1->getGroups()));
         $this->assertEquals(1, count($mm2->getGroups()));
-        $this->assertFalse(in_array($group1, $mm1->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $mm1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $mm2->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $mm2->getGroups()->toArray()));
+        $this->assertFalse(in_array($group1, $mm1->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $mm1->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group1, $mm2->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $mm2->getGroups()->toArray(), true));
 
         $this->assertEquals(1, count($embeddedBroadcast1->getGroups()));
         $this->assertEquals(1, count($embeddedBroadcast2->getGroups()));
-        $this->assertFalse(in_array($group1, $embeddedBroadcast1->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $embeddedBroadcast1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $embeddedBroadcast2->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $embeddedBroadcast2->getGroups()->toArray()));
+        $this->assertFalse(in_array($group1, $embeddedBroadcast1->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $embeddedBroadcast1->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group1, $embeddedBroadcast2->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $embeddedBroadcast2->getGroups()->toArray(), true));
 
         $this->dm->remove($group2);
         $this->dm->flush();
@@ -197,17 +197,17 @@ class RemoveListenerTest extends WebTestCase
 
         $this->assertEquals(0, count($mm1->getGroups()));
         $this->assertEquals(0, count($mm2->getGroups()));
-        $this->assertFalse(in_array($group1, $mm1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group2, $mm1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $mm2->getGroups()->toArray()));
-        $this->assertFalse(in_array($group2, $mm2->getGroups()->toArray()));
+        $this->assertFalse(in_array($group1, $mm1->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group2, $mm1->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group1, $mm2->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group2, $mm2->getGroups()->toArray(), true));
 
         $this->assertEquals(0, count($embeddedBroadcast1->getGroups()));
         $this->assertEquals(0, count($embeddedBroadcast2->getGroups()));
-        $this->assertFalse(in_array($group1, $embeddedBroadcast1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group2, $embeddedBroadcast1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $embeddedBroadcast2->getGroups()->toArray()));
-        $this->assertFalse(in_array($group2, $embeddedBroadcast2->getGroups()->toArray()));
+        $this->assertFalse(in_array($group1, $embeddedBroadcast1->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group2, $embeddedBroadcast1->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group1, $embeddedBroadcast2->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group2, $embeddedBroadcast2->getGroups()->toArray(), true));
 
         $key1 = 'Group1';
         $name1 = 'Group 1';
@@ -227,30 +227,30 @@ class RemoveListenerTest extends WebTestCase
         $this->dm->flush();
         $this->assertEquals(2, count($user1->getGroups()));
         $this->assertEquals(1, count($user2->getGroups()));
-        $this->assertTrue(in_array($group1, $user1->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $user1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $user2->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $user2->getGroups()->toArray()));
+        $this->assertTrue(in_array($group1, $user1->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $user1->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group1, $user2->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $user2->getGroups()->toArray(), true));
         $this->dm->remove($group1);
         $this->dm->flush();
         $user1 = $this->repoUser->find($user1->getId());
         $user2 = $this->repoUser->find($user2->getId());
         $this->assertEquals(1, count($user1->getGroups()));
         $this->assertEquals(1, count($user2->getGroups()));
-        $this->assertFalse(in_array($group1, $user1->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $user1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $user2->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $user2->getGroups()->toArray()));
+        $this->assertFalse(in_array($group1, $user1->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $user1->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group1, $user2->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $user2->getGroups()->toArray(), true));
         $this->dm->remove($group2);
         $this->dm->flush();
         $user1 = $this->repoUser->find($user1->getId());
         $user2 = $this->repoUser->find($user2->getId());
         $this->assertEquals(0, count($user1->getGroups()));
         $this->assertEquals(0, count($user2->getGroups()));
-        $this->assertFalse(in_array($group1, $user1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group2, $user1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $user2->getGroups()->toArray()));
-        $this->assertFalse(in_array($group2, $user2->getGroups()->toArray()));
+        $this->assertFalse(in_array($group1, $user1->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group2, $user1->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group1, $user2->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group2, $user2->getGroups()->toArray(), true));
     }
 
     private function createJobWithStatus($status, $multimediaObject)

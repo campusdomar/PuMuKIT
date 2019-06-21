@@ -20,14 +20,14 @@ class TextIndexUtils
     {
         $langCode = strtolower($langCode);
 
-        return in_array($langCode, self::$supportedLanguage);
+        return in_array($langCode, self::$supportedLanguage, true);
     }
 
     public static function getCloseLanguage($langCode)
     {
         $langCode = strtolower($langCode);
 
-        if (in_array($langCode, self::$supportedLanguage)) {
+        if (in_array($langCode, self::$supportedLanguage, true)) {
             return $langCode;
         }
 

@@ -80,9 +80,9 @@ class PermissionProfileServiceTest extends WebTestCase
         $this->assertEquals($permissionProfile1, $this->repo->findOneByDefault(true));
 
         $falseDefault = $this->repo->findByDefault(false);
-        $this->assertFalse(in_array($permissionProfile1, $falseDefault));
-        $this->assertTrue(in_array($permissionProfile2, $falseDefault));
-        $this->assertTrue(in_array($permissionProfile3, $falseDefault));
+        $this->assertFalse(in_array($permissionProfile1, $falseDefault, true));
+        $this->assertTrue(in_array($permissionProfile2, $falseDefault, true));
+        $this->assertTrue(in_array($permissionProfile3, $falseDefault, true));
 
         $permissionProfile2->setDefault(true);
         $permissionProfile2 = $this->permissionProfileService->update($permissionProfile2);
@@ -90,9 +90,9 @@ class PermissionProfileServiceTest extends WebTestCase
         $this->assertEquals($permissionProfile2, $this->repo->findOneByDefault(true));
 
         $falseDefault = $this->repo->findByDefault(false);
-        $this->assertTrue(in_array($permissionProfile1, $falseDefault));
-        $this->assertFalse(in_array($permissionProfile2, $falseDefault));
-        $this->assertTrue(in_array($permissionProfile3, $falseDefault));
+        $this->assertTrue(in_array($permissionProfile1, $falseDefault, true));
+        $this->assertFalse(in_array($permissionProfile2, $falseDefault, true));
+        $this->assertTrue(in_array($permissionProfile3, $falseDefault, true));
     }
 
     public function testAddPermission()
@@ -195,9 +195,9 @@ class PermissionProfileServiceTest extends WebTestCase
         $this->assertEquals($permissionProfile1, $this->repo->findOneByDefault(true));
 
         $falseDefault = $this->repo->findByDefault(false);
-        $this->assertFalse(in_array($permissionProfile1, $falseDefault));
-        $this->assertTrue(in_array($permissionProfile2, $falseDefault));
-        $this->assertTrue(in_array($permissionProfile3, $falseDefault));
+        $this->assertFalse(in_array($permissionProfile1, $falseDefault, true));
+        $this->assertTrue(in_array($permissionProfile2, $falseDefault, true));
+        $this->assertTrue(in_array($permissionProfile3, $falseDefault, true));
 
         $permissionProfile1->setDefault(false);
         $permissionProfile1 = $this->permissionProfileService->update($permissionProfile1);
@@ -205,9 +205,9 @@ class PermissionProfileServiceTest extends WebTestCase
         $this->assertEquals($permissionProfile3, $this->repo->findOneByDefault(true));
 
         $falseDefault = $this->repo->findByDefault(false);
-        $this->assertTrue(in_array($permissionProfile1, $falseDefault));
-        $this->assertTrue(in_array($permissionProfile2, $falseDefault));
-        $this->assertFalse(in_array($permissionProfile3, $falseDefault));
+        $this->assertTrue(in_array($permissionProfile1, $falseDefault, true));
+        $this->assertTrue(in_array($permissionProfile2, $falseDefault, true));
+        $this->assertFalse(in_array($permissionProfile3, $falseDefault, true));
 
         $permissionProfile4 = new PermissionProfile();
         $permissionProfile4->setName('test4');

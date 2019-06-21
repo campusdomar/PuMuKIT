@@ -284,7 +284,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         $multimediaObject = $dm->getRepository(MultimediaObject::class)->findOneById(new \MongoId($request->request->get('id')));
         $method = $request->getMethod();
-        if (in_array($method, ['POST', 'PUT', 'PATCH'])) {
+        if (in_array($method, ['POST', 'PUT', 'PATCH'], true)) {
             $social = $multimediaObject->getEmbeddedSocial();
             if (!$social) {
                 $social = new EmbeddedSocial();
@@ -343,7 +343,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $notChangePubChannel = !$this->isGranted(Permission::CHANGE_MMOBJECT_PUBCHANNEL);
 
         $method = $request->getMethod();
-        if (in_array($method, ['POST', 'PUT', 'PATCH'])) {
+        if (in_array($method, ['POST', 'PUT', 'PATCH'], true)) {
             $formMeta->handleRequest($request);
             if ($formMeta->isSubmitted() && $formMeta->isValid()) {
                 $this->update($resource);
@@ -412,7 +412,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $notChangePubChannel = !$this->isGranted(Permission::CHANGE_MMOBJECT_PUBCHANNEL);
 
         $method = $request->getMethod();
-        if (in_array($method, ['POST', 'PUT', 'PATCH'])) {
+        if (in_array($method, ['POST', 'PUT', 'PATCH'], true)) {
             $formPub->handleRequest($request);
 
             if ($formPub->isSubmitted() && $formPub->isValid()) {
@@ -1316,7 +1316,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $dm = $this->get('doctrine_mongodb')->getManager();
         $multimediaObject = $dm->getRepository(MultimediaObject::class)->findOneById(new \MongoId($request->get('id')));
         $method = $request->getMethod();
-        if (in_array($method, ['POST'])) {
+        if (in_array($method, ['POST'], true)) {
             $multimediaObject->setProperty('paellalayout', $request->get('paellalayout'));
             $dm->flush();
         }
@@ -1404,7 +1404,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         if (null !== $checkedTags) {
             foreach ($resource->getTags() as $tag) {
                 if ((0 === strpos($tag->getCod(), $codStart)) && (false !== strpos($tag->getCod(), $codStart)) &&
-                    (!in_array($tag->getCod(), $checkedTags)) &&
+                    (!in_array($tag->getCod(), $checkedTags, true)) &&
                     (!$this->isGranted(Permission::getRoleTagDisableForPubChannel($tag->getCod())))) {
                     $resource->removeTag($tag);
                 }
@@ -1668,7 +1668,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $userInGroups = false;
         $userGroups = $loggedInUser->getGroups()->toArray();
         foreach ($multimediaObject->getGroups() as $mmGroup) {
-            if (in_array($mmGroup, $userGroups)) {
+            if (in_array($mmGroup, $userGroups, true)) {
                 $userInGroups = true;
 
                 break;

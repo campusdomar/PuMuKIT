@@ -86,7 +86,7 @@ class AdminController extends ResourceController implements NewAdminControllerIn
         $resource = $this->findOr404($request);
         $form = $this->getForm($resource, $request->getLocale());
 
-        if (in_array($request->getMethod(), ['POST', 'PUT', 'PATCH']) && $form->handleRequest($request)->isValid()) {
+        if (in_array($request->getMethod(), ['POST', 'PUT', 'PATCH'], true) && $form->handleRequest($request)->isValid()) {
             try {
                 $dm->persist($resource);
                 $dm->flush();

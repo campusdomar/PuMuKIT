@@ -52,14 +52,14 @@ class LocaleListener implements EventSubscriberInterface
         $sessionLocale = $request->getSession()->get('_locale');
 
         // try to see if the locale has been set as a _locale routing parameter
-        if ($requestLocale && in_array($requestLocale, $this->pumukitLocales)) {
+        if ($requestLocale && in_array($requestLocale, $this->pumukitLocales, true)) {
             $request->getSession()->set('_locale', $requestLocale);
         } else {
-            if (!$sessionLocale || !in_array($sessionLocale, $this->pumukitLocales)) {
+            if (!$sessionLocale || !in_array($sessionLocale, $this->pumukitLocales, true)) {
                 $validLocales = array_intersect($request->getLanguages(), $this->pumukitLocales);
                 if ($validLocales) {
                     $request->getSession()->set('_locale', current($validLocales));
-                } elseif (in_array($this->defaultLocale, $this->pumukitLocales)) {
+                } elseif (in_array($this->defaultLocale, $this->pumukitLocales, true)) {
                     $request->getSession()->set('_locale', $this->defaultLocale);
                 } elseif (!empty($this->pumukitLocales)) {
                     $request->getSession()->set('_locale', $this->pumukitLocales[0]);

@@ -593,34 +593,34 @@ class SeriesRepositoryTest extends WebTestCase
         $seriesKatePresenter = $this->repo->findByPersonIdAndRoleCod($personKate->getId(), $rolePresenter->getCod());
 
         $this->assertEquals(2, count($seriesJohnActor));
-        $this->assertTrue(in_array($series1, $seriesJohnActor->toArray()));
-        $this->assertFalse(in_array($series2, $seriesJohnActor->toArray()));
-        $this->assertTrue(in_array($series3, $seriesJohnActor->toArray()));
+        $this->assertTrue(in_array($series1, $seriesJohnActor->toArray(), true));
+        $this->assertFalse(in_array($series2, $seriesJohnActor->toArray(), true));
+        $this->assertTrue(in_array($series3, $seriesJohnActor->toArray(), true));
 
         $this->assertEquals(2, count($seriesJohnPresenter));
-        $this->assertTrue(in_array($series1, $seriesJohnPresenter->toArray()));
-        $this->assertFalse(in_array($series2, $seriesJohnPresenter->toArray()));
-        $this->assertTrue(in_array($series3, $seriesJohnPresenter->toArray()));
+        $this->assertTrue(in_array($series1, $seriesJohnPresenter->toArray(), true));
+        $this->assertFalse(in_array($series2, $seriesJohnPresenter->toArray(), true));
+        $this->assertTrue(in_array($series3, $seriesJohnPresenter->toArray(), true));
 
         $this->assertEquals(2, count($seriesBobActor));
-        $this->assertTrue(in_array($series1, $seriesBobActor->toArray()));
-        $this->assertFalse(in_array($series2, $seriesBobActor->toArray()));
-        $this->assertTrue(in_array($series3, $seriesBobActor->toArray()));
+        $this->assertTrue(in_array($series1, $seriesBobActor->toArray(), true));
+        $this->assertFalse(in_array($series2, $seriesBobActor->toArray(), true));
+        $this->assertTrue(in_array($series3, $seriesBobActor->toArray(), true));
 
         $this->assertEquals(1, count($seriesBobPresenter));
-        $this->assertTrue(in_array($series1, $seriesBobPresenter->toArray()));
-        $this->assertFalse(in_array($series2, $seriesBobPresenter->toArray()));
-        $this->assertFalse(in_array($series3, $seriesBobPresenter->toArray()));
+        $this->assertTrue(in_array($series1, $seriesBobPresenter->toArray(), true));
+        $this->assertFalse(in_array($series2, $seriesBobPresenter->toArray(), true));
+        $this->assertFalse(in_array($series3, $seriesBobPresenter->toArray(), true));
 
         $this->assertEquals(2, count($seriesKateActor));
-        $this->assertTrue(in_array($series1, $seriesKateActor->toArray()));
-        $this->assertTrue(in_array($series2, $seriesKateActor->toArray()));
-        $this->assertFalse(in_array($series3, $seriesKateActor->toArray()));
+        $this->assertTrue(in_array($series1, $seriesKateActor->toArray(), true));
+        $this->assertTrue(in_array($series2, $seriesKateActor->toArray(), true));
+        $this->assertFalse(in_array($series3, $seriesKateActor->toArray(), true));
 
         $this->assertEquals(1, count($seriesKatePresenter));
-        $this->assertFalse(in_array($series1, $seriesKatePresenter->toArray()));
-        $this->assertTrue(in_array($series2, $seriesKatePresenter->toArray()));
-        $this->assertFalse(in_array($series3, $seriesKatePresenter->toArray()));
+        $this->assertFalse(in_array($series1, $seriesKatePresenter->toArray(), true));
+        $this->assertTrue(in_array($series2, $seriesKatePresenter->toArray(), true));
+        $this->assertFalse(in_array($series3, $seriesKatePresenter->toArray(), true));
 
         $group1 = new Group();
         $group1->setKey('group1');
@@ -641,14 +641,14 @@ class SeriesRepositoryTest extends WebTestCase
         $seriesJohnActor2 = $this->repo->findByPersonIdAndRoleCodOrGroups($personJohn->getId(), $roleActor->getCod(), $groups);
 
         $this->assertEquals(3, count($seriesJohnActor1));
-        $this->assertTrue(in_array($series1, $seriesJohnActor1->toArray()));
-        $this->assertTrue(in_array($series2, $seriesJohnActor1->toArray()));
-        $this->assertTrue(in_array($series3, $seriesJohnActor1->toArray()));
+        $this->assertTrue(in_array($series1, $seriesJohnActor1->toArray(), true));
+        $this->assertTrue(in_array($series2, $seriesJohnActor1->toArray(), true));
+        $this->assertTrue(in_array($series3, $seriesJohnActor1->toArray(), true));
 
         $this->assertEquals(2, count($seriesJohnActor2));
-        $this->assertTrue(in_array($series1, $seriesJohnActor2->toArray()));
-        $this->assertFalse(in_array($series2, $seriesJohnActor2->toArray()));
-        $this->assertTrue(in_array($series3, $seriesJohnActor2->toArray()));
+        $this->assertTrue(in_array($series1, $seriesJohnActor2->toArray(), true));
+        $this->assertFalse(in_array($series2, $seriesJohnActor2->toArray(), true));
+        $this->assertTrue(in_array($series3, $seriesJohnActor2->toArray(), true));
     }
 
     public function testFindBySeriesType()
@@ -1015,15 +1015,15 @@ class SeriesRepositoryTest extends WebTestCase
         $this->assertEquals(0, count($loginSeries));
         $this->assertEquals(0, count($groupsSeries));
 
-        $this->assertTrue(in_array($series1, $passwordSeries->toArray()));
-        $this->assertFalse(in_array($series1, $publicSeries->toArray()));
-        $this->assertFalse(in_array($series1, $loginSeries->toArray()));
-        $this->assertFalse(in_array($series1, $groupsSeries->toArray()));
+        $this->assertTrue(in_array($series1, $passwordSeries->toArray(), true));
+        $this->assertFalse(in_array($series1, $publicSeries->toArray(), true));
+        $this->assertFalse(in_array($series1, $loginSeries->toArray(), true));
+        $this->assertFalse(in_array($series1, $groupsSeries->toArray(), true));
 
-        $this->assertFalse(in_array($series2, $passwordSeries->toArray()));
-        $this->assertTrue(in_array($series2, $publicSeries->toArray()));
-        $this->assertFalse(in_array($series2, $loginSeries->toArray()));
-        $this->assertFalse(in_array($series2, $groupsSeries->toArray()));
+        $this->assertFalse(in_array($series2, $passwordSeries->toArray(), true));
+        $this->assertTrue(in_array($series2, $publicSeries->toArray(), true));
+        $this->assertFalse(in_array($series2, $loginSeries->toArray(), true));
+        $this->assertFalse(in_array($series2, $groupsSeries->toArray(), true));
 
         $group1 = new Group();
         $group1->setKey('group1');
@@ -1051,12 +1051,12 @@ class SeriesRepositoryTest extends WebTestCase
         $this->assertEquals(0, count($seriesGroups2));
         $this->assertEquals(0, count($seriesGroups12));
 
-        $this->assertTrue(in_array($series1, $seriesGroups1->toArray()));
-        $this->assertFalse(in_array($series2, $seriesGroups1->toArray()));
-        $this->assertFalse(in_array($series1, $seriesGroups2->toArray()));
-        $this->assertFalse(in_array($series2, $seriesGroups2->toArray()));
-        $this->assertFalse(in_array($series1, $seriesGroups12->toArray()));
-        $this->assertFalse(in_array($series2, $seriesGroups12->toArray()));
+        $this->assertTrue(in_array($series1, $seriesGroups1->toArray(), true));
+        $this->assertFalse(in_array($series2, $seriesGroups1->toArray(), true));
+        $this->assertFalse(in_array($series1, $seriesGroups2->toArray(), true));
+        $this->assertFalse(in_array($series2, $seriesGroups2->toArray(), true));
+        $this->assertFalse(in_array($series1, $seriesGroups12->toArray(), true));
+        $this->assertFalse(in_array($series2, $seriesGroups12->toArray(), true));
     }
 
     public function testFindByPersonIdAndRoleCodOrGroupsSorted()
@@ -1137,44 +1137,44 @@ class SeriesRepositoryTest extends WebTestCase
         $this->assertEquals(2, count($seriesPerson2Role3Group1));
         $this->assertEquals(2, count($seriesPerson2Role3Group2));
 
-        $this->assertTrue(in_array($series1, $seriesPerson1Role1Group1->toArray()));
-        $this->assertTrue(in_array($series1, $seriesPerson1Role1Group2->toArray()));
-        $this->assertTrue(in_array($series1, $seriesPerson1Role2Group1->toArray()));
-        $this->assertTrue(in_array($series1, $seriesPerson1Role2Group2->toArray()));
-        $this->assertTrue(in_array($series1, $seriesPerson1Role3Group1->toArray()));
-        $this->assertTrue(in_array($series1, $seriesPerson1Role3Group2->toArray()));
-        $this->assertTrue(in_array($series1, $seriesPerson2Role1Group1->toArray()));
-        $this->assertTrue(in_array($series1, $seriesPerson2Role1Group2->toArray()));
-        $this->assertTrue(in_array($series1, $seriesPerson2Role2Group1->toArray()));
-        $this->assertTrue(in_array($series1, $seriesPerson2Role2Group2->toArray()));
-        $this->assertTrue(in_array($series1, $seriesPerson2Role3Group1->toArray()));
-        $this->assertTrue(in_array($series1, $seriesPerson2Role3Group2->toArray()));
+        $this->assertTrue(in_array($series1, $seriesPerson1Role1Group1->toArray(), true));
+        $this->assertTrue(in_array($series1, $seriesPerson1Role1Group2->toArray(), true));
+        $this->assertTrue(in_array($series1, $seriesPerson1Role2Group1->toArray(), true));
+        $this->assertTrue(in_array($series1, $seriesPerson1Role2Group2->toArray(), true));
+        $this->assertTrue(in_array($series1, $seriesPerson1Role3Group1->toArray(), true));
+        $this->assertTrue(in_array($series1, $seriesPerson1Role3Group2->toArray(), true));
+        $this->assertTrue(in_array($series1, $seriesPerson2Role1Group1->toArray(), true));
+        $this->assertTrue(in_array($series1, $seriesPerson2Role1Group2->toArray(), true));
+        $this->assertTrue(in_array($series1, $seriesPerson2Role2Group1->toArray(), true));
+        $this->assertTrue(in_array($series1, $seriesPerson2Role2Group2->toArray(), true));
+        $this->assertTrue(in_array($series1, $seriesPerson2Role3Group1->toArray(), true));
+        $this->assertTrue(in_array($series1, $seriesPerson2Role3Group2->toArray(), true));
 
-        $this->assertTrue(in_array($series2, $seriesPerson1Role1Group1->toArray()));
-        $this->assertFalse(in_array($series2, $seriesPerson1Role1Group2->toArray()));
-        $this->assertTrue(in_array($series2, $seriesPerson1Role2Group1->toArray()));
-        $this->assertFalse(in_array($series2, $seriesPerson1Role2Group2->toArray()));
-        $this->assertTrue(in_array($series2, $seriesPerson1Role3Group1->toArray()));
-        $this->assertFalse(in_array($series2, $seriesPerson1Role3Group2->toArray()));
-        $this->assertTrue(in_array($series2, $seriesPerson2Role1Group1->toArray()));
-        $this->assertFalse(in_array($series2, $seriesPerson2Role1Group2->toArray()));
-        $this->assertTrue(in_array($series2, $seriesPerson2Role2Group1->toArray()));
-        $this->assertTrue(in_array($series2, $seriesPerson2Role2Group2->toArray()));
-        $this->assertTrue(in_array($series2, $seriesPerson2Role3Group1->toArray()));
-        $this->assertFalse(in_array($series2, $seriesPerson2Role3Group2->toArray()));
+        $this->assertTrue(in_array($series2, $seriesPerson1Role1Group1->toArray(), true));
+        $this->assertFalse(in_array($series2, $seriesPerson1Role1Group2->toArray(), true));
+        $this->assertTrue(in_array($series2, $seriesPerson1Role2Group1->toArray(), true));
+        $this->assertFalse(in_array($series2, $seriesPerson1Role2Group2->toArray(), true));
+        $this->assertTrue(in_array($series2, $seriesPerson1Role3Group1->toArray(), true));
+        $this->assertFalse(in_array($series2, $seriesPerson1Role3Group2->toArray(), true));
+        $this->assertTrue(in_array($series2, $seriesPerson2Role1Group1->toArray(), true));
+        $this->assertFalse(in_array($series2, $seriesPerson2Role1Group2->toArray(), true));
+        $this->assertTrue(in_array($series2, $seriesPerson2Role2Group1->toArray(), true));
+        $this->assertTrue(in_array($series2, $seriesPerson2Role2Group2->toArray(), true));
+        $this->assertTrue(in_array($series2, $seriesPerson2Role3Group1->toArray(), true));
+        $this->assertFalse(in_array($series2, $seriesPerson2Role3Group2->toArray(), true));
 
-        $this->assertFalse(in_array($series3, $seriesPerson1Role1Group1->toArray()));
-        $this->assertTrue(in_array($series3, $seriesPerson1Role1Group2->toArray()));
-        $this->assertFalse(in_array($series3, $seriesPerson1Role2Group1->toArray()));
-        $this->assertTrue(in_array($series3, $seriesPerson1Role2Group2->toArray()));
-        $this->assertTrue(in_array($series3, $seriesPerson1Role3Group1->toArray()));
-        $this->assertTrue(in_array($series3, $seriesPerson1Role3Group2->toArray()));
-        $this->assertFalse(in_array($series3, $seriesPerson2Role1Group1->toArray()));
-        $this->assertTrue(in_array($series3, $seriesPerson2Role1Group2->toArray()));
-        $this->assertFalse(in_array($series3, $seriesPerson2Role2Group1->toArray()));
-        $this->assertTrue(in_array($series3, $seriesPerson2Role2Group2->toArray()));
-        $this->assertFalse(in_array($series3, $seriesPerson2Role3Group1->toArray()));
-        $this->assertTrue(in_array($series3, $seriesPerson2Role3Group2->toArray()));
+        $this->assertFalse(in_array($series3, $seriesPerson1Role1Group1->toArray(), true));
+        $this->assertTrue(in_array($series3, $seriesPerson1Role1Group2->toArray(), true));
+        $this->assertFalse(in_array($series3, $seriesPerson1Role2Group1->toArray(), true));
+        $this->assertTrue(in_array($series3, $seriesPerson1Role2Group2->toArray(), true));
+        $this->assertTrue(in_array($series3, $seriesPerson1Role3Group1->toArray(), true));
+        $this->assertTrue(in_array($series3, $seriesPerson1Role3Group2->toArray(), true));
+        $this->assertFalse(in_array($series3, $seriesPerson2Role1Group1->toArray(), true));
+        $this->assertTrue(in_array($series3, $seriesPerson2Role1Group2->toArray(), true));
+        $this->assertFalse(in_array($series3, $seriesPerson2Role2Group1->toArray(), true));
+        $this->assertTrue(in_array($series3, $seriesPerson2Role2Group2->toArray(), true));
+        $this->assertFalse(in_array($series3, $seriesPerson2Role3Group1->toArray(), true));
+        $this->assertTrue(in_array($series3, $seriesPerson2Role3Group2->toArray(), true));
     }
 
     public function testfindByTitleWithLocale()
@@ -1206,23 +1206,23 @@ class SeriesRepositoryTest extends WebTestCase
         $seriesPrueba2En = $this->repo->findByTitleWithLocale($prueba2, $enLocale)->toArray();
         $seriesPrueba2Es = $this->repo->findByTitleWithLocale($prueba2, $esLocale)->toArray();
 
-        $this->assertTrue(in_array($series1, $seriesTest1En));
-        $this->assertFalse(in_array($series1, $seriesTest1Es));
-        $this->assertFalse(in_array($series1, $seriesPrueba1En));
-        $this->assertTrue(in_array($series1, $seriesPrueba1Es));
-        $this->assertFalse(in_array($series1, $seriesTest2En));
-        $this->assertFalse(in_array($series1, $seriesTest2Es));
-        $this->assertFalse(in_array($series1, $seriesPrueba2En));
-        $this->assertFalse(in_array($series1, $seriesPrueba2Es));
+        $this->assertTrue(in_array($series1, $seriesTest1En, true));
+        $this->assertFalse(in_array($series1, $seriesTest1Es, true));
+        $this->assertFalse(in_array($series1, $seriesPrueba1En, true));
+        $this->assertTrue(in_array($series1, $seriesPrueba1Es, true));
+        $this->assertFalse(in_array($series1, $seriesTest2En, true));
+        $this->assertFalse(in_array($series1, $seriesTest2Es, true));
+        $this->assertFalse(in_array($series1, $seriesPrueba2En, true));
+        $this->assertFalse(in_array($series1, $seriesPrueba2Es, true));
 
-        $this->assertFalse(in_array($series2, $seriesTest1En));
-        $this->assertFalse(in_array($series2, $seriesTest1Es));
-        $this->assertFalse(in_array($series2, $seriesPrueba1En));
-        $this->assertFalse(in_array($series2, $seriesPrueba1Es));
-        $this->assertTrue(in_array($series2, $seriesTest2En));
-        $this->assertFalse(in_array($series2, $seriesTest2Es));
-        $this->assertFalse(in_array($series2, $seriesPrueba2En));
-        $this->assertTrue(in_array($series2, $seriesPrueba2Es));
+        $this->assertFalse(in_array($series2, $seriesTest1En, true));
+        $this->assertFalse(in_array($series2, $seriesTest1Es, true));
+        $this->assertFalse(in_array($series2, $seriesPrueba1En, true));
+        $this->assertFalse(in_array($series2, $seriesPrueba1Es, true));
+        $this->assertTrue(in_array($series2, $seriesTest2En, true));
+        $this->assertFalse(in_array($series2, $seriesTest2Es, true));
+        $this->assertFalse(in_array($series2, $seriesPrueba2En, true));
+        $this->assertTrue(in_array($series2, $seriesPrueba2Es, true));
     }
 
     private function createSeriesType($name)

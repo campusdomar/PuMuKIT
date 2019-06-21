@@ -137,12 +137,12 @@ class GroupServiceTest extends WebTestCase
         $usersGroup1 = $this->groupService->findUsersInGroup($group1)->toArray();
         $usersGroup2 = $this->groupService->findUsersInGroup($group2)->toArray();
 
-        $this->assertFalse(in_array($user1, $usersGroup1));
-        $this->assertFalse(in_array($user2, $usersGroup1));
-        $this->assertFalse(in_array($user3, $usersGroup1));
-        $this->assertFalse(in_array($user1, $usersGroup2));
-        $this->assertFalse(in_array($user2, $usersGroup2));
-        $this->assertFalse(in_array($user3, $usersGroup2));
+        $this->assertFalse(in_array($user1, $usersGroup1, true));
+        $this->assertFalse(in_array($user2, $usersGroup1, true));
+        $this->assertFalse(in_array($user3, $usersGroup1, true));
+        $this->assertFalse(in_array($user1, $usersGroup2, true));
+        $this->assertFalse(in_array($user2, $usersGroup2, true));
+        $this->assertFalse(in_array($user3, $usersGroup2, true));
 
         $user1->addGroup($group1);
         $this->dm->persist($user1);
@@ -151,12 +151,12 @@ class GroupServiceTest extends WebTestCase
         $usersGroup1 = $this->groupService->findUsersInGroup($group1)->toArray();
         $usersGroup2 = $this->groupService->findUsersInGroup($group2)->toArray();
 
-        $this->assertTrue(in_array($user1, $usersGroup1));
-        $this->assertFalse(in_array($user2, $usersGroup1));
-        $this->assertFalse(in_array($user3, $usersGroup1));
-        $this->assertFalse(in_array($user1, $usersGroup2));
-        $this->assertFalse(in_array($user2, $usersGroup2));
-        $this->assertFalse(in_array($user3, $usersGroup2));
+        $this->assertTrue(in_array($user1, $usersGroup1, true));
+        $this->assertFalse(in_array($user2, $usersGroup1, true));
+        $this->assertFalse(in_array($user3, $usersGroup1, true));
+        $this->assertFalse(in_array($user1, $usersGroup2, true));
+        $this->assertFalse(in_array($user2, $usersGroup2, true));
+        $this->assertFalse(in_array($user3, $usersGroup2, true));
 
         // sort
 
@@ -471,9 +471,9 @@ class GroupServiceTest extends WebTestCase
 
         $ids = [new \MongoId($group1->getId()), new \MongoId($group3->getId())];
         $groups = $this->groupService->findByIdNotIn($ids)->toArray();
-        $this->assertFalse(in_array($group1, $groups));
-        $this->assertTrue(in_array($group2, $groups));
-        $this->assertFalse(in_array($group3, $groups));
+        $this->assertFalse(in_array($group1, $groups, true));
+        $this->assertTrue(in_array($group2, $groups, true));
+        $this->assertFalse(in_array($group3, $groups, true));
     }
 
     public function testFindByIdNotInOf()
@@ -503,34 +503,34 @@ class GroupServiceTest extends WebTestCase
         $ids = [new \MongoId($group1->getId()), new \MongoId($group3->getId())];
         $total = [new \MongoId($group1->getId()), new \MongoId($group3->getId()), new \MongoId($group4->getId())];
         $groups = $this->groupService->findByIdNotInOf($ids, $total)->toArray();
-        $this->assertFalse(in_array($group1, $groups));
-        $this->assertFalse(in_array($group2, $groups));
-        $this->assertFalse(in_array($group3, $groups));
-        $this->assertTrue(in_array($group4, $groups));
+        $this->assertFalse(in_array($group1, $groups, true));
+        $this->assertFalse(in_array($group2, $groups, true));
+        $this->assertFalse(in_array($group3, $groups, true));
+        $this->assertTrue(in_array($group4, $groups, true));
 
         $ids = [];
         $total = [new \MongoId($group1->getId()), new \MongoId($group3->getId()), new \MongoId($group4->getId())];
         $groups = $this->groupService->findByIdNotInOf($ids, $total)->toArray();
-        $this->assertTrue(in_array($group1, $groups));
-        $this->assertFalse(in_array($group2, $groups));
-        $this->assertTrue(in_array($group3, $groups));
-        $this->assertTrue(in_array($group4, $groups));
+        $this->assertTrue(in_array($group1, $groups, true));
+        $this->assertFalse(in_array($group2, $groups, true));
+        $this->assertTrue(in_array($group3, $groups, true));
+        $this->assertTrue(in_array($group4, $groups, true));
 
         $ids = [new \MongoId($group1->getId()), new \MongoId($group3->getId())];
         $total = [];
         $groups = $this->groupService->findByIdNotInOf($ids, $total)->toArray();
-        $this->assertFalse(in_array($group1, $groups));
-        $this->assertFalse(in_array($group2, $groups));
-        $this->assertFalse(in_array($group3, $groups));
-        $this->assertFalse(in_array($group4, $groups));
+        $this->assertFalse(in_array($group1, $groups, true));
+        $this->assertFalse(in_array($group2, $groups, true));
+        $this->assertFalse(in_array($group3, $groups, true));
+        $this->assertFalse(in_array($group4, $groups, true));
 
         $ids = [];
         $total = [];
         $groups = $this->groupService->findByIdNotInOf($ids, $total)->toArray();
-        $this->assertFalse(in_array($group1, $groups));
-        $this->assertFalse(in_array($group2, $groups));
-        $this->assertFalse(in_array($group3, $groups));
-        $this->assertFalse(in_array($group4, $groups));
+        $this->assertFalse(in_array($group1, $groups, true));
+        $this->assertFalse(in_array($group2, $groups, true));
+        $this->assertFalse(in_array($group3, $groups, true));
+        $this->assertFalse(in_array($group4, $groups, true));
     }
 
     public function testCountAdminMultimediaObjectsInGroup()

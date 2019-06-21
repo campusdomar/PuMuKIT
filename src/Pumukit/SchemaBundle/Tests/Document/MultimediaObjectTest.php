@@ -309,7 +309,7 @@ class MultimediaObjectTest extends TestCase
         $this->assertNull($mm->getTrackWithTag('del_universo'));
         $this->assertEquals($t3, $mm->getTrackWithAnyTag(['master', 'pr']));
         $this->assertEquals([$t2], $mm->getTracksWithAllTags(['master', 'mosca', 'old']));
-        $this->assertTrue(in_array($mm->getTrackWithAllTags(['mosca', 'master']), [$t3, $t2]));
+        $this->assertTrue(in_array($mm->getTrackWithAllTags(['mosca', 'master']), [$t3, $t2], true));
         $this->assertNull($mm->getTrackWithAllTags(['mosca', 'master', 'del_universo']));
         $this->assertEquals(4, count($mm->getTracksWithAnyTag(['master', 'webtv'])));
         $this->assertEquals($t3, $mm->getTrackWithAnyTag(['master']));
@@ -360,7 +360,7 @@ class MultimediaObjectTest extends TestCase
         $this->assertNull($mm->getPicWithTag('del_universo'));
         $this->assertEquals($p3, $mm->getPicWithAnyTag(['master', 'pr']));
         $this->assertEquals([$p2], $mm->getPicsWithAllTags(['master', 'mosca', 'old']));
-        $this->assertTrue(in_array($mm->getPicWithAllTags(['mosca', 'master']), [$p3, $p2]));
+        $this->assertTrue(in_array($mm->getPicWithAllTags(['mosca', 'master']), [$p3, $p2], true));
         $this->assertNull($mm->getPicWithAllTags(['mosca', 'master', 'del_universo']));
         $this->assertEquals(4, count($mm->getPicsWithAnyTag(['master', 'webtv'])));
         $this->assertEquals($p3, $mm->getPicWithAnyTag(['master']));
@@ -402,7 +402,7 @@ class MultimediaObjectTest extends TestCase
         $this->assertNull($mm->getMaterialWithTag('del_universo'));
         $this->assertEquals($m3, $mm->getMaterialWithAnyTag(['master', 'pr']));
         $this->assertEquals([$m2], $mm->getMaterialsWithAllTags(['master', 'mosca', 'old']));
-        $this->assertTrue(in_array($mm->getMaterialWithAllTags(['mosca', 'master']), [$m3, $m2]));
+        $this->assertTrue(in_array($mm->getMaterialWithAllTags(['mosca', 'master']), [$m3, $m2], true));
         $this->assertNull($mm->getMaterialWithAllTags(['mosca', 'master', 'del_universo']));
         $this->assertEquals(4, count($mm->getMaterialsWithAnyTag(['master', 'webtv'])));
         $this->assertEquals($m3, $mm->getMaterialWithAnyTag(['master']));
@@ -444,7 +444,7 @@ class MultimediaObjectTest extends TestCase
         $this->assertNull($mm->getLinkWithTag('del_universo'));
         $this->assertEquals($m3, $mm->getLinkWithAnyTag(['master', 'pr']));
         $this->assertEquals([$m2], $mm->getLinksWithAllTags(['master', 'mosca', 'old']));
-        $this->assertTrue(in_array($mm->getLinkWithAllTags(['mosca', 'master']), [$m3, $m2]));
+        $this->assertTrue(in_array($mm->getLinkWithAllTags(['mosca', 'master']), [$m3, $m2], true));
         $this->assertNull($mm->getLinkWithAllTags(['mosca', 'master', 'del_universo']));
         $this->assertEquals(4, count($mm->getLinksWithAnyTag(['master', 'webtv'])));
         $this->assertEquals($m3, $mm->getLinkWithAnyTag(['master']));

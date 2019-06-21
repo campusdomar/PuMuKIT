@@ -1645,7 +1645,7 @@ class MultimediaObject
 
         foreach ($this->people as $role) {
             foreach ($role->getPeople() as $person) {
-                if (!in_array($person, $aux)) {
+                if (!in_array($person, $aux, true)) {
                     $aux[] = $person;
                 }
             }
@@ -1817,7 +1817,7 @@ class MultimediaObject
             foreach ($this->people as $embeddedRole) {
                 if ($always || $embeddedRole->getDisplay()) {
                     foreach ($embeddedRole->getPeople() as $embeddedPerson) {
-                        if (!in_array($embeddedPerson, $aux)) {
+                        if (!in_array($embeddedPerson, $aux, true)) {
                             $aux[] = $embeddedPerson;
                         }
                     }

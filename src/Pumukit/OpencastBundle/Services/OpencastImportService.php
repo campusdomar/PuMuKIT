@@ -466,7 +466,7 @@ class OpencastImportService
         $language = $this->getMediaPackageField($mediaPackage, 'language');
         if ($language) {
             $parsedLocale = \Locale::parseLocale($language);
-            if (!$this->customLanguages || in_array($parsedLocale['language'], $this->customLanguages)) {
+            if (!$this->customLanguages || in_array($parsedLocale['language'], $this->customLanguages, true)) {
                 return $parsedLocale['language'];
             }
         }

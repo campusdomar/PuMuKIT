@@ -132,7 +132,7 @@ class StatsService
                 }
             } else {
                 foreach ($mmobjIds as $element) {
-                    if (!in_array($element, $ids)) {
+                    if (!in_array($element, $ids, true)) {
                         $multimediaObject = $this->repo->find($element);
                         if ($multimediaObject) {
                             $mostViewed[] = ['mmobj' => $multimediaObject,
@@ -201,7 +201,7 @@ class StatsService
                 }
             } else {
                 foreach ($seriesIds as $element) {
-                    if (!in_array($element, $ids)) {
+                    if (!in_array($element, $ids, true)) {
                         $series = $this->repoSeries->find($element);
                         if ($series) {
                             $mostViewed[] = ['series' => $series,

@@ -158,13 +158,13 @@ class PermissionService
         if (!array_key_exists($permission, $allPermissions)) {
             throw new \InvalidArgumentException("The permission with role '{$permission}' does not exist in the configuration");
         }
-        if (!in_array($scope, [PermissionProfile::SCOPE_GLOBAL, PermissionProfile::SCOPE_PERSONAL])) {
+        if (!in_array($scope, [PermissionProfile::SCOPE_GLOBAL, PermissionProfile::SCOPE_PERSONAL], true)) {
             throw new \InvalidArgumentException("The scope '{$scope}' is not a valid scope (SCOPE_GLOBAL or SCOPE_PERSONAL)");
         }
         $dependables = array_filter(
             $allPermissions,
             function ($a) use ($permission, $scope) {
-                return in_array($permission, $a['dependencies'][$scope]);
+                return in_array($permission, $a['dependencies'][$scope], true);
             }
         );
 
@@ -186,7 +186,7 @@ class PermissionService
         if (!array_key_exists($permission, $allPermissions)) {
             throw new \InvalidArgumentException("The permission with role '{$permission}' does not exist in the configuration");
         }
-        if (!in_array($scope, [PermissionProfile::SCOPE_GLOBAL, PermissionProfile::SCOPE_PERSONAL])) {
+        if (!in_array($scope, [PermissionProfile::SCOPE_GLOBAL, PermissionProfile::SCOPE_PERSONAL], true)) {
             throw new \InvalidArgumentException("The scope '{$scope}' is not a valid scope (SCOPE_GLOBAL or SCOPE_PERSONAL)");
         }
 
@@ -254,7 +254,7 @@ class PermissionService
         if (!array_key_exists($permission, $allPermissions)) {
             throw new \InvalidArgumentException("The permission with role '{$permission}' does not exist in the configuration");
         }
-        if (!in_array($scope, [PermissionProfile::SCOPE_GLOBAL, PermissionProfile::SCOPE_PERSONAL])) {
+        if (!in_array($scope, [PermissionProfile::SCOPE_GLOBAL, PermissionProfile::SCOPE_PERSONAL], true)) {
             throw new \InvalidArgumentException("The scope '{$scope}' is not a valid scope (SCOPE_GLOBAL or SCOPE_PERSONAL)");
         }
 
@@ -267,7 +267,7 @@ class PermissionService
                 throw new \InvalidArgumentException(sprintf('The permission with role \'%s\' does not exist in the configuration', $elem));
             }
             foreach ($allPermissions[$elem]['dependencies'][$scope] as $newDep) {
-                if ($newDep !== $permission && !in_array($newDep, $dependencies)) {
+                if ($newDep !== $permission && !in_array($newDep, $dependencies, true)) {
                     $dependencies[] = $newDep;
                 }
             }

@@ -157,7 +157,8 @@ class OpencastService
                     'presentation/search+preview',
                     'presenter/player+preview',
                     'presentation/player+preview',
-                ]
+                ],
+                true
             )
             ) {
                 continue;

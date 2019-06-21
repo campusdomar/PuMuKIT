@@ -211,7 +211,7 @@ EOT
      */
     private function fixPathMultimediaObject(DocumentManager $documentManager, MultimediaObject $multimediaObject, $type)
     {
-        if (!in_array($type, $this->allowedTypes)) {
+        if (!in_array($type, $this->allowedTypes, true)) {
             throw new \Exception('Types cant be distinct of '.implode(' or ', $this->allowedTypes));
         }
 

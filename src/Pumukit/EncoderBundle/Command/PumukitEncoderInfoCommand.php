@@ -58,7 +58,7 @@ EOT
         foreach ($cpus as $name => $cpu) {
             $table->addRow([
                 $name,
-                in_array($name, $deactivatedCpus) ?
+                in_array($name, $deactivatedCpus, true) ?
                     '<error>In Maintenance</error>' :
                     '<info>Working</info>',
                 $cpu['type'],

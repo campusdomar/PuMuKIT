@@ -691,7 +691,7 @@ class UNESCOController extends Controller implements NewAdminControllerInterface
         $session->set('admin/unesco/tag', $tag);
 
         $tagCondition = $tag;
-        if (isset($tag) && !in_array($tag, ['1', '2'])) {
+        if (isset($tag) && !in_array($tag, ['1', '2'], true)) {
             $tagCondition = 'tag';
         }
 

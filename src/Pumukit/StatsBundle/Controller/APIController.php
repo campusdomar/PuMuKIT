@@ -224,7 +224,7 @@ class APIController extends Controller implements NewAdminControllerInterface
             $limit = $MAX_LIMIT;
         }
 
-        if (!in_array($sort, [1, -1])) {
+        if (!in_array($sort, [1, -1], true)) {
             $sort = -1;
         }
 

@@ -916,7 +916,7 @@ class JobService
     {
         $localhost = ['localhost', '127.0.0.1'];
 
-        return (in_array($cpu['host'], $localhost)) ? new LocalExecutor() : new RemoteHTTPExecutor();
+        return (in_array($cpu['host'], $localhost, true)) ? new LocalExecutor() : new RemoteHTTPExecutor();
     }
 
     /**

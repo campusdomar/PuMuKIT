@@ -257,18 +257,18 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->assertEquals(2, count($mmobj_lord));
         $this->assertEquals(2, count($mmobj_ranger));
         $this->assertEquals(1, count($mmobj_hand));
-        $this->assertTrue(in_array($mm1, $mmobj_lord));
-        $this->assertFalse(in_array($mm2, $mmobj_lord));
-        $this->assertTrue(in_array($mm3, $mmobj_lord));
-        $this->assertFalse(in_array($mm4, $mmobj_lord));
-        $this->assertFalse(in_array($mm1, $mmobj_ranger));
-        $this->assertTrue(in_array($mm2, $mmobj_ranger));
-        $this->assertTrue(in_array($mm3, $mmobj_ranger));
-        $this->assertFalse(in_array($mm4, $mmobj_ranger));
-        $this->assertFalse(in_array($mm1, $mmobj_hand));
-        $this->assertFalse(in_array($mm2, $mmobj_hand));
-        $this->assertFalse(in_array($mm3, $mmobj_hand));
-        $this->assertTrue(in_array($mm4, $mmobj_hand));
+        $this->assertTrue(in_array($mm1, $mmobj_lord, true));
+        $this->assertFalse(in_array($mm2, $mmobj_lord, true));
+        $this->assertTrue(in_array($mm3, $mmobj_lord, true));
+        $this->assertFalse(in_array($mm4, $mmobj_lord, true));
+        $this->assertFalse(in_array($mm1, $mmobj_ranger, true));
+        $this->assertTrue(in_array($mm2, $mmobj_ranger, true));
+        $this->assertTrue(in_array($mm3, $mmobj_ranger, true));
+        $this->assertFalse(in_array($mm4, $mmobj_ranger, true));
+        $this->assertFalse(in_array($mm1, $mmobj_hand, true));
+        $this->assertFalse(in_array($mm2, $mmobj_hand, true));
+        $this->assertFalse(in_array($mm3, $mmobj_hand, true));
+        $this->assertTrue(in_array($mm4, $mmobj_hand, true));
 
         $mmobj_lord = $this->repo->findByRoleId($role_lord->getId())->toArray();
         $mmobj_ranger = $this->repo->findByRoleId($role_ranger->getId())->toArray();
@@ -276,18 +276,18 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->assertEquals(2, count($mmobj_lord));
         $this->assertEquals(2, count($mmobj_ranger));
         $this->assertEquals(1, count($mmobj_hand));
-        $this->assertTrue(in_array($mm1, $mmobj_lord));
-        $this->assertFalse(in_array($mm2, $mmobj_lord));
-        $this->assertTrue(in_array($mm3, $mmobj_lord));
-        $this->assertFalse(in_array($mm4, $mmobj_lord));
-        $this->assertFalse(in_array($mm1, $mmobj_ranger));
-        $this->assertTrue(in_array($mm2, $mmobj_ranger));
-        $this->assertTrue(in_array($mm3, $mmobj_ranger));
-        $this->assertFalse(in_array($mm4, $mmobj_ranger));
-        $this->assertFalse(in_array($mm1, $mmobj_hand));
-        $this->assertFalse(in_array($mm2, $mmobj_hand));
-        $this->assertFalse(in_array($mm3, $mmobj_hand));
-        $this->assertTrue(in_array($mm4, $mmobj_hand));
+        $this->assertTrue(in_array($mm1, $mmobj_lord, true));
+        $this->assertFalse(in_array($mm2, $mmobj_lord, true));
+        $this->assertTrue(in_array($mm3, $mmobj_lord, true));
+        $this->assertFalse(in_array($mm4, $mmobj_lord, true));
+        $this->assertFalse(in_array($mm1, $mmobj_ranger, true));
+        $this->assertTrue(in_array($mm2, $mmobj_ranger, true));
+        $this->assertTrue(in_array($mm3, $mmobj_ranger, true));
+        $this->assertFalse(in_array($mm4, $mmobj_ranger, true));
+        $this->assertFalse(in_array($mm1, $mmobj_hand, true));
+        $this->assertFalse(in_array($mm2, $mmobj_hand, true));
+        $this->assertFalse(in_array($mm3, $mmobj_hand, true));
+        $this->assertTrue(in_array($mm4, $mmobj_hand, true));
 
         // Test find by person and role
         $mmobj_benjen_ranger = $this->repo->findByPersonIdWithRoleCod($person_benjen->getId(), $role_ranger->getCod());
@@ -309,12 +309,12 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $seriesNed = $this->repo->findSeriesFieldByPersonId($person_ned->getId());
 
         $this->assertEquals(2, count($seriesBenjen));
-        $this->assertTrue(in_array($series_wall->getId(), $seriesBenjen->toArray()));
-        $this->assertTrue(in_array($series_main->getId(), $seriesBenjen->toArray()));
+        $this->assertTrue(in_array($series_wall->getId(), $seriesBenjen->toArray(), true));
+        $this->assertTrue(in_array($series_main->getId(), $seriesBenjen->toArray(), true));
 
         $this->assertEquals(2, count($seriesNed));
-        $this->assertTrue(in_array($series_main->getId(), $seriesNed->toArray()));
-        $this->assertTrue(in_array($series_lhazar->getId(), $seriesNed->toArray()));
+        $this->assertTrue(in_array($series_main->getId(), $seriesNed->toArray(), true));
+        $this->assertTrue(in_array($series_lhazar->getId(), $seriesNed->toArray(), true));
 
         $seriesBenjenRanger = $this->repo->findSeriesFieldByPersonIdAndRoleCod($person_benjen->getId(), $role_ranger->getCod());
         $seriesNedRanger = $this->repo->findSeriesFieldByPersonIdAndRoleCod($person_ned->getId(), $role_ranger->getCod());
@@ -324,112 +324,112 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $seriesNedHand = $this->repo->findSeriesFieldByPersonIdAndRoleCod($person_ned->getId(), $role_hand->getCod());
 
         $this->assertEquals(2, count($seriesBenjenRanger));
-        $this->assertTrue(in_array($series_wall->getId(), $seriesBenjenRanger->toArray()));
-        $this->assertTrue(in_array($series_main->getId(), $seriesBenjenRanger->toArray()));
-        $this->assertFalse(in_array($series_lhazar->getId(), $seriesBenjenRanger->toArray()));
+        $this->assertTrue(in_array($series_wall->getId(), $seriesBenjenRanger->toArray(), true));
+        $this->assertTrue(in_array($series_main->getId(), $seriesBenjenRanger->toArray(), true));
+        $this->assertFalse(in_array($series_lhazar->getId(), $seriesBenjenRanger->toArray(), true));
 
         $this->assertEquals(0, count($seriesNedRanger));
-        $this->assertFalse(in_array($series_wall->getId(), $seriesNedRanger->toArray()));
-        $this->assertFalse(in_array($series_main->getId(), $seriesNedRanger->toArray()));
-        $this->assertFalse(in_array($series_lhazar->getId(), $seriesNedRanger->toArray()));
+        $this->assertFalse(in_array($series_wall->getId(), $seriesNedRanger->toArray(), true));
+        $this->assertFalse(in_array($series_main->getId(), $seriesNedRanger->toArray(), true));
+        $this->assertFalse(in_array($series_lhazar->getId(), $seriesNedRanger->toArray(), true));
 
         $this->assertEquals(0, count($seriesBenjenLord));
-        $this->assertFalse(in_array($series_wall->getId(), $seriesBenjenLord->toArray()));
-        $this->assertFalse(in_array($series_main->getId(), $seriesBenjenLord->toArray()));
-        $this->assertFalse(in_array($series_lhazar->getId(), $seriesBenjenLord->toArray()));
+        $this->assertFalse(in_array($series_wall->getId(), $seriesBenjenLord->toArray(), true));
+        $this->assertFalse(in_array($series_main->getId(), $seriesBenjenLord->toArray(), true));
+        $this->assertFalse(in_array($series_lhazar->getId(), $seriesBenjenLord->toArray(), true));
 
         $this->assertEquals(1, count($seriesNedLord));
-        $this->assertFalse(in_array($series_wall->getId(), $seriesNedLord->toArray()));
-        $this->assertTrue(in_array($series_main->getId(), $seriesNedLord->toArray()));
-        $this->assertFalse(in_array($series_lhazar->getId(), $seriesNedLord->toArray()));
+        $this->assertFalse(in_array($series_wall->getId(), $seriesNedLord->toArray(), true));
+        $this->assertTrue(in_array($series_main->getId(), $seriesNedLord->toArray(), true));
+        $this->assertFalse(in_array($series_lhazar->getId(), $seriesNedLord->toArray(), true));
 
         $this->assertEquals(0, count($seriesBenjenHand));
-        $this->assertFalse(in_array($series_wall->getId(), $seriesBenjenHand->toArray()));
-        $this->assertFalse(in_array($series_main->getId(), $seriesBenjenHand->toArray()));
-        $this->assertFalse(in_array($series_lhazar->getId(), $seriesBenjenHand->toArray()));
+        $this->assertFalse(in_array($series_wall->getId(), $seriesBenjenHand->toArray(), true));
+        $this->assertFalse(in_array($series_main->getId(), $seriesBenjenHand->toArray(), true));
+        $this->assertFalse(in_array($series_lhazar->getId(), $seriesBenjenHand->toArray(), true));
 
         $this->assertEquals(1, count($seriesNedHand));
-        $this->assertFalse(in_array($series_wall->getId(), $seriesNedHand->toArray()));
-        $this->assertFalse(in_array($series_main->getId(), $seriesNedHand->toArray()));
-        $this->assertTrue(in_array($series_lhazar->getId(), $seriesNedHand->toArray()));
+        $this->assertFalse(in_array($series_wall->getId(), $seriesNedHand->toArray(), true));
+        $this->assertFalse(in_array($series_main->getId(), $seriesNedHand->toArray(), true));
+        $this->assertTrue(in_array($series_lhazar->getId(), $seriesNedHand->toArray(), true));
 
         $mmobjsMainNedLord = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_main, $person_ned->getId(), $role_lord->getCod());
         $this->assertEquals(2, count($mmobjsMainNedLord));
-        $this->assertTrue(in_array($mm1, $mmobjsMainNedLord->toArray()));
-        $this->assertTrue(in_array($mm3, $mmobjsMainNedLord->toArray()));
+        $this->assertTrue(in_array($mm1, $mmobjsMainNedLord->toArray(), true));
+        $this->assertTrue(in_array($mm3, $mmobjsMainNedLord->toArray(), true));
 
         $mmobjsMainNedRanger = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_main, $person_ned->getId(), $role_ranger->getCod());
         $this->assertEquals(0, count($mmobjsMainNedRanger));
-        $this->assertFalse(in_array($mm1, $mmobjsMainNedRanger->toArray()));
-        $this->assertFalse(in_array($mm3, $mmobjsMainNedRanger->toArray()));
+        $this->assertFalse(in_array($mm1, $mmobjsMainNedRanger->toArray(), true));
+        $this->assertFalse(in_array($mm3, $mmobjsMainNedRanger->toArray(), true));
 
         $mmobjsMainNedHand = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_main, $person_ned->getId(), $role_hand->getCod());
         $this->assertEquals(0, count($mmobjsMainNedHand));
-        $this->assertFalse(in_array($mm1, $mmobjsMainNedHand->toArray()));
-        $this->assertFalse(in_array($mm3, $mmobjsMainNedHand->toArray()));
+        $this->assertFalse(in_array($mm1, $mmobjsMainNedHand->toArray(), true));
+        $this->assertFalse(in_array($mm3, $mmobjsMainNedHand->toArray(), true));
 
         $mmobjsMainBenjenLord = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_main, $person_benjen->getId(), $role_lord->getCod());
         $this->assertEquals(0, count($mmobjsMainBenjenLord));
-        $this->assertFalse(in_array($mm1, $mmobjsMainBenjenLord->toArray()));
-        $this->assertFalse(in_array($mm3, $mmobjsMainBenjenLord->toArray()));
+        $this->assertFalse(in_array($mm1, $mmobjsMainBenjenLord->toArray(), true));
+        $this->assertFalse(in_array($mm3, $mmobjsMainBenjenLord->toArray(), true));
 
         $mmobjsMainBenjenRanger = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_main, $person_benjen->getId(), $role_ranger->getCod());
         $this->assertEquals(1, count($mmobjsMainBenjenRanger));
-        $this->assertFalse(in_array($mm1, $mmobjsMainBenjenRanger->toArray()));
-        $this->assertTrue(in_array($mm3, $mmobjsMainBenjenRanger->toArray()));
+        $this->assertFalse(in_array($mm1, $mmobjsMainBenjenRanger->toArray(), true));
+        $this->assertTrue(in_array($mm3, $mmobjsMainBenjenRanger->toArray(), true));
 
         $mmobjsMainBenjenHand = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_main, $person_benjen->getId(), $role_hand->getCod());
         $this->assertEquals(0, count($mmobjsMainBenjenHand));
-        $this->assertFalse(in_array($mm1, $mmobjsMainBenjenHand->toArray()));
-        $this->assertFalse(in_array($mm3, $mmobjsMainBenjenHand->toArray()));
+        $this->assertFalse(in_array($mm1, $mmobjsMainBenjenHand->toArray(), true));
+        $this->assertFalse(in_array($mm3, $mmobjsMainBenjenHand->toArray(), true));
 
         $mmobjsWallNedLord = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_wall, $person_ned->getId(), $role_lord->getCod());
         $this->assertEquals(0, count($mmobjsWallNedLord));
-        $this->assertFalse(in_array($mm2, $mmobjsWallNedLord->toArray()));
+        $this->assertFalse(in_array($mm2, $mmobjsWallNedLord->toArray(), true));
 
         $mmobjsWallNedRanger = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_wall, $person_ned->getId(), $role_ranger->getCod());
         $this->assertEquals(0, count($mmobjsWallNedRanger));
-        $this->assertFalse(in_array($mm2, $mmobjsWallNedRanger->toArray()));
+        $this->assertFalse(in_array($mm2, $mmobjsWallNedRanger->toArray(), true));
 
         $mmobjsWallNedHand = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_wall, $person_ned->getId(), $role_hand->getCod());
         $this->assertEquals(0, count($mmobjsWallNedHand));
-        $this->assertFalse(in_array($mm2, $mmobjsWallNedHand->toArray()));
+        $this->assertFalse(in_array($mm2, $mmobjsWallNedHand->toArray(), true));
 
         $mmobjsWallBenjenLord = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_wall, $person_benjen->getId(), $role_lord->getCod());
         $this->assertEquals(0, count($mmobjsWallBenjenLord));
-        $this->assertFalse(in_array($mm2, $mmobjsWallBenjenLord->toArray()));
+        $this->assertFalse(in_array($mm2, $mmobjsWallBenjenLord->toArray(), true));
 
         $mmobjsWallBenjenRanger = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_wall, $person_benjen->getId(), $role_ranger->getCod());
         $this->assertEquals(1, count($mmobjsWallBenjenRanger));
-        $this->assertTrue(in_array($mm2, $mmobjsWallBenjenRanger->toArray()));
+        $this->assertTrue(in_array($mm2, $mmobjsWallBenjenRanger->toArray(), true));
 
         $mmobjsWallBenjenHand = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_wall, $person_benjen->getId(), $role_hand->getCod());
         $this->assertEquals(0, count($mmobjsWallBenjenHand));
-        $this->assertFalse(in_array($mm2, $mmobjsWallBenjenHand->toArray()));
+        $this->assertFalse(in_array($mm2, $mmobjsWallBenjenHand->toArray(), true));
 
         $mmobjsLhazarNedLord = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_lhazar, $person_ned->getId(), $role_lord->getCod());
         $this->assertEquals(0, count($mmobjsLhazarNedLord));
-        $this->assertFalse(in_array($mm4, $mmobjsLhazarNedLord->toArray()));
+        $this->assertFalse(in_array($mm4, $mmobjsLhazarNedLord->toArray(), true));
 
         $mmobjsLhazarNedRanger = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_lhazar, $person_ned->getId(), $role_ranger->getCod());
         $this->assertEquals(0, count($mmobjsLhazarNedRanger));
-        $this->assertFalse(in_array($mm4, $mmobjsLhazarNedRanger->toArray()));
+        $this->assertFalse(in_array($mm4, $mmobjsLhazarNedRanger->toArray(), true));
 
         $mmobjsLhazarNedHand = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_lhazar, $person_ned->getId(), $role_hand->getCod());
         $this->assertEquals(1, count($mmobjsLhazarNedHand));
-        $this->assertTrue(in_array($mm4, $mmobjsLhazarNedHand->toArray()));
+        $this->assertTrue(in_array($mm4, $mmobjsLhazarNedHand->toArray(), true));
 
         $mmobjsLhazarBenjenLord = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_lhazar, $person_benjen->getId(), $role_lord->getCod());
         $this->assertEquals(0, count($mmobjsLhazarBenjenLord));
-        $this->assertFalse(in_array($mm4, $mmobjsLhazarBenjenLord->toArray()));
+        $this->assertFalse(in_array($mm4, $mmobjsLhazarBenjenLord->toArray(), true));
 
         $mmobjsLhazarBenjenRanger = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_lhazar, $person_benjen->getId(), $role_ranger->getCod());
         $this->assertEquals(0, count($mmobjsLhazarBenjenRanger));
-        $this->assertFalse(in_array($mm4, $mmobjsLhazarBenjenRanger->toArray()));
+        $this->assertFalse(in_array($mm4, $mmobjsLhazarBenjenRanger->toArray(), true));
 
         $mmobjsLhazarBenjenHand = $this->repo->findBySeriesAndPersonIdWithRoleCod($series_lhazar, $person_benjen->getId(), $role_hand->getCod());
         $this->assertEquals(0, count($mmobjsLhazarBenjenHand));
-        $this->assertFalse(in_array($mm4, $mmobjsLhazarBenjenHand->toArray()));
+        $this->assertFalse(in_array($mm4, $mmobjsLhazarBenjenHand->toArray(), true));
 
         // Test find by person id and role cod or groups
         $group1 = new Group();
@@ -731,27 +731,27 @@ class MultimediaObjectRepositoryTest extends WebTestCase
             $kateQueryRolesIds[] = $embeddedRole->getId();
         }
 
-        $this->assertTrue(in_array($roleActor->getId(), $kateQueryRolesIds));
-        $this->assertTrue(in_array($rolePresenter->getId(), $kateQueryRolesIds));
-        $this->assertFalse(in_array($roleDirector->getId(), $kateQueryRolesIds));
+        $this->assertTrue(in_array($roleActor->getId(), $kateQueryRolesIds, true));
+        $this->assertTrue(in_array($rolePresenter->getId(), $kateQueryRolesIds, true));
+        $this->assertFalse(in_array($roleDirector->getId(), $kateQueryRolesIds, true));
 
         $lucyQueryRolesIds = [];
         foreach ($mm->getAllEmbeddedRolesByPerson($personLucy) as $embeddedRole) {
             $lucyQueryRolesIds[] = $embeddedRole->getId();
         }
 
-        $this->assertTrue(in_array($roleActor->getId(), $lucyQueryRolesIds));
-        $this->assertTrue(in_array($rolePresenter->getId(), $lucyQueryRolesIds));
-        $this->assertTrue(in_array($roleDirector->getId(), $lucyQueryRolesIds));
+        $this->assertTrue(in_array($roleActor->getId(), $lucyQueryRolesIds, true));
+        $this->assertTrue(in_array($rolePresenter->getId(), $lucyQueryRolesIds, true));
+        $this->assertTrue(in_array($roleDirector->getId(), $lucyQueryRolesIds, true));
 
         $peteQueryRolesIds = [];
         foreach ($mm->getAllEmbeddedRolesByPerson($personPete) as $embeddedRole) {
             $peteQueryRolesIds[] = $embeddedRole->getId();
         }
 
-        $this->assertTrue(in_array($roleActor->getId(), $peteQueryRolesIds));
-        $this->assertFalse(in_array($rolePresenter->getId(), $peteQueryRolesIds));
-        $this->assertTrue(in_array($roleDirector->getId(), $peteQueryRolesIds));
+        $this->assertTrue(in_array($roleActor->getId(), $peteQueryRolesIds, true));
+        $this->assertFalse(in_array($rolePresenter->getId(), $peteQueryRolesIds, true));
+        $this->assertTrue(in_array($roleDirector->getId(), $peteQueryRolesIds, true));
     }
 
     public function testFindBySeries()
@@ -2138,7 +2138,7 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $addedTags = $this->tagService->addTagToMultimediaObject($multimediaObject, $tag->getId());
         $multimediaObjects = $this->repo->findByTagCod($tag, $sort)->toArray();
         $this->assertCount(1, $multimediaObjects);
-        $this->assertTrue(in_array($multimediaObject, $multimediaObjects));
+        $this->assertTrue(in_array($multimediaObject, $multimediaObjects, true));
     }
 
     public function testFindAllByTag()
@@ -2162,15 +2162,15 @@ class MultimediaObjectRepositoryTest extends WebTestCase
 
         $multimediaObjects = $this->repo->findAllByTag($tag, $sort)->toArray();
         $this->assertCount(2, $multimediaObjects);
-        $this->assertTrue(in_array($multimediaObject, $multimediaObjects));
-        $this->assertTrue(in_array($prototype, $multimediaObjects));
+        $this->assertTrue(in_array($multimediaObject, $multimediaObjects, true));
+        $this->assertTrue(in_array($prototype, $multimediaObjects, true));
 
         $removedTagsFromPrototype = $this->tagService->removeTagFromMultimediaObject($prototype, $tag->getId());
 
         $multimediaObjects = $this->repo->findAllByTag($tag, $sort)->toArray();
         $this->assertCount(1, $multimediaObjects);
-        $this->assertTrue(in_array($multimediaObject, $multimediaObjects));
-        $this->assertFalse(in_array($prototype, $multimediaObjects));
+        $this->assertTrue(in_array($multimediaObject, $multimediaObjects, true));
+        $this->assertFalse(in_array($prototype, $multimediaObjects, true));
     }
 
     public function testMultimediaObjectGroups()
@@ -2340,24 +2340,24 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->assertEquals(1, count($seriesPerson2Role2User1));
         $this->assertEquals(0, count($seriesPerson2Role3User1));
 
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User1->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role1User1->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role1User1->toArray()));
-        $this->assertFalse(in_array($series1->getId(), $seriesPerson1Role2User1->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role2User1->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role2User1->toArray()));
-        $this->assertFalse(in_array($series1->getId(), $seriesPerson1Role3User1->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role3User1->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User1->toArray()));
-        $this->assertFalse(in_array($series1->getId(), $seriesPerson2Role1User1->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role1User1->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role1User1->toArray()));
-        $this->assertFalse(in_array($series1->getId(), $seriesPerson2Role2User1->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User1->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role2User1->toArray()));
-        $this->assertFalse(in_array($series1->getId(), $seriesPerson2Role3User1->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role3User1->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role3User1->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User1->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role1User1->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role1User1->toArray(), true));
+        $this->assertFalse(in_array($series1->getId(), $seriesPerson1Role2User1->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role2User1->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role2User1->toArray(), true));
+        $this->assertFalse(in_array($series1->getId(), $seriesPerson1Role3User1->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role3User1->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User1->toArray(), true));
+        $this->assertFalse(in_array($series1->getId(), $seriesPerson2Role1User1->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role1User1->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role1User1->toArray(), true));
+        $this->assertFalse(in_array($series1->getId(), $seriesPerson2Role2User1->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User1->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role2User1->toArray(), true));
+        $this->assertFalse(in_array($series1->getId(), $seriesPerson2Role3User1->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role3User1->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role3User1->toArray(), true));
 
         $seriesPerson1Role1User2 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role1->getCod(), $user2->getGroups());
         $seriesPerson1Role2User2 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role2->getCod(), $user2->getGroups());
@@ -2373,24 +2373,24 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->assertEquals(2, count($seriesPerson2Role2User2));
         $this->assertEquals(1, count($seriesPerson2Role3User2));
 
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User2->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role1User2->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role1User2->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User2->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role2User2->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role2User2->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User2->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role3User2->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User2->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User2->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role1User2->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role1User2->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User2->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User2->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role2User2->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User2->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role3User2->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role3User2->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User2->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role1User2->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role1User2->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User2->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role2User2->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role2User2->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User2->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role3User2->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User2->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User2->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role1User2->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role1User2->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User2->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User2->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role2User2->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User2->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role3User2->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role3User2->toArray(), true));
 
         $seriesPerson1Role1User3 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role1->getCod(), $user3->getGroups());
         $seriesPerson1Role2User3 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role2->getCod(), $user3->getGroups());
@@ -2406,24 +2406,24 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->assertEquals(3, count($seriesPerson2Role2User3));
         $this->assertEquals(2, count($seriesPerson2Role3User3));
 
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User3->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role1User3->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role1User3->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User3->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role2User3->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role2User3->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User3->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role3User3->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User3->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User3->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role1User3->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role1User3->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User3->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User3->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role2User3->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User3->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role3User3->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role3User3->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User3->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role1User3->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role1User3->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User3->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role2User3->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role2User3->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User3->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role3User3->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User3->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User3->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role1User3->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role1User3->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User3->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User3->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role2User3->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User3->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role3User3->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role3User3->toArray(), true));
 
         $seriesPerson1Role1User4 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role1->getCod(), $user4->getGroups());
         $seriesPerson1Role2User4 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role2->getCod(), $user4->getGroups());
@@ -2439,24 +2439,24 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->assertEquals(2, count($seriesPerson2Role2User4));
         $this->assertEquals(2, count($seriesPerson2Role3User4));
 
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User4->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role1User4->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role1User4->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User4->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role2User4->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role2User4->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User4->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role3User4->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User4->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User4->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role1User4->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role1User4->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User4->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User4->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role2User4->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User4->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role3User4->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role3User4->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User4->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role1User4->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role1User4->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User4->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role2User4->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role2User4->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User4->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role3User4->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User4->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User4->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role1User4->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role1User4->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User4->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User4->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role2User4->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User4->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role3User4->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role3User4->toArray(), true));
 
         $seriesPerson1Role1User5 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role1->getCod(), $user5->getGroups());
         $seriesPerson1Role2User5 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role2->getCod(), $user5->getGroups());
@@ -2472,24 +2472,24 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->assertEquals(3, count($seriesPerson2Role2User5));
         $this->assertEquals(2, count($seriesPerson2Role3User5));
 
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User5->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role1User5->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role1User5->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User5->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role2User5->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role2User5->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User5->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role3User5->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User5->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User5->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role1User5->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role1User5->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User5->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User5->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role2User5->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User5->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role3User5->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role3User5->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User5->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role1User5->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role1User5->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User5->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role2User5->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role2User5->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User5->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson1Role3User5->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User5->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User5->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role1User5->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role1User5->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User5->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User5->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role2User5->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User5->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesPerson2Role3User5->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role3User5->toArray(), true));
 
         $seriesPerson1Role1User6 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role1->getCod(), $user6->getGroups());
         $seriesPerson1Role2User6 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role2->getCod(), $user6->getGroups());
@@ -2505,24 +2505,24 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->assertEquals(2, count($seriesPerson2Role2User6));
         $this->assertEquals(2, count($seriesPerson2Role3User6));
 
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User6->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role1User6->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role1User6->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User6->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role2User6->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role2User6->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User6->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role3User6->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User6->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User6->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role1User6->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role1User6->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User6->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User6->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role2User6->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User6->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role3User6->toArray()));
-        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role3User6->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User6->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role1User6->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role1User6->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User6->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role2User6->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson1Role2User6->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User6->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role3User6->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User6->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User6->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role1User6->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role1User6->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User6->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User6->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role2User6->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User6->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role3User6->toArray(), true));
+        $this->assertFalse(in_array($series3->getId(), $seriesPerson2Role3User6->toArray(), true));
 
         $seriesPerson1Role1User7 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role1->getCod(), $user7->getGroups());
         $seriesPerson1Role2User7 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role2->getCod(), $user7->getGroups());
@@ -2538,24 +2538,24 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->assertEquals(3, count($seriesPerson2Role2User7));
         $this->assertEquals(3, count($seriesPerson2Role3User7));
 
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User7->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role1User7->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role1User7->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User7->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role2User7->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role2User7->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User7->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role3User7->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User7->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User7->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role1User7->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role1User7->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User7->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User7->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role2User7->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User7->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role3User7->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role3User7->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User7->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role1User7->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role1User7->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User7->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role2User7->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role2User7->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User7->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role3User7->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User7->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User7->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role1User7->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role1User7->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User7->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User7->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role2User7->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User7->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role3User7->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role3User7->toArray(), true));
 
         $seriesPerson1Role1User8 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role1->getCod(), $user8->getGroups());
         $seriesPerson1Role2User8 = $this->repo->findSeriesFieldByPersonIdAndRoleCodOrGroups($person1->getId(), $role2->getCod(), $user8->getGroups());
@@ -2571,24 +2571,24 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->assertEquals(3, count($seriesPerson2Role2User8));
         $this->assertEquals(3, count($seriesPerson2Role3User8));
 
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User8->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role1User8->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role1User8->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User8->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role2User8->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role2User8->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User8->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role3User8->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User8->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User8->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role1User8->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role1User8->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User8->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User8->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role2User8->toArray()));
-        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User8->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role3User8->toArray()));
-        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role3User8->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role1User8->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role1User8->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role1User8->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role2User8->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role2User8->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role2User8->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson1Role3User8->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson1Role3User8->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson1Role3User8->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role1User8->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role1User8->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role1User8->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role2User8->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role2User8->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role2User8->toArray(), true));
+        $this->assertTrue(in_array($series1->getId(), $seriesPerson2Role3User8->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $seriesPerson2Role3User8->toArray(), true));
+        $this->assertTrue(in_array($series3->getId(), $seriesPerson2Role3User8->toArray(), true));
     }
 
     public function testFindWithGroup()
@@ -2625,20 +2625,20 @@ class MultimediaObjectRepositoryTest extends WebTestCase
 
         $this->assertEquals(2, count($mm1->getGroups()));
         $this->assertEquals(1, count($mm2->getGroups()));
-        $this->assertTrue(in_array($group1, $mm1->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $mm1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $mm2->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $mm2->getGroups()->toArray()));
+        $this->assertTrue(in_array($group1, $mm1->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $mm1->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group1, $mm2->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $mm2->getGroups()->toArray(), true));
 
         $mmsGroup1 = $this->repo->findWithGroup($group1);
         $mmsGroup2 = $this->repo->findWithGroup($group2);
 
         $this->assertEquals(1, count($mmsGroup1));
         $this->assertEquals(2, count($mmsGroup2));
-        $this->assertTrue(in_array($mm1, $mmsGroup1->toArray()));
-        $this->assertFalse(in_array($mm2, $mmsGroup1->toArray()));
-        $this->assertTrue(in_array($mm1, $mmsGroup2->toArray()));
-        $this->assertTrue(in_array($mm2, $mmsGroup2->toArray()));
+        $this->assertTrue(in_array($mm1, $mmsGroup1->toArray(), true));
+        $this->assertFalse(in_array($mm2, $mmsGroup1->toArray(), true));
+        $this->assertTrue(in_array($mm1, $mmsGroup2->toArray(), true));
+        $this->assertTrue(in_array($mm2, $mmsGroup2->toArray(), true));
     }
 
     public function testFindWithGroupInEmbeddedBroadcast()
@@ -2687,20 +2687,20 @@ class MultimediaObjectRepositoryTest extends WebTestCase
 
         $this->assertEquals(2, count($embeddedBroadcast1->getGroups()));
         $this->assertEquals(1, count($embeddedBroadcast2->getGroups()));
-        $this->assertTrue(in_array($group1, $embeddedBroadcast1->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $embeddedBroadcast1->getGroups()->toArray()));
-        $this->assertFalse(in_array($group1, $embeddedBroadcast2->getGroups()->toArray()));
-        $this->assertTrue(in_array($group2, $embeddedBroadcast2->getGroups()->toArray()));
+        $this->assertTrue(in_array($group1, $embeddedBroadcast1->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $embeddedBroadcast1->getGroups()->toArray(), true));
+        $this->assertFalse(in_array($group1, $embeddedBroadcast2->getGroups()->toArray(), true));
+        $this->assertTrue(in_array($group2, $embeddedBroadcast2->getGroups()->toArray(), true));
 
         $mmsGroup1 = $this->repo->findWithGroupInEmbeddedBroadcast($group1);
         $mmsGroup2 = $this->repo->findWithGroupInEmbeddedBroadcast($group2);
 
         $this->assertEquals(1, count($mmsGroup1));
         $this->assertEquals(2, count($mmsGroup2));
-        $this->assertTrue(in_array($mm1, $mmsGroup1->toArray()));
-        $this->assertFalse(in_array($mm2, $mmsGroup1->toArray()));
-        $this->assertTrue(in_array($mm1, $mmsGroup2->toArray()));
-        $this->assertTrue(in_array($mm2, $mmsGroup2->toArray()));
+        $this->assertTrue(in_array($mm1, $mmsGroup1->toArray(), true));
+        $this->assertFalse(in_array($mm2, $mmsGroup1->toArray(), true));
+        $this->assertTrue(in_array($mm1, $mmsGroup2->toArray(), true));
+        $this->assertTrue(in_array($mm2, $mmsGroup2->toArray(), true));
     }
 
     public function testCountWithGroup()
@@ -2921,15 +2921,15 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->assertEquals(0, count($loginSeriesField));
         $this->assertEquals(0, count($groupsSeriesField));
 
-        $this->assertTrue(in_array($series1->getId(), $passwordSeriesField->toArray()));
-        $this->assertFalse(in_array($series1->getId(), $publicSeriesField->toArray()));
-        $this->assertFalse(in_array($series1->getId(), $loginSeriesField->toArray()));
-        $this->assertFalse(in_array($series1->getId(), $groupsSeriesField->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $passwordSeriesField->toArray(), true));
+        $this->assertFalse(in_array($series1->getId(), $publicSeriesField->toArray(), true));
+        $this->assertFalse(in_array($series1->getId(), $loginSeriesField->toArray(), true));
+        $this->assertFalse(in_array($series1->getId(), $groupsSeriesField->toArray(), true));
 
-        $this->assertFalse(in_array($series2->getId(), $passwordSeriesField->toArray()));
-        $this->assertTrue(in_array($series2->getId(), $publicSeriesField->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $loginSeriesField->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $groupsSeriesField->toArray()));
+        $this->assertFalse(in_array($series2->getId(), $passwordSeriesField->toArray(), true));
+        $this->assertTrue(in_array($series2->getId(), $publicSeriesField->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $loginSeriesField->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $groupsSeriesField->toArray(), true));
 
         $group1 = new Group();
         $group1->setKey('group1');
@@ -2957,12 +2957,12 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->assertEquals(0, count($seriesGroups2));
         $this->assertEquals(0, count($seriesGroups12));
 
-        $this->assertTrue(in_array($series1->getId(), $seriesGroups1->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesGroups1->toArray()));
-        $this->assertFalse(in_array($series1->getId(), $seriesGroups2->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesGroups2->toArray()));
-        $this->assertFalse(in_array($series1->getId(), $seriesGroups12->toArray()));
-        $this->assertFalse(in_array($series2->getId(), $seriesGroups12->toArray()));
+        $this->assertTrue(in_array($series1->getId(), $seriesGroups1->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesGroups1->toArray(), true));
+        $this->assertFalse(in_array($series1->getId(), $seriesGroups2->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesGroups2->toArray(), true));
+        $this->assertFalse(in_array($series1->getId(), $seriesGroups12->toArray(), true));
+        $this->assertFalse(in_array($series2->getId(), $seriesGroups12->toArray(), true));
     }
 
     public function testCountInSeriesWithPrototype()

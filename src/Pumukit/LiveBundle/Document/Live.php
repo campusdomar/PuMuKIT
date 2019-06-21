@@ -206,7 +206,7 @@ class Live
             self::LIVE_TYPE_AMS,
             self::LIVE_TYPE_WMS,
             self::LIVE_TYPE_FMS,
-        ]);
+        ], true);
     }
 
     /**

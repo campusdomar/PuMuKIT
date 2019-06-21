@@ -131,7 +131,7 @@ class SeriesPicService
         $pic = $series->getPicById($picId);
         $picPath = $pic->getPath();
         $picUrl = $pic->getUrl();
-        if (in_array('banner', $pic->getTags())) {
+        if (in_array('banner', $pic->getTags(), true)) {
             foreach ($this->locales as $locale) {
                 if (0 < strpos($series->getHeader($locale), $picUrl)) {
                     $series->setHeader('', $locale);

@@ -219,7 +219,7 @@ class MultimediaObjectPicController extends Controller implements NewAdminContro
             $decodedData = substr($base_64, 22, strlen($base_64));
             $format = substr($base_64, strpos($base_64, '/') + 1, strpos($base_64, ';') - 1 - strpos($base_64, '/'));
 
-            $data = base64_decode($decodedData);
+            $data = base64_decode($decodedData, true);
 
             $picService = $this->get('pumukitschema.mmspic');
             $picService->addPicMem($multimediaObject, $data, $format);

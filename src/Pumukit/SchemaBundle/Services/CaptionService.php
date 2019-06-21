@@ -20,7 +20,7 @@ class CaptionService
         $mimeTypeCaptions = self::$mimeTypeCaptions;
 
         return $multimediaObject->getMaterials()->filter(function ($material) use ($mimeTypeCaptions) {
-            return in_array($material->getMimeType(), $mimeTypeCaptions);
+            return in_array($material->getMimeType(), $mimeTypeCaptions, true);
         });
     }
 }

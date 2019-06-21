@@ -130,7 +130,7 @@ class CpuService
 
     public function isCompatible($cpu, $profile)
     {
-        return null === $profile || empty($cpu['profiles']) || in_array($profile, $cpu['profiles']);
+        return null === $profile || empty($cpu['profiles']) || in_array($profile, $cpu['profiles'], true);
     }
 
     public function getCpuNamesInMaintenanceMode()

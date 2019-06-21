@@ -99,7 +99,7 @@ EOT
                 if (false !== stripos($pic->getPath(), '.png')) {
                     $picTags = $pic->getTags();
 
-                    if (in_array('auto', $picTags)) {
+                    if (in_array('auto', $picTags, true)) {
                         foreach ($picTags as $tag) {
                             if (false !== strpos($tag, 'frame_')) {
                                 $frame = explode('frame_', $tag);

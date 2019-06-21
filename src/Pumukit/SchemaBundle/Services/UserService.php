@@ -208,7 +208,7 @@ class UserService
     public function removeRoles(User $user, $permissions = [], $executeFlush = true)
     {
         foreach ($permissions as $permission) {
-            if ($user->hasRole($permission) && (in_array($permission, array_keys($this->permissionService->getAllPermissions())))) {
+            if ($user->hasRole($permission) && (in_array($permission, array_keys($this->permissionService->getAllPermissions()), true))) {
                 $user->removeRole($permission);
             }
         }
@@ -266,7 +266,7 @@ class UserService
     {
         $userPermissions = [];
         foreach ($userRoles as $userRole) {
-            if (in_array($userRole, array_keys($this->permissionService->getAllPermissions()))) {
+            if (in_array($userRole, array_keys($this->permissionService->getAllPermissions()), true)) {
                 $userPermissions[] = $userRole;
             }
         }
@@ -302,7 +302,7 @@ class UserService
     public function getUserScope($userRoles = [])
     {
         foreach ($userRoles as $userRole) {
-            if (in_array($userRole, array_keys(PermissionProfile::$scopeDescription))) {
+            if (in_array($userRole, array_keys(PermissionProfile::$scopeDescription), true)) {
                 return $userRole;
             }
         }
@@ -321,7 +321,7 @@ class UserService
     public function addUserScope(User $user, $scope = '')
     {
         if ((!$user->hasRole($scope)) &&
-            (in_array($scope, array_keys(PermissionProfile::$scopeDescription)))) {
+            (in_array($scope, array_keys(PermissionProfile::$scopeDescription), true))) {
             $user->addRole($scope);
             $this->dm->persist($user);
             $this->dm->flush();
@@ -630,7 +630,7 @@ class UserService
             $multimediaObject = $this->mmobjRepo->find($mmId);
             if ($multimediaObject) {
                 foreach ($multimediaObject->getGroups() as $mmGroup) {
-                    if (in_array($mmGroup, $userGroups)) {
+                    if (in_array($mmGroup, $userGroups, true)) {
                         $userInAddGroups = true;
 
                         break;
@@ -643,7 +643,7 @@ class UserService
                 $groupId = end($groupArray);
                 $group = $this->groupRepo->find($groupId);
                 if ($group) {
-                    if (in_array($group, $userGroups)) {
+                    if (in_array($group, $userGroups, true)) {
                         $userInAddGroups = true;
 
                         break;
@@ -674,7 +674,7 @@ class UserService
             if (null === $owners) {
                 $owners = [];
             }
-            if (!in_array($user->getId(), $owners)) {
+            if (!in_array($user->getId(), $owners, true)) {
                 $owners[] = $user->getId();
                 $object->setProperty('owners', $owners);
                 $this->dm->persist($object);
@@ -691,7 +691,7 @@ class UserService
     {
         if (null !== $object) {
             $owners = $object->getProperty('owners');
-            if (in_array($user->getId(), $owners)) {
+            if (in_array($user->getId(), $owners, true)) {
                 if ($object->isCollection()) {
                     // NOTE: Check all MultimediaObjects from the Series, even the prototype
                     $mmObjRepo = $this->dm->getRepository(MultimediaObject::class);
@@ -700,7 +700,7 @@ class UserService
                     $deleteOwnerInSeries = true;
                     foreach ($multimediaObjects as $multimediaObject) {
                         if (null !== $owners = $multimediaObject->getProperty('owners')) {
-                            if (in_array($user->getId(), $owners)) {
+                            if (in_array($user->getId(), $owners, true)) {
                                 $deleteOwnerInSeries = false;
                             }
                         }

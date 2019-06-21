@@ -172,7 +172,7 @@ class TagCatalogueService
                     if ('all' !== $value) {
                         $newCriteria['groups'] = new \MongoId($value);
                     }
-                } elseif (in_array($key, ['initPublicDate', 'finishPublicDate', 'initRecordDate', 'finishRecordDate'])) {
+                } elseif (in_array($key, ['initPublicDate', 'finishPublicDate', 'initRecordDate', 'finishRecordDate'], true)) {
                     if ('initPublicDate' === $key && !empty($value)) {
                         $newCriteria['public_date_init'] = $value;
                     } elseif ('finishPublicDate' === $key && !empty($value)) {
@@ -184,7 +184,7 @@ class TagCatalogueService
                     }
                 } elseif ('originalName' === $key && !empty($value)) {
                     $newCriteria['tracks.originalName'] = SearchUtils::generateRegexExpression($value);
-                } elseif (in_array($key, ['comments', 'license', 'copyright']) && !empty($value)) {
+                } elseif (in_array($key, ['comments', 'license', 'copyright'], true) && !empty($value)) {
                     $newCriteria[$key] = SearchUtils::generateRegexExpression($value);
                 } elseif (!empty($value)) {
                     $newCriteria[$key.'.'.$request->getLocale()] = SearchUtils::generateRegexExpression($value);
@@ -499,7 +499,7 @@ class TagCatalogueService
         ];
 
         $sort_type = $request->request->get('sort_type');
-        if (in_array($sort_type, ['title', 'subtitle', 'seriesTitle', 'description', 'keywords'])) {
+        if (in_array($sort_type, ['title', 'subtitle', 'seriesTitle', 'description', 'keywords'], true)) {
             $sort_type = implode('.', [$sort_type, $request->getLocale()]);
         } elseif (array_key_exists($sort_type, $mappingSort)) {
             $sort_type = $mappingSort[$sort_type];

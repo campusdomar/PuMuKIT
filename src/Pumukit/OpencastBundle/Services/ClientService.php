@@ -420,7 +420,7 @@ class ClientService
 
         $output = $this->request($request, $parameters, 'POST', true);
 
-        if (!in_array($output['status'], [204, 201])) {
+        if (!in_array($output['status'], [204, 201], true)) {
             $this->logger->addError(__CLASS__.'['.__FUNCTION__.'](line '.__LINE__
                                     .') Opencast error. Status != 204. - error: '.$output['error'].' - var: '.$output['var'].' - status: '.$output['status'].' - params:'.json_encode($parameters));
 

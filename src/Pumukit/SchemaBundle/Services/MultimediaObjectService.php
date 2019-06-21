@@ -53,7 +53,7 @@ class MultimediaObjectService
      */
     public function isHidden($mm, $pubChannelCod)
     {
-        $hasStatus = in_array($mm->getStatus(), [MultimediaObject::STATUS_PUBLISHED, MultimediaObject::STATUS_HIDDEN]);
+        $hasStatus = in_array($mm->getStatus(), [MultimediaObject::STATUS_PUBLISHED, MultimediaObject::STATUS_HIDDEN], true);
         $hasPubChannel = $mm->containsTagWithCod($pubChannelCod);
 
         return $hasStatus && $hasPubChannel;
@@ -188,7 +188,7 @@ class MultimediaObjectService
 
         $userIsOwner = false;
         if ($owners = $multimediaObject->getProperty('owners')) {
-            $userIsOwner = in_array($user->getId(), $owners);
+            $userIsOwner = in_array($user->getId(), $owners, true);
         }
 
         return $commonAdminGroups || $userIsOwner;

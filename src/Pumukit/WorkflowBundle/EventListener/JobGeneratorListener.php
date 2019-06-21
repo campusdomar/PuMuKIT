@@ -125,7 +125,7 @@ class JobGeneratorListener
                 }
             }
 
-            if ((in_array($pubChannelCod, $targets['standard']))
+            if ((in_array($pubChannelCod, $targets['standard'], true))
                && ($multimediaObject->isOnlyAudio() === $profile['audio'])) {
                 if (!$multimediaObject->isOnlyAudio() && 0 !== $profile['resolution_ver']) {
                     $profileAspectRatio = $profile['resolution_hor'] / $profile['resolution_ver'];
@@ -149,7 +149,7 @@ class JobGeneratorListener
                 $jobs[] = $this->jobService->addUniqueJob($master->getPath(), $targetProfile, 2, $multimediaObject, $master->getLanguage());
             }
 
-            if (in_array($pubChannelCod, $targets['force'])) {
+            if (in_array($pubChannelCod, $targets['force'], true)) {
                 /*if ($multimediaObject->isOnlyAudio() && !$profile['audio']) {
                     $this->logger->info(sprintf("JobGeneratorListener can't create a new job (%s) for multimedia object %s using forced target, because a video profile can't be created from an audio",
                                                 $targetProfile, $multimediaObject->getId()));
@@ -194,7 +194,7 @@ class JobGeneratorListener
             $profileName = $track->getProfileName();
             if ($profileName && isset($this->profiles[$profileName])) {
                 $targets = $this->getTargets($this->profiles[$profileName]['target']);
-                if (in_array($pubChannelCod, $targets['standard'])) {
+                if (in_array($pubChannelCod, $targets['standard'], true)) {
                     return true;
                 }
             }

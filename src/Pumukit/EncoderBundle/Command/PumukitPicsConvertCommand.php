@@ -187,12 +187,12 @@ EOT
             $isValidInput['message'] = 'Tags must be string';
         }
 
-        if ($this->exists && !in_array(strtolower($this->exists), ['false', 'true', '1', '0'])) {
+        if ($this->exists && !in_array(strtolower($this->exists), ['false', 'true', '1', '0'], true)) {
             $isValidInput['success'] = false;
             $isValidInput['message'] = 'Exists must be boolean';
         }
 
-        if (!in_array($this->type, ['mm', 'series'])) {
+        if (!in_array($this->type, ['mm', 'series'], true)) {
             $isValidInput['success'] = false;
             $isValidInput['message'] = 'Type must be have the value series or mm';
         }
