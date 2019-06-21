@@ -2,12 +2,12 @@
 
 namespace Pumukit\SchemaBundle\Controller;
 
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Series;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Pumukit\SchemaBundle\Document\Series;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 
 /**
  * @Route("/api/keywords")
@@ -44,7 +44,8 @@ class APIKeywordsController extends Controller
     {
         $coll = $this
           ->get('doctrine_mongodb.odm.document_manager')
-          ->getDocumentCollection($collName);
+          ->getDocumentCollection($collName)
+        ;
         $serializer = $this->get('jms_serializer');
 
         $pipeline = [

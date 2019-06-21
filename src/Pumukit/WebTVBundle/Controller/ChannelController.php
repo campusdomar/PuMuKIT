@@ -2,13 +2,13 @@
 
 namespace Pumukit\WebTVBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\Tag;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 /**
  * Class ChannelController.
@@ -62,7 +62,8 @@ class ChannelController extends Controller implements WebTVControllerInterface
                 ->createBuilderWithTag($tag, ['record_date' => -1])
                 ->count()
                 ->getQuery()
-                ->execute();
+                ->execute()
+            ;
 
             $results[] = [
                 'tag' => $tag,
@@ -91,9 +92,8 @@ class ChannelController extends Controller implements WebTVControllerInterface
     public function getChannelTitle($channelNumber)
     {
         $title = isset($this->titles[$channelNumber]) ? $this->titles[$channelNumber] : 'No title';
-        $title = $this->get('translator')->trans($title);
 
-        return $title;
+        return $this->get('translator')->trans($title);
     }
 
     /**

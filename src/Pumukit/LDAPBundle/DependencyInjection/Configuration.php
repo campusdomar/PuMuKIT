@@ -42,7 +42,8 @@ class Configuration implements ConfigurationInterface
               ->isRequired()
               ->info('LDAP Server DN User')
             ->end()
-          ->end();
+          ->end()
+        ;
 
         return $treeBuilder;
     }

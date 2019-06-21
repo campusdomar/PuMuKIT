@@ -2,16 +2,16 @@
 
 namespace Pumukit\WizardBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Component\HttpFoundation\Request;
 use Pumukit\EncoderBundle\Services\JobService;
+use Pumukit\NewAdminBundle\Form\Type\Base\CustomLanguageType;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
-use Pumukit\SchemaBundle\Security\Permission;
-use Pumukit\NewAdminBundle\Form\Type\Base\CustomLanguageType;
 use Pumukit\SchemaBundle\Document\Tag;
+use Pumukit\SchemaBundle\Security\Permission;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Security("is_granted('ROLE_ACCESS_WIZARD_UPLOAD')")
@@ -331,9 +331,10 @@ class DefaultController extends Controller
      *
      * @param Request $request
      *
+     * @throws \Exception
+     *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      *
-     * @throws \Exception
      *
      * @Template("PumukitWizardBundle:Default:upload.html.twig")
      */
@@ -390,11 +391,12 @@ class DefaultController extends Controller
             }
 
             //$showSeries = false;
-            /* if (('null' === $seriesId) || (null === $seriesId)) { */
-            /*     $showSeries = true; */
-            /* } */
+            // if (('null' === $seriesId) || (null === $seriesId)) {
+            // $showSeries = true;
+            // }
 
             $option = $this->getKeyData('option', $typeData);
+
             try {
                 if ('single' === $option) {
                     $filePath = null;
@@ -694,12 +696,9 @@ class DefaultController extends Controller
             }
 
             $keys = ['i18n_title', 'i18n_subtitle', 'i18n_description'];
-            $series = $this->setData($series, $seriesData, $keys);
 
-            return $series;
+            return $this->setData($series, $seriesData, $keys);
         }
-
-        return;
     }
 
     /**
@@ -723,8 +722,6 @@ class DefaultController extends Controller
 
             return $multimediaObject;
         }
-
-        return;
     }
 
     /**
@@ -773,7 +770,7 @@ class DefaultController extends Controller
             if ($value) {
                 $upperField = $this->getUpperFieldName($key);
                 $setField = 'set'.$upperField;
-                $resource->$setField($value);
+                $resource->{$setField}($value);
             }
         }
 
@@ -852,7 +849,8 @@ class DefaultController extends Controller
     private function findSeriesById($id)
     {
         $seriesRepo = $this->get('doctrine_mongodb.odm.document_manager')
-            ->getRepository(Series::class);
+            ->getRepository(Series::class)
+        ;
 
         return $seriesRepo->find($id);
     }
@@ -893,8 +891,8 @@ class DefaultController extends Controller
     {
         if (isset($formData['same_series'])) {
             return (bool) ($formData['same_series']);
-        } else {
-            return (bool) $sameSeriesFromRequest;
         }
+
+        return (bool) $sameSeriesFromRequest;
     }
 }

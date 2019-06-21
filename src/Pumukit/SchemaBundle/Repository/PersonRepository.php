@@ -18,10 +18,12 @@ class PersonRepository extends DocumentRepository
         $people = $this->createQueryBuilder()
           ->field('email')->equals($email)
           ->getQuery()
-          ->execute();
+          ->execute()
+        ;
 
         $mmobjRepo = $this->getDocumentManager()
-          ->getRepository(MultimediaObject::class);
+          ->getRepository(MultimediaObject::class)
+        ;
         foreach ($people as $person) {
             $mms = $mmobjRepo->findByPersonIdWithRoleCod($person->getId(), $roleCode);
             if ($mms->count() > 0) {

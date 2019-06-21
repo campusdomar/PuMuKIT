@@ -2,11 +2,11 @@
 
 namespace Pumukit\EncoderBundle\DependencyInjection;
 
+use Pumukit\EncoderBundle\Services\CpuService;
+use Pumukit\EncoderBundle\Services\ProfileService;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
-use Pumukit\EncoderBundle\Services\CpuService;
-use Pumukit\EncoderBundle\Services\ProfileService;
 
 /**
  * This is the class that validates and merges configuration from your app/config files.
@@ -41,7 +41,8 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(false)
                     ->info('Delete imported inbox files')
                 ->end()
-            ->end();
+            ->end()
+        ;
     }
 
     /**
@@ -102,7 +103,7 @@ class Configuration implements ConfigurationInterface
                                         ->info('Name of the streamserver')->end()
                                     ->enumNode('type')
                                         ->values([ProfileService::STREAMSERVER_STORE, ProfileService::STREAMSERVER_DOWNLOAD,
-                                                       ProfileService::STREAMSERVER_WMV, ProfileService::STREAMSERVER_FMS, ProfileService::STREAMSERVER_RED5, ])
+                                            ProfileService::STREAMSERVER_WMV, ProfileService::STREAMSERVER_FMS, ProfileService::STREAMSERVER_RED5, ])
                                         ->isRequired()
                                         ->info('Streamserver type')->end()
                                     ->scalarNode('host')->isRequired()->cannotBeEmpty()

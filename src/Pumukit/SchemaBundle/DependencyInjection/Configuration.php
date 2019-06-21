@@ -100,7 +100,8 @@ class Configuration implements ConfigurationInterface
               ->info('Event default poster image path')
             ->end()
           ->end()
-        ->end();
+        ->end()
+        ;
 
         return $treeBuilder;
     }

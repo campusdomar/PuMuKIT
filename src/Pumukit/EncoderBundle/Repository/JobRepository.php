@@ -15,6 +15,8 @@ class JobRepository extends DocumentRepository
 {
     /**
      * Create query builder for all jobs with given status.
+     *
+     * @param mixed $sort
      */
     public function createQueryWithStatus(array $status, $sort = [])
     {
@@ -30,26 +32,36 @@ class JobRepository extends DocumentRepository
 
     /**
      * Find all jobs with given status.
+     *
+     * @param mixed $sort
      */
     public function findWithStatus(array $status, $sort = [])
     {
         return $this->createQueryWithStatus($status, $sort)
           ->getQuery()
-          ->execute();
+          ->execute()
+        ;
     }
 
     /**
      * Find all jobs with given status.
+     *
+     * @param mixed      $sort
+     * @param null|mixed $owner
      */
     public function findWithStatusAndOwner(array $status, $sort = [], $owner = null)
     {
         return $this->createQueryWithStatusAndOwner($status, $sort, $owner)
           ->getQuery()
-          ->execute();
+          ->execute()
+        ;
     }
 
     /**
      * Find all jobs with given status.
+     *
+     * @param mixed      $sort
+     * @param null|mixed $owner
      */
     public function createQueryWithStatusAndOwner(array $status, $sort = [], $owner = null)
     {
@@ -78,11 +90,14 @@ class JobRepository extends DocumentRepository
           ->sort('priority', 'desc')
           ->sort('timeini', 'asc')
           ->getQuery()
-          ->getSingleResult();
+          ->getSingleResult()
+        ;
     }
 
     /**
      * Find not finished jobs with given multimedia object id.
+     *
+     * @param mixed $mmId
      */
     public function findNotFinishedByMultimediaObjectId($mmId)
     {
@@ -90,11 +105,15 @@ class JobRepository extends DocumentRepository
           ->field('mm_id')->equals($mmId)
           ->field('status')->notEqual(Job::STATUS_FINISHED)
           ->getQuery()
-          ->execute();
+          ->execute()
+        ;
     }
 
     /**
      * Find all jobs with given status and multimedia object id.
+     *
+     * @param mixed $status
+     * @param mixed $multimediaObjectId
      */
     public function findByStatusAndMultimediaObjectId($status, $multimediaObjectId)
     {
@@ -102,22 +121,29 @@ class JobRepository extends DocumentRepository
           ->field('mm_id')->equals($multimediaObjectId)
           ->field('status')->equals($status)
           ->getQuery()
-          ->execute();
+          ->execute()
+        ;
     }
 
     /**
      * Find all jobs with given multimedia object id.
+     *
+     * @param mixed $multimediaObjectId
      */
     public function findByMultimediaObjectId($multimediaObjectId)
     {
         return $this->createQueryBuilder()
           ->field('mm_id')->equals($multimediaObjectId)
           ->getQuery()
-          ->execute();
+          ->execute()
+        ;
     }
 
     /**
      * Find all jobs with given multimedia object id and profile.
+     *
+     * @param mixed $multimediaObjectId
+     * @param mixed $profile
      */
     public function findByMultimediaObjectIdAndProfile($multimediaObjectId, $profile)
     {
@@ -125,6 +151,7 @@ class JobRepository extends DocumentRepository
           ->field('mm_id')->equals($multimediaObjectId)
           ->field('profile')->equals($profile)
           ->getQuery()
-          ->execute();
+          ->execute()
+        ;
     }
 }

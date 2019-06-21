@@ -2,22 +2,22 @@
 
 namespace Pumukit\NewAdminBundle\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\SchemaBundle\Document\Series;
-use Pumukit\SchemaBundle\Security\Permission;
-use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
-use Pumukit\NewAdminBundle\Form\Type\SeriesType;
-use Pumukit\NewAdminBundle\Form\Type\MultimediaObjectTemplateMetaType;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
-use Pumukit\SchemaBundle\Document\Tag;
+use Pumukit\NewAdminBundle\Form\Type\MultimediaObjectTemplateMetaType;
+use Pumukit\NewAdminBundle\Form\Type\SeriesType;
+use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
 use Pumukit\SchemaBundle\Document\Group;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Document\Tag;
+use Pumukit\SchemaBundle\Security\Permission;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @Security("is_granted('ROLE_ACCESS_MULTIMEDIA_SERIES')")
@@ -93,9 +93,9 @@ class SeriesController extends AdminController implements NewAdminControllerInte
     /**
      * @param $id
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
-     *
      * @throws \Exception
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function cloneAction($id)
     {
@@ -136,9 +136,9 @@ class SeriesController extends AdminController implements NewAdminControllerInte
      *
      * @param Request $request
      *
-     * @return Response
-     *
      * @throws \Exception
+     *
+     * @return Response
      */
     public function updateAction(Request $request)
     {
@@ -228,7 +228,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
     /**
      * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return Response|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request)
     {
@@ -285,7 +285,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
      *
      * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return Response|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function batchDeleteAction(Request $request)
     {
@@ -466,13 +466,12 @@ class SeriesController extends AdminController implements NewAdminControllerInte
 
         $criteria = $this->get('session')->get('admin/series/criteria', []);
 
-        $new_criteria = $this->get('pumukitnewadmin.series_search')->processCriteria($criteria, false, $request->getLocale());
-
-        return $new_criteria;
+        return $this->get('pumukitnewadmin.series_search')->processCriteria($criteria, false, $request->getLocale());
     }
 
     /**
-     * @param Request $request
+     * @param Request    $request
+     * @param null|mixed $session_namespace
      *
      * @return array
      */
@@ -505,7 +504,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
      *
      * @param Request       $request
      * @param array         $criteria
-     * @param \MongoId|null $selectedSeriesId
+     * @param null|\MongoId $selectedSeriesId
      *
      * @return array|mixed|Pagerfanta
      */
@@ -554,6 +553,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
             foreach ($returnedSeries as $series) {
                 if ($selectedSeriesId == $series->getId()) {
                     $findSerie = true;
+
                     break;
                 }
                 ++$position;
@@ -571,111 +571,10 @@ class SeriesController extends AdminController implements NewAdminControllerInte
         $resources
             ->setMaxPerPage($session->get($session_namespace.'/paginate', 10))
             ->setNormalizeOutOfRangePages(true)
-            ->setCurrentPage($page);
+            ->setCurrentPage($page)
+        ;
 
         return $resources;
-    }
-
-    /**
-     * Modify Multimedia Objects status.
-     *
-     * @param $values
-     */
-    private function modifyMultimediaObjectsStatus($values)
-    {
-        $dm = $this->get('doctrine_mongodb.odm.document_manager');
-        $repo = $dm->getRepository(MultimediaObject::class);
-        $repoTags = $dm->getRepository(Tag::class);
-        $tagService = $this->get('pumukitschema.tag');
-
-        $executeFlush = false;
-        foreach ($values as $id => $value) {
-            $mm = $repo->find($id);
-            if ($mm) {
-                if ($this->isGranted(Permission::CHANGE_MMOBJECT_PUBCHANNEL)) {
-                    foreach ($value['channels'] as $channelId => $mustContainsTag) {
-                        $mustContainsTag = ('true' == $mustContainsTag);
-                        $tag = $repoTags->find($channelId);
-                        if ($tag && !$this->isGranted(Permission::getRoleTagDisableForPubChannel($tag->getCod()))) {
-                            if ($mustContainsTag && (!($mm->containsTag($tag)))) {
-                                $tagService->addTag($mm, $tag, false);
-                                $executeFlush = true;
-                            } elseif ((!($mustContainsTag)) && $mm->containsTag($tag)) {
-                                $tagService->removeTag($mm, $tag, false);
-                                $executeFlush = true;
-                            }
-                        }
-                    }
-                }
-
-                if ($this->isGranted(Permission::CHANGE_MMOBJECT_STATUS) && $value['status'] != $mm->getStatus()) {
-                    $mm->setStatus($value['status']);
-                    $executeFlush = true;
-                }
-            }
-        }
-
-        if ($executeFlush) {
-            $dm->flush();
-        }
-    }
-
-    /**
-     * Used in AdminController to
-     * reorder series when sort is multimedia_objects.
-     *
-     * @param $resources
-     *
-     * @return array $series
-     */
-    private function reorderResources($resources)
-    {
-        $series = [];
-        foreach ($resources as $resource) {
-            if (empty($series)) {
-                $series[] = $resource;
-            } else {
-                $aux = $series;
-                foreach ($aux as $index => $oneseries) {
-                    if ($this->compareSeries($resource, $oneseries)) {
-                        array_splice($series, $index, 0, [$resource]);
-                        break;
-                    } elseif ($index == (count($aux) - 1)) {
-                        $series[] = $resource;
-                    }
-                }
-            }
-        }
-
-        return $series;
-    }
-
-    /**
-     * Compare Series
-     * Compare the number of multimedia objects
-     * according to type (greater or lower than).
-     *
-     * @param Series $series1
-     * @param Series $series2
-     *
-     * @return bool
-     */
-    private function compareSeries($series1, $series2)
-    {
-        $type = $this->get('session')->get('admin/series/type');
-
-        $dm = $this->get('doctrine_mongodb.odm.document_manager');
-        $mmRepo = $dm->getRepository(MultimediaObject::class);
-        $numberMultimediaObjectsInSeries1 = $mmRepo->countInSeries($series1);
-        $numberMultimediaObjectsInSeries2 = $mmRepo->countInSeries($series2);
-
-        if ('asc' === $type) {
-            return $numberMultimediaObjectsInSeries1 < $numberMultimediaObjectsInSeries2;
-        } elseif ('desc' === $type) {
-            return $numberMultimediaObjectsInSeries1 > $numberMultimediaObjectsInSeries2;
-        }
-
-        return false;
     }
 
     /**
@@ -691,53 +590,6 @@ class SeriesController extends AdminController implements NewAdminControllerInte
         $this->get('session')->set('admin/series/criteria', ['search' => $q]);
 
         return $this->redirect($this->generateUrl('pumukitnewadmin_series_index'));
-    }
-
-    /**
-     * Returns true if the user has enough permissions to delete the $resource passed.
-     * This function will always return true if the user has the MODIFY_ONWER permission. Otherwise,
-     * it checks if it is the owner of the object (and there are no other owners) and returns false if not.
-     * Since this is a series, that means it will check every object for ownerships.
-     *
-     * @param Series $series
-     *
-     * @return bool
-     */
-    protected function isUserAllowedToDelete(Series $series)
-    {
-        if (!$this->isGranted(Permission::MODIFY_OWNER)) {
-            $loggedInUser = $this->getUser();
-            $personService = $this->get('pumukitschema.person');
-            $person = $personService->getPersonFromLoggedInUser($loggedInUser);
-            $role = $personService->getPersonalScopeRole();
-            if (!$person) {
-                return false;
-            }
-            $dm = $this->get('doctrine_mongodb.odm.document_manager');
-
-            $enableFilter = false;
-            if ($dm->getFilterCollection()->isEnabled('backoffice')) {
-                $enableFilter = true;
-                $dm->getFilterCollection()->disable('backoffice');
-            }
-            $mmobjRepo = $dm->getRepository(MultimediaObject::class);
-            $allMmobjs = $mmobjRepo->createStandardQueryBuilder()->field('series')->equals($series->getId())->getQuery()->execute();
-            foreach ($allMmobjs as $resource) {
-                if (!$resource->containsPersonWithRole($person, $role) ||
-                    count($resource->getPeopleByRole($role, true)) > 1) {
-                    if ($enableFilter) {
-                        $dm->getFilterCollection()->enable('backoffice');
-                    }
-
-                    return false;
-                }
-            }
-            if ($enableFilter) {
-                $dm->getFilterCollection()->enable('backoffice');
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -832,6 +684,158 @@ class SeriesController extends AdminController implements NewAdminControllerInte
     public function listPropertiesAction(Series $series)
     {
         return ['series' => $series];
+    }
+
+    /**
+     * Returns true if the user has enough permissions to delete the $resource passed.
+     * This function will always return true if the user has the MODIFY_ONWER permission. Otherwise,
+     * it checks if it is the owner of the object (and there are no other owners) and returns false if not.
+     * Since this is a series, that means it will check every object for ownerships.
+     *
+     * @param Series $series
+     *
+     * @return bool
+     */
+    protected function isUserAllowedToDelete(Series $series)
+    {
+        if (!$this->isGranted(Permission::MODIFY_OWNER)) {
+            $loggedInUser = $this->getUser();
+            $personService = $this->get('pumukitschema.person');
+            $person = $personService->getPersonFromLoggedInUser($loggedInUser);
+            $role = $personService->getPersonalScopeRole();
+            if (!$person) {
+                return false;
+            }
+            $dm = $this->get('doctrine_mongodb.odm.document_manager');
+
+            $enableFilter = false;
+            if ($dm->getFilterCollection()->isEnabled('backoffice')) {
+                $enableFilter = true;
+                $dm->getFilterCollection()->disable('backoffice');
+            }
+            $mmobjRepo = $dm->getRepository(MultimediaObject::class);
+            $allMmobjs = $mmobjRepo->createStandardQueryBuilder()->field('series')->equals($series->getId())->getQuery()->execute();
+            foreach ($allMmobjs as $resource) {
+                if (!$resource->containsPersonWithRole($person, $role) ||
+                    count($resource->getPeopleByRole($role, true)) > 1) {
+                    if ($enableFilter) {
+                        $dm->getFilterCollection()->enable('backoffice');
+                    }
+
+                    return false;
+                }
+            }
+            if ($enableFilter) {
+                $dm->getFilterCollection()->enable('backoffice');
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Modify Multimedia Objects status.
+     *
+     * @param $values
+     */
+    private function modifyMultimediaObjectsStatus($values)
+    {
+        $dm = $this->get('doctrine_mongodb.odm.document_manager');
+        $repo = $dm->getRepository(MultimediaObject::class);
+        $repoTags = $dm->getRepository(Tag::class);
+        $tagService = $this->get('pumukitschema.tag');
+
+        $executeFlush = false;
+        foreach ($values as $id => $value) {
+            $mm = $repo->find($id);
+            if ($mm) {
+                if ($this->isGranted(Permission::CHANGE_MMOBJECT_PUBCHANNEL)) {
+                    foreach ($value['channels'] as $channelId => $mustContainsTag) {
+                        $mustContainsTag = ('true' == $mustContainsTag);
+                        $tag = $repoTags->find($channelId);
+                        if ($tag && !$this->isGranted(Permission::getRoleTagDisableForPubChannel($tag->getCod()))) {
+                            if ($mustContainsTag && (!($mm->containsTag($tag)))) {
+                                $tagService->addTag($mm, $tag, false);
+                                $executeFlush = true;
+                            } elseif ((!($mustContainsTag)) && $mm->containsTag($tag)) {
+                                $tagService->removeTag($mm, $tag, false);
+                                $executeFlush = true;
+                            }
+                        }
+                    }
+                }
+
+                if ($this->isGranted(Permission::CHANGE_MMOBJECT_STATUS) && $value['status'] != $mm->getStatus()) {
+                    $mm->setStatus($value['status']);
+                    $executeFlush = true;
+                }
+            }
+        }
+
+        if ($executeFlush) {
+            $dm->flush();
+        }
+    }
+
+    /**
+     * Used in AdminController to
+     * reorder series when sort is multimedia_objects.
+     *
+     * @param $resources
+     *
+     * @return array $series
+     */
+    private function reorderResources($resources)
+    {
+        $series = [];
+        foreach ($resources as $resource) {
+            if (empty($series)) {
+                $series[] = $resource;
+            } else {
+                $aux = $series;
+                foreach ($aux as $index => $oneseries) {
+                    if ($this->compareSeries($resource, $oneseries)) {
+                        array_splice($series, $index, 0, [$resource]);
+
+                        break;
+                    }
+                    if ($index == (count($aux) - 1)) {
+                        $series[] = $resource;
+                    }
+                }
+            }
+        }
+
+        return $series;
+    }
+
+    /**
+     * Compare Series
+     * Compare the number of multimedia objects
+     * according to type (greater or lower than).
+     *
+     * @param Series $series1
+     * @param Series $series2
+     *
+     * @return bool
+     */
+    private function compareSeries($series1, $series2)
+    {
+        $type = $this->get('session')->get('admin/series/type');
+
+        $dm = $this->get('doctrine_mongodb.odm.document_manager');
+        $mmRepo = $dm->getRepository(MultimediaObject::class);
+        $numberMultimediaObjectsInSeries1 = $mmRepo->countInSeries($series1);
+        $numberMultimediaObjectsInSeries2 = $mmRepo->countInSeries($series2);
+
+        if ('asc' === $type) {
+            return $numberMultimediaObjectsInSeries1 < $numberMultimediaObjectsInSeries2;
+        }
+        if ('desc' === $type) {
+            return $numberMultimediaObjectsInSeries1 > $numberMultimediaObjectsInSeries2;
+        }
+
+        return false;
     }
 
     /**

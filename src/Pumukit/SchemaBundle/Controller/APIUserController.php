@@ -2,11 +2,11 @@
 
 namespace Pumukit\SchemaBundle\Controller;
 
+use Pumukit\SchemaBundle\Document\User;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Pumukit\SchemaBundle\Document\User;
 
 /**
  * @Route("/api/user")
@@ -20,7 +20,8 @@ class APIUserController extends Controller
     {
         $repo = $this
           ->get('doctrine_mongodb.odm.document_manager')
-          ->getRepository(User::class);
+          ->getRepository(User::class)
+        ;
         $serializer = $this->get('jms_serializer');
 
         $users = $repo->findAll();

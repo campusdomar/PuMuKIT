@@ -30,7 +30,8 @@ class Configuration implements ConfigurationInterface
                 ->defaultValue('50%')
                 ->info('Extract thumbnail automatically on this percentage')
             ->end()
-          ->end();
+          ->end()
+        ;
 
         return $treeBuilder;
     }

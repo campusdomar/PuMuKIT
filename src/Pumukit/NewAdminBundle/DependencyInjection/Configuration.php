@@ -67,7 +67,8 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(null)
                     ->info('Name of the tag to use on catalogue')
                 ->end()
-          ->end();
+          ->end()
+        ;
 
         return $treeBuilder;
     }

@@ -73,7 +73,8 @@ class Configuration implements ConfigurationInterface
               ->values($this->profiles)
               ->info('Force a default master profile for multimedia objects created using the simple wizard (used by Moodle or by OpenEdx)')
             ->end()
-          ->end();
+          ->end()
+        ;
 
         return $treeBuilder;
     }

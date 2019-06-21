@@ -3,12 +3,12 @@
 namespace Pumukit\LiveBundle\Twig;
 
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Pumukit\LiveBundle\Document\Event;
 use Pumukit\LiveBundle\Document\Live;
 use Pumukit\LiveBundle\Services\LiveService;
 use Pumukit\SchemaBundle\Document\EmbeddedEvent;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Services\EmbeddedEventSessionService;
-use Pumukit\LiveBundle\Document\Event;
 
 class LiveTwigExtension extends \Twig_Extension
 {
@@ -54,8 +54,8 @@ class LiveTwigExtension extends \Twig_Extension
     /**
      * Get future and not finished event.
      *
-     * @param int|null  $limit
-     * @param Live|null $live
+     * @param null|int  $limit
+     * @param null|Live $live
      *
      * @return mixed
      */
@@ -117,7 +117,7 @@ class LiveTwigExtension extends \Twig_Extension
     /**
      * Get event thumbnail.
      *
-     * @param EmbeddedEvent|array $event
+     * @param array|EmbeddedEvent $event
      *
      * @return string
      */
@@ -125,8 +125,8 @@ class LiveTwigExtension extends \Twig_Extension
     {
         if (!is_array($event)) {
             return $this->eventsService->getEventThumbnail($event);
-        } else {
-            return $this->eventsService->getEventThumbnailByEventId($event['event']['_id']);
         }
+
+        return $this->eventsService->getEventThumbnailByEventId($event['event']['_id']);
     }
 }

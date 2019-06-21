@@ -54,7 +54,8 @@ class Configuration implements ConfigurationInterface
               ->info('Itunes is explicit. Default value: false')
               ->defaultValue(false)
             ->end()
-          ->end();
+          ->end()
+        ;
 
         return $treeBuilder;
     }

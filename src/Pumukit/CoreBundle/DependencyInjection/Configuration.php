@@ -68,7 +68,8 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('full_magic_url')
                     ->defaultFalse()
                 ->end()
-            ->end();
+            ->end()
+        ;
 
         return $treeBuilder;
     }

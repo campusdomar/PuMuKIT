@@ -22,6 +22,7 @@ class RoleRepository extends DocumentRepository
         return $this->createQueryBuilder()
           ->sort('rank', -1)
           ->getQuery()
-          ->execute();
+          ->execute()
+        ;
     }
 }

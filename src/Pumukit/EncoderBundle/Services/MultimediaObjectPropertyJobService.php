@@ -58,7 +58,8 @@ class MultimediaObjectPropertyJobService
             ->field('properties.'.$key)->push($value)
             ->field('_id')->equals($multimediaObject->getId())
             ->getQuery()
-            ->execute();
+            ->execute()
+        ;
     }
 
     private function delPropertyInArray(MultimediaObject $multimediaObject, $key, $value)
@@ -70,7 +71,8 @@ class MultimediaObjectPropertyJobService
              ->field('_id')->equals($multimediaObject->getId())
              ->field('properties.'.$key)->equals([$value])
              ->getQuery()
-             ->execute();
+             ->execute()
+        ;
 
         if ((isset($out['nModified']) && 1 == $out['nModified']) || (isset($out['n']) && 1 == $out['n'])) {
             return true;
@@ -83,7 +85,8 @@ class MultimediaObjectPropertyJobService
              ->field('_id')->equals($multimediaObject->getId())
              ->field('properties.'.$key)->equals($value)
              ->getQuery()
-             ->execute();
+             ->execute()
+        ;
 
         if ((isset($out['nModified']) && 1 == $out['nModified']) || (isset($out['n']) && 1 == $out['n'])) {
             return true;

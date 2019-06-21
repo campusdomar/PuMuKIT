@@ -2,11 +2,15 @@
 
 namespace Pumukit\SchemaBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Group;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class SpecialTranslationServiceTest extends WebTestCase
 {
     private $dm;
@@ -21,9 +25,11 @@ class SpecialTranslationServiceTest extends WebTestCase
         $this->dm = static::$kernel->getContainer()
                                    ->get('doctrine_mongodb')->getManager();
         $this->mmRepo = $this->dm
-            ->getRepository(MultimediaObject::class);
+            ->getRepository(MultimediaObject::class)
+        ;
         $this->specialTranslationService = static::$kernel->getContainer()
-                                                          ->get('pumukitschema.special_translation');
+                                                          ->get('pumukitschema.special_translation')
+        ;
 
         $this->dm->getDocumentCollection(MultimediaObject::class)->remove([]);
         $this->dm->getDocumentCollection(Group::class)->remove([]);

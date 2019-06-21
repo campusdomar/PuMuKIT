@@ -64,7 +64,8 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('ORIGIN')
                     ->defaultValue('cas')
                 ->end()
-            ->end();
+            ->end()
+        ;
 
         return $treeBuilder;
     }

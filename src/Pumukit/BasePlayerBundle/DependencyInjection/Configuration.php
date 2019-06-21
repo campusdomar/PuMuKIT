@@ -36,7 +36,8 @@ class Configuration implements ConfigurationInterface
               ->defaultValue('on_load')
               ->info('When dispatch a view event, on load the track file or on play the video (via AJAX request).')
             ->end()
-          ->end();
+          ->end()
+        ;
 
         return $treeBuilder;
     }

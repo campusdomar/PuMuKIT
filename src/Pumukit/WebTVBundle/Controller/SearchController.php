@@ -2,19 +2,19 @@
 
 namespace Pumukit\WebTVBundle\Controller;
 
+use Pagerfanta\Pagerfanta;
+use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
 use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
+use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Pumukit\SchemaBundle\Document\Series;
+use Pumukit\SchemaBundle\Document\Tag;
+use Pumukit\SchemaBundle\Utils\Mongo\TextIndexUtils;
+use Pumukit\SchemaBundle\Utils\Pagerfanta\Adapter\DoctrineODMMongoDBAdapter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Pagerfanta\Pagerfanta;
-use Pumukit\SchemaBundle\Document\Series;
-use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\SchemaBundle\Document\Tag;
-use Pumukit\SchemaBundle\Utils\Pagerfanta\Adapter\DoctrineODMMongoDBAdapter;
-use Pumukit\SchemaBundle\Utils\Mongo\TextIndexUtils;
-use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
 
 /**
  * Class SearchController.
@@ -85,6 +85,8 @@ class SearchController extends Controller implements WebTVControllerInterface
      * @Route("/searchmultimediaobjects/{tagCod}/{useTagAsGeneral}", defaults={"tagCod": null, "useTagAsGeneral": false}, name="pumukit_webtv_search_multimediaobjects")
      * @ParamConverter("blockedTag", class="PumukitSchemaBundle:Tag", options={"mapping": {"tagCod": "cod"}})
      * @Template("PumukitWebTVBundle:Search:template.html.twig")
+     *
+     * @param mixed $useTagAsGeneral
      */
     public function multimediaObjectsAction(Request $request, Tag $blockedTag = null, $useTagAsGeneral = false)
     {
@@ -186,9 +188,9 @@ class SearchController extends Controller implements WebTVControllerInterface
     }
 
     /**
-     * @return \Doctrine\Common\Persistence\ObjectRepository
-     *
      * @throws \Exception
+     *
+     * @return \Doctrine\Common\Persistence\ObjectRepository
      */
     protected function getParentTag()
     {
@@ -209,7 +211,7 @@ class SearchController extends Controller implements WebTVControllerInterface
     }
 
     /**
-     * @return \Doctrine\Common\Persistence\ObjectRepository|null
+     * @return null|\Doctrine\Common\Persistence\ObjectRepository
      */
     protected function getOptionalParentTag()
     {
@@ -237,7 +239,7 @@ class SearchController extends Controller implements WebTVControllerInterface
 
         if ((false !== strpos($searchFound, '*')) && (false === strpos($searchFound, ' '))) {
             $searchFound = str_replace('*', '.*', $searchFound);
-            $mRegex = new \MongoRegex("/$searchFound/i");
+            $mRegex = new \MongoRegex("/{$searchFound}/i");
             $queryBuilder->addOr($queryBuilder->expr()->field('title.'.$request->getLocale())->equals($mRegex));
             $queryBuilder->addOr($queryBuilder->expr()->field('people.people.name')->equals($mRegex));
         } elseif ('' != $searchFound) {

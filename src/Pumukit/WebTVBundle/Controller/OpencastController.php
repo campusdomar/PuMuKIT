@@ -4,11 +4,11 @@ namespace Pumukit\WebTVBundle\Controller;
 
 use Pumukit\BasePlayerBundle\Event\BasePlayerEvents;
 use Pumukit\BasePlayerBundle\Event\ViewedEvent;
+use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Pumukit\CoreBundle\Controller\WebTVControllerInterface;
 
 /**
  * Class OpencastController.
@@ -21,7 +21,7 @@ class OpencastController extends PlayerController implements WebTVControllerInte
      * @param MultimediaObject $multimediaObject
      * @param Request          $request
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return array|Response|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function magicAction(MultimediaObject $multimediaObject, Request $request)
     {
@@ -45,7 +45,7 @@ class OpencastController extends PlayerController implements WebTVControllerInte
      * @param MultimediaObject $multimediaObject
      * @param Request          $request
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return array|Response|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function indexAction(MultimediaObject $multimediaObject, Request $request)
     {

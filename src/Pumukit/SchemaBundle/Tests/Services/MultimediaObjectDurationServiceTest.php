@@ -2,9 +2,13 @@
 
 namespace Pumukit\SchemaBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class MultimediaObjectDurationServiceTest extends WebTestCase
 {
     private $dm;
@@ -20,11 +24,14 @@ class MultimediaObjectDurationServiceTest extends WebTestCase
         $this->dm = static::$kernel->getContainer()
                            ->get('doctrine_mongodb')->getManager();
         $this->mmRepo = $this->dm
-                             ->getRepository(MultimediaObject::class);
+                             ->getRepository(MultimediaObject::class)
+        ;
         $this->factory = static::$kernel->getContainer()
-                                ->get('pumukitschema.factory');
+                                ->get('pumukitschema.factory')
+        ;
         $this->mmsService = static::$kernel->getContainer()
-                                   ->get('pumukitschema.mmsduration');
+                                   ->get('pumukitschema.mmsduration')
+        ;
 
         $this->dm->getDocumentCollection(MultimediaObject::class)->remove([]);
         $this->dm->flush();

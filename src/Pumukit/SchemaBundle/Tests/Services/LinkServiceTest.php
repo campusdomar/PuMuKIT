@@ -2,11 +2,15 @@
 
 namespace Pumukit\SchemaBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Pumukit\SchemaBundle\Document\Link;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class LinkServiceTest extends WebTestCase
 {
     private $dm;
@@ -22,11 +26,14 @@ class LinkServiceTest extends WebTestCase
         $this->dm = static::$kernel->getContainer()
           ->get('doctrine_mongodb')->getManager();
         $this->repoMmobj = $this->dm
-          ->getRepository(MultimediaObject::class);
+          ->getRepository(MultimediaObject::class)
+        ;
         $this->linkService = static::$kernel->getContainer()
-          ->get('pumukitschema.link');
+          ->get('pumukitschema.link')
+        ;
         $this->factoryService = static::$kernel->getContainer()
-          ->get('pumukitschema.factory');
+          ->get('pumukitschema.factory')
+        ;
 
         $this->dm->getDocumentCollection(MultimediaObject::class)->remove([]);
         $this->dm->getDocumentCollection(Series::class)->remove([]);

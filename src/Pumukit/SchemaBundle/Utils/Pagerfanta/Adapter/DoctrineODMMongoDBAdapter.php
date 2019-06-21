@@ -56,7 +56,8 @@ class DoctrineODMMongoDBAdapter implements AdapterInterface
             ->limit($length)
             ->skip($offset)
             ->getQuery()
-            ->execute();
+            ->execute()
+            ;
         }
 
         return $this->query;

@@ -30,7 +30,8 @@ class Configuration implements ConfigurationInterface
               ->defaultFalse('on_load')
               ->info('Use ViewsAggregation instead ViewsLog for generate stats (See PumukitAggregateCommand).')
             ->end()
-          ->end();
+          ->end()
+        ;
 
         return $treeBuilder;
     }
