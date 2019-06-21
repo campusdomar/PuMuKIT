@@ -227,7 +227,7 @@ class FactoryService
             }
         }
         $mm = $this->addLoggedInUserAsPerson($mm, $loggedInUser, $flush, $dispatch);
-        // // Add other owners in case of exists
+        // Add other owners in case of exists
         foreach ($prototype->getRoles() as $embeddedRole) {
             if ($this->personService->getPersonalScopeRoleCode() === $embeddedRole->getCod()) {
                 $role = $this->dm->getRepository('PumukitSchemaBundle:Role')->findOneBy(array('cod' => $this->personService->getPersonalScopeRoleCode()));
