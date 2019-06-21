@@ -21,8 +21,8 @@ class ListController extends Controller
         }
 
         $routeName = $request->get('_forwarded')->get('_route') ?? $request->get('_route') ?? 'pumukit_webtv_index_index';
-        $this->get('pumukit_web_tv.breadcrumbs')->addList($template->getName(), $routeName, array(), true);
+        $this->get('pumukit_web_tv.breadcrumbs')->addList($template->getName(), $routeName, [], true);
 
-        return array('template' => $template);
+        return ['template' => $template];
     }
 }

@@ -381,7 +381,7 @@ class SearchController extends Controller implements WebTVControllerInterface
             ['$group' => ['_id' => ['$year' => '$record_date']]],
             ['$sort' => ['_id' => 1]],
         ];
-        $yearResults = $mmObjColl->aggregate($pipeline, array('cursor' => array()));
+        $yearResults = $mmObjColl->aggregate($pipeline, ['cursor' => []]);
         $years = [];
         foreach ($yearResults as $year) {
             $years[] = $year['_id'];
@@ -400,7 +400,7 @@ class SearchController extends Controller implements WebTVControllerInterface
             ['$group' => ['_id' => ['$year' => '$public_date']]],
             ['$sort' => ['_id' => 1]],
         ];
-        $yearResults = $mmObjColl->aggregate($pipeline, array('cursor' => array()));
+        $yearResults = $mmObjColl->aggregate($pipeline, ['cursor' => []]);
         $years = [];
         foreach ($yearResults as $year) {
             $years[] = $year['_id'];
