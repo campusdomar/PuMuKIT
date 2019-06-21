@@ -293,12 +293,12 @@ class UserController extends AdminController implements NewAdminControllerInterf
 
         $new_criteria = [];
         foreach ($criteria as $property => $value) {
-            if ('permissionProfile' == $property) {
-                if ('all' != $value) {
+            if ('permissionProfile' === $property) {
+                if ('all' !== $value) {
                     $new_criteria[$property] = new \MongoId($value);
                 }
-            } elseif ('origin' == $property) {
-                if ('all' != $value) {
+            } elseif ('origin' === $property) {
+                if ('all' !== $value) {
                     $new_criteria[$property] = $value;
                 }
             } elseif ('' !== $value) {

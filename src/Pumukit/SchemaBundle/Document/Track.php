@@ -481,7 +481,7 @@ class Track extends Element
      */
     public function getAspectRatio()
     {
-        return (0 == $this->height) ? 0 : $this->width / $this->height;
+        return (0 === $this->height) ? 0 : $this->width / $this->height;
     }
 
     /**

@@ -74,7 +74,7 @@ class MultimediaObjectPropertyJobService
              ->execute()
         ;
 
-        if ((isset($out['nModified']) && 1 == $out['nModified']) || (isset($out['n']) && 1 == $out['n'])) {
+        if ((isset($out['nModified']) && 1 === $out['nModified']) || (isset($out['n']) && 1 === $out['n'])) {
             return true;
         }
 
@@ -88,7 +88,7 @@ class MultimediaObjectPropertyJobService
              ->execute()
         ;
 
-        if ((isset($out['nModified']) && 1 == $out['nModified']) || (isset($out['n']) && 1 == $out['n'])) {
+        if ((isset($out['nModified']) && 1 === $out['nModified']) || (isset($out['n']) && 1 === $out['n'])) {
             return true;
         }
 

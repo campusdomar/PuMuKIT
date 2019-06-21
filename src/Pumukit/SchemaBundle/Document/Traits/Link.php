@@ -119,7 +119,7 @@ trait Link
     public function getLinkById($linkId)
     {
         foreach ($this->links as $link) {
-            if ($link->getId() == $linkId) {
+            if ($link->getId() === $linkId) {
                 return $link;
             }
         }

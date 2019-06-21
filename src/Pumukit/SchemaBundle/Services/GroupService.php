@@ -78,14 +78,14 @@ class GroupService
     {
         $auxKeyGroup = $this->repo->findOneByKey($group->getKey());
         if ($auxKeyGroup) {
-            if ($auxKeyGroup->getId() != $group->getId()) {
+            if ($auxKeyGroup->getId() !== $group->getId()) {
                 throw new \Exception('There is already a group created with key '.$group->getKey().'.');
             }
         }
 
         $auxNameGroup = $this->repo->findOneByName($group->getName());
         if ($auxNameGroup) {
-            if ($auxNameGroup->getId() != $group->getId()) {
+            if ($auxNameGroup->getId() !== $group->getId()) {
                 throw new \Exception('There is already a group created with name '.$group->getName().'.');
             }
         }

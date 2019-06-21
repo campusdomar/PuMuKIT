@@ -66,7 +66,7 @@ class AnnounceService
         usort($last, function ($a, $b) {
             $date_a = $a->getPublicDate();
             $date_b = $b->getPublicDate();
-            if ($date_a == $date_b) {
+            if ($date_a === $date_b) {
                 return 0;
             }
 

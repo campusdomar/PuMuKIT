@@ -83,7 +83,7 @@ class LDAPService
                 $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, [], 0, 1);
                 if ($searchResult) {
                     $info = ldap_get_entries($linkIdentifier, $searchResult);
-                    if (($info) && (0 != $info['count'])) {
+                    if (($info) && (0 !== $info['count'])) {
                         $dn = $info[0]['dn'];
                         $ret = @ldap_bind($linkIdentifier, $dn, $pass);
                     }
@@ -119,7 +119,7 @@ class LDAPService
                 $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, [], 0, 1);
                 if ($searchResult) {
                     $info = ldap_get_entries($linkIdentifier, $searchResult);
-                    if (($info) && (0 != count($info))) {
+                    if (($info) && (0 !== count($info))) {
                         $name = $info[0]['cn'][0];
                     }
                 }
@@ -156,7 +156,7 @@ class LDAPService
                 $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, [], 0, 1);
                 if ($searchResult) {
                     $info = ldap_get_entries($linkIdentifier, $searchResult);
-                    if (($info) && (0 != count($info))) {
+                    if (($info) && (0 !== count($info))) {
                         $name = $info[0]['mail'][0];
                     }
                 }
@@ -209,7 +209,7 @@ class LDAPService
             $searchResult = ldap_search($linkIdentifier, $this->baseDn, $key.'='.$value, [], 0, 1);
             if ($searchResult) {
                 $info = ldap_get_entries($linkIdentifier, $searchResult);
-                if (($info) && (0 != count($info)) && isset($info[0])) {
+                if (($info) && (0 !== count($info)) && isset($info[0])) {
                     $return = $info[0];
                 }
             }
@@ -249,7 +249,7 @@ class LDAPService
                 $searchResult = ldap_search($linkIdentifier, $this->baseDn, $filter, [], 0, $limit);
                 if ($searchResult) {
                     $info = ldap_get_entries($linkIdentifier, $searchResult);
-                    if (($info) && (0 != count($info))) {
+                    if (($info) && (0 !== count($info))) {
                         foreach ($info as $k => $i) {
                             if ('count' === $k) {
                                 continue;

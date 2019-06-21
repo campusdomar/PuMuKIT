@@ -344,7 +344,7 @@ class FeedController extends Controller
 
     private function getAbsoluteUrl($url = '')
     {
-        if ($url && '/' == $url[0]) {
+        if ($url && '/' === $url[0]) {
             return $this->getBaseUrl().$url;
         }
 
@@ -361,9 +361,9 @@ class FeedController extends Controller
         $scheme = $context->getScheme();
         $host = $context->getHost();
         $port = '';
-        if ('http' === $scheme && 80 != $context->getHttpPort()) {
+        if ('http' === $scheme && 80 !== $context->getHttpPort()) {
             $port = ':'.$context->getHttpPort();
-        } elseif ('https' === $scheme && 443 != $context->getHttpsPort()) {
+        } elseif ('https' === $scheme && 443 !== $context->getHttpsPort()) {
             $port = ':'.$context->getHttpsPort();
         }
 

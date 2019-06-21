@@ -85,7 +85,7 @@ class BootstrapExtension extends \Twig_Extension
             return false;
         }
 
-        if (0 != $loopIndex % $mapping[$objectsByCol]) {
+        if (0 !== $loopIndex % $mapping[$objectsByCol]) {
             return false;
         }
 
@@ -113,7 +113,7 @@ class BootstrapExtension extends \Twig_Extension
             return false;
         }
 
-        if (0 != $loopIndex % $mapping[$objectsByCol]) {
+        if (0 !== $loopIndex % $mapping[$objectsByCol]) {
             return false;
         }
 

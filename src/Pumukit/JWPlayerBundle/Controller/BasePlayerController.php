@@ -59,8 +59,8 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
                 return $this->redirect($this->generateUrl('pumukit_videoplayer_index', ['id' => $multimediaObject->getId()]));
             }
         } elseif ((
-            MultimediaObject::STATUS_PUBLISHED != $multimediaObject->getStatus()
-                 && MultimediaObject::STATUS_HIDDEN != $multimediaObject->getStatus()
+            MultimediaObject::STATUS_PUBLISHED !== $multimediaObject->getStatus()
+                 && MultimediaObject::STATUS_HIDDEN !== $multimediaObject->getStatus()
                  ) || !$multimediaObject->containsTagWithCod('PUCHWEBTV')) {
             return $this->render('PumukitWebTVBundle:Index:404notfound.html.twig');
         }

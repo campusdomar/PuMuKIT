@@ -50,7 +50,7 @@ class SeriesService
      */
     public function sameEmbeddedBroadcast(Series $series)
     {
-        if (0 == $this->mmRepo->countInSeriesWithPrototype($series)) {
+        if (0 === $this->mmRepo->countInSeriesWithPrototype($series)) {
             return false;
         }
         $firstFound = null;

@@ -31,7 +31,7 @@ class SpecialTranslationService
             $groupsDescription = ': ';
             foreach ($groups as $group) {
                 $groupsDescription .= $group->getName();
-                if ($group != $groups->last()) {
+                if ($group !== $groups->last()) {
                     $groupsDescription .= ', ';
                 }
             }

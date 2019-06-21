@@ -80,7 +80,7 @@ class CategoriesController extends Controller implements WebTVControllerInterfac
         $counterMmobjs = $this->countMmobjInTags($provider);
         $linkService = $this->get('pumukit_web_tv.link_service');
         foreach ($tagsArray as $id => $parent) {
-            if ('__object' == $id) {
+            if ('__object' === $id) {
                 continue;
             }
             $allGrounds[$id] = [];
@@ -114,7 +114,7 @@ class CategoriesController extends Controller implements WebTVControllerInterfac
                 $allGrounds[$id]['children']['general']['children'] = [];
             }
             foreach ($parent as $id2 => $child) {
-                if ('__object' == $id2) {
+                if ('__object' === $id2) {
                     continue;
                 }
                 $allGrounds[$id]['children'][$id2] = [];
@@ -134,7 +134,7 @@ class CategoriesController extends Controller implements WebTVControllerInterfac
                 $allGrounds[$id]['children'][$id2]['children'] = [];
 
                 foreach ($child as $id3 => $grandchild) {
-                    if ('__object' == $id3) {
+                    if ('__object' === $id3) {
                         continue;
                     }
                     $allGrounds[$id]['children'][$id2]['children'][$id3] = [];

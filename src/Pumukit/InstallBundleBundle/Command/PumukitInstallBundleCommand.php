@@ -100,8 +100,8 @@ class PumukitInstallBundleCommand extends ContainerAwareCommand
 
                 continue;
             }
-            if (0 != $numSpaces &&
-                (0 == strlen(trim($line)) ||
+            if (0 !== $numSpaces &&
+                (0 === strlen(trim($line)) ||
                 1 === preg_match('/^( ){'.$numSpaces.'}.*/', $line))) {
                 unset($src[$key]);
             } else {

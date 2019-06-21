@@ -95,7 +95,7 @@ class SeriesController extends Controller implements WebTVControllerInterface
     {
         $limit = $this->container->getParameter('limit_objs_series');
 
-        if (0 == $limit) {
+        if (0 === $limit) {
             return $objects->getQuery()->execute();
         }
         $adapter = new DoctrineODMMongoDBAdapter($objects);

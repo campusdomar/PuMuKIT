@@ -88,7 +88,7 @@ class PicService
     public function getDefaultUrlPicForObject($object, $absolute = false, $hd = true)
     {
         if ($object instanceof Series) {
-            if (Series::TYPE_PLAYLIST == $object->getType()) {
+            if (Series::TYPE_PLAYLIST === $object->getType()) {
                 return $this->getDefaultPlaylistUrlPic($absolute);
             }
 
@@ -306,13 +306,13 @@ class PicService
     protected function getAbsoluteUrlPic($picUrl = '')
     {
         if ($picUrl) {
-            if ('/' == $picUrl[0]) {
+            if ('/' === $picUrl[0]) {
                 $scheme = $this->context->getScheme();
                 $host = $this->context->getHost();
                 $port = '';
-                if ('http' === $scheme && 80 != $this->context->getHttpPort()) {
+                if ('http' === $scheme && 80 !== $this->context->getHttpPort()) {
                     $port = ':'.$this->context->getHttpPort();
-                } elseif ('https' === $scheme && 443 != $this->context->getHttpsPort()) {
+                } elseif ('https' === $scheme && 443 !== $this->context->getHttpsPort()) {
                     $port = ':'.$this->context->getHttpsPort();
                 }
 
@@ -333,7 +333,7 @@ class PicService
     private function getAbsolutePathPic($picPath = '')
     {
         if ($picPath) {
-            if ('/' == $picPath[0]) {
+            if ('/' === $picPath[0]) {
                 return $this->webDir.$picPath;
             }
 

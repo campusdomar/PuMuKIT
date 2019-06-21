@@ -56,7 +56,7 @@ class ClientService
             throw new \RuntimeException('Curl is required to execute remote commands.');
         }
 
-        $this->url = ('/' == substr($url, -1)) ? substr($url, 0, -1) : $url;
+        $this->url = ('/' === substr($url, -1)) ? substr($url, 0, -1) : $url;
         $this->user = $user;
         $this->passwd = $passwd;
         $this->player = $player;
@@ -164,7 +164,7 @@ class ClientService
 
         $return = [0, []];
 
-        if (0 == $decode['search-results']['total']) {
+        if (0 === $decode['search-results']['total']) {
             return $return;
         }
 
@@ -198,7 +198,7 @@ class ClientService
         }
         $decode = $this->decodeJson($output['var']);
 
-        if (0 == $decode['search-results']['total']) {
+        if (0 === $decode['search-results']['total']) {
             return null;
         }
         if ($decode['search-results']['limit'] > 1) {
@@ -226,7 +226,7 @@ class ClientService
         }
         $decode = $this->decodeJson($output['var']);
 
-        if (0 == $decode['search-results']['total']) {
+        if (0 === $decode['search-results']['total']) {
             return false;
         }
         if ($decode['search-results']['limit'] > 1) {
@@ -259,7 +259,7 @@ class ClientService
             return $this->getMediaPackageFromArchive($id);
         }
 
-        if (0 == strpos($version, '1.2')) {
+        if (0 === strpos($version, '1.2')) {
             return $this->getMediaPackageFromWorkflow($id);
         }
 
@@ -276,7 +276,7 @@ class ClientService
     public function getMediaPackageFromWorkflow($id)
     {
         $output = $this->request('/workflow/instances.json?state=SUCCEEDED&mp='.$id, [], 'GET', true);
-        if (200 == $output['status']) {
+        if (200 === $output['status']) {
             $decode = $this->decodeJson($output['var']);
 
             if (isset($decode['workflows']['workflow']['mediapackage'])) {
@@ -301,7 +301,7 @@ class ClientService
     public function getMediaPackageFromAssets($id)
     {
         $output = $this->request('/assets/episode/'.$id, [], 'GET', true);
-        if (200 == $output['status']) {
+        if (200 === $output['status']) {
             return $this->decodeXML($output);
         }
 
@@ -331,7 +331,7 @@ class ClientService
 
         $decode = $this->decodeJson($output['var']);
 
-        if (0 == $decode['search-results']['total']) {
+        if (0 === $decode['search-results']['total']) {
             return false;
         }
         if ($decode['search-results']['limit'] > 1) {
@@ -353,7 +353,7 @@ class ClientService
      */
     public function applyWorkflowToMediaPackages(array $mediaPackagesIds = [], $workflowName = '')
     {
-        if (!$workflowName || ($workflowName == $this->deletionWorkflowName)) {
+        if (!$workflowName || ($workflowName === $this->deletionWorkflowName)) {
             $workflowName = $this->deletionWorkflowName;
             if (!$this->deleteArchiveMediaPackage) {
                 throw new \Exception('Not allowed to delete media packages from archive');
@@ -523,8 +523,8 @@ class ClientService
                 'roles' => $roles,
             ];
             $output = $this->request($request, $params, 'POST', true);
-            if (201 != $output['status']) {
-                if (409 == $output['status']) {
+            if (201 !== $output['status']) {
+                if (409 === $output['status']) {
                     throw new \Exception('Conflict '.$output['status'].'. An user with this username "'.$user->getUsername().'" already exist.', 1);
                 }
 
@@ -557,8 +557,8 @@ class ClientService
                 'roles' => $roles,
             ];
             $output = $this->request($request, $params, 'PUT', true);
-            if (200 != $output['status']) {
-                if (404 == $output['status']) {
+            if (200 !== $output['status']) {
+                if (404 === $output['status']) {
                     throw new \Exception('Error '.$output['status'].'. User with this username "'.$user->getUsername().'" not found.', 1);
                 }
 
@@ -585,8 +585,8 @@ class ClientService
         if ($this->manageOpencastUsers) {
             $request = '/user-utils/'.$user->getUsername().'.json';
             $output = $this->request($request, '', 'DELETE', true);
-            if (200 != $output['status']) {
-                if (404 == $output['status']) {
+            if (200 !== $output['status']) {
+                if (404 === $output['status']) {
                     throw new \Exception('Error '.$output['status'].'. User with this username "'.$user->getUsername().'" not found.', 1);
                 }
 
@@ -853,7 +853,7 @@ class ClientService
             curl_setopt($request, CURLOPT_SSL_VERIFYPEER, false);
         }
 
-        if ('' != $this->user) {
+        if ('' !== $this->user) {
             curl_setopt($request, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);
             curl_setopt($request, CURLOPT_USERPWD, $this->user.':'.$this->passwd);
             curl_setopt($request, CURLOPT_HTTPHEADER, $header);
@@ -866,8 +866,8 @@ class ClientService
 
         curl_close($request);
 
-        if ('GET' == $method) {
-            if (200 != $output['status']) {
+        if ('GET' === $method) {
+            if (200 !== $output['status']) {
                 $this->logger->error(__CLASS__.'['.__FUNCTION__.'](line '.__LINE__
                                       .') Error ('.$output['status'].') Processing Request : '.$requestUrl.'.');
 

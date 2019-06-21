@@ -194,7 +194,7 @@ class PermissionProfile
      */
     public function containsAnyPermission(array $permissions)
     {
-        return 0 != count(array_intersect($permissions, $this->permissions));
+        return 0 !== count(array_intersect($permissions, $this->permissions));
     }
 
     /**

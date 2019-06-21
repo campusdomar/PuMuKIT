@@ -49,7 +49,7 @@ class PicService
      */
     public function findPicsByOptions($id = null, $size = null, $path = null, $extension = null, $tags = null, $exists = null, $type = null)
     {
-        if ('series' == $type) {
+        if ('series' === $type) {
             $collection = $this->dm->getDocumentCollection(Series::class);
         } else {
             $collection = $this->dm->getDocumentCollection(MultimediaObject::class);
@@ -388,7 +388,7 @@ class PicService
      */
     private function preserveAspectRatio($width, $height, $originalWidth, $originalHeight)
     {
-        if (0 == $width && 0 == $height) {
+        if (0 === $width && 0 === $height) {
             $width = $this->max_width;
         }
 

@@ -25,7 +25,7 @@ class CrudController extends Controller
             $actives = array_filter(
                 $templates,
                 function ($t) use ($activeName) {
-                    return $t->getName() == $activeName;
+                    return $t->getName() === $activeName;
                 }
             );
             $active = current($actives);

@@ -218,7 +218,7 @@ class Element
      */
     public function containsAnyTag(array $tags)
     {
-        return 0 != count(array_intersect($tags, $this->tags));
+        return 0 !== count(array_intersect($tags, $this->tags));
     }
 
     /**

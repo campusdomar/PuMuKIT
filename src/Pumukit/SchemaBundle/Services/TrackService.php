@@ -80,7 +80,7 @@ class TrackService
         if ($this->forceDeleteOnDisk && $trackPath && $isNotOpencast) {
             $mmobjRepo = $this->dm->getRepository(MultimediaObject::class);
             $otherTracks = $mmobjRepo->findBy(['tracks.path' => $trackPath]);
-            if (0 == count($otherTracks)) {
+            if (0 === count($otherTracks)) {
                 $this->deleteFileOnDisk($trackPath);
             }
         }

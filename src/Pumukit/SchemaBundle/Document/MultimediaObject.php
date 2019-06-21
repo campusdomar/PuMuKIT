@@ -841,7 +841,7 @@ class MultimediaObject
                 $seg = '0'.$seg;
             }
 
-            if (0 == $min) {
+            if (0 === $min) {
                 $aux = $seg."''";
             } else {
                 $aux = $min."' ".$seg."''";
@@ -944,11 +944,11 @@ class MultimediaObject
      */
     public function setBroadcast(Broadcast $broadcast)
     {
-        if (($this->broadcast instanceof Broadcast) && (self::STATUS_PROTOTYPE != $this->status)) {
+        if (($this->broadcast instanceof Broadcast) && (self::STATUS_PROTOTYPE !== $this->status)) {
             $this->broadcast->decreaseNumberMultimediaObjects();
         }
         $this->broadcast = $broadcast;
-        if (self::STATUS_PROTOTYPE != $this->status) {
+        if (self::STATUS_PROTOTYPE !== $this->status) {
             $broadcast->increaseNumberMultimediaObjects();
         }
     }
@@ -974,7 +974,7 @@ class MultimediaObject
      */
     public function isPublicBroadcast()
     {
-        return (bool) (!$this->broadcast || Broadcast::BROADCAST_TYPE_PUB == $this->broadcast->getBroadcastTypeId());
+        return (bool) (!$this->broadcast || Broadcast::BROADCAST_TYPE_PUB === $this->broadcast->getBroadcastTypeId());
     }
 
     /**
@@ -1158,7 +1158,7 @@ class MultimediaObject
     public function removeTag($tagToRemove)
     {
         foreach ($this->tags as $tag) {
-            if ($tag->getCod() == $tagToRemove->getCod()) {
+            if ($tag->getCod() === $tagToRemove->getCod()) {
                 return $this->tags->removeElement($tag);
             }
         }
@@ -1178,7 +1178,7 @@ class MultimediaObject
     public function containsTag($tagToCheck)
     {
         foreach ($this->tags as $tag) {
-            if ($tag->getCod() == $tagToCheck->getCod()) {
+            if ($tag->getCod() === $tagToCheck->getCod()) {
                 return true;
             }
         }
@@ -1196,7 +1196,7 @@ class MultimediaObject
     public function containsTagWithCod($tagCod)
     {
         foreach ($this->tags as $tag) {
-            if ($tag->getCod() == $tagCod) {
+            if ($tag->getCod() === $tagCod) {
                 return true;
             }
         }
@@ -1378,7 +1378,7 @@ class MultimediaObject
     public function getTrackById($trackId)
     {
         foreach ($this->tracks as $track) {
-            if ($track->getId() == $trackId) {
+            if ($track->getId() === $trackId) {
                 return $track;
             }
         }
@@ -1711,7 +1711,7 @@ class MultimediaObject
     public function containsPerson($person)
     {
         foreach ($this->getPeople() as $embeddedPerson) {
-            if ($person->getId() == $embeddedPerson->getId()) {
+            if ($person->getId() === $embeddedPerson->getId()) {
                 return true;
             }
         }
@@ -1730,7 +1730,7 @@ class MultimediaObject
     public function containsPersonWithRole($person, $role)
     {
         foreach ($this->getPeopleByRole($role, true) as $embeddedPerson) {
-            if ($person->getId() == $embeddedPerson->getId()) {
+            if ($person->getId() === $embeddedPerson->getId()) {
                 return true;
             }
         }
@@ -1803,7 +1803,7 @@ class MultimediaObject
 
         if (null !== $roleCod) {
             foreach ($this->people as $embeddedRole) {
-                if ($roleCod == $embeddedRole->getCod()) {
+                if ($roleCod === $embeddedRole->getCod()) {
                     if ($always || $embeddedRole->getDisplay()) {
                         foreach ($embeddedRole->getPeople() as $embeddedPerson) {
                             $aux[] = $embeddedPerson;
@@ -1925,7 +1925,7 @@ class MultimediaObject
 
         $out = [];
         foreach ($people as $key => $embeddedPerson) {
-            if ($person->getId() == $embeddedPerson->getId()) {
+            if ($person->getId() === $embeddedPerson->getId()) {
                 $out[($key * 10) + ($up ? -11 : 11)] = $embeddedPerson;
             } else {
                 $out[($key * 10)] = $embeddedPerson;
@@ -2169,7 +2169,7 @@ class MultimediaObject
      */
     private function updateDuration()
     {
-        if (0 == count($this->tracks)) {
+        if (0 === count($this->tracks)) {
             $this->setDuration(0);
 
             return;

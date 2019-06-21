@@ -398,7 +398,7 @@ class EmbeddedEvent
     public function removeEmbeddedEventSession($embeddedEventSession)
     {
         foreach ($this->embeddedEventSession as $session) {
-            if ($session->getId() == $embeddedEventSession->getId()) {
+            if ($session->getId() === $embeddedEventSession->getId()) {
                 $removed = $this->embeddedEventSession->removeElement($embeddedEventSession);
                 $this->embeddedEventSession = new ArrayCollection(array_values($this->embeddedEventSession->toArray()));
 

@@ -421,7 +421,7 @@ class OpencastImportService
                 $itemAttachment = $attachment[$index];
             }
             $type = $this->getMediaPackageField($itemAttachment, 'type');
-            if ($targetType == $type) {
+            if ($targetType === $type) {
                 $tags = $this->getMediaPackageField($itemAttachment, 'tags');
                 $type = $this->getMediaPackageField($itemAttachment, 'type');
                 $url = $this->getMediaPackageField($itemAttachment, 'url');

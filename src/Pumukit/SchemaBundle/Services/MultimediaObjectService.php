@@ -35,7 +35,7 @@ class MultimediaObjectService
      */
     public function isPublished($mm, $pubChannelCod)
     {
-        $hasStatus = MultimediaObject::STATUS_PUBLISHED == $mm->getStatus();
+        $hasStatus = MultimediaObject::STATUS_PUBLISHED === $mm->getStatus();
         $hasPubChannel = $mm->containsTagWithCod($pubChannelCod);
 
         return $hasStatus && $hasPubChannel;
@@ -236,8 +236,8 @@ class MultimediaObjectService
     public function isPlayableOnPlaylist($mmobj)
     {
         $broadcast = $mmobj->getEmbeddedBroadcast();
-        if (($broadcast && EmbeddedBroadcast::TYPE_PUBLIC != $broadcast->getType())
-            || MultimediaObject::STATUS_PUBLISHED != $mmobj->getStatus()
+        if (($broadcast && EmbeddedBroadcast::TYPE_PUBLIC !== $broadcast->getType())
+            || MultimediaObject::STATUS_PUBLISHED !== $mmobj->getStatus()
             || !$this->hasPlayableResource($mmobj)) {
             return false;
         }

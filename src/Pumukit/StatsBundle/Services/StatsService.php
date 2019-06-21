@@ -49,7 +49,7 @@ class StatsService
 
             if ($multimediaObject) {
                 $mostViewed[] = $multimediaObject[0];
-                if (0 == --$limit) {
+                if (0 === --$limit) {
                     break;
                 }
             }
@@ -120,7 +120,7 @@ class StatsService
 
         //Add mmobj with zero views
         if (count($aggregation) < $options['limit']) {
-            if (0 == count($aggregation)) {
+            if (0 === count($aggregation)) {
                 $max = min((1 + $options['page']) * $options['limit'], $total);
                 for ($i = ($options['page'] * $options['limit']); $i < $max; ++$i) {
                     $multimediaObject = $this->repo->find($mmobjIds[$i - $totalInAggegation]);
@@ -138,7 +138,7 @@ class StatsService
                             $mostViewed[] = ['mmobj' => $multimediaObject,
                                 'num_viewed' => 0,
                             ];
-                            if (count($mostViewed) == $options['limit']) {
+                            if (count($mostViewed) === $options['limit']) {
                                 break;
                             }
                         }
@@ -189,7 +189,7 @@ class StatsService
 
         //Add series with zero views
         if (count($aggregation) < $options['limit']) {
-            if (0 == count($aggregation)) {
+            if (0 === count($aggregation)) {
                 $max = min((1 + $options['page']) * $options['limit'], $total);
                 for ($i = ($options['page'] * $options['limit']); $i < $max; ++$i) {
                     $series = $this->repoSeries->find($seriesIds[$i - $totalInAggegation]);
@@ -207,7 +207,7 @@ class StatsService
                             $mostViewed[] = ['series' => $series,
                                 'num_viewed' => 0,
                             ];
-                            if (count($mostViewed) == $options['limit']) {
+                            if (count($mostViewed) === $options['limit']) {
                                 break;
                             }
                         }
@@ -383,7 +383,7 @@ class StatsService
     private function aggrPipeAddProjectGroupDate($pipeline, $groupBy)
     {
         $mongoProjectDate = $this->getMongoProjectDateArray($groupBy);
-        if ('$numView' == $this->sumValue) {
+        if ('$numView' === $this->sumValue) {
             $pipeline[] = ['$project' => ['numView' => '$numView', 'date' => $mongoProjectDate]];
         } else {
             $pipeline[] = ['$project' => ['date' => $mongoProjectDate]];

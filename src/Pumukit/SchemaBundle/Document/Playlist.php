@@ -67,7 +67,7 @@ class Playlist
     public function removeAllMultimediaObjectsById($mmobjId)
     {
         foreach ($this->multimedia_objects as $key => $mmobj) {
-            if ($mmobj->getId() == $mmobjId) {
+            if ($mmobj->getId() === $mmobjId) {
                 $this->multimedia_objects->remove($key);
             }
         }
@@ -177,7 +177,7 @@ class Playlist
         if ($maxPos < 1) {
             return false;
         }
-        if (0 == $posStart - $posEnd
+        if (0 === $posStart - $posEnd
            || $posStart < 0 || $posStart > $maxPos) {
             return false; //If start is out of range or start/end is the same, do nothing.
         }

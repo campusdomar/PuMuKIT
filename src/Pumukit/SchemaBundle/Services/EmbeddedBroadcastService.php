@@ -370,7 +370,7 @@ class EmbeddedBroadcastService
         $invalidPassword = false;
         if (($password) && ($embeddedBroadcast = $multimediaObject->getEmbeddedBroadcast())) {
             $embeddedPassword = $embeddedBroadcast->getPassword();
-            if (($password == $embeddedPassword) && (null !== $embeddedPassword)) {
+            if (($password === $embeddedPassword) && (null !== $embeddedPassword)) {
                 return true;
             }
             $invalidPassword = true;

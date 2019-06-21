@@ -129,7 +129,7 @@ trait Pic
     public function getPicById($picId)
     {
         foreach ($this->pics as $pic) {
-            if ($pic->getId() == $picId) {
+            if ($pic->getId() === $picId) {
                 return $pic;
             }
         }

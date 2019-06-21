@@ -49,7 +49,7 @@ class SearchController extends Controller implements WebTVControllerInterface
         $queryBuilder = $queryBuilder->field('_id')->in($validSeries);
         $queryBuilder = $this->searchQueryBuilder($queryBuilder, $searchFound);
         $queryBuilder = $this->dateQueryBuilder($queryBuilder, $startFound, $endFound, $yearFound, 'public_date');
-        if ('' == $searchFound) {
+        if ('' === $searchFound) {
             $queryBuilder = $queryBuilder->sort('public_date', 'desc');
         } else {
             $queryBuilder = $queryBuilder->sortMeta('score', 'textScore');
@@ -121,7 +121,7 @@ class SearchController extends Controller implements WebTVControllerInterface
         $queryBuilder = $this->dateQueryBuilder($queryBuilder, $startFound, $endFound, $yearFound);
         $queryBuilder = $this->languageQueryBuilder($queryBuilder, $languageFound);
         $queryBuilder = $this->tagsQueryBuilder($queryBuilder, $tagsFound, $blockedTag, $useTagAsGeneral);
-        if ('' == $searchFound) {
+        if ('' === $searchFound) {
             $queryBuilder = $queryBuilder->sort('record_date', 'desc');
         } else {
             $queryBuilder = $queryBuilder->sortMeta('score', 'textScore');
@@ -242,7 +242,7 @@ class SearchController extends Controller implements WebTVControllerInterface
             $mRegex = new \MongoRegex("/{$searchFound}/i");
             $queryBuilder->addOr($queryBuilder->expr()->field('title.'.$request->getLocale())->equals($mRegex));
             $queryBuilder->addOr($queryBuilder->expr()->field('people.people.name')->equals($mRegex));
-        } elseif ('' != $searchFound) {
+        } elseif ('' !== $searchFound) {
             $queryBuilder->field('$text')->equals([
                 '$search' => TextIndexUtils::cleanTextIndex($searchFound),
                 '$language' => TextIndexUtils::getCloseLanguage($request->getLocale()),
@@ -260,9 +260,9 @@ class SearchController extends Controller implements WebTVControllerInterface
      */
     protected function typeQueryBuilder($queryBuilder, $typeFound)
     {
-        if ('' != $typeFound) {
+        if ('' !== $typeFound) {
             $queryBuilder->field('type')->equals(
-                ('audio' == $typeFound) ? Multimediaobject::TYPE_AUDIO : Multimediaobject::TYPE_VIDEO
+                ('audio' === $typeFound) ? Multimediaobject::TYPE_AUDIO : Multimediaobject::TYPE_VIDEO
             );
         }
 
@@ -277,20 +277,20 @@ class SearchController extends Controller implements WebTVControllerInterface
      */
     protected function durationQueryBuilder($queryBuilder, $durationFound)
     {
-        if ('' != $durationFound) {
-            if ('-5' == $durationFound) {
+        if ('' !== $durationFound) {
+            if ('-5' === $durationFound) {
                 $queryBuilder->field('tracks.duration')->lte(300);
             }
-            if ('-10' == $durationFound) {
+            if ('-10' === $durationFound) {
                 $queryBuilder->field('tracks.duration')->lte(600);
             }
-            if ('-30' == $durationFound) {
+            if ('-30' === $durationFound) {
                 $queryBuilder->field('tracks.duration')->lte(1800);
             }
-            if ('-60' == $durationFound) {
+            if ('-60' === $durationFound) {
                 $queryBuilder->field('tracks.duration')->lte(3600);
             }
-            if ('+60' == $durationFound) {
+            if ('+60' === $durationFound) {
                 $queryBuilder->field('tracks.duration')->gt(3600);
             }
         }
@@ -315,11 +315,11 @@ class SearchController extends Controller implements WebTVControllerInterface
             $queryBuilder->field($dateField)->gte($start);
             $queryBuilder->field($dateField)->lt($end);
         } else {
-            if ('' != $startFound) {
+            if ('' !== $startFound) {
                 $start = \DateTime::createFromFormat('!Y-m-d', $startFound);
                 $queryBuilder->field($dateField)->gt($start);
             }
-            if ('' != $endFound) {
+            if ('' !== $endFound) {
                 $end = \DateTime::createFromFormat('!Y-m-d', $endFound);
                 $end->modify('+1 day');
                 $queryBuilder->field($dateField)->lt($end);
@@ -337,7 +337,7 @@ class SearchController extends Controller implements WebTVControllerInterface
      */
     protected function languageQueryBuilder($queryBuilder, $languageFound)
     {
-        if ('' != $languageFound) {
+        if ('' !== $languageFound) {
             $queryBuilder->field('tracks.language')->equals($languageFound);
         }
 

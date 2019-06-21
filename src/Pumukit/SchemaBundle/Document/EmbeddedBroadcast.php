@@ -82,7 +82,7 @@ class EmbeddedBroadcast
             $groupsDescription = ': ';
             foreach ($groups as $group) {
                 $groupsDescription .= $group->getName();
-                if ($group != $groups->last()) {
+                if ($group !== $groups->last()) {
                     $groupsDescription .= ', ';
                 }
             }
@@ -208,7 +208,7 @@ class EmbeddedBroadcast
      */
     public function isPasswordValid()
     {
-        return (self::TYPE_PUBLIC == $this->getType()) ||
-                ((self::TYPE_PASSWORD == $this->getType()) && ('' != $this->getPassword()));
+        return (self::TYPE_PUBLIC === $this->getType()) ||
+                ((self::TYPE_PASSWORD === $this->getType()) && ('' !== $this->getPassword()));
     }
 }

@@ -152,7 +152,7 @@ class User extends BaseUser
      */
     public function isLocal()
     {
-        return self::ORIGIN_LOCAL == $this->origin;
+        return self::ORIGIN_LOCAL === $this->origin;
     }
 
     /**

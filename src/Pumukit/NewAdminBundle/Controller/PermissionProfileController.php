@@ -318,7 +318,7 @@ class PermissionProfileController extends AdminController implements NewAdminCon
     private function findPermissionProfile($permissionProfiles, $id = '')
     {
         foreach ($permissionProfiles as $permissionProfile) {
-            if ($id == $permissionProfile->getId()) {
+            if ($id === $permissionProfile->getId()) {
                 return $permissionProfile;
             }
         }

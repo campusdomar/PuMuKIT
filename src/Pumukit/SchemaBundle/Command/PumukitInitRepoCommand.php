@@ -93,7 +93,7 @@ EOT
 
                 break;
             }
-        } elseif ('tag' == $repoName) {
+        } elseif ('tag' === $repoName) {
             $errorExecuting = $this->executeTags($input, $output, false);
             if (-1 === $errorExecuting) {
                 return -1;
@@ -114,7 +114,7 @@ EOT
         $finder = new Finder();
         $finder->files()->in(__DIR__.'/'.$this->tagsPath);
         $file = $input->getArgument('file');
-        if ((0 == strcmp($file, '')) && (!$finder)) {
+        if ((0 === strcmp($file, '')) && (!$finder)) {
             $output->writeln("<error>Tags: There's no data to initialize</error>");
 
             return -1;
@@ -140,7 +140,7 @@ EOT
         $finder = new Finder();
         $finder->files()->in(__DIR__.'/'.$this->rolesPath);
         $file = $input->getArgument('file');
-        if ((0 == strcmp($file, '')) && (!$finder)) {
+        if ((0 === strcmp($file, '')) && (!$finder)) {
             $output->writeln("<error>Roles: There's no data to initialize</error>");
 
             return -1;
@@ -162,7 +162,7 @@ EOT
         $finder = new Finder();
         $finder->files()->in(__DIR__.'/'.$this->permissionProfilesPath);
         $file = $input->getArgument('file');
-        if ((0 == strcmp($file, '')) && (!$finder)) {
+        if ((0 === strcmp($file, '')) && (!$finder)) {
             $output->writeln("<error>PermissionProfiles: There's no data to initialize</error>");
 
             return -1;
@@ -222,7 +222,7 @@ EOT
             return -1;
         }
 
-        if ('tag' == $repoName) {
+        if ('tag' === $repoName) {
             //Creates the csvTagHeaders (to be used later)
             if (false === ($csvTagHeaders = fgetcsv($file, 0, ';', '"'))) {
                 $output->writeln('<error>Error reading first row (csv header) of '.$file_route.": fgetcsv returned 'false' </error>");
@@ -256,10 +256,10 @@ EOT
         while (false !== ($currentRow = fgetcsv($file, 0, ';'))) {
             $number = count($currentRow);
             if (('tag' === $repoName) ||
-                (('role' === $repoName) && (7 == $number || 10 == $number)) ||
-                (('permissionprofile' === $repoName) && (6 == $number))) {
+                (('role' === $repoName) && (7 === $number || 10 === $number)) ||
+                (('permissionprofile' === $repoName) && (6 === $number))) {
                 //Check header rows
-                if ('id' == trim($currentRow[0])) {
+                if ('id' === trim($currentRow[0])) {
                     continue;
                 }
 
@@ -315,7 +315,7 @@ EOT
                 $output->writeln("Error: line {$row} has {$number} elements");
             }
 
-            if ($verbose && 0 == $row % 100) {
+            if ($verbose && 0 === $row % 100) {
                 echo 'Row '.$row."\n";
             }
 

@@ -94,7 +94,7 @@ class SeriesPicService
      */
     public function addPicFile(Series $series, UploadedFile $picFile, $isBanner = false, $bannerTargetUrl = '')
     {
-        if (UPLOAD_ERR_OK != $picFile->getError()) {
+        if (UPLOAD_ERR_OK !== $picFile->getError()) {
             throw new \Exception($picFile->getErrorMessage());
         }
 

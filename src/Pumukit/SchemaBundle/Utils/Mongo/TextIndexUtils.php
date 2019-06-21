@@ -31,7 +31,7 @@ class TextIndexUtils
             return $langCode;
         }
 
-        if ('gl' == $langCode) {
+        if ('gl' === $langCode) {
             return 'pt';
         }
 

@@ -59,7 +59,7 @@ class SeriesSearchService
                         $locale
                     );
                 }
-            } elseif (('date' == $property) && ('' !== $value)) {
+            } elseif (('date' === $property) && ('' !== $value)) {
                 $new_criteria += $this->processDates($value);
             } elseif (('announce' === $property) && ('' !== $value)) {
                 if ('true' === $value) {

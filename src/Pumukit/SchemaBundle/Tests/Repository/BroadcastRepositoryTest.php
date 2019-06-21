@@ -97,7 +97,7 @@ class BroadcastRepositoryTest extends WebTestCase
     {
         $locale = 'en';
         $passwd = 'password';
-        $defaultSel = Broadcast::BROADCAST_TYPE_PRI == $broadcastTypeId;
+        $defaultSel = Broadcast::BROADCAST_TYPE_PRI === $broadcastTypeId;
         $description = ucfirst($broadcastTypeId).' broadcast';
 
         $broadcast = new Broadcast();
