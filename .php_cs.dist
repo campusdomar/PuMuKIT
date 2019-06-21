@@ -13,6 +13,7 @@ return PhpCsFixer\Config::create()
         'comment_to_phpdoc' => true,
         'combine_nested_dirname' => true,
         'ereg_to_preg' => true,
+        'fopen_flag_order' => true,
         'is_null' => true,
         'list_syntax' => ['syntax' => 'short'],
         'method_chaining_indentation' => false,
