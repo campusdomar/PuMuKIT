@@ -192,6 +192,7 @@ class FactoryService
      */
     public function doCreateMultimediaObject(Series $series, $flush = true, User $loggedInUser = null)
     {
+        $dispatch = false; //doCreateMultimediaObject does not dispatch events by definition
         $prototype = $this->getMultimediaObjectPrototype($series);
 
         if (null !== $prototype) {
@@ -225,15 +226,14 @@ class FactoryService
                 }
             }
         }
-
-        $mm = $this->addLoggedInUserAsPerson($mm, $loggedInUser);
+        $mm = $this->addLoggedInUserAsPerson($mm, $loggedInUser, $flush, $dispatch);
         // Add other owners in case of exists
         foreach ($prototype->getRoles() as $embeddedRole) {
             if ($this->personService->getPersonalScopeRoleCode() === $embeddedRole->getCod()) {
                 $role = $this->dm->getRepository('PumukitSchemaBundle:Role')->findOneBy(array('cod' => $this->personService->getPersonalScopeRoleCode()));
                 foreach ($embeddedRole->getPeople() as $embeddedPerson) {
                     $person = $this->dm->getRepository('PumukitSchemaBundle:Person')->findOneBy(array('_id' => $embeddedPerson->getId()));
-                    $mm = $this->personService->createRelationPerson($person, $role, $mm);
+                    $mm = $this->personService->createRelationPerson($person, $role, $mm, $flush, $dispatch);
                 }
             }
         }
@@ -694,11 +694,11 @@ class FactoryService
      *
      * @throws \Exception
      */
-    private function addLoggedInUserAsPerson(MultimediaObject $multimediaObject, User $loggedInUser = null)
+    private function addLoggedInUserAsPerson(MultimediaObject $multimediaObject, User $loggedInUser = null, $flush = true, $dispatch = true)
     {
         if ($this->addUserAsPerson && (null !== $person = $this->personService->getPersonFromLoggedInUser($loggedInUser))) {
             if (null !== $role = $this->personService->getPersonalScopeRole()) {
-                $multimediaObject = $this->personService->createRelationPerson($person, $role, $multimediaObject);
+                $multimediaObject = $this->personService->createRelationPerson($person, $role, $multimediaObject, $flush, $dispatch);
             }
         }
 
