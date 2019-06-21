@@ -216,7 +216,7 @@ EOT
             return -1;
         }
 
-        if (false === ($file = fopen($file_route, 'r'))) {
+        if (false === ($file = fopen($file_route, 'rb'))) {
             $output->writeln('<error>Error opening '.$file_route.": fopen() returned 'false' </error>");
 
             return -1;

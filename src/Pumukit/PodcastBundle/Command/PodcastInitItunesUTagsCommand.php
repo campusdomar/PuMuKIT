@@ -90,7 +90,7 @@ EOT
         $idCodMapping = [];
 
         $row = 1;
-        if (false !== ($file = fopen($file, 'r'))) {
+        if (false !== ($file = fopen($file, 'rb'))) {
             while (false !== ($currentRow = fgetcsv($file, 0, ';'))) {
                 $number = count($currentRow);
                 if (('tag' === $repoName) && (6 == $number || 9 == $number)) {

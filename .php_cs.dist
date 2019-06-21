@@ -8,12 +8,12 @@ return PhpCsFixer\Config::create()
     ->setRules([
         '@Symfony' => true,
         '@PhpCsFixer' => true,
-
         'array_syntax' => ['syntax' => 'short'],
         'comment_to_phpdoc' => true,
         'combine_nested_dirname' => true,
         'ereg_to_preg' => true,
         'fopen_flag_order' => true,
+        'fopen_flags' => true,
         'is_null' => true,
         'list_syntax' => ['syntax' => 'short'],
         'method_chaining_indentation' => false,
