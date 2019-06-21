@@ -261,10 +261,10 @@ class Track extends Element
         if (false !== strpos($this->getFramerate(), '/')) {
             $aux = explode('/', $this->getFramerate());
 
-            return intval($seg * intval($aux[0]) / intval($aux[1]));
+            return (int) ($seg * (int) ($aux[0]) / (int) ($aux[1]));
         }
 
-        return intval($seg * $this->getFramerate());
+        return (int) ($seg * $this->getFramerate());
     }
 
     /**
@@ -283,10 +283,10 @@ class Track extends Element
         if (false !== strpos($this->getFramerate(), '/')) {
             $aux = explode('/', $this->getFramerate());
 
-            return floatval($frame * intval($aux[1]) / intval($aux[0]));
+            return (float) ($frame * (int) ($aux[1]) / (int) ($aux[0]));
         }
 
-        return floatval($frame / $this->getFramerate());
+        return (float) ($frame / $this->getFramerate());
     }
 
     /**
