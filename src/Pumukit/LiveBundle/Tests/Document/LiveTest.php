@@ -80,11 +80,11 @@ class LiveTest extends TestCase
 
         $name = null;
         $liveo->setName($name, $locale);
-        $this->assertEquals(null, $liveo->getName($liveo->getLocale()));
+        $this->assertNull($liveo->getName($liveo->getLocale()));
 
         $description = null;
         $liveo->setDescription($description, $locale);
-        $this->assertEquals(null, $liveo->getDescription($liveo->getLocale()));
+        $this->assertNull($liveo->getDescription($liveo->getLocale()));
     }
 
     public function testCloneResource()

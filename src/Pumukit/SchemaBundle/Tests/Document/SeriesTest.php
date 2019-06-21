@@ -105,13 +105,13 @@ class SeriesTest extends TestCase
         $series->setKeyword($keyword);
         $series->setLine2($line2);
 
-        $this->assertEquals(null, $series->getTitle());
-        $this->assertEquals(null, $series->getSubtitle());
-        $this->assertEquals(null, $series->getDescription());
-        $this->assertEquals(null, $series->getHeader());
-        $this->assertEquals(null, $series->getFooter());
-        $this->assertEquals(null, $series->getKeyword());
-        $this->assertEquals(null, $series->getLine2());
+        $this->assertNull($series->getTitle());
+        $this->assertNull($series->getSubtitle());
+        $this->assertNull($series->getDescription());
+        $this->assertNull($series->getHeader());
+        $this->assertNull($series->getFooter());
+        $this->assertNull($series->getKeyword());
+        $this->assertNull($series->getLine2());
     }
 
     public function testToString()
@@ -152,6 +152,6 @@ class SeriesTest extends TestCase
     public function testIsCollection()
     {
         $series = new Series();
-        $this->assertEquals(true, $series->isCollection());
+        $this->assertTrue($series->isCollection());
     }
 }

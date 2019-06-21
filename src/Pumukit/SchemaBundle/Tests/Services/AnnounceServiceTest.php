@@ -161,6 +161,6 @@ class AnnounceServiceTest extends WebTestCase
         $dateEnd->modify('first day of last month');
         [$dateEnd, $last] = $this->announceService->getNextLatestUploads($dateEnd);
         $this->assertEquals([], $last);
-        $this->assertEquals(null, $dateEnd);
+        $this->assertNull($dateEnd);
     }
 }

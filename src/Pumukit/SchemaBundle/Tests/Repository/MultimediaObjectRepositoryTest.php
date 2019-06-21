@@ -188,13 +188,13 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->assertEquals($t3, $mmobj->getFilteredTrackWithTags());
         $this->assertEquals($t3, $mmobj->getFilteredTrackWithTags(['master']));
         $this->assertEquals($t2, $mmobj->getFilteredTrackWithTags(['master'], ['mosca', 'old']));
-        $this->assertEquals(null, $mmobj->getFilteredTrackWithTags([], ['mosca', 'old'], ['master']));
+        $this->assertNull($mmobj->getFilteredTrackWithTags([], ['mosca', 'old'], ['master']));
         $this->assertEquals($t3, $mmobj->getFilteredTrackWithTags([], [], ['flv']));
-        $this->assertEquals(null, $mmobj->getFilteredTrackWithTags([], [], ['flv', 'master']));
+        $this->assertNull($mmobj->getFilteredTrackWithTags([], [], ['flv', 'master']));
         $this->assertEquals($t3, $mmobj->getFilteredTrackWithTags([], [], [], ['flv', 'master']));
         $this->assertEquals($t3, $mmobj->getFilteredTrackWithTags(['mosca', 'old'], [], [], ['old']));
         $this->assertEquals($t1, $mmobj->getFilteredTrackWithTags([], [], [], ['master', 'mosca']));
-        $this->assertEquals(null, $mmobj->getFilteredTrackWithTags(['track6']));
+        $this->assertNull($mmobj->getFilteredTrackWithTags(['track6']));
     }
 
     public function testCreateMultimediaObjectAndFindByCriteria()
@@ -976,7 +976,7 @@ class MultimediaObjectRepositoryTest extends WebTestCase
         $this->dm->flush();
 
         $this->assertEquals($mm, $this->repo->findByPicId($pic1->getId()));
-        $this->assertEquals(null, $this->repo->findByPicId($pic4->getId()));
+        $this->assertNull($this->repo->findByPicId($pic4->getId()));
 
         $this->assertEquals($pic1, $this->repo->find($mm->getId())->getPicById($pic1->getId()));
         $this->assertEquals($pic2, $this->repo->find($mm->getId())->getPicById($pic2->getId()));

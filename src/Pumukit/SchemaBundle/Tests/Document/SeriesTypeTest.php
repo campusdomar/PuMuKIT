@@ -49,8 +49,8 @@ class SeriesTypeTest extends TestCase
         $series_type->setName($name);
         $series_type->setDescription($description);
 
-        $this->assertEquals(null, $series_type->getName());
-        $this->assertEquals(null, $series_type->getDescription());
+        $this->assertNull($series_type->getName());
+        $this->assertNull($series_type->getDescription());
     }
 
     public function testToString()

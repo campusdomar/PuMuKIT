@@ -105,7 +105,7 @@ class SeriesRepositoryTest extends WebTestCase
 
         $this->assertEquals($pic1, $series->getPic());
         $this->assertEquals($pic2, $series->getPicById($pic2->getId()));
-        $this->assertEquals(null, $series->getPicById(null));
+        $this->assertNull($series->getPicById(null));
     }
 
     public function testFindSeriesWithTags()

@@ -15,10 +15,10 @@ class ResumptionTokenTest extends TestCase
     {
         $token = new ResumptionToken();
         $this->assertSame(0, $token->getOffset());
-        $this->assertSame(null, $token->getFrom());
-        $this->assertSame(null, $token->getUntil());
-        $this->assertSame(null, $token->getMetadataPrefix());
-        $this->assertSame(null, $token->getSet());
+        $this->assertNull($token->getFrom());
+        $this->assertNull($token->getUntil());
+        $this->assertNull($token->getMetadataPrefix());
+        $this->assertNull($token->getSet());
 
         $offset = 10;
         $from = new \DateTime('yesterday');

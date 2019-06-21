@@ -808,6 +808,6 @@ class PersonServiceTest extends WebTestCase
         $this->personService->removeUserFromPerson($user, $person, true);
 
         $this->assertEquals($person, $user->getPerson());
-        $this->assertEquals(null, $person->getUser());
+        $this->assertNull($person->getUser());
     }
 }

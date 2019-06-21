@@ -117,6 +117,6 @@ class PlaylistTest extends WebTestCase
         ];
         $this->assertEquals($mmobjs, $playlist->getPlaylist()->getMultimediaObjects()->toArray());
 
-        $this->assertEquals(false, false);
+        $this->assertFalse(false);
     }
 }

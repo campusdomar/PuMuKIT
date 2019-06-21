@@ -81,7 +81,7 @@ class TagTest extends WebTestCase
         $this->assertEquals($tag_parent, $tag->getParent());
         $this->assertEquals($display, $tag->getDisplay());
         $this->assertEquals($properties, $tag->getProperties());
-        $this->assertEquals(null, $tag->getLockTime());
+        $this->assertNull($tag->getLockTime());
 
         $this->assertEquals('', $tag->getTitle('fr'));
         $this->assertEquals('', $tag->getDescription('fr'));
@@ -144,7 +144,7 @@ class TagTest extends WebTestCase
         $this->dm->persist($tag_grandchild);
         $this->dm->flush();
 
-        $this->assertEquals(null, $tag_parent->getParent());
+        $this->assertNull($tag_parent->getParent());
         $this->assertFalse($tag_parent->isChildOf($tag_child));
         $this->assertFalse($tag_child->isChildOf($tag_child));
         $this->assertFalse($tag_parent->isDescendantOf($tag_child));
