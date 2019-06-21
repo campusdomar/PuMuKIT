@@ -1674,7 +1674,6 @@ class MultimediaObjectRepository extends DocumentRepository
     /**
      * Count number of multimedia objects by series.
      *
-     *
      * @param array $seriesList
      *
      * @throws \Doctrine\ODM\MongoDB\MongoDBException
@@ -1715,7 +1714,6 @@ class MultimediaObjectRepository extends DocumentRepository
 
     /**
      * Count number of multimedia objects by tags.
-     *
      *
      * @param array $tagCodsList
      *

@@ -86,7 +86,7 @@ class Group implements GroupInterface
      */
     public function __toString()
     {
-        return is_null($this->key) ? '' : $this->key;
+        return null === $this->key ? '' : $this->key;
     }
 
     /**
