@@ -92,11 +92,11 @@ class MultimediaObjectTest extends TestCase
         $this->assertEquals($keyword, $mm->getKeyword());
         $this->assertEquals($properties, $mm->getProperties());
 
-        $title = null;
-        $subtitle = null;
-        $description = null;
-        $line2 = null;
-        $keyword = null;
+        $title = '';
+        $subtitle = '';
+        $description = '';
+        $line2 = '';
+        $keyword = '';
 
         $mm->setTitle($title);
         $mm->setSubtitle($subtitle);
@@ -104,11 +104,11 @@ class MultimediaObjectTest extends TestCase
         $mm->setLine2($line2);
         $mm->setKeyword($keyword);
 
-        $this->assertNull($mm->getTitle());
-        $this->assertNull($mm->getSubtitle());
-        $this->assertNull($mm->getDescription());
-        $this->assertNull($mm->getLine2());
-        $this->assertNull($mm->getKeyword());
+        $this->assertEquals('', $mm->getTitle());
+        $this->assertEquals('', $mm->getSubtitle());
+        $this->assertEquals('', $mm->getDescription());
+        $this->assertEquals('', $mm->getLine2());
+        $this->assertEquals('', $mm->getKeyword());
 
         $properties = ['prop2' => 'property2'];
         $mm->setProperties($properties);

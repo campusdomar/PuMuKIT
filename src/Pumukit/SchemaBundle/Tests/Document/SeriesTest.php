@@ -89,13 +89,13 @@ class SeriesTest extends TestCase
         $this->assertEquals($keywordI18n, $series->getI18nKeyword());
         $this->assertEquals($line2I18n, $series->getI18nLine2());
 
-        $title = null;
-        $subtitle = null;
-        $description = null;
-        $header = null;
-        $footer = null;
-        $keyword = null;
-        $line2 = null;
+        $title = '';
+        $subtitle = '';
+        $description = '';
+        $header = '';
+        $footer = '';
+        $keyword = '';
+        $line2 = '';
 
         $series->setTitle($title);
         $series->setSubtitle($subtitle);
@@ -105,13 +105,13 @@ class SeriesTest extends TestCase
         $series->setKeyword($keyword);
         $series->setLine2($line2);
 
-        $this->assertNull($series->getTitle());
-        $this->assertNull($series->getSubtitle());
-        $this->assertNull($series->getDescription());
-        $this->assertNull($series->getHeader());
-        $this->assertNull($series->getFooter());
-        $this->assertNull($series->getKeyword());
-        $this->assertNull($series->getLine2());
+        $this->assertEquals('', $series->getTitle());
+        $this->assertEquals('', $series->getSubtitle());
+        $this->assertEquals('', $series->getDescription());
+        $this->assertEquals('', $series->getHeader());
+        $this->assertEquals('', $series->getFooter());
+        $this->assertEquals('', $series->getKeyword());
+        $this->assertEquals('', $series->getLine2());
     }
 
     public function testToString()

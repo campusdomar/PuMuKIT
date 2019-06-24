@@ -411,6 +411,7 @@ class Live
         if (null === $locale) {
             $locale = $this->locale;
         }
+
         if (!isset($this->name[$locale])) {
             return '';
         }
