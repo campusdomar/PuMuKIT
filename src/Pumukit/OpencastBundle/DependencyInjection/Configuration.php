@@ -137,11 +137,11 @@ class Configuration implements ConfigurationInterface
                   Hello, {{username}}
                   </h2>
                   <p>
-                  Your multimedia object is available in the platform. Check it at: <a href="{{url}}">{{url}}</a>
+                  Your multimedia object named {{multimediaObject.title}} is already available in the platform. Check it at: <a href="{{url}}">{{url}}</a>
                   </p>')
                   ->end()
-                ->scalarNode('url')->defaultValue('/pumukitnewadmin')->end()
-                ->scalarNode('subject')->defaultValue('Your recording "{{multimediaObject.title}}" is available')->end()
+                  ->scalarNode('url')->defaultValue('pumukitnewadmin_mms_shortener')->end()
+                ->scalarNode('subject')->defaultValue('Your recording "{{multimediaObject.title}}" is now available')->end()
               ->end()
             ->end()
           ->end()

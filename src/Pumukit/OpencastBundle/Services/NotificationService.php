@@ -5,11 +5,15 @@ namespace Pumukit\OpencastBundle\Services;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Pumukit\OpencastBundle\Event\ImportEvent;
 use Pumukit\NotificationBundle\Services\SenderService;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
+use Symfony\Component\Routing\Router;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class NotificationService
 {
     protected $dm;
     protected $senderService;
+    protected $router;
     protected $template;
     protected $subject;
     protected $accessUrl;
@@ -22,10 +26,11 @@ class NotificationService
      * @param string                     $template
      * @param string                     $accessUrl
      */
-    public function __construct(DocumentManager $documentManager, SenderService $senderService, $template, $accessUrl, $subject)
+    public function __construct(DocumentManager $documentManager, SenderService $senderService, Router $router, $template, $accessUrl, $subject)
     {
         $this->dm = $documentManager;
         $this->senderService = $senderService;
+        $this->router = $router;
         $this->template = $template;
         $this->accessUrl = $accessUrl;
         $this->subject = $subject;
@@ -58,7 +63,13 @@ class NotificationService
             $emailsList[$owner->getEmail()] = $owner->getFullname();
         }
         $emailsList = array_unique($emailsList);
+
         $backofficeUrl = $this->accessUrl.'?multimediaObject='.$multimediaObject->getId();
+        try {
+            $backofficeUrl = $this->router->generate($this->accessUrl, ['id' => $multimediaObject->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        } catch(RouteNotFoundException $e){
+            //TODO: Log. No route, no problem.
+        }
         $parameters = [
             'url' => $backofficeUrl,
             'multimediaObject' => $multimediaObject,

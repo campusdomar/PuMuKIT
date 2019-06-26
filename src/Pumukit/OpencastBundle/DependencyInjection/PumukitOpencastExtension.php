@@ -144,6 +144,7 @@ class PumukitOpencastExtension extends Extension
                 ->register('pumukit_opencast.notification_listener', "Pumukit\OpencastBundle\Services\NotificationService")
                 ->addArgument(new Reference('doctrine_mongodb.odm.document_manager'))
                 ->addArgument(new Reference('pumukit_notification.sender'))
+                ->addArgument(new Reference('router'))
                 ->addArgument($config['notifications']['template'])
                 ->addArgument($config['notifications']['url'])
                 ->addArgument($config['notifications']['subject'])
