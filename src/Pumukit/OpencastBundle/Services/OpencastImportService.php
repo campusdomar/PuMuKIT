@@ -49,11 +49,27 @@ class OpencastImportService
      * @param InspectionServiceInterface $inspectionService
      * @param array                      $otherLocales
      * @param $defaultTagImported
-     * @param SeriesImportService $seriesImportService
-     * @param array               $customLanguages
-     * @param EventDispatcherInterface   $dispatcher
+     * @param SeriesImportService      $seriesImportService
+     * @param array                    $customLanguages
+     * @param EventDispatcherInterface $dispatcher
      */
-    public function __construct(DocumentManager $documentManager, FactoryService $factoryService, LoggerInterface $logger, TranslatorInterface $translator, TrackService $trackService, TagService $tagService, MultimediaObjectService $mmsService, ClientService $opencastClient, OpencastService $opencastService, InspectionServiceInterface $inspectionService, array $otherLocales, $defaultTagImported, SeriesImportService $seriesImportService, array $customLanguages, EventDispatcherInterface $dispatcher)
+    public function __construct(
+        DocumentManager $documentManager,
+        FactoryService $factoryService,
+        LoggerInterface $logger,
+        TranslatorInterface $translator,
+        TrackService $trackService,
+        TagService $tagService,
+        MultimediaObjectService $mmsService,
+        ClientService $opencastClient,
+        OpencastService $opencastService,
+        InspectionServiceInterface $inspectionService,
+        array $otherLocales,
+        $defaultTagImported,
+        SeriesImportService $seriesImportService,
+        array $customLanguages,
+        EventDispatcherInterface $dispatcher
+    )
     {
         $this->opencastClient = $opencastClient;
         $this->dm = $documentManager;

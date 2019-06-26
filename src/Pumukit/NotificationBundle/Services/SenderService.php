@@ -4,6 +4,7 @@ namespace Pumukit\NotificationBundle\Services;
 
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Doctrine\ODM\MongoDB\DocumentManager;
 
 class SenderService
@@ -29,6 +30,7 @@ class SenderService
     private $subject = "Can't send email to this address.";
     private $template = self::TEMPLATE_ERROR;
     private $dm;
+    private $logger;
     private $personRepo;
 
     public function __construct(
@@ -36,6 +38,7 @@ class SenderService
         EngineInterface $templating,
         TranslatorInterface $translator,
         DocumentManager $documentManager,
+        LoggerInterface $logger,
         $enable,
         $senderEmail,
         $senderName,
@@ -52,6 +55,7 @@ class SenderService
         $this->templating = $templating;
         $this->translator = $translator;
         $this->dm = $documentManager;
+        $this->logger = $logger;
         $this->enable = $enable;
         $this->senderEmail = $senderEmail;
         $this->senderName = $senderName;
@@ -178,18 +182,18 @@ class SenderService
      */
     public function sendEmails($emailsTo, $subjectString, $templateString, array $parameters = array())
     {
-        if(!$this->enable){
+        if (!$this->enable) {
             //TODO: Log it
             return;
         }
 
-        if(!is_array($emailsTo)){ //Handy?
+        if (!is_array($emailsTo)) { //Handy?
             $emailsTo = [$emailsTo];
         }
 
-        foreach($emailsTo as $email){
-            if(!filter_var($email, FILTER_VALIDATE_EMAIL)){ //No need for a separate filtering function when "filtering" is a single function call.
-                //TODO: Log it
+        foreach ($emailsTo as $email) {
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { //No need for a separate filtering function when "filtering" is a single function call.
+                $this->logger->warning(__CLASS__.'['.__FUNCTION__.'] The email "'.$email.'" appears as invalid. Message will not be sent.');
                 continue;
             }
             //For now let's keep the "sendMailFromTemplate" logic within this same function
@@ -208,7 +212,6 @@ class SenderService
                 ->setTo($email)
                 ->setBody($body, 'text/html');
 
-            //TODO: What to do with this?
             $error = $this->mailer->send($message);
         }
     }
