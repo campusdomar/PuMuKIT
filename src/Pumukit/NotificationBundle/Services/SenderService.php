@@ -169,6 +169,53 @@ class SenderService
     /**
      * Send notification.
      *
+     * @param array $emailsTo
+     * @param $subject
+     * @param $template
+     * @param array $parameters
+     *
+     * @return bool
+     */
+    public function sendEmails($emailsTo, $subjectString, $templateString, array $parameters = array())
+    {
+        if(!$this->enable){
+            //TODO: Log it
+            return;
+        }
+
+        if(!is_array($emailsTo)){ //Handy?
+            $emailsTo = [$emailsTo];
+        }
+
+        foreach($emailsTo as $email){
+            if(!filter_var($email, FILTER_VALIDATE_EMAIL)){ //No need for a separate filtering function when "filtering" is a single function call.
+                //TODO: Log it
+                continue;
+            }
+            //For now let's keep the "sendMailFromTemplate" logic within this same function
+            //$parameters['person_name'] = $this->getPersonNameFromEmail($email); //Do we need this?
+            $twig = new \Twig_Environment(new \Twig_Loader_Array());
+            $template = $twig->createTemplate($templateString);
+            $body = $template->render($parameters);
+            $subjectTemplate = $twig->createTemplate($subjectString);
+            $subject = $subjectTemplate->render($parameters);
+            $message = \Swift_Message::newInstance();
+            $message
+                ->setSubject($subject)
+                ->setSender($this->senderEmail, $this->senderName)
+                ->setFrom($this->senderEmail, $this->senderName)
+                ->addReplyTo($this->senderEmail, $this->senderName)
+                ->setTo($email)
+                ->setBody($body, 'text/html');
+
+            //TODO: What to do with this?
+            $error = $this->mailer->send($message);
+        }
+    }
+
+    /**
+     * Send notification.
+     *
      * @param $emailTo
      * @param $subject
      * @param $template

@@ -128,6 +128,22 @@ class Configuration implements ConfigurationInterface
                 ->defaultValue('TECHOPENCAST')
                 ->info('Set default tag when imported from opencast to PMK2')
             ->end()
+            ->arrayNode('notifications')
+              ->info('subject fail of email in multiple languages')
+              ->children()
+                ->booleanNode('enabled')->defaultValue(false)->end()
+                ->scalarNode('template')->defaultValue('
+                  <h2>
+                  Hello, {{username}}
+                  </h2>
+                  <p>
+                  Your multimedia object is available in the platform. Check it at: <a href="{{url}}">{{url}}</a>
+                  </p>')
+                  ->end()
+                ->scalarNode('url')->defaultValue('/pumukitnewadmin')->end()
+                ->scalarNode('subject')->defaultValue('Your recording "{{multimediaObject.title}}" is available')->end()
+              ->end()
+            ->end()
           ->end()
         ;
 
