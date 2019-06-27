@@ -69,8 +69,7 @@ class OpencastImportService
         SeriesImportService $seriesImportService,
         array $customLanguages,
         EventDispatcherInterface $dispatcher
-    )
-    {
+    ) {
         $this->opencastClient = $opencastClient;
         $this->dm = $documentManager;
         $this->factoryService = $factoryService;

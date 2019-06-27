@@ -26,11 +26,6 @@ class PumukitOpencastExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         $container->setParameter('pumukit_opencast.show_importer_tab', $config['show_importer_tab']);
-        // var_dump($config);
-        // foreach ($config as $key => $value) {
-        //     $container->setParameter('pumukit_opencast.'.$key, $value);
-        // }
-
         if (isset($config['host']) && $config['host']) {
             if (!filter_var($config['host'], FILTER_VALIDATE_URL)) {
                 throw new InvalidConfigurationException(sprintf(
