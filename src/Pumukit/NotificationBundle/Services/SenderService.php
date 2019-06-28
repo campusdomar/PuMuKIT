@@ -183,11 +183,12 @@ class SenderService
     public function sendEmails($emailsTo, $subjectString, $templateString, array $parameters = array())
     {
         if (!$this->enable) {
-            //TODO: Log it
+            $this->logger->info(__CLASS__.'['.__FUNCTION__.'] The email sender service is disabled. Not sending email to "'.$email);
+
             return;
         }
 
-        if (!is_array($emailsTo)) { //Handy?
+        if (!is_array($emailsTo)) {
             $emailsTo = [$emailsTo];
         }
 
@@ -196,8 +197,7 @@ class SenderService
                 $this->logger->warning(__CLASS__.'['.__FUNCTION__.'] The email "'.$email.'" appears as invalid. Message will not be sent.');
                 continue;
             }
-            //For now let's keep the "sendMailFromTemplate" logic within this same function
-            //$parameters['person_name'] = $this->getPersonNameFromEmail($email); //Do we need this?
+
             $twig = new \Twig_Environment(new \Twig_Loader_Array());
             $template = $twig->createTemplate($templateString);
             $body = $template->render($parameters);
