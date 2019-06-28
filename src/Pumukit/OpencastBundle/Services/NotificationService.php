@@ -69,7 +69,7 @@ class NotificationService
         }
         $emailsList = array_unique($emailsList);
 
-        $backofficeUrl = $this->accessUrl.'?multimediaObject='.$multimediaObject->getId();
+        $backofficeUrl = preg_replace('/{{ *id *}}/', $multimediaObject->getId(), $this->accessUrl);
         try {
             $backofficeUrl = $this->router->generate($this->accessUrl, ['id' => $multimediaObject->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
         } catch (RouteNotFoundException $e) {
