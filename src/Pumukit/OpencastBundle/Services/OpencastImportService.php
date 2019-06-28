@@ -3,8 +3,11 @@
 namespace Pumukit\OpencastBundle\Services;
 
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Symfony\Component\Translation\TranslatorInterface;
+use Pumukit\OpencastBundle\Event\ImportEvent;
+use Pumukit\OpencastBundle\Event\OpencastEvents;
 use Pumukit\SchemaBundle\Services\FactoryService;
 use Pumukit\SchemaBundle\Services\TrackService;
 use Pumukit\SchemaBundle\Services\TagService;
@@ -29,6 +32,7 @@ class OpencastImportService
     private $defaultTagImported;
     private $seriesImportService;
     private $customLanguages;
+    private $dispatcher;
 
     /**
      * OpencastImportService constructor.
@@ -45,11 +49,27 @@ class OpencastImportService
      * @param InspectionServiceInterface $inspectionService
      * @param array                      $otherLocales
      * @param $defaultTagImported
-     * @param SeriesImportService $seriesImportService
-     * @param array               $customLanguages
+     * @param SeriesImportService      $seriesImportService
+     * @param array                    $customLanguages
+     * @param EventDispatcherInterface $dispatcher
      */
-    public function __construct(DocumentManager $documentManager, FactoryService $factoryService, LoggerInterface $logger, TranslatorInterface $translator, TrackService $trackService, TagService $tagService, MultimediaObjectService $mmsService, ClientService $opencastClient, OpencastService $opencastService, InspectionServiceInterface $inspectionService, array $otherLocales, $defaultTagImported, SeriesImportService $seriesImportService, array $customLanguages)
-    {
+    public function __construct(
+        DocumentManager $documentManager,
+        FactoryService $factoryService,
+        LoggerInterface $logger,
+        TranslatorInterface $translator,
+        TrackService $trackService,
+        TagService $tagService,
+        MultimediaObjectService $mmsService,
+        ClientService $opencastClient,
+        OpencastService $opencastService,
+        InspectionServiceInterface $inspectionService,
+        array $otherLocales,
+        $defaultTagImported,
+        SeriesImportService $seriesImportService,
+        array $customLanguages,
+        EventDispatcherInterface $dispatcher
+    ) {
         $this->opencastClient = $opencastClient;
         $this->dm = $documentManager;
         $this->factoryService = $factoryService;
@@ -64,6 +84,7 @@ class OpencastImportService
         $this->defaultTagImported = $defaultTagImported;
         $this->seriesImportService = $seriesImportService;
         $this->customLanguages = $customLanguages;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -247,6 +268,9 @@ class OpencastImportService
             $opencastUrls = $this->getOpencastUrls($mediaPackageId);
             $this->opencastService->genAutoSbs($multimediaObject, $opencastUrls);
         }
+
+        $event = new ImportEvent($multimediaObject);
+        $this->dispatcher->dispatch(OpencastEvents::IMPORT_SUCCESS, $event);
     }
 
     public function getOpencastUrls($opencastId = '')
