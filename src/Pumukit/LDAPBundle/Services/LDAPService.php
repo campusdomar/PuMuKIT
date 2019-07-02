@@ -79,7 +79,7 @@ class LDAPService
             ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
             if ($linkIdentifier) {
                 $success = ldap_bind($linkIdentifier, $this->bindRdn, $this->bindPassword);
-                if(!$success){
+                if (!$success) {
                     $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.'ldap_bind failed for:'.$linkIdentifier);
                 }
                 $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, array(), 0, 1);
@@ -116,7 +116,7 @@ class LDAPService
             ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
             if ($linkIdentifier) {
                 $success = ldap_bind($linkIdentifier, $this->bindRdn, $this->bindPassword);
-                if(!$success){
+                if (!$success) {
                     $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.'ldap_bind failed for:'.$linkIdentifier);
                 }
                 $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, array(), 0, 1);
@@ -154,7 +154,7 @@ class LDAPService
             ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
             if ($linkIdentifier) {
                 $success = ldap_bind($linkIdentifier, $this->bindRdn, $this->bindPassword);
-                if(!$success){
+                if (!$success) {
                     $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.'ldap_bind failed for:'.$linkIdentifier);
                 }
                 $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, array(), 0, 1);
@@ -204,7 +204,7 @@ class LDAPService
         ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
         if ($linkIdentifier) {
             $success = ldap_bind($linkIdentifier, $this->bindRdn, $this->bindPassword);
-            if(!$success){
+            if (!$success) {
                 $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.'ldap_bind failed for:'.$linkIdentifier);
             }
             $searchResult = ldap_search($linkIdentifier, $this->baseDn, $key.'='.$value, array(), 0, 1);
@@ -245,7 +245,7 @@ class LDAPService
             ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
             if ($linkIdentifier) {
                 $success = ldap_bind($linkIdentifier, $this->bindRdn, $this->bindPassword);
-                if(!$success){
+                if (!$success) {
                     $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.'ldap_bind failed for:'.$linkIdentifier);
                 }
                 $filter = $this->getFilter($cn, $mail);

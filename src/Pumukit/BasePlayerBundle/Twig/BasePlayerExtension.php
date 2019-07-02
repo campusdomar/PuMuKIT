@@ -2,7 +2,6 @@
 
 namespace Pumukit\BasePlayerBundle\Twig;
 
-use Doctrine\ODM\MongoDB\DocumentManager;
 use Pumukit\BasePlayerBundle\Services\TrackUrlService;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Symfony\Component\Routing\RequestContext;

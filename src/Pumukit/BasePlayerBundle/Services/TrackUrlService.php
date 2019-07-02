@@ -2,7 +2,6 @@
 
 namespace Pumukit\BasePlayerBundle\Services;
 
-use Doctrine\ODM\MongoDB\DocumentManager;
 use Pumukit\SchemaBundle\Document\Track;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 

@@ -3,7 +3,6 @@
 namespace Pumukit\SchemaBundle\EventListener;
 
 use Doctrine\ODM\MongoDB\DocumentManager;
-use Psr\Log\LoggerInterface;
 use Pumukit\SchemaBundle\Event\PermissionProfileEvent;
 use Pumukit\SchemaBundle\Services\UserService;
 
