@@ -37,7 +37,7 @@ class PlaylistController extends CollectionController
         $resources = $this->getResources($request);
 
         foreach ($resources as $playlist) {
-            if ($playlist->getId() == $this->get('session')->get('admin/playlist/id')) {
+            if ($playlist->getId() === $this->get('session')->get('admin/playlist/id')) {
                 $update_session = false;
             }
         }
@@ -237,7 +237,7 @@ class PlaylistController extends CollectionController
         $value = $session->get('admin/playlist/type', 'desc');
         $key = $session->get('admin/playlist/sort', 'public_date');
 
-        if ('title' == $key) {
+        if ('title' === $key) {
             $key .= '.'.$request->getLocale();
         }
 

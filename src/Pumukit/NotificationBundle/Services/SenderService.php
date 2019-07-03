@@ -389,7 +389,7 @@ class SenderService
     public function getSubjectTransWithLocale(array $subjectArray = [], $locale = 'en')
     {
         foreach ($subjectArray as $translation) {
-            if (isset($translation['locale']) && ($locale == $translation['locale']) && isset($translation['subject'])) {
+            if (isset($translation['locale']) && ($locale === $translation['locale']) && isset($translation['subject'])) {
                 return $translation['subject'];
             }
         }

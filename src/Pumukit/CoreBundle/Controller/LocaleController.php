@@ -47,7 +47,7 @@ class LocaleController extends Controller implements WebTVControllerInterface
         //array_filter ARRAY_FILTER_USE_BOTH only in 5.6
         $params = [];
         foreach ($route as $k => $v) {
-            if ('_' != $k[0]) {
+            if ('_' !== $k[0]) {
                 $params[$k] = $v;
             }
         }

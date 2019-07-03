@@ -300,7 +300,7 @@ class TagService
      */
     public function canDeleteTag(Tag $tag)
     {
-        return (bool) ((0 == count($tag->getChildren())) && (0 == $tag->getNumberMultimediaObjects()));
+        return (bool) ((0 === count($tag->getChildren())) && (0 === $tag->getNumberMultimediaObjects()));
     }
 
     /**

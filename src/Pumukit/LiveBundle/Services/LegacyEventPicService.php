@@ -47,7 +47,7 @@ class LegacyEventPicService
      */
     public function addPicFile(Event $event, UploadedFile $picFile)
     {
-        if (UPLOAD_ERR_OK != $picFile->getError()) {
+        if (UPLOAD_ERR_OK !== $picFile->getError()) {
             throw new \Exception($picFile->getErrorMessage());
         }
 

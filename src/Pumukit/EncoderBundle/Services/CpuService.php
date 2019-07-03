@@ -113,7 +113,7 @@ class CpuService
             $cpuStatus = new CpuStatus();
             $cpuStatus->setName($cpuName);
             $cpuStatus->setStatus(CpuStatus::STATUS_MAINTENANCE);
-        } elseif (CpuStatus::STATUS_MAINTENANCE != $cpuStatus->getStatus()) {
+        } elseif (CpuStatus::STATUS_MAINTENANCE !== $cpuStatus->getStatus()) {
             $cpuStatus->setStatus(CpuStatus::STATUS_MAINTENANCE);
         }
         $this->dm->persist($cpuStatus);
@@ -137,7 +137,7 @@ class CpuService
     public function isInMaintenance($cpuName)
     {
         $cpuStatus = $this->cpuRepo->findOneBy(['name' => $cpuName]);
-        if ($cpuStatus && CpuStatus::STATUS_MAINTENANCE == $cpuStatus->getStatus()) {
+        if ($cpuStatus && CpuStatus::STATUS_MAINTENANCE === $cpuStatus->getStatus()) {
             return true;
         } else {
             return false;

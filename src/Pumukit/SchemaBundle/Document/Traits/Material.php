@@ -145,7 +145,7 @@ trait Material
     public function getMaterialById($materialId)
     {
         foreach ($this->materials as $material) {
-            if ($material->getId() == $materialId) {
+            if ($material->getId() === $materialId) {
                 return $material;
             }
         }

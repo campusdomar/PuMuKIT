@@ -563,7 +563,7 @@ class Tag
      */
     public function isDescendantOf($tag)
     {
-        if ($tag == $this) {
+        if ($tag === $this) {
             return false;
         }
 
@@ -591,7 +591,7 @@ class Tag
      */
     public function isDescendantOfByCod($tagCod)
     {
-        if ($tagCod == $this->getCod()) {
+        if ($tagCod === $this->getCod()) {
             return false;
         }
         if (0 === strpos($this->getPath(), sprintf('%s|', $tagCod))) {

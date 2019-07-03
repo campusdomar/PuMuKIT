@@ -77,7 +77,7 @@ class SimpleController extends Controller
                 throw new \Exception('The file is not a valid video or audio file');
             }
 
-            if (0 == $duration) {
+            if (0 === $duration) {
                 throw new \Exception('The file is not a valid video or audio file (duration is zero)');
             }
 
@@ -184,7 +184,7 @@ class SimpleController extends Controller
                 throw new \Exception('The file is not a valid video or audio file');
             }
 
-            if (0 == $duration) {
+            if (0 === $duration) {
                 throw new \Exception('The file is not a valid video or audio file (duration is zero)');
             }
 

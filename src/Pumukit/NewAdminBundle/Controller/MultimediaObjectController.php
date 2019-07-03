@@ -77,7 +77,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         $update_session = true;
         foreach ($mms as $mm) {
-            if ($mm->getId() == $session->get('admin/mms/id')) {
+            if ($mm->getId() === $session->get('admin/mms/id')) {
                 $update_session = false;
             }
         }
@@ -556,7 +556,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
     {
         if (null !== $checkedTags) {
             foreach ($resource->getTags() as $tag) {
-                if ((0 == strpos($tag->getCod(), $codStart)) && (false !== strpos($tag->getCod(), $codStart)) &&
+                if ((0 === strpos($tag->getCod(), $codStart)) && (false !== strpos($tag->getCod(), $codStart)) &&
                     (!in_array($tag->getCod(), $checkedTags)) &&
                     (!$this->isGranted(Permission::getRoleTagDisableForPubChannel($tag->getCod())))) {
                     $resource->removeTag($tag);
@@ -570,7 +570,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             }
         } else {
             foreach ($resource->getTags() as $tag) {
-                if ((0 == strpos($tag->getCod(), $codStart)) &&
+                if ((0 === strpos($tag->getCod(), $codStart)) &&
                     (false !== strpos($tag->getCod(), $codStart)) &&
                     (!$this->isGranted(Permission::getRoleTagDisableForPubChannel($tag->getCod())))) {
                     $resource->removeTag($tag);
@@ -632,7 +632,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         if (null !== $element->getParent()) {
             $parentMissing = true;
             foreach ($tags as $tag) {
-                if ($element->getParent() == $tag) {
+                if ($element->getParent() === $tag) {
                     $parentMissing = false;
                     break;
                 }
@@ -640,7 +640,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
             if ($parentMissing) {
                 $parent = $element->getParent(); //"retrieveByPKWithI18n");
-                if ($parent->getId() != $top_parent) {
+                if ($parent->getId() !== $top_parent) {
                     $tags[] = $parent;
                     $tags = $this->getAllParents($parent, $tags, $top_parent);
                 }
@@ -825,7 +825,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         $update_session = true;
         foreach ($mms as $mm) {
-            if ($mm->getId() == $this->get('session')->get('admin/mms/id')) {
+            if ($mm->getId() === $this->get('session')->get('admin/mms/id')) {
                 $update_session = false;
             }
         }
@@ -1431,7 +1431,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         $update_session = true;
         foreach ($resources as $mm) {
-            if ($mm->getId() == $this->get('session')->get('admin/mmslist/id')) {
+            if ($mm->getId() === $this->get('session')->get('admin/mmslist/id')) {
                 $update_session = false;
             }
         }
@@ -1564,7 +1564,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $value = $session->get('admin/'.$session_namespace.'/type', 'desc');
         $key = $session->get('admin/'.$session_namespace.'/sort', 'public_date');
 
-        if ('title' == $key) {
+        if ('title' === $key) {
             $key .= '.'.$request->getLocale();
         }
 

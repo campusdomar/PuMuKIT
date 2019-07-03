@@ -198,13 +198,13 @@ class JobService
                 throw new \Exception($e->getMessage());
             }
 
-            if (0 == $duration) {
+            if (0 === $duration) {
                 $this->logger->error('[addJob] File duration is zero');
                 throw new \Exception('File duration is zero');
             }
         }
 
-        if ($checkduration && 0 == $duration) {
+        if ($checkduration && 0 === $duration) {
             throw new \Exception('The media file duration is zero');
         }
 
@@ -410,7 +410,7 @@ class JobService
      */
     public function executeNextJob()
     {
-        if ('test' == $this->environment) {
+        if ('test' === $this->environment) {
             return null;
         }
 
@@ -553,7 +553,7 @@ class JobService
             $multimediaObject = $this->getMultimediaObject($job);  //Necesary to refresh the document
             $this->propService->errorJob($multimediaObject, $job);
             // If the transco is disconnected or there is an authentication issue, we don't want to send more petitions to this transco.
-            if ($e instanceof ExecutorException && 'prod' == $this->environment) {
+            if ($e instanceof ExecutorException && 'prod' === $this->environment) {
                 $cpuName = $job->getCpu();
                 $this->cpuService->activateMaintenance($cpuName);
             }
@@ -807,7 +807,7 @@ class JobService
 
         $this->inspectionService->autocompleteTrack($track);
 
-        $track->setOnlyAudio(0 == $track->getWidth());
+        $track->setOnlyAudio(0 === $track->getWidth());
         $track->setHide(!$profile['display']);
 
         $multimediaObject->setDuration($track->getDuration());
