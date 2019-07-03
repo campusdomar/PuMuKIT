@@ -132,7 +132,7 @@ class UserService
                 throw new \Exception('The User "'.$user->getUsername().'" has no Permission Profile assigned.');
             }
             /** NOTE: User roles have:
-             * - permission profile scope
+             * - permission profile scope.
              */
             $userScope = $this->getUserScope($user->getRoles());
             if ($userScope !== $permissionProfile->getScope()) {

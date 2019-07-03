@@ -147,7 +147,6 @@ class PlaceController extends Controller implements NewAdminControllerInterface
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      *
-     *
      * @Route("/delete/{id}", name="pumukitnewadmin_places_delete")
      * @ParamConverter("tag", class="PumukitSchemaBundle:Tag", options={"mapping": {"id": "id"}})
      */

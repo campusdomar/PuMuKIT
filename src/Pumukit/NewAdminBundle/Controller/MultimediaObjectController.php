@@ -1334,7 +1334,6 @@ class MultimediaObjectController extends SortableAdminController implements NewA
      *
      * @return array
      *
-     *
      * @ParamConverter("multimediaObject", class="PumukitSchemaBundle:MultimediaObject", options={"id" = "id"})
      *
      * @Template("PumukitNewAdminBundle:MultimediaObject:modalsyncmetadata.html.twig")

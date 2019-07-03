@@ -103,7 +103,6 @@ class LDAPService
      * Obtiene el nombre completo de usuario del
      * servidor ldap.
      *
-     *
      * @param string $user nombre del usuario
      *
      * @return string nombre completo del usuario
