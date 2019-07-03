@@ -2,7 +2,6 @@
 
 namespace Pumukit\WorkflowBundle\EventListener;
 
-use Doctrine\ODM\MongoDB\DocumentManager;
 use Psr\Log\LoggerInterface;
 use Pumukit\EncoderBundle\Event\JobEvent;
 use Pumukit\EncoderBundle\Services\PicExtractorService;

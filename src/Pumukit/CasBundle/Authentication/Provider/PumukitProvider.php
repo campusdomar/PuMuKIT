@@ -3,7 +3,6 @@
 namespace Pumukit\CasBundle\Authentication\Provider;
 
 use Pumukit\CasBundle\Services\CASUserService;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
