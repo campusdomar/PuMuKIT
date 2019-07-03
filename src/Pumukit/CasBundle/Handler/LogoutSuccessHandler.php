@@ -18,11 +18,10 @@ class LogoutSuccessHandler implements LogoutSuccessHandlerInterface
     /**
      * LogoutSuccessHandler constructor.
      *
-     * @param array                 $options
      * @param UrlGeneratorInterface $router
      * @param CASService            $casService
      */
-    public function __construct(array $options, UrlGeneratorInterface $router, CASService $casService)
+    public function __construct(UrlGeneratorInterface $router, CASService $casService)
     {
         $this->router = $router;
         $this->casService = $casService;

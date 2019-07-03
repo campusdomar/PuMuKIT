@@ -19,6 +19,7 @@ class EmbeddedBroadcastService
     private $disabledBroadcast;
     private $authorizationChecker;
     private $templating;
+    private $repo;
 
     /**
      * Constructor.

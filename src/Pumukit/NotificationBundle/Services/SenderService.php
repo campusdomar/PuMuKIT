@@ -60,7 +60,6 @@ class SenderService
         $this->adminEmail = $adminEmail;
         $this->notificateErrorsToAdmin = $notificateErrorsToAdmin;
         $this->platformName = $platformName;
-        $this->environment = $environment;
     }
 
     /**
