@@ -110,6 +110,16 @@ class Track extends Element
     }
 
     /**
+     * To string.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getUrl() ? $this->getUrl() : $this->getPath();
+    }
+
+    /**
      * Set language.
      *
      * @param string $language
@@ -242,6 +252,8 @@ class Track extends Element
     /**
      * Get frame number of a instant in seg.
      *
+     * @param mixed $seg
+     *
      * @return int
      */
     public function getFrameNumber($seg)
@@ -250,13 +262,15 @@ class Track extends Element
             $aux = explode('/', $this->getFramerate());
 
             return intval($seg * intval($aux[0]) / intval($aux[1]));
-        } else {
-            return intval($seg * $this->getFramerate());
         }
+
+        return intval($seg * $this->getFramerate());
     }
 
     /**
      * Get instant in seg of a frame number.
+     *
+     * @param mixed $frame
      *
      * @return float
      */
@@ -270,9 +284,9 @@ class Track extends Element
             $aux = explode('/', $this->getFramerate());
 
             return floatval($frame * intval($aux[1]) / intval($aux[0]));
-        } else {
-            return floatval($frame / $this->getFramerate());
         }
+
+        return floatval($frame / $this->getFramerate());
     }
 
     /**
@@ -450,6 +464,7 @@ class Track extends Element
      * Set Resolution.
      *
      * @param array
+     * @param mixed $resolution
      */
     public function setResolution($resolution)
     {
@@ -488,6 +503,7 @@ class Track extends Element
      * Set duration in minutes and seconds.
      *
      * @param array
+     * @param mixed $durationInMinutesAndSeconds
      */
     public function setDurationInMinutesAndSeconds($durationInMinutesAndSeconds)
     {
@@ -509,7 +525,7 @@ class Track extends Element
     /**
      * Return the profiles used to generate the track.
      *
-     * @return string|null
+     * @return null|string
      */
     public function getProfileName()
     {
@@ -520,15 +536,5 @@ class Track extends Element
         }
 
         return null;
-    }
-
-    /**
-     * To string.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->getUrl() ? $this->getUrl() : $this->getPath();
     }
 }
