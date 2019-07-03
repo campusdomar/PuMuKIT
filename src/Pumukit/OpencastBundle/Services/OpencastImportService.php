@@ -162,13 +162,15 @@ class OpencastImportService
         $opencastTracks = $this->getMediaPackageField($media, 'track');
         $language = $this->getMediaPackageLanguage($mediaPackage);
 
-        if (!is_array($opencastTracks)) {
+        if (isset($opencastTracks['id'])) {
             // NOTE: Single track
             $opencastTracks = array($opencastTracks);
         }
         $tracks = array();
+        $opencastUrls = [];
         foreach ($opencastTracks as $opencastTrack) {
             $tracks[] = $this->createTrackFromOpencastTrack($opencastTrack, $language);
+            $opencastUrls = $this->addOpencastUrl($opencastUrls, $opencastTrack);
         }
 
         // - If the id does not exist, create a new mmobj
@@ -239,19 +241,27 @@ class OpencastImportService
             $multimediaObject->setRecordDate($recDate);
         }
 
-        $attachments = $this->getMediaPackageField($mediaPackage, 'attachments');
-        $attachment = $this->getMediaPackageField($attachments, 'attachment');
-        if (!is_array($attachment)) {
-            $attachment = array($attachment);
+        $attachments = $this->getMediaPackageField($this->getMediaPackageField($mediaPackage, 'attachments'), 'attachment');
+        if (isset($attachments['id'])) {
+            $attachments = array($attachments);
         }
 
-        $limit = count($attachment);
-        for ($j = 0; $j < $limit; ++$j) {
-            $multimediaObject = $this->createPicFromAttachment($attachment, $multimediaObject, $j, 'presenter/player+preview');
+        $attachmentsByType = [];
+        foreach ($attachments as $attachment) {
+            $type = $this->getMediaPackageField($attachment, 'type');
+            if (null === $type) {
+                continue;
+            }
+            $attachmentsByType[$type][] = $attachment;
         }
-        if (0 === $multimediaObject->getPics()) {
-            for ($j = 0; $j < $limit; ++$j) {
-                $multimediaObject = $this->createPicFromAttachment($attachment, $multimediaObject, $j, 'presenter/search+preview');
+        $picTypes = array('presenter/player+preview', 'presenter/search+preview');
+        foreach ($picTypes as $picType) {
+            if ($multimediaObject->getPics()->count() > 0) {
+                break;
+            }
+            $picAttachments = isset($attachmentsByType[$picType]) ? $attachmentsByType[$picType] : [];
+            foreach ($picAttachments as $attachment) {
+                $multimediaObject = $this->addPicFromAttachment($multimediaObject, $attachment);
             }
         }
 
@@ -264,8 +274,7 @@ class OpencastImportService
 
         $multimediaObject = $this->mmsService->updateMultimediaObject($multimediaObject);
 
-        if ($track) {
-            $opencastUrls = $this->getOpencastUrls($mediaPackageId);
+        if ($multimediaObject->getTracks()->count() > 0) {
             $this->opencastService->genAutoSbs($multimediaObject, $opencastUrls);
         }
 
@@ -285,7 +294,7 @@ class OpencastImportService
             }
             $media = $this->getMediaPackageField($archiveMediaPackage, 'media');
             $tracks = $this->getMediaPackageField($media, 'track');
-            if (is_array($tracks)) {
+            if (!isset($tracks['id'])) {
                 // NOTE: Multiple tracks
                 $limit = count($tracks);
                 for ($i = 0; $i < $limit; ++$i) {
@@ -420,6 +429,34 @@ class OpencastImportService
         }
 
         return $track;
+    }
+
+    private function addPicFromAttachment(MultimediaObject $multimediaObject, $attachment)
+    {
+        $tags = $this->getMediaPackageField($this->getMediaPackageField($attachment, 'tags'), 'tag');
+        if (!is_array($tags)) {
+            $tags = array($tags);
+        }
+
+        $type = $this->getMediaPackageField($attachment, 'type');
+        $url = $this->getMediaPackageField($attachment, 'url');
+        if (!$url) {
+            $this->logger->error(__CLASS__.'['.__FUNCTION__.'] '.'No url on pic attachment '.json_encode($attachment));
+
+            return $multimediaObject;
+        }
+        $pic = new Pic();
+        $pic->addTag('opencast');
+        $pic->addTag($type);
+        $pic->setUrl($url);
+        if ($tags) {
+            foreach ($tags as $tag) {
+                $pic->addTag($tag);
+            }
+        }
+        $multimediaObject->addPic($pic);
+
+        return $multimediaObject;
     }
 
     private function createPicFromAttachment($attachment, MultimediaObject $multimediaObject, $index = null, $targetType = 'presenter/search+preview')
