@@ -5,7 +5,6 @@ namespace Pumukit\NotificationBundle\Services;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 use Doctrine\ODM\MongoDB\DocumentManager;
-use Pumukit\SchemaBundle\Document\Person;
 
 class SenderService
 {
@@ -24,7 +23,6 @@ class SenderService
     private $adminEmail;
     private $notificateErrorsToAdmin;
     private $platformName;
-    private $environment;
     private $translator;
     private $subject = "Can't send email to this address.";
     private $template = self::TEMPLATE_ERROR;
@@ -46,8 +44,7 @@ class SenderService
         $subjectFailsTrans,
         $adminEmail,
         $notificateErrorsToAdmin,
-        $platformName,
-        $environment = 'dev'
+        $platformName
     ) {
         $this->mailer = $mailer;
         $this->templating = $templating;
@@ -63,8 +60,6 @@ class SenderService
         $this->adminEmail = $adminEmail;
         $this->notificateErrorsToAdmin = $notificateErrorsToAdmin;
         $this->platformName = $platformName;
-        $this->environment = $environment;
-        $this->personRepo = $this->dm->getRepository(Person::class);
     }
 
     /**

@@ -7,7 +7,6 @@ use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
 use Pumukit\SchemaBundle\Document\Group;
 use Pumukit\SchemaBundle\Document\User;
 use Doctrine\ODM\MongoDB\DocumentManager;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,18 +14,17 @@ use Symfony\Component\HttpFoundation\Response;
 class EmbeddedBroadcastService
 {
     private $dm;
-    private $repo;
     private $mmsService;
     private $dispatcher;
     private $disabledBroadcast;
     private $authorizationChecker;
-    private $router;
     private $templating;
+    private $repo;
 
     /**
      * Constructor.
      */
-    public function __construct(DocumentManager $documentManager, MultimediaObjectService $mmsService, MultimediaObjectEventDispatcherService $dispatcher, AuthorizationCheckerInterface $authorizationChecker, EngineInterface $templating, RouterInterface $router, $disabledBroadcast)
+    public function __construct(DocumentManager $documentManager, MultimediaObjectService $mmsService, MultimediaObjectEventDispatcherService $dispatcher, AuthorizationCheckerInterface $authorizationChecker, EngineInterface $templating, $disabledBroadcast)
     {
         $this->dm = $documentManager;
         $this->repo = $this->dm->getRepository(MultimediaObject::class);
@@ -34,7 +32,6 @@ class EmbeddedBroadcastService
         $this->dispatcher = $dispatcher;
         $this->authorizationChecker = $authorizationChecker;
         $this->templating = $templating;
-        $this->router = $router;
         $this->disabledBroadcast = $disabledBroadcast;
     }
 

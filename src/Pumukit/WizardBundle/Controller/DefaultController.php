@@ -69,7 +69,7 @@ class DefaultController extends Controller
         $sameSeries = $this->getSameSeriesValue($formData, $request->get('same_series', false));
         $formData['same_series'] = $sameSeries ? 1 : 0;
         $licenseService = $this->get('pumukit_wizard.license');
-        $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData, $request->getLocale());
+        $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData);
         if (!$licenseEnabledAndAccepted) {
             return $this->redirect($this->generateUrl('pumukitwizard_default_license', array('pumukitwizard_form_data' => $formData, 'same_series' => $sameSeries)));
         }
@@ -144,7 +144,7 @@ class DefaultController extends Controller
             return $this->redirect($this->generateUrl('pumukitwizard_default_option', array('pumukitwizard_form_data' => $formData, 'same_series' => $sameSeries)));
         }
         $licenseService = $this->get('pumukit_wizard.license');
-        $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData, $request->getLocale());
+        $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData);
         if (!$licenseEnabledAndAccepted) {
             return $this->redirect($this->generateUrl('pumukitwizard_default_license', array('show_series' => $showSeries, 'pumukitwizard_form_data' => $formData, 'same_series' => $sameSeries)));
         }
@@ -175,7 +175,7 @@ class DefaultController extends Controller
         $sameSeries = $this->getSameSeriesValue($formData, $request->get('same_series', false));
         $formData['same_series'] = $sameSeries ? 1 : 0;
         $licenseService = $this->get('pumukit_wizard.license');
-        $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData, $request->getLocale());
+        $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData);
         if (!$licenseEnabledAndAccepted) {
             return $this->redirect($this->generateUrl('pumukitwizard_default_license', array('pumukitwizard_form_data' => $formData, 'same_series' => $sameSeries)));
         }
@@ -220,7 +220,7 @@ class DefaultController extends Controller
             }
         }
         $licenseService = $this->get('pumukit_wizard.license');
-        $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData, $request->getLocale());
+        $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData);
         if (!$licenseEnabledAndAccepted) {
             return $this->redirect($this->generateUrl('pumukitwizard_default_license', array('pumukitwizard_form_data' => $formData, 'same_series' => $sameSeries)));
         }
@@ -273,7 +273,7 @@ class DefaultController extends Controller
         $showSeries = !$sameSeries;
         $formData['same_series'] = $sameSeries ? 1 : 0;
         $licenseService = $this->get('pumukit_wizard.license');
-        $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData, $request->getLocale());
+        $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData);
         if (!$licenseEnabledAndAccepted) {
             return $this->redirect($this->generateUrl('pumukitwizard_default_license', array('pumukitwizard_form_data' => $formData, 'same_series' => $sameSeries)));
         }
@@ -345,7 +345,7 @@ class DefaultController extends Controller
         $showSeries = !$sameSeries;
         $formData['same_series'] = $sameSeries ? 1 : 0;
         $licenseService = $this->get('pumukit_wizard.license');
-        $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData, $request->getLocale());
+        $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData);
         if (!$licenseEnabledAndAccepted) {
             return $this->redirect($this->generateUrl('pumukitwizard_default_license', array('pumukitwizard_form_data' => $formData, 'same_series' => $sameSeries)));
         }
@@ -388,11 +388,6 @@ class DefaultController extends Controller
             if (isset($formData['multimediaobject']['status'])) {
                 $status = $formData['multimediaobject']['status'];
             }
-
-            //$showSeries = false;
-            /* if (('null' === $seriesId) || (null === $seriesId)) { */
-            /*     $showSeries = true; */
-            /* } */
 
             $option = $this->getKeyData('option', $typeData);
             try {

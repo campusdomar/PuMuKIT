@@ -18,7 +18,6 @@ class UserService
     private $personRepo;
     private $groupRepo;
     private $permissionService;
-    private $personalScopeDeleteOwners;
     private $dispatcher;
     private $permissionProfileService;
 
@@ -29,9 +28,8 @@ class UserService
      * @param UserEventDispatcherService $dispatcher
      * @param PermissionService          $permissionService
      * @param PermissionProfileService   $permissionProfileService
-     * @param bool                       $personalScopeDeleteOwners
      */
-    public function __construct(DocumentManager $documentManager, UserEventDispatcherService $dispatcher, PermissionService $permissionService, PermissionProfileService $permissionProfileService, $personalScopeDeleteOwners = false)
+    public function __construct(DocumentManager $documentManager, UserEventDispatcherService $dispatcher, PermissionService $permissionService, PermissionProfileService $permissionProfileService)
     {
         $this->dm = $documentManager;
         $this->repo = $this->dm->getRepository(User::class);
@@ -40,7 +38,6 @@ class UserService
         $this->groupRepo = $this->dm->getRepository(Group::class);
         $this->permissionService = $permissionService;
         $this->dispatcher = $dispatcher;
-        $this->personalScopeDeleteOwners = $personalScopeDeleteOwners;
         $this->permissionProfileService = $permissionProfileService;
     }
 

@@ -25,7 +25,6 @@ class AnnotationsAPIController extends Controller
      */
     public function getAction(Request $request)
     {
-        //$opencastAnnotationService = $this->container->get('video_editor.opencast_annotations');
         $serializer = $this->get('jms_serializer');
 
         $episode = $request->get('episode');
@@ -36,7 +35,6 @@ class AnnotationsAPIController extends Controller
         $offset = $request->get('offset') ?: 0;
         $total = 10;
 
-        //$resAnnotations = $opencastAnnotationService->getOpencastAnnotations();
         $resAnnotations = array();
         $annonRepo = $this->get('doctrine_mongodb')->getRepository(Annotation::class);
         $annonQB = $annonRepo->createQueryBuilder();
@@ -115,10 +113,7 @@ class AnnotationsAPIController extends Controller
      */
     public function createNewAction(Request $request)
     {
-        //$opencastAnnotationService = $this->container->get('video_editor.opencast_annotations');
         $serializer = $this->get('jms_serializer');
-
-        //$annonRepo = $this->get('doctrine_mongodb')->getRepository(Annotation::class);
         $episode = $request->get('episode');
         $type = $request->get('type');
         $value = $request->get('value');
@@ -173,7 +168,6 @@ class AnnotationsAPIController extends Controller
      */
     public function editAction(Annotation $annotation, Request $request)
     {
-        //$opencastAnnotationService = $this->container->get('video_editor.opencast_annotations');
         $serializer = $this->get('jms_serializer');
 
         $value = $request->get('value');

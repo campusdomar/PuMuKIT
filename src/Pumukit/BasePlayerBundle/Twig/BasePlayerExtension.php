@@ -2,7 +2,6 @@
 
 namespace Pumukit\BasePlayerBundle\Twig;
 
-use Doctrine\ODM\MongoDB\DocumentManager;
 use Pumukit\BasePlayerBundle\Services\TrackUrlService;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Symfony\Component\Routing\RequestContext;
@@ -15,12 +14,10 @@ class BasePlayerExtension extends \Twig_Extension
      */
     protected $context;
 
-    private $dm;
     private $trackService;
 
-    public function __construct(DocumentManager $documentManager, RequestContext $context, TrackUrlService $trackService)
+    public function __construct(RequestContext $context, TrackUrlService $trackService)
     {
-        $this->dm = $documentManager;
         $this->context = $context;
         $this->trackService = $trackService;
     }

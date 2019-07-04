@@ -39,8 +39,7 @@ class MultimediaObjectListenerTest extends WebTestCase
         $dispatcher->addListener('multimediaobject.update', array($this->listener, 'postUpdate'));
         $this->trackDispatcher = static::$kernel->getContainer()
           ->get('pumukitschema.track_dispatcher');
-        $profileService = new ProfileService($this->getDemoProfiles(), $this->dm);
-        $this->trackService = new TrackService($this->dm, $this->trackDispatcher, $profileService, null, true);
+        $this->trackService = new TrackService($this->dm, $this->trackDispatcher, null, true);
 
         $this->dm->getDocumentCollection(MultimediaObject::class)
           ->remove(array());
