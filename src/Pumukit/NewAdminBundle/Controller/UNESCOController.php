@@ -188,7 +188,7 @@ class UNESCOController extends Controller implements NewAdminControllerInterface
             $element_sort = $session->get('admin/unesco/element_sort');
             $sortType = $session->get('admin/unesco/type');
 
-            if ('score' == $sortType) {
+            if ('score' === $sortType) {
                 $multimediaObjects->sortMeta('score', 'textScore');
             } else {
                 $multimediaObjects->sort($element_sort, $sortType);
@@ -219,7 +219,7 @@ class UNESCOController extends Controller implements NewAdminControllerInterface
         if ($adapter->getNbResults() > 0) {
             $resetCache = true;
             foreach ($adapter->getCurrentPageResults() as $result) {
-                if ($session->get('admin/unesco/id') == $result->getId()) {
+                if ($session->get('admin/unesco/id') === $result->getId()) {
                     $resetCache = false;
                     break;
                 }
@@ -653,7 +653,7 @@ class UNESCOController extends Controller implements NewAdminControllerInterface
     public function setCustomFields(Request $request)
     {
         $customFields = array_filter($request->request->all(), function ($value) {
-            return -1 != $value;
+            return -1 !== $value;
         });
 
         if (!$customFields) {
@@ -754,7 +754,7 @@ class UNESCOController extends Controller implements NewAdminControllerInterface
                 if ('all' !== $field) {
                     $query->field('type')->equals($field);
                 }
-            } elseif ('tracks.duration' == $key && !empty($field)) {
+            } elseif ('tracks.duration' === $key && !empty($field)) {
                 $query = $this->findDuration($query, $key, $field);
             } elseif ('year' === $key && !empty($field)) {
                 $query = $this->findDuration($query, 'year', $field);
@@ -836,19 +836,19 @@ class UNESCOController extends Controller implements NewAdminControllerInterface
     private function findDuration($query, $key, $field)
     {
         if ('tracks.duration' === $key) {
-            if ('-5' == $field) {
+            if ('-5' === $field) {
                 $query->field($key)->lte(300);
             }
-            if ('-10' == $field) {
+            if ('-10' === $field) {
                 $query->field($key)->lte(600);
             }
-            if ('-30' == $field) {
+            if ('-30' === $field) {
                 $query->field($key)->lte(1800);
             }
-            if ('-60' == $field) {
+            if ('-60' === $field) {
                 $query->field($key)->lte(3600);
             }
-            if ('+60' == $field) {
+            if ('+60' === $field) {
                 $query->field($key)->gt(3600);
             }
         } elseif ('year' === $key) {

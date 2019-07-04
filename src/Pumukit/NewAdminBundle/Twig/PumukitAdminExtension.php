@@ -702,7 +702,7 @@ class PumukitAdminExtension extends \Twig_Extension
         $aRoles = [];
         foreach ($roles as $role) {
             $embeddedRole = $multimediaObject->getEmbeddedRole($role);
-            if ($embeddedRole && 0 != count($embeddedRole->getPeople())) {
+            if ($embeddedRole && 0 !== count($embeddedRole->getPeople())) {
                 $aRoles[] = $embeddedRole;
             }
         }

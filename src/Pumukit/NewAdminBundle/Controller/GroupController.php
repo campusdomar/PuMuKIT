@@ -462,7 +462,7 @@ class GroupController extends AdminController implements NewAdminControllerInter
     {
         $new_criteria = parent::getCriteria($criteria);
         if (isset($new_criteria['origin']) &&
-            '/all/i' == (string) $new_criteria['origin']) {
+            '/all/i' === (string) $new_criteria['origin']) {
             unset($new_criteria['origin']);
         }
 

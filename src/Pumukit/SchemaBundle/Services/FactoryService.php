@@ -636,7 +636,7 @@ class FactoryService
 
         $new->setPublicDate($src->getPublicDate());
         $new->setRecordDate($src->getRecordDate());
-        if ($series && MultimediaObject::STATUS_PROTOTYPE == $src->getStatus()) {
+        if ($series && MultimediaObject::STATUS_PROTOTYPE === $src->getStatus()) {
             $new->setStatus($src->getStatus());
         } else {
             $new->setStatus(MultimediaObject::STATUS_BLOCKED);

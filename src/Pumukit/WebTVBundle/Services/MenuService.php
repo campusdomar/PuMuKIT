@@ -87,7 +87,7 @@ class MenuService
         uasort(
             $menuEvents,
             function ($a, $b) {
-                if ($a['sort'] == $b['sort']) {
+                if ($a['sort'] === $b['sort']) {
                     return 0;
                 }
 

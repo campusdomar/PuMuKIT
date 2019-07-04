@@ -56,7 +56,7 @@ EOT
         foreach ($jobsByStatus as $jg) {
             if (in_array($jg['_id'], [Job::STATUS_PAUSED, Job::STATUS_WAITING])) {
                 $jobsPending += $jg['count'];
-            } elseif (Job::STATUS_EXECUTING == $jg['_id']) {
+            } elseif (Job::STATUS_EXECUTING === $jg['_id']) {
                 $jobsPending = $jg['count'];
             }
         }
@@ -78,11 +78,11 @@ EOT
 
         $jobsExecutingInMmObj = $jobsExecutingInMmObjResult[0]['count'] ?? 0;
 
-        if ($jobsPending != $jobsPendingInMmObj && 0 != $jobsPendingInMmObj) {
+        if ($jobsPending !== $jobsPendingInMmObj && 0 !== $jobsPendingInMmObj) {
             $this->cleanJobsProperties('pending', $output);
         }
 
-        if ($jobsExecuting != $jobsExecutingInMmObj && 0 != $jobsExecutingInMmObj) {
+        if ($jobsExecuting !== $jobsExecutingInMmObj && 0 !== $jobsExecutingInMmObj) {
             $this->cleanJobsProperties('executing', $output);
         }
     }

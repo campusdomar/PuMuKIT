@@ -40,7 +40,7 @@ class PlaylistMultimediaObjectController extends Controller
         // Removes the session mmobj (shown on info and preview) if it does not belong to THIS playlist.
         $update_session = true;
         foreach ($mms as $mm) {
-            if ($mm->getId() == $this->get('session')->get('admin/playlistmms/id')) {
+            if ($mm->getId() === $this->get('session')->get('admin/playlistmms/id')) {
                 $update_session = false;
                 break;
             }
@@ -289,7 +289,7 @@ class PlaylistMultimediaObjectController extends Controller
         //$mmobjRepo = $dm->getRepository(MultimediaObject::class);
         $mms = $playlist->getPlaylist()->getMultimediaObjects();
         foreach ($mmobjIds as $pos => $id) {
-            if (isset($mms[$pos]) && $mms[$pos]->getId() == $id) {
+            if (isset($mms[$pos]) && $mms[$pos]->getId() === $id) {
                 $playlist->getPlaylist()->removeMultimediaObjectByPos($pos);
             }
         }

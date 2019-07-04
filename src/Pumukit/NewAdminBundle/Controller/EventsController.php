@@ -241,7 +241,7 @@ class EventsController extends Controller implements NewAdminControllerInterface
         if ($mms->getNbResults() > 0) {
             $resetCache = true;
             foreach ($mms->getCurrentPageResults() as $result) {
-                if ($session->get('admin/live/event/id') == $result->getId()) {
+                if ($session->get('admin/live/event/id') === $result->getId()) {
                     $resetCache = false;
                     break;
                 }
@@ -276,7 +276,7 @@ class EventsController extends Controller implements NewAdminControllerInterface
                 $field = 'embeddedEvent.name.'.$request->getLocale();
             }
             if ($session->has('admin/live/event/sort/field') && $session->get('admin/live/event/sort/field') === $field) {
-                $session->set('admin/live/event/sort/type', (('desc' == $session->get('admin/live/event/sort/type')) ? 'asc' : 'desc'));
+                $session->set('admin/live/event/sort/type', (('desc' === $session->get('admin/live/event/sort/type')) ? 'asc' : 'desc'));
             } else {
                 $session->set('admin/live/event/sort/type', 'desc');
             }
@@ -700,7 +700,7 @@ class EventsController extends Controller implements NewAdminControllerInterface
                 if (isset($data['id'])) {
                     foreach ($multimediaObject->getEmbeddedEvent()->getEmbeddedEventSession(
                     ) as $embeddedEventSession) {
-                        if ($embeddedEventSession->getId() == $data['id']) {
+                        if ($embeddedEventSession->getId() === $data['id']) {
                             $embeddedEventSession->setStart($start);
                             $embeddedEventSession->setEnds($end);
                             $embeddedEventSession->setDuration($duration);
@@ -766,7 +766,7 @@ class EventsController extends Controller implements NewAdminControllerInterface
             new \MongoId($multimediaObject)
         );
         foreach ($multimediaObject->getEmbeddedEvent()->getEmbeddedEventSession() as $session) {
-            if ($session->getId() == $session_id) {
+            if ($session->getId() === $session_id) {
                 $multimediaObject->getEmbeddedEvent()->removeEmbeddedEventSession($session);
             }
         }
@@ -795,7 +795,7 @@ class EventsController extends Controller implements NewAdminControllerInterface
             new \MongoId($multimediaObject)
         );
         foreach ($multimediaObject->getEmbeddedEvent()->getEmbeddedEventSession() as $session) {
-            if ($session->getId() == $session_id) {
+            if ($session->getId() === $session_id) {
                 $newSession = new EmbeddedEventSession();
                 $newSession->setDuration($session->getDuration());
                 $newSession->setNotes($session->getNotes());
@@ -846,7 +846,7 @@ class EventsController extends Controller implements NewAdminControllerInterface
 
         $sessionData = '';
         foreach ($multimediaObject->getEmbeddedEvent()->getEmbeddedEventSession() as $session) {
-            if ($session->getId() == $session_id) {
+            if ($session->getId() === $session_id) {
                 $sessionData = $session;
             }
         }
@@ -1012,7 +1012,7 @@ class EventsController extends Controller implements NewAdminControllerInterface
             }
 
             if ($validSessionA && $validSessionB) {
-                if ('desc' == $sortType) {
+                if ('desc' === $sortType) {
                     return ($validSessionA < $validSessionB) ? 1 : -1;
                 } else {
                     return ($validSessionA < $validSessionB) ? -1 : 1;

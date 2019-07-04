@@ -32,7 +32,6 @@ class SeriesPlaylistServiceTest extends WebTestCase
 
         $track = new Track();
         $series = new Series();
-        $series2 = new Series();
         $mmobjs = [
             'published' => new MultimediaObject(),
             'hidden' => new MultimediaObject(),
@@ -55,11 +54,10 @@ class SeriesPlaylistServiceTest extends WebTestCase
             $this->dm->persist($mmobj);
         }
         $this->dm->persist($series);
-        $this->dm->persist($series2);
         $this->dm->flush();
         foreach ($playlistMmobjs as $mmobj) {
             $mmobj->addTrack($track);
-            $mmobj->setSeries($series2);
+            $mmobj->setSeries($series);
             $this->dm->persist($mmobj);
             $series->getPlaylist()->addMultimediaObject($mmobj);
         }
@@ -96,6 +94,7 @@ class SeriesPlaylistServiceTest extends WebTestCase
     public function testGetPlaylistMmobjs()
     {
         $playlistMmobjs = $this->seriesPlaylistService->getPlaylistMmobjs($this->testSeries);
+
         $this->assertEquals([
             $this->testMmobjs['published'],
             $this->testMmobjs['hidden'],
