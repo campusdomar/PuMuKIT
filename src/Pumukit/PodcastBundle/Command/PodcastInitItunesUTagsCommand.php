@@ -55,7 +55,7 @@ EOT
         $finder = new Finder();
         $finder->files()->in(__DIR__.'/'.$this->tagsPath);
         $file = $input->getArgument('file');
-        if ((0 == strcmp($file, '')) && (!$finder)) {
+        if ((0 === strcmp($file, '')) && (!$finder)) {
             $output->writeln("<error>Tags: There's no data to initialize</error>");
 
             return -1;
@@ -86,20 +86,19 @@ EOT
             return -1;
         }
 
-        $idCodMapping = array();
+        $idCodMapping = [];
 
         $row = 1;
         if (false !== ($file = fopen($file, 'r'))) {
             while (false !== ($currentRow = fgetcsv($file, 0, ';'))) {
                 $number = count($currentRow);
-                if (('tag' === $repoName) && (6 == $number || 9 == $number)) {
+                if (('tag' === $repoName) && (6 === $number || 9 === $number)) {
                     //Check header rows
-                    if ('id' == trim($currentRow[0])) {
+                    if ('id' === trim($currentRow[0])) {
                         continue;
                     }
-                    $parent = isset($idCodMapping[$currentRow[2]])
-                      ? $idCodMapping[$currentRow[2]]
-                      : $root;
+                    $parent = $idCodMapping[$currentRow[2]]
+                      ?? $root;
                     try {
                         $tag = $this->createTagFromCsvArray($currentRow, $parent);
                         $idCodMapping[$currentRow[0]] = $tag;
@@ -112,7 +111,7 @@ EOT
                     $output->writeln("Error: line $row has $number elements");
                 }
 
-                if (0 == $row % 100) {
+                if (0 === $row % 100) {
                     echo 'Row '.$row."\n";
                 }
                 ++$row;

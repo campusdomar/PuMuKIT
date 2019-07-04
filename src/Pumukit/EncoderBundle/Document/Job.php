@@ -23,13 +23,13 @@ class Job
      *
      * @var array
      */
-    public static $statusTexts = array(
+    public static $statusTexts = [
         self::STATUS_ERROR => 'Error',
         self::STATUS_PAUSED => 'Paused',
         self::STATUS_WAITING => 'Waiting',
         self::STATUS_EXECUTING => 'Executing',
         self::STATUS_FINISHED => 'Finished',
-    );
+    ];
 
     /**
      * @var int
@@ -101,14 +101,14 @@ class Job
      *
      * @MongoDB\Field(type="raw")
      */
-    private $name = array('en' => '');
+    private $name = ['en' => ''];
 
     /**
      * @var string
      *
      * @MongoDB\Field(type="raw")
      */
-    private $description = array('en' => '');
+    private $description = ['en' => ''];
 
     /**
      * @var \DateTime
@@ -207,7 +207,7 @@ class Job
      *
      * @MongoDB\Field(type="raw")
      */
-    private $initVars = array();
+    private $initVars = [];
 
     /**
      * @var string
@@ -809,7 +809,7 @@ class Job
      */
     public function isPending()
     {
-        return self::STATUS_WAITING == $this->status || self::STATUS_PAUSED == $this->status;
+        return self::STATUS_WAITING === $this->status || self::STATUS_PAUSED === $this->status;
     }
 
     /**
@@ -817,7 +817,7 @@ class Job
      */
     public function isWaiting()
     {
-        return self::STATUS_WAITING == $this->status;
+        return self::STATUS_WAITING === $this->status;
     }
 
     /**
@@ -825,7 +825,7 @@ class Job
      */
     public function isPaused()
     {
-        return self::STATUS_PAUSED == $this->status;
+        return self::STATUS_PAUSED === $this->status;
     }
 
     /**
@@ -833,7 +833,7 @@ class Job
      */
     public function isExecuting()
     {
-        return self::STATUS_EXECUTING == $this->status;
+        return self::STATUS_EXECUTING === $this->status;
     }
 
     /**
@@ -841,7 +841,7 @@ class Job
      */
     public function isFailed()
     {
-        return self::STATUS_ERROR == $this->status;
+        return self::STATUS_ERROR === $this->status;
     }
 
     /**
@@ -849,7 +849,7 @@ class Job
      */
     public function isFinished()
     {
-        return self::STATUS_FINISHED == $this->status;
+        return self::STATUS_FINISHED === $this->status;
     }
 
     /**
@@ -857,6 +857,6 @@ class Job
      */
     public function isExecuted()
     {
-        return self::STATUS_ERROR == $this->status || self::STATUS_FINISHED == $this->status;
+        return self::STATUS_ERROR === $this->status || self::STATUS_FINISHED === $this->status;
     }
 }

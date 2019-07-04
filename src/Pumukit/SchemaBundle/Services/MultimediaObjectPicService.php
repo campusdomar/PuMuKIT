@@ -112,7 +112,7 @@ class MultimediaObjectPicService
      */
     public function addPicFile(MultimediaObject $multimediaObject, UploadedFile $picFile, $isEventPoster = false)
     {
-        if (UPLOAD_ERR_OK != $picFile->getError()) {
+        if (UPLOAD_ERR_OK !== $picFile->getError()) {
             throw new \Exception($picFile->getErrorMessage());
         }
 
@@ -200,8 +200,8 @@ class MultimediaObjectPicService
         $this->dm->flush();
 
         if ($this->forceDeleteOnDisk && $picPath) {
-            $otherPics = $this->repo->findBy(array('pics.path' => $picPath));
-            if (0 == count($otherPics)) {
+            $otherPics = $this->repo->findBy(['pics.path' => $picPath]);
+            if (0 === count($otherPics)) {
                 $this->deleteFileOnDisk($picPath, $multimediaObject);
             }
         }

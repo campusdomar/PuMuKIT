@@ -25,7 +25,7 @@ class EmbeddedBroadcastServiceTest extends WebTestCase
 
     public function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()
@@ -43,9 +43,9 @@ class EmbeddedBroadcastServiceTest extends WebTestCase
         $this->templating = static::$kernel->getContainer()
             ->get('templating');
 
-        $this->dm->getDocumentCollection(MultimediaObject::class)->remove(array());
-        $this->dm->getDocumentCollection(Group::class)->remove(array());
-        $this->dm->getDocumentCollection(User::class)->remove(array());
+        $this->dm->getDocumentCollection(MultimediaObject::class)->remove([]);
+        $this->dm->getDocumentCollection(Group::class)->remove([]);
+        $this->dm->getDocumentCollection(User::class)->remove([]);
         $this->dm->flush();
     }
 
@@ -152,20 +152,20 @@ class EmbeddedBroadcastServiceTest extends WebTestCase
     public function testGetAllBroadcastTypes()
     {
         $embeddedBroadcastService = new EmbeddedBroadcastService($this->dm, $this->mmsService, $this->dispatcher, $this->authorizationChecker, $this->templating, false);
-        $broadcasts = array(
+        $broadcasts = [
                             EmbeddedBroadcast::TYPE_PUBLIC => EmbeddedBroadcast::NAME_PUBLIC,
                             EmbeddedBroadcast::TYPE_PASSWORD => EmbeddedBroadcast::NAME_PASSWORD,
                             EmbeddedBroadcast::TYPE_LOGIN => EmbeddedBroadcast::NAME_LOGIN,
                             EmbeddedBroadcast::TYPE_GROUPS => EmbeddedBroadcast::NAME_GROUPS,
-                            );
+                            ];
         $this->assertEquals($broadcasts, $embeddedBroadcastService->getAllTypes());
 
         $embeddedBroadcastService = new EmbeddedBroadcastService($this->dm, $this->mmsService, $this->dispatcher, $this->authorizationChecker, $this->templating, true);
-        $broadcasts = array(
+        $broadcasts = [
                             EmbeddedBroadcast::TYPE_PUBLIC => EmbeddedBroadcast::NAME_PUBLIC,
                             EmbeddedBroadcast::TYPE_LOGIN => EmbeddedBroadcast::NAME_LOGIN,
                             EmbeddedBroadcast::TYPE_GROUPS => EmbeddedBroadcast::NAME_GROUPS,
-                            );
+                            ];
         $this->assertEquals($broadcasts, $embeddedBroadcastService->getAllTypes());
     }
 
@@ -362,14 +362,14 @@ class EmbeddedBroadcastServiceTest extends WebTestCase
 
         $this->assertFalse($this->embeddedBroadcastService->isUserRelatedToMultimediaObject($mm, $user));
 
-        $owners1 = array($user->getId());
+        $owners1 = [$user->getId()];
         $mm->setProperty('owners', $owners1);
         $this->dm->persist($mm);
         $this->dm->flush();
 
         $this->assertTrue($this->embeddedBroadcastService->isUserRelatedToMultimediaObject($mm, $user));
 
-        $owners2 = array();
+        $owners2 = [];
         $mm->setProperty('owners', $owners2);
         $this->dm->persist($mm);
         $this->dm->flush();
@@ -448,7 +448,7 @@ class EmbeddedBroadcastServiceTest extends WebTestCase
 
         $this->assertTrue($this->embeddedBroadcastService->isUserRelatedToMultimediaObject($mm, $user));
 
-        $owners1 = array($user->getId());
+        $owners1 = [$user->getId()];
         $mm->setProperty('owners', $owners1);
         $this->dm->persist($mm);
         $this->dm->flush();
@@ -645,7 +645,7 @@ class EmbeddedBroadcastServiceTest extends WebTestCase
         $this->assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
         $this->assertEquals($content, $response->getContent());
 
-        $owners = array($user->getId());
+        $owners = [$user->getId()];
         $mm->setProperty('owners', $owners);
         $this->dm->persist($mm);
         $this->dm->flush();

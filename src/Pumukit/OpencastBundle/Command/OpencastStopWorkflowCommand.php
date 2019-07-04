@@ -65,7 +65,7 @@ EOT
                 $total = $statistics['statistics']['total'];
             }
 
-            if (0 == $total) {
+            if (0 === $total) {
                 return null;
             }
             $workflowName = 'retract';
@@ -79,7 +79,7 @@ EOT
 
             // Bugfix: When there is only one mediapackage, worflows => workflow is NOT an array. So we make it into one.
             if (isset($decode['workflows']['workflow']['mediapackage'])) {
-                $decode['workflows']['workflow'] = array($decode['workflows']['workflow']);
+                $decode['workflows']['workflow'] = [$decode['workflows']['workflow']];
             }
 
             foreach ($decode['workflows']['workflow'] as $workflow) {

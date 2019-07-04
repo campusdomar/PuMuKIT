@@ -40,7 +40,7 @@ class PlaylistMultimediaObjectController extends Controller
         // Removes the session mmobj (shown on info and preview) if it does not belong to THIS playlist.
         $update_session = true;
         foreach ($mms as $mm) {
-            if ($mm->getId() == $this->get('session')->get('admin/playlistmms/id')) {
+            if ($mm->getId() === $this->get('session')->get('admin/playlistmms/id')) {
                 $update_session = false;
                 break;
             }
@@ -49,10 +49,10 @@ class PlaylistMultimediaObjectController extends Controller
             $session->remove('admin/playlistmms/id');
         }
 
-        return array(
+        return [
             'playlist' => $series,
             'mms' => $mms,
-        );
+        ];
     }
 
     /**
@@ -69,11 +69,11 @@ class PlaylistMultimediaObjectController extends Controller
         $roles = $this->get('pumukitschema.person')->getRoles();
         $activeEditor = $this->checkHasEditor();
 
-        return array(
+        return [
             'mm' => $mmobj,
             'roles' => $roles,
             'active_editor' => $activeEditor,
-        );
+        ];
     }
 
     /**
@@ -86,13 +86,13 @@ class PlaylistMultimediaObjectController extends Controller
         $mmService = $this->get('pumukitschema.multimedia_object');
         $warningOnUnpublished = $this->container->getParameter('pumukit.warning_on_unpublished');
 
-        return array(
+        return [
             'mm' => $mmobj,
             'is_published' => $mmService->isPublished($mmobj, 'PUCHWEBTV'),
             'is_hidden' => $mmService->isHidden($mmobj, 'PUCHWEBTV'),
             'is_playable' => $mmService->hasPlayableResource($mmobj),
             'warning_on_unpublished' => $warningOnUnpublished,
-        );
+        ];
     }
 
     /**
@@ -115,10 +115,10 @@ class PlaylistMultimediaObjectController extends Controller
 
         $mms = $this->getPlaylistMmobjs($series, $request);
 
-        return array(
+        return [
             'playlist' => $series,
             'mms' => $mms,
-        );
+        ];
     }
 
     protected function getPlaylistMmobjs(Series $series, $request)
@@ -160,12 +160,12 @@ class PlaylistMultimediaObjectController extends Controller
         $mmobjs = $dm->getRepository(MultimediaObject::class)->createStandardQueryBuilder();
         $total = $mmobjs->count()->getQuery()->execute();
 
-        return array(
-            'my_mmobjs' => array(),
+        return [
+            'my_mmobjs' => [],
             'mmobjs_total' => $total,
             'mmobjs_limit' => $limit,
             'playlist' => $playlist,
-        );
+        ];
     }
 
     /**
@@ -190,9 +190,9 @@ class PlaylistMultimediaObjectController extends Controller
 
         $mmobjs->setCurrentPage($page);
 
-        return array(
+        return [
             'my_mmobjs' => $mmobjs,
-        );
+        ];
     }
 
     /**
@@ -204,7 +204,7 @@ class PlaylistMultimediaObjectController extends Controller
         $limit = 50;
         $value = $request->query->get('search', '');
 
-        $criteria = array('search' => $value);
+        $criteria = ['search' => $value];
         $criteria = $this->get('pumukitnewadmin.multimedia_object_search')->processMMOCriteria($criteria, $request->getLocale());
 
         $queryBuilder = $this->get('doctrine_mongodb.odm.document_manager')->getRepository(MultimediaObject::class)->createStandardQueryBuilder();
@@ -217,7 +217,7 @@ class PlaylistMultimediaObjectController extends Controller
         $mmobjs = new Pagerfanta($adapter);
         $mmobjs->setMaxPerPage($limit);
 
-        return array('mmobjs' => $mmobjs);
+        return ['mmobjs' => $mmobjs];
     }
 
     /**
@@ -241,10 +241,10 @@ class PlaylistMultimediaObjectController extends Controller
             $mmobj = null;
         }
 
-        return array(
+        return [
             'mmobj' => $mmobj,
             'mmobj_id' => $id,
-        );
+        ];
     }
 
     public function addBatchAction(Series $playlist, Request $request)
@@ -271,7 +271,7 @@ class PlaylistMultimediaObjectController extends Controller
         }
         $dm->flush();
 
-        return $this->redirect($this->generateUrl('pumukitnewadmin_playlistmms_list', array('id' => $playlist->getId())));
+        return $this->redirect($this->generateUrl('pumukitnewadmin_playlistmms_list', ['id' => $playlist->getId()]));
     }
 
     public function deleteBatchAction(Series $playlist, Request $request)
@@ -288,14 +288,14 @@ class PlaylistMultimediaObjectController extends Controller
         $dm = $this->get('doctrine_mongodb.odm.document_manager');
         $mms = $playlist->getPlaylist()->getMultimediaObjects();
         foreach ($mmobjIds as $pos => $id) {
-            if (isset($mms[$pos]) && $mms[$pos]->getId() == $id) {
+            if (isset($mms[$pos]) && $mms[$pos]->getId() === $id) {
                 $playlist->getPlaylist()->removeMultimediaObjectByPos($pos);
             }
         }
         $dm->persist($playlist);
         $dm->flush();
 
-        return $this->redirect($this->generateUrl('pumukitnewadmin_playlistmms_list', array('id' => $playlist->getId())));
+        return $this->redirect($this->generateUrl('pumukitnewadmin_playlistmms_list', ['id' => $playlist->getId()]));
     }
 
     /**
@@ -328,7 +328,7 @@ class PlaylistMultimediaObjectController extends Controller
      */
     protected function moveAction(Series $playlist, $initPos, $endPos)
     {
-        $actionResponse = $this->redirect($this->generateUrl('pumukitnewadmin_playlistmms_index', array('id' => $playlist->getId())));
+        $actionResponse = $this->redirect($this->generateUrl('pumukitnewadmin_playlistmms_index', ['id' => $playlist->getId()]));
         $dm = $this->get('doctrine_mongodb.odm.document_manager');
         $playlist->getPlaylist()->moveMultimediaObject($initPos, $endPos);
         $dm->persist($playlist);
@@ -392,13 +392,13 @@ class PlaylistMultimediaObjectController extends Controller
         $dm->getFilterCollection()->disable('backoffice');
         $filter = $dm->getFilterCollection()->enable('personal');
         $person = $this->get('pumukitschema.person')->getPersonFromLoggedInUser($user);
-        $people = array();
+        $people = [];
         if ((null !== $person) && (null !== ($roleCode = $this->get('pumukitschema.person')->getPersonalScopeRoleCode()))) {
-            $people['$elemMatch'] = array();
+            $people['$elemMatch'] = [];
             $people['$elemMatch']['people._id'] = new \MongoId($person->getId());
             $people['$elemMatch']['cod'] = $roleCode;
         }
-        $groups = array();
+        $groups = [];
         $groups['$in'] = $user->getGroupsIds();
         $filter->setParameter('people', $people);
         $filter->setParameter('groups', $groups);
@@ -432,14 +432,14 @@ class PlaylistMultimediaObjectController extends Controller
             $count = count($ids);
         }
 
-        return array(
+        return [
             'series' => $series,
             'multimediaObject' => $multimediaObject,
             'id' => $request->get('id'),
             'ids' => $request->get('ids'),
             'num_mm' => $count,
             'locales' => $this->container->getParameter('pumukit.locales'),
-        );
+        ];
     }
 
     /**
@@ -458,8 +458,8 @@ class PlaylistMultimediaObjectController extends Controller
         $mmobjIds = $this->getIds($request, 'ids');
         $playlistIds = $this->getIds($request, 'series_ids');
 
-        $mmObjs = $mmobjRepo->findBy(array('_id' => array('$in' => $mmobjIds)));
-        $playlists = $seriesRepo->findBy(array('_id' => array('$in' => $playlistIds)));
+        $mmObjs = $mmobjRepo->findBy(['_id' => ['$in' => $mmobjIds]]);
+        $playlists = $seriesRepo->findBy(['_id' => ['$in' => $playlistIds]]);
 
         foreach ($playlists as $playlist) {
             foreach ($mmObjs as $mmObj) {
@@ -469,7 +469,7 @@ class PlaylistMultimediaObjectController extends Controller
         }
         $dm->flush();
 
-        return new JsonResponse(array());
+        return new JsonResponse([]);
     }
 
     /**

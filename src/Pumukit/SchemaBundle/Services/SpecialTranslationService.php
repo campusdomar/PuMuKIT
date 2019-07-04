@@ -31,14 +31,14 @@ class SpecialTranslationService
             $groupsDescription = ': ';
             foreach ($groups as $group) {
                 $groupsDescription .= $group->getName();
-                if ($group != $groups->last()) {
+                if ($group !== $groups->last()) {
                     $groupsDescription .= ', ';
                 }
             }
         }
 
         if ($locale) {
-            return $this->translator->trans($embeddedBroadcast->getName(), array(), null, $locale).$groupsDescription;
+            return $this->translator->trans($embeddedBroadcast->getName(), [], null, $locale).$groupsDescription;
         }
 
         return $this->translator->trans($embeddedBroadcast->getName()).$groupsDescription;

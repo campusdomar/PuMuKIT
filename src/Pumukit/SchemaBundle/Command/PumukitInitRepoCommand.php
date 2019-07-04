@@ -23,7 +23,7 @@ class PumukitInitRepoCommand extends ContainerAwareCommand
     private $permissionProfilesPath = '../Resources/data/permissionprofiles/';
 
     private $allPermissions;
-    private $tagRequiredFields = array('cod', 'tree_parent_cod', 'metatag', 'display', 'name_en');
+    private $tagRequiredFields = ['cod', 'tree_parent_cod', 'metatag', 'display', 'name_en'];
 
     protected function configure()
     {
@@ -47,7 +47,7 @@ EOT
     {
         $this->dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $this->allPermissions = $this->getContainer()->get('pumukitschema.permission')->getAllPermissions();
-        $this->pmk2_allLocales = array_unique(array_merge($this->getContainer()->getParameter('pumukit.locales'), array('en')));
+        $this->pmk2_allLocales = array_unique(array_merge($this->getContainer()->getParameter('pumukit.locales'), ['en']));
         $this->tagsRepo = $this->dm->getRepository(Tag::class);
 
         $repoName = $input->getArgument('repo');
@@ -87,7 +87,7 @@ EOT
                 }
                 break;
             }
-        } elseif ('tag' == $repoName) {
+        } elseif ('tag' === $repoName) {
             $errorExecuting = $this->executeTags($input, $output, false);
             if (-1 === $errorExecuting) {
                 return -1;
@@ -108,7 +108,7 @@ EOT
         $finder = new Finder();
         $finder->files()->in(__DIR__.'/'.$this->tagsPath);
         $file = $input->getArgument('file');
-        if ((0 == strcmp($file, '')) && (!$finder)) {
+        if ((0 === strcmp($file, '')) && (!$finder)) {
             $output->writeln("<error>Tags: There's no data to initialize</error>");
 
             return -1;
@@ -134,7 +134,7 @@ EOT
         $finder = new Finder();
         $finder->files()->in(__DIR__.'/'.$this->rolesPath);
         $file = $input->getArgument('file');
-        if ((0 == strcmp($file, '')) && (!$finder)) {
+        if ((0 === strcmp($file, '')) && (!$finder)) {
             $output->writeln("<error>Roles: There's no data to initialize</error>");
 
             return -1;
@@ -156,7 +156,7 @@ EOT
         $finder = new Finder();
         $finder->files()->in(__DIR__.'/'.$this->permissionProfilesPath);
         $file = $input->getArgument('file');
-        if ((0 == strcmp($file, '')) && (!$finder)) {
+        if ((0 === strcmp($file, '')) && (!$finder)) {
             $output->writeln("<error>PermissionProfiles: There's no data to initialize</error>");
 
             return -1;
@@ -175,24 +175,24 @@ EOT
 
     protected function removeTags()
     {
-        $this->dm->getDocumentCollection(Tag::class)->remove(array());
+        $this->dm->getDocumentCollection(Tag::class)->remove([]);
     }
 
     protected function removeRoles()
     {
-        $this->dm->getDocumentCollection(Role::class)->remove(array());
+        $this->dm->getDocumentCollection(Role::class)->remove([]);
     }
 
     protected function removePermissionProfiles()
     {
-        $this->dm->getDocumentCollection(PermissionProfile::class)->remove(array());
+        $this->dm->getDocumentCollection(PermissionProfile::class)->remove([]);
     }
 
     protected function createRoot()
     {
         $root = $this->tagsRepo->findOneByCod('ROOT');
         if (!$root) {
-            $root = $this->createTagFromCsvArray(array('id' => null, 'cod' => 'ROOT', 'tree_parent_cod' => null, 'metatag' => 1, 'display' => 0, 'name_en' => 'ROOT'));
+            $root = $this->createTagFromCsvArray(['id' => null, 'cod' => 'ROOT', 'tree_parent_cod' => null, 'metatag' => 1, 'display' => 0, 'name_en' => 'ROOT']);
         }
         $this->dm->persist($root);
         $this->dm->flush();
@@ -216,7 +216,7 @@ EOT
             return -1;
         }
 
-        if ('tag' == $repoName) {
+        if ('tag' === $repoName) {
             //Creates the csvTagHeaders (to be used later)
             if (false === ($csvTagHeaders = fgetcsv($file, 0, ';', '"'))) {
                 $output->writeln('<error>Error reading first row (csv header) of '.$file_route.": fgetcsv returned 'false' </error>");
@@ -246,21 +246,21 @@ EOT
         }
 
         $row = 1;
-        $importedTags = array();
+        $importedTags = [];
         while (false !== ($currentRow = fgetcsv($file, 0, ';'))) {
             $number = count($currentRow);
             if (('tag' === $repoName) ||
-                (('role' === $repoName) && (7 == $number || 10 == $number)) ||
-                (('permissionprofile' === $repoName) && (6 == $number))) {
+                (('role' === $repoName) && (7 === $number || 10 === $number)) ||
+                (('permissionprofile' === $repoName) && (6 === $number))) {
                 //Check header rows
-                if ('id' == trim($currentRow[0])) {
+                if ('id' === trim($currentRow[0])) {
                     continue;
                 }
 
                 try {
                     switch ($repoName) {
                     case 'tag':
-                        $csvTagsArray = array();
+                        $csvTagsArray = [];
                         $limit = count($currentRow);
                         for ($i = 0; $i < $limit; ++$i) {
                             $key = $csvTagHeaders[$i]; // Here we turn the csv into an associative array (Doesn't a csv parsing library do this already?)
@@ -304,7 +304,7 @@ EOT
                 $output->writeln("Error: line $row has $number elements");
             }
 
-            if ($verbose && 0 == $row % 100) {
+            if ($verbose && 0 === $row % 100) {
                 echo 'Row '.$row."\n";
             }
 

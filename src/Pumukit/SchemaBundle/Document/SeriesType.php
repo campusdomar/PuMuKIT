@@ -25,14 +25,14 @@ class SeriesType
      *
      * @MongoDB\Field(type="raw")
      */
-    private $name = array('en' => '');
+    private $name = ['en' => ''];
 
     /**
      * @var string
      *
      * @MongoDB\Field(type="raw")
      */
-    private $description = array('en' => '');
+    private $description = ['en' => ''];
 
     /**
      * @var string

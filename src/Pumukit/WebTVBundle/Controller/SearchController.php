@@ -54,7 +54,7 @@ class SearchController extends Controller implements WebTVControllerInterface
         $queryBuilder = $this->get('pumukit_web_tv.search_service')->addValidSeriesQueryBuilder($queryBuilder);
         $queryBuilder = $this->get('pumukit_web_tv.search_service')->addSearchQueryBuilder($queryBuilder, $request->getLocale(), $searchFound);
         $queryBuilder = $this->get('pumukit_web_tv.search_service')->addDateQueryBuilder($queryBuilder, $startFound, $endFound, $yearFound, 'public_date');
-        if ('' == $searchFound) {
+        if ('' === $searchFound) {
             $queryBuilder = $queryBuilder->sort('public_date', 'desc');
         } else {
             $queryBuilder = $queryBuilder->sortMeta('score', 'textScore');
@@ -123,7 +123,7 @@ class SearchController extends Controller implements WebTVControllerInterface
         $queryBuilder = $this->get('pumukit_web_tv.search_service')->addDateQueryBuilder($queryBuilder, $startFound, $endFound, $yearFound);
         $queryBuilder = $this->get('pumukit_web_tv.search_service')->addLanguageQueryBuilder($queryBuilder, $languageFound);
         $queryBuilder = $this->get('pumukit_web_tv.search_service')->addTagsQueryBuilder($queryBuilder, $tagsFound, $blockedTag, $useTagAsGeneral);
-        if ('' == $searchFound) {
+        if ('' === $searchFound) {
             $queryBuilder = $queryBuilder->sort('record_date', 'desc');
         } else {
             $queryBuilder = $queryBuilder->sortMeta('score', 'textScore');

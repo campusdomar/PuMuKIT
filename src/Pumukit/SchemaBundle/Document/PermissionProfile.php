@@ -14,11 +14,11 @@ class PermissionProfile
     const SCOPE_PERSONAL = 'ROLE_SCOPE_PERSONAL';
     const SCOPE_NONE = 'ROLE_SCOPE_NONE';
 
-    public static $scopeDescription = array(
+    public static $scopeDescription = [
         self::SCOPE_GLOBAL => 'Global Scope',
         self::SCOPE_PERSONAL => 'Personal Scope',
         self::SCOPE_NONE => 'No Scope',
-    );
+    ];
 
     /**
      * @var string
@@ -40,7 +40,7 @@ class PermissionProfile
      *
      * @MongoDB\Field(type="collection")
      */
-    private $permissions = array();
+    private $permissions = [];
 
     /**
      * @var bool
@@ -186,7 +186,7 @@ class PermissionProfile
      */
     public function containsAnyPermission(array $permissions)
     {
-        return 0 != count(array_intersect($permissions, $this->permissions));
+        return 0 !== count(array_intersect($permissions, $this->permissions));
     }
 
     /**

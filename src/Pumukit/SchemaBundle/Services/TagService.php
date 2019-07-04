@@ -72,7 +72,7 @@ class TagService
      */
     public function addTag(MultimediaObject $mmobj, Tag $tag, $executeFlush = true)
     {
-        $tagAdded = array();
+        $tagAdded = [];
 
         if ($mmobj->containsTag($tag)) {
             return $tagAdded;
@@ -131,7 +131,7 @@ class TagService
      */
     public function removeTag(MultimediaObject $mmobj, Tag $tag, $executeFlush = true)
     {
-        $removeTags = array();
+        $removeTags = [];
 
         do {
             $children = $tag->getChildren();
@@ -195,7 +195,7 @@ class TagService
         }
 
         if (!$removed) {
-            return array();
+            return [];
         }
 
         $this->dm->persist($tag);
@@ -206,7 +206,7 @@ class TagService
             $this->dispatcher->dispatchUpdate($mmobj);
         }
 
-        return array($tag);
+        return [$tag];
     }
 
     /**
@@ -300,7 +300,7 @@ class TagService
      */
     public function canDeleteTag(Tag $tag)
     {
-        return (bool) ((0 == count($tag->getChildren())) && (0 == $tag->getNumberMultimediaObjects()));
+        return (bool) ((0 === count($tag->getChildren())) && (0 === $tag->getNumberMultimediaObjects()));
     }
 
     /**

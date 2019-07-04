@@ -66,17 +66,17 @@ EOT
             throw new \Exception('The file is not a valid video or audio file');
         }
 
-        if (0 == $duration) {
+        if (0 === $duration) {
             throw new \Exception('The file is not a valid video or audio file (duration is zero)');
         }
 
         $multimediaObject = $this->mmobjRepo->findOneBy(
-            array('id' => new \MongoId($input->getArgument('object')))
+            ['id' => new \MongoId($input->getArgument('object'))]
         );
 
         $profile = ($input->hasOption('profile')) ? $input->getOption('profile') : $this->profileService->getDefaultMasterProfile();
         $language = ($input->hasOption('language')) ? $input->getOption('language') : null;
-        $description = ($input->hasArgument('description')) ? array($this->defaultLanguage => $input->getArgument('description')) : '';
+        $description = ($input->hasArgument('description')) ? [$this->defaultLanguage => $input->getArgument('description')] : '';
 
         $track = $this->jobService->createTrack($multimediaObject, $filePath, $profile, $language, $description);
         $output->writeln('<info> Track '.$track->getId().' was imported succesfully on '.$multimediaObject->getId().'</info>');

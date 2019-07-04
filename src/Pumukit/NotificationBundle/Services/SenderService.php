@@ -174,7 +174,7 @@ class SenderService
      *
      * @return bool
      */
-    public function sendNotification($emailTo, $subject, $template, array $parameters = array(), $error = true, $transConfigSubject = false)
+    public function sendNotification($emailTo, $subject, $template, array $parameters = [], $error = true, $transConfigSubject = false)
     {
         $filterEmail = $this->filterEmail($emailTo);
         $sent = false;
@@ -216,8 +216,8 @@ class SenderService
      */
     private function filterEmail($emailTo)
     {
-        $verifiedEmails = array();
-        $errorEmails = array();
+        $verifiedEmails = [];
+        $errorEmails = [];
         if (is_array($emailTo)) {
             foreach ($emailTo as $email) {
                 if (false !== filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -233,10 +233,10 @@ class SenderService
                 $errorEmails[] = $emailTo;
             }
         }
-        $filterEmail = array(
+        $filterEmail = [
             'verified' => $verifiedEmails,
             'error' => $errorEmails,
-        );
+        ];
 
         return $filterEmail;
     }
@@ -381,10 +381,10 @@ class SenderService
      *
      * @return string
      */
-    public function getSubjectTransWithLocale(array $subjectArray = array(), $locale = 'en')
+    public function getSubjectTransWithLocale(array $subjectArray = [], $locale = 'en')
     {
         foreach ($subjectArray as $translation) {
-            if (isset($translation['locale']) && ($locale == $translation['locale']) && isset($translation['subject'])) {
+            if (isset($translation['locale']) && ($locale === $translation['locale']) && isset($translation['subject'])) {
                 return $translation['subject'];
             }
         }

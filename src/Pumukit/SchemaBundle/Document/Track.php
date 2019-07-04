@@ -249,9 +249,9 @@ class Track extends Element
         if (false !== strpos($this->getFramerate(), '/')) {
             $aux = explode('/', $this->getFramerate());
 
-            return intval($seg * intval($aux[0]) / intval($aux[1]));
+            return (int) ($seg * (int) ($aux[0]) / (int) ($aux[1]));
         } else {
-            return intval($seg * $this->getFramerate());
+            return (int) ($seg * $this->getFramerate());
         }
     }
 
@@ -269,9 +269,9 @@ class Track extends Element
         if (false !== strpos($this->getFramerate(), '/')) {
             $aux = explode('/', $this->getFramerate());
 
-            return floatval($frame * intval($aux[1]) / intval($aux[0]));
+            return (float) ($frame * (int) ($aux[1]) / (int) ($aux[0]));
         } else {
-            return floatval($frame / $this->getFramerate());
+            return (float) ($frame / $this->getFramerate());
         }
     }
 
@@ -440,10 +440,10 @@ class Track extends Element
      */
     public function getResolution()
     {
-        return array(
+        return [
             'width' => $this->width,
             'height' => $this->height,
-        );
+        ];
     }
 
     /**
@@ -466,7 +466,7 @@ class Track extends Element
      */
     public function getAspectRatio()
     {
-        return (0 == $this->height) ? 0 : $this->width / $this->height;
+        return (0 === $this->height) ? 0 : $this->width / $this->height;
     }
 
     /**
@@ -480,7 +480,7 @@ class Track extends Element
 
         $seconds = $this->getDuration() % 60;
 
-        return array('minutes' => $minutes, 'seconds' => $seconds);
+        return ['minutes' => $minutes, 'seconds' => $seconds];
     }
 
     /**

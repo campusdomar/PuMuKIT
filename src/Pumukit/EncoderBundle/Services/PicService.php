@@ -49,67 +49,67 @@ class PicService
      */
     public function findPicsByOptions($id = null, $size = null, $path = null, $extension = null, $tags = null, $exists = null, $type = null)
     {
-        if ('series' == $type) {
+        if ('series' === $type) {
             $collection = $this->dm->getDocumentCollection(Series::class);
         } else {
             $collection = $this->dm->getDocumentCollection(MultimediaObject::class);
         }
 
-        $pipeline = array(array('$match' => array('pics' => array('$exists' => true))));
-        array_push($pipeline, array('$unwind' => '$pics'));
+        $pipeline = [['$match' => ['pics' => ['$exists' => true]]]];
+        array_push($pipeline, ['$unwind' => '$pics']);
 
-        $match = array(
-            '$match' => array('pics.path' => array('$exists' => true)),
-        );
+        $match = [
+            '$match' => ['pics.path' => ['$exists' => true]],
+        ];
 
         array_push($pipeline, $match);
 
         if ($id) {
-            $match = array(
-                '$match' => array('_id' => new \MongoId($id)),
-            );
+            $match = [
+                '$match' => ['_id' => new \MongoId($id)],
+            ];
 
             array_push($pipeline, $match);
         }
         if ($path) {
-            $match = array(
-                '$match' => array('pics.path' => array('$regex' => $path, '$options' => 'i')),
-            );
+            $match = [
+                '$match' => ['pics.path' => ['$regex' => $path, '$options' => 'i']],
+            ];
 
             array_push($pipeline, $match);
         }
 
         if ($tags) {
-            $match = array(
-                '$match' => array('pics.tags' => array('$in' => $tags)),
-            );
+            $match = [
+                '$match' => ['pics.tags' => ['$in' => $tags]],
+            ];
 
             array_push($pipeline, $match);
         }
 
         if ($extension) {
-            $orCondition = array();
+            $orCondition = [];
             foreach ($extension as $ext) {
                 if (false !== strpos($ext, '.')) {
-                    $orCondition[] = array('pics.path' => array('$regex' => $ext, '$options' => 'i'));
+                    $orCondition[] = ['pics.path' => ['$regex' => $ext, '$options' => 'i']];
                 } else {
-                    $orCondition[] = array('pics.path' => array('$regex' => '.'.$ext, '$options' => 'i'));
+                    $orCondition[] = ['pics.path' => ['$regex' => '.'.$ext, '$options' => 'i']];
                 }
             }
 
-            $match = array('$match' => array('$or' => $orCondition));
+            $match = ['$match' => ['$or' => $orCondition]];
 
             array_push($pipeline, $match);
         }
 
-        $group = array('$group' => array(
+        $group = ['$group' => [
             '_id' => null,
-            'pics' => array('$addToSet' => '$pics'),
-        ));
+            'pics' => ['$addToSet' => '$pics'],
+        ]];
 
         array_push($pipeline, $group);
 
-        $pics = $collection->aggregate($pipeline, array('cursor' => array()));
+        $pics = $collection->aggregate($pipeline, ['cursor' => []]);
         $data = $pics->toArray();
         $pics = reset($data);
 
@@ -134,7 +134,7 @@ class PicService
      */
     public function checkExistsFiles($data, $exists)
     {
-        $filterResult = array();
+        $filterResult = [];
 
         foreach ($data['pics'] as $pic) {
             if ('true' === $exists || '1' === $exists) {
@@ -161,7 +161,7 @@ class PicService
      */
     public function checkSizeFiles($data, $size)
     {
-        $filterResult = array();
+        $filterResult = [];
 
         foreach ($data['pics'] as $pic) {
             $this->finder = new Finder();
@@ -218,7 +218,7 @@ class PicService
             }
         }
 
-        return array($id, $size, $path, $extension, $tags, $exists, $type);
+        return [$id, $size, $path, $extension, $tags, $exists, $type];
     }
 
     /**
@@ -236,14 +236,14 @@ class PicService
             throw new \Exception('No pics found');
         }
 
-        $output = array();
+        $output = [];
 
         foreach ($data['pics'] as $pic) {
             $ext = pathinfo($pic['path'], PATHINFO_EXTENSION);
             $picPath = $this->createFromPic($pic, $params, $no_replace, $ext);
 
             $multimediaObject = $this->dm->getRepository(MultimediaObject::class)->findOneBy(
-                array('pics.path' => $pic['path'])
+                ['pics.path' => $pic['path']]
             );
 
             if (!$multimediaObject) {
@@ -294,7 +294,7 @@ class PicService
         if (false !== strpos($extension, ',')) {
             $aExtensions = explode(',', $extension);
         } else {
-            $aExtensions = array($extension);
+            $aExtensions = [$extension];
         }
 
         array_map('trim', $aExtensions);
@@ -326,7 +326,7 @@ class PicService
         if (false !== strpos($tags, ',')) {
             $aTags = explode(',', $tags);
         } else {
-            $aTags = array($tags);
+            $aTags = [$tags];
         }
 
         array_map('trim', $aTags);
@@ -347,12 +347,12 @@ class PicService
      */
     private function createFromPic($pic, $params, $no_replace, $ext)
     {
-        list($originalWidth, $originalHeight) = getimagesize($pic['path']);
+        [$originalWidth, $originalHeight] = getimagesize($pic['path']);
 
-        $width = isset($params['max_width']) ? $params['max_width'] : 0;
-        $height = isset($params['max_height']) ? $params['max_height'] : 0;
+        $width = $params['max_width'] ?? 0;
+        $height = $params['max_height'] ?? 0;
 
-        list($width, $height) = $this->preserveAspectRatio($width, $height, $originalWidth, $originalHeight);
+        [$width, $height] = $this->preserveAspectRatio($width, $height, $originalWidth, $originalHeight);
 
         $image_p = \imagecreatetruecolor($width, $height);
         if ('png' === $ext) {
@@ -385,7 +385,7 @@ class PicService
      */
     private function preserveAspectRatio($width, $height, $originalWidth, $originalHeight)
     {
-        if (0 == $width && 0 == $height) {
+        if (0 === $width && 0 === $height) {
             $width = $this->max_width;
         }
 
@@ -404,7 +404,7 @@ class PicService
             $height = $originalHeight;
         }
 
-        return array($width, $height);
+        return [$width, $height];
     }
 
     /**
@@ -426,7 +426,7 @@ class PicService
         $newPic->setHide(false);
         $newPic->addTag('refactor_image');
 
-        list($width, $height, $type, $attributes) = \getimagesize($picPath);
+        [$width, $height, $type, $attributes] = \getimagesize($picPath);
 
         $newPic->setWidth($width);
         $newPic->setHeight($height);
@@ -463,7 +463,7 @@ class PicService
         $url = $this->mmsPicService->getTargetUrl($multimediaObject);
         $url .= '/'.basename($picPath);
 
-        list($width, $height, $type, $attributes) = \getimagesize($picPath);
+        [$width, $height, $type, $attributes] = \getimagesize($picPath);
 
         foreach ($multimediaObject->getPics() as $mmsPic) {
             if ($mmsPic->getPath() === $pic['path']) {

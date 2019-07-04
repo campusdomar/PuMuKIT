@@ -44,9 +44,9 @@ class MenuService
     public function getMenuEventsElement()
     {
         if (!$this->advanceEvents) {
-            list($events, $channels, $liveEventTypeSession) = $this->getEvents();
+            [$events, $channels, $liveEventTypeSession] = $this->getEvents();
         } else {
-            list($events, $channels, $liveEventTypeSession) = $this->getAdvanceEvents();
+            [$events, $channels, $liveEventTypeSession] = $this->getAdvanceEvents();
         }
 
         return [$events, $channels, $liveEventTypeSession];
@@ -87,7 +87,7 @@ class MenuService
         uasort(
             $menuEvents,
             function ($a, $b) {
-                if ($a['sort'] == $b['sort']) {
+                if ($a['sort'] === $b['sort']) {
                     return 0;
                 }
 

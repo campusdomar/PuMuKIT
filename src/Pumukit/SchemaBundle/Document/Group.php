@@ -176,7 +176,7 @@ class Group implements GroupInterface
      */
     public function isLocal()
     {
-        return self::ORIGIN_LOCAL == $this->origin;
+        return self::ORIGIN_LOCAL === $this->origin;
     }
 
     /**
@@ -242,7 +242,7 @@ class Group implements GroupInterface
      */
     public function getRoles()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -276,6 +276,6 @@ class Group implements GroupInterface
      */
     public function __toString()
     {
-        return is_null($this->key) ? '' : $this->key;
+        return null === $this->key ? '' : $this->key;
     }
 }

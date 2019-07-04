@@ -21,13 +21,13 @@ class APIRecordedController extends Controller
         $serializer = $this->get('jms_serializer');
         $recordsService = $this->get('pumukitschema.stats');
 
-        list($criteria, $sort, $fromDate, $toDate, $limit, $page) = $this->processRequestData($request);
+        [$criteria, $sort, $fromDate, $toDate, $limit, $page] = $this->processRequestData($request);
 
         $groupBy = $request->get('group_by') ?: 'month';
 
         $views = $recordsService->getMmobjRecordedGroupedBy($fromDate, $toDate, $limit, $page, $criteria, $sort, $groupBy);
 
-        $views = array(
+        $views = [
             'limit' => $limit,
             'page' => $page,
             'criteria' => $criteria,
@@ -36,7 +36,7 @@ class APIRecordedController extends Controller
             'fromDate' => $fromDate,
             'toDate' => $toDate,
             'views' => $views,
-        );
+        ];
 
         $data = $serializer->serialize($views, $request->getRequestFormat());
 
@@ -53,13 +53,13 @@ class APIRecordedController extends Controller
         $serializer = $this->get('jms_serializer');
         $recordsService = $this->get('pumukitschema.stats');
 
-        list($criteria, $sort, $fromDate, $toDate, $limit, $page) = $this->processRequestData($request);
+        [$criteria, $sort, $fromDate, $toDate, $limit, $page] = $this->processRequestData($request);
 
         $groupBy = $request->get('group_by') ?: 'month';
 
         $views = $recordsService->getSeriesRecordedGroupedBy($fromDate, $toDate, $limit, $page, $criteria, $sort, $groupBy);
 
-        $views = array(
+        $views = [
             'limit' => $limit,
             'page' => $page,
             'criteria' => $criteria,
@@ -68,7 +68,7 @@ class APIRecordedController extends Controller
             'fromDate' => $fromDate,
             'toDate' => $toDate,
             'views' => $views,
-        );
+        ];
 
         $data = $serializer->serialize($views, $request->getRequestFormat());
 
@@ -84,13 +84,13 @@ class APIRecordedController extends Controller
         $serializer = $this->get('jms_serializer');
         $recordsService = $this->get('pumukitschema.stats');
 
-        list($criteria, $sort, $fromDate, $toDate, $limit, $page) = $this->processRequestData($request);
+        [$criteria, $sort, $fromDate, $toDate, $limit, $page] = $this->processRequestData($request);
 
         $groupBy = $request->get('group_by') ?: 'month';
 
         $views = $recordsService->getHoursRecordedGroupedBy($fromDate, $toDate, $limit, $page, $criteria, $sort, $groupBy);
 
-        $views = array(
+        $views = [
             'limit' => $limit,
             'page' => $page,
             'criteria' => $criteria,
@@ -99,7 +99,7 @@ class APIRecordedController extends Controller
             'fromDate' => $fromDate,
             'toDate' => $toDate,
             'views' => $views,
-        );
+        ];
 
         $data = $serializer->serialize($views, $request->getRequestFormat());
 
@@ -110,11 +110,11 @@ class APIRecordedController extends Controller
     {
         $MAX_LIMIT = 500;
         //Request variables.
-        $criteria = $request->get('criteria') ?: array();
-        $sort = intval($request->get('sort'));
+        $criteria = $request->get('criteria') ?: [];
+        $sort = (int) ($request->get('sort'));
         $fromDate = $request->get('from_date');
         $toDate = $request->get('to_date');
-        $limit = intval($request->get('limit'));
+        $limit = (int) ($request->get('limit'));
         $page = $request->get('page') ?: 0;
 
         //Processing variables.
@@ -122,7 +122,7 @@ class APIRecordedController extends Controller
             $limit = $MAX_LIMIT;
         }
 
-        if (!in_array($sort, array(1, -1))) {
+        if (!in_array($sort, [1, -1])) {
             $sort = -1;
         }
 
@@ -142,7 +142,7 @@ class APIRecordedController extends Controller
             $toDate = new \DateTime('Z');
         }
 
-        return array($criteria, $sort, $fromDate, $toDate, $limit, $page);
+        return [$criteria, $sort, $fromDate, $toDate, $limit, $page];
     }
 
     /**
@@ -159,10 +159,10 @@ class APIRecordedController extends Controller
 
         $stats = $recordsService->getGlobalStats($groupBy);
 
-        $stats = array(
+        $stats = [
             'group_by' => $groupBy,
             'stats' => $stats,
-        );
+        ];
 
         $data = $serializer->serialize($stats, $request->getRequestFormat());
 

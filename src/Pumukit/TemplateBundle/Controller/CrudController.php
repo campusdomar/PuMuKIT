@@ -24,7 +24,7 @@ class CrudController extends Controller
         if ($activeName = $request->get('active')) {
             $actives = array_filter($templates,
                                    function ($t) use ($activeName) {
-                                       return $t->getName() == $activeName;
+                                       return $t->getName() === $activeName;
                                    });
             $active = current($actives);
         }
@@ -52,12 +52,12 @@ class CrudController extends Controller
             }
         }
 
-        return array(
+        return [
             'templates' => $templates,
             'active' => $active,
             'delete_form' => $deleteForm ? $deleteForm->createView() : null,
             'edit_form' => $editForm ? $editForm->createView() : null,
-        );
+        ];
     }
 
     /**
@@ -99,7 +99,7 @@ class CrudController extends Controller
     private function createDeleteForm(PumukitTemplate $a)
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('pumukit_template_crud_delete', array('id' => $a->getId())))
+            ->setAction($this->generateUrl('pumukit_template_crud_delete', ['id' => $a->getId()]))
             ->setMethod('DELETE')
             ->getForm()
             ;

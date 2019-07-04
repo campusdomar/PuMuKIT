@@ -27,7 +27,7 @@ class UserServiceTest extends WebTestCase
 
     public function setUp()
     {
-        $options = array('environment' => 'test');
+        $options = ['environment' => 'test'];
         static::bootKernel($options);
 
         $this->dm = static::$kernel->getContainer()->get('doctrine_mongodb')->getManager();
@@ -53,11 +53,11 @@ class UserServiceTest extends WebTestCase
         );
 
         $listener = new PermissionProfileListener($this->dm, $this->userService);
-        $dispatcher->addListener('permissionprofile.update', array($listener, 'postUpdate'));
+        $dispatcher->addListener('permissionprofile.update', [$listener, 'postUpdate']);
 
-        $this->dm->getDocumentCollection(User::class)->remove(array());
-        $this->dm->getDocumentCollection(Group::class)->remove(array());
-        $this->dm->getDocumentCollection(PermissionProfile::class)->remove(array());
+        $this->dm->getDocumentCollection(User::class)->remove([]);
+        $this->dm->getDocumentCollection(Group::class)->remove([]);
+        $this->dm->getDocumentCollection(PermissionProfile::class)->remove([]);
         $this->dm->flush();
     }
 
@@ -74,7 +74,7 @@ class UserServiceTest extends WebTestCase
 
     public function testCreateAndUpdate()
     {
-        $permissions1 = array(Permission::ACCESS_DASHBOARD, Permission::ACCESS_ROLES);
+        $permissions1 = [Permission::ACCESS_DASHBOARD, Permission::ACCESS_ROLES];
         $permissionProfile1 = new PermissionProfile();
         $permissionProfile1->setPermissions($permissions1);
         $permissionProfile1->setName('permissionprofile1');
@@ -102,7 +102,7 @@ class UserServiceTest extends WebTestCase
         $this->assertTrue($user->hasRole(PermissionProfile::SCOPE_PERSONAL));
         $this->assertFalse($user->hasRole(PermissionProfile::SCOPE_NONE));
 
-        $permissions2 = array(Permission::ACCESS_TAGS);
+        $permissions2 = [Permission::ACCESS_TAGS];
         $permissionProfile2 = new PermissionProfile();
         $permissionProfile2->setPermissions($permissions2);
         $permissionProfile2->setName('permissionprofile2');
@@ -136,7 +136,7 @@ class UserServiceTest extends WebTestCase
         $this->dm->persist($user);
         $this->dm->flush();
 
-        $permissions1 = array(Permission::ACCESS_DASHBOARD, Permission::ACCESS_ROLES);
+        $permissions1 = [Permission::ACCESS_DASHBOARD, Permission::ACCESS_ROLES];
         $user = $this->userService->addRoles($user, $permissions1);
 
         $user = $this->repo->find($user->getId());
@@ -145,7 +145,7 @@ class UserServiceTest extends WebTestCase
         $this->assertTrue($user->hasRole(Permission::ACCESS_ROLES));
         $this->assertFalse($user->hasRole(Permission::ACCESS_TAGS));
 
-        $permissions2 = array(Permission::ACCESS_TAGS, Permission::ACCESS_ROLES);
+        $permissions2 = [Permission::ACCESS_TAGS, Permission::ACCESS_ROLES];
         $user = $this->userService->removeRoles($user, $permissions2);
 
         $user = $this->repo->find($user->getId());
@@ -201,7 +201,7 @@ class UserServiceTest extends WebTestCase
 
     public function testGetUserPermissions()
     {
-        $permissions = array(Permission::ACCESS_DASHBOARD, Permission::ACCESS_TAGS);
+        $permissions = [Permission::ACCESS_DASHBOARD, Permission::ACCESS_TAGS];
         $permissionProfile = new PermissionProfile();
         $permissionProfile->setName('test');
         $permissionProfile->setPermissions($permissions);
@@ -252,7 +252,7 @@ class UserServiceTest extends WebTestCase
 
     public function testGetUserScope()
     {
-        $permissions = array(Permission::ACCESS_DASHBOARD, Permission::ACCESS_TAGS);
+        $permissions = [Permission::ACCESS_DASHBOARD, Permission::ACCESS_TAGS];
         $permissionProfile = new PermissionProfile();
         $permissionProfile->setName('test');
         $permissionProfile->setPermissions($permissions);
@@ -288,7 +288,7 @@ class UserServiceTest extends WebTestCase
 
     public function testSetUserScope()
     {
-        $permissions = array(Permission::ACCESS_DASHBOARD, Permission::ACCESS_TAGS);
+        $permissions = [Permission::ACCESS_DASHBOARD, Permission::ACCESS_TAGS];
         $permissionProfile = new PermissionProfile();
         $permissionProfile->setName('test');
         $permissionProfile->setPermissions($permissions);
@@ -609,7 +609,7 @@ class UserServiceTest extends WebTestCase
      */
     public function testUpdateException()
     {
-        $permissions1 = array(Permission::ACCESS_DASHBOARD, Permission::ACCESS_ROLES);
+        $permissions1 = [Permission::ACCESS_DASHBOARD, Permission::ACCESS_ROLES];
         $permissionProfile1 = new PermissionProfile();
         $permissionProfile1->setPermissions($permissions1);
         $permissionProfile1->setName('permissionprofile1');
@@ -852,7 +852,7 @@ class UserServiceTest extends WebTestCase
 
     public function testIsUserLastRelation()
     {
-        $permissions1 = array(Permission::ACCESS_DASHBOARD, Permission::ACCESS_ROLES);
+        $permissions1 = [Permission::ACCESS_DASHBOARD, Permission::ACCESS_ROLES];
         $permissionProfile1 = new PermissionProfile();
         $permissionProfile1->setPermissions($permissions1);
         $permissionProfile1->setName('permissionprofile1');
@@ -894,9 +894,9 @@ class UserServiceTest extends WebTestCase
         $this->dm->flush();
 
         $aux = 'first_second_';
-        $owners1 = array($aux.$person2->getId(), $aux.$person3->getId());
-        $owners2 = array($aux.$person1->getId(), $aux.$person2->getId(), $aux.$person3->getId());
-        $groups = array($aux.$group1->getId(), $aux.$group2->getId());
+        $owners1 = [$aux.$person2->getId(), $aux.$person3->getId()];
+        $owners2 = [$aux.$person1->getId(), $aux.$person2->getId(), $aux.$person3->getId()];
+        $groups = [$aux.$group1->getId(), $aux.$group2->getId()];
 
         $this->assertFalse($this->userService->isUserLastRelation($user, null, $person1->getId(), $owners1, $groups));
         $this->assertFalse($this->userService->isUserLastRelation($user, null, $person2->getId(), $owners1, $groups));
@@ -918,14 +918,14 @@ class UserServiceTest extends WebTestCase
         $this->assertFalse($this->userService->isUserLastRelation($user, null, $person2->getId(), $owners1, $groups));
         $this->assertFalse($this->userService->isUserLastRelation($user, null, $person3->getId(), $owners1, $groups));
 
-        $this->assertTrue($this->userService->isUserLastRelation($user, null, $person1->getId(), array(), array()));
-        $this->assertTrue($this->userService->isUserLastRelation($user, null, $person2->getId(), array(), array()));
-        $this->assertTrue($this->userService->isUserLastRelation($user, null, $person3->getId(), array(), array()));
+        $this->assertTrue($this->userService->isUserLastRelation($user, null, $person1->getId(), [], []));
+        $this->assertTrue($this->userService->isUserLastRelation($user, null, $person2->getId(), [], []));
+        $this->assertTrue($this->userService->isUserLastRelation($user, null, $person3->getId(), [], []));
     }
 
     public function testIsLoggedPersonToRemoveFromOwner()
     {
-        $permissions1 = array(Permission::ACCESS_DASHBOARD, Permission::ACCESS_ROLES);
+        $permissions1 = [Permission::ACCESS_DASHBOARD, Permission::ACCESS_ROLES];
         $permissionProfile1 = new PermissionProfile();
         $permissionProfile1->setPermissions($permissions1);
         $permissionProfile1->setName('permissionprofile1');
@@ -1001,10 +1001,10 @@ class UserServiceTest extends WebTestCase
 
         $aux = 'first_second_';
 
-        $owners1 = array($aux.$person2->getId(), $aux.$person3->getId());
+        $owners1 = [$aux.$person2->getId(), $aux.$person3->getId()];
         $this->assertFalse($this->userService->isUserInOwners($user, $owners1));
 
-        $owners2 = array($aux.$person1->getId(), $aux.$person2->getId(), $aux.$person3->getId());
+        $owners2 = [$aux.$person1->getId(), $aux.$person2->getId(), $aux.$person3->getId()];
         $this->assertTrue($this->userService->isUserInOwners($user, $owners2));
     }
 
@@ -1025,7 +1025,7 @@ class UserServiceTest extends WebTestCase
         $this->dm->flush();
 
         $aux = 'first_second_';
-        $groups = array($aux.$group1->getId(), $aux.$group2->getId());
+        $groups = [$aux.$group1->getId(), $aux.$group2->getId()];
 
         $this->assertFalse($this->userService->isUserInGroups($user, null, null, $groups));
 

@@ -23,14 +23,14 @@ class EmbeddedTag
      *
      * @MongoDB\Field(type="raw")
      */
-    private $title = array('en' => '');
+    private $title = ['en' => ''];
 
     /**
      * @var string
      *
      * @MongoDB\Field(type="raw")
      */
-    private $description = array('en' => '');
+    private $description = ['en' => ''];
 
     /**
      * @var string
@@ -436,7 +436,7 @@ class EmbeddedTag
      */
     public function isDescendantOf($tag)
     {
-        if ($tag->getCod() == $this->getCod()) {
+        if ($tag->getCod() === $this->getCod()) {
             return false;
         }
 
@@ -464,7 +464,7 @@ class EmbeddedTag
      */
     public function isDescendantOfByCod($tagCod)
     {
-        if ($tagCod == $this->getCod()) {
+        if ($tagCod === $this->getCod()) {
             return false;
         }
         if (0 === strpos($this->getPath(), sprintf('%s|', $tagCod))) {

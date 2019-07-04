@@ -77,7 +77,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         $update_session = true;
         foreach ($mms as $mm) {
-            if ($mm->getId() == $session->get('admin/mms/id')) {
+            if ($mm->getId() === $session->get('admin/mms/id')) {
                 $update_session = false;
             }
         }
@@ -86,11 +86,11 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             $session->remove('admin/mms/id');
         }
 
-        return array(
+        return [
             'series' => $series,
             'mms' => $mms,
             'disable_pudenew' => !$this->container->getParameter('show_latest_with_pudenew'),
-        );
+        ];
     }
 
     /**
@@ -103,7 +103,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
     {
         $this->updateSession($mm);
 
-        return $this->redirectToRoute('pumukitnewadmin_mms_index', array('id' => $mm->getSeries()->getId()));
+        return $this->redirectToRoute('pumukitnewadmin_mms_index', ['id' => $mm->getSeries()->getId()]);
     }
 
     /**
@@ -127,7 +127,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             $sTagCode = $request->attributes->get('microsite_custom_tag');
 
             $dm = $this->get('doctrine_mongodb')->getManager();
-            $aTag = $dm->getRepository(Tag::class)->findOneBy(array('cod' => $sTagCode));
+            $aTag = $dm->getRepository(Tag::class)->findOneBy(['cod' => $sTagCode]);
 
             if ($aTag) {
                 $mmobj->addTag($aTag);
@@ -140,10 +140,10 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $this->updateSession($mmobj);
 
         return new JsonResponse(
-            array(
+            [
                 'seriesId' => $series->getId(),
                 'mmId' => $mmobj->getId(),
-            )
+            ]
         );
     }
 
@@ -158,10 +158,10 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         $activeEditor = $this->checkHasEditor();
 
-        return array(
+        return [
             'mm' => $data,
             'active_editor' => $activeEditor,
-        );
+        ];
     }
 
     /**
@@ -192,12 +192,12 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $resource = $this->findOr404($request);
         $translator = $this->get('translator');
         $locale = $request->getLocale();
-        $formMeta = $this->createForm(MultimediaObjectMetaType::class, $resource, array('translator' => $translator, 'locale' => $locale));
-        $options = array(
+        $formMeta = $this->createForm(MultimediaObjectMetaType::class, $resource, ['translator' => $translator, 'locale' => $locale]);
+        $options = [
             'not_granted_change_status' => !$this->isGranted(Permission::CHANGE_MMOBJECT_STATUS),
             'translator' => $translator,
             'locale' => $locale,
-        );
+        ];
         $formPub = $this->createForm(MultimediaObjectPubType::class, $resource, $options);
 
         //If the 'pudenew' tag is not being used, set the display to 'false'.
@@ -225,7 +225,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         $showSimplePubTab = $this->container->getParameter('pumukit_new_admin.show_naked_pub_tab');
 
-        return array(
+        return [
             'mm' => $resource,
             'form_meta' => $formMeta->createView(),
             'form_pub' => $formPub->createView(),
@@ -244,7 +244,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             'not_change_pub_channel' => $notChangePubChannel,
             'groups' => $allGroups,
             'show_simple_pub_tab' => $showSimplePubTab,
-        );
+        ];
     }
 
     /**
@@ -255,13 +255,13 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $mmService = $this->get('pumukitschema.multimedia_object');
         $warningOnUnpublished = $this->container->getParameter('pumukit.warning_on_unpublished');
 
-        return array(
+        return [
             'mm' => $resource,
             'is_published' => $mmService->isPublished($resource, 'PUCHWEBTV'),
             'is_hidden' => $mmService->isHidden($resource, 'PUCHWEBTV'),
             'is_playable' => $mmService->hasPlayableResource($resource),
             'warning_on_unpublished' => $warningOnUnpublished,
-        );
+        ];
     }
 
     /**
@@ -275,7 +275,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         $multimediaObject = $dm->getRepository(MultimediaObject::class)->findOneById(new \MongoId($request->request->get('id')));
         $method = $request->getMethod();
-        if (in_array($method, array('POST', 'PUT', 'PATCH'))) {
+        if (in_array($method, ['POST', 'PUT', 'PATCH'])) {
             $social = $multimediaObject->getEmbeddedSocial();
             if (!$social) {
                 $social = new EmbeddedSocial();
@@ -289,7 +289,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             $dm->flush();
         }
 
-        return array('mm' => $multimediaObject);
+        return ['mm' => $multimediaObject];
     }
 
     /**
@@ -320,12 +320,12 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $this->get('session')->set('admin/mms/id', $resource->getId());
         $translator = $this->get('translator');
         $locale = $request->getLocale();
-        $formMeta = $this->createForm(MultimediaObjectMetaType::class, $resource, array('translator' => $translator, 'locale' => $locale));
-        $options = array(
+        $formMeta = $this->createForm(MultimediaObjectMetaType::class, $resource, ['translator' => $translator, 'locale' => $locale]);
+        $options = [
             'not_granted_change_status' => !$this->isGranted(Permission::CHANGE_MMOBJECT_STATUS),
             'translator' => $translator,
             'locale' => $locale,
-        );
+        ];
         $formPub = $this->createForm(MultimediaObjectPubType::class, $resource, $options);
 
         $pubChannelsTags = $factoryService->getTagsByCod('PUBCHANNELS', true);
@@ -334,7 +334,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $notChangePubChannel = !$this->isGranted(Permission::CHANGE_MMOBJECT_PUBCHANNEL);
 
         $method = $request->getMethod();
-        if (in_array($method, array('POST', 'PUT', 'PATCH'))) {
+        if (in_array($method, ['POST', 'PUT', 'PATCH'])) {
             $formMeta->handleRequest($request);
             if ($formMeta->isSubmitted() && $formMeta->isValid()) {
                 $this->update($resource);
@@ -349,7 +349,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         }
 
         return $this->render('PumukitNewAdminBundle:MultimediaObject:edit.html.twig',
-                             array(
+                             [
                                  'mm' => $resource,
                                  'form_meta' => $formMeta->createView(),
                                  'form_pub' => $formPub->createView(),
@@ -361,7 +361,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
                                  'parent_tags' => $parentTags,
                                  'not_change_pub_channel' => $notChangePubChannel,
                                  'groups' => $allGroups,
-                             )
+                             ]
         );
     }
 
@@ -388,12 +388,12 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         $translator = $this->get('translator');
         $locale = $request->getLocale();
-        $formMeta = $this->createForm(MultimediaObjectMetaType::class, $resource, array('translator' => $translator, 'locale' => $locale));
-        $options = array(
+        $formMeta = $this->createForm(MultimediaObjectMetaType::class, $resource, ['translator' => $translator, 'locale' => $locale]);
+        $options = [
             'not_granted_change_status' => !$this->isGranted(Permission::CHANGE_MMOBJECT_STATUS),
             'translator' => $translator,
             'locale' => $locale,
-        );
+        ];
         $formPub = $this->createForm(MultimediaObjectPubType::class, $resource, $options);
 
         $pubChannelsTags = $factoryService->getTagsByCod('PUBCHANNELS', true);
@@ -402,7 +402,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $notChangePubChannel = !$this->isGranted(Permission::CHANGE_MMOBJECT_PUBCHANNEL);
 
         $method = $request->getMethod();
-        if (in_array($method, array('POST', 'PUT', 'PATCH'))) {
+        if (in_array($method, ['POST', 'PUT', 'PATCH'])) {
             $formPub->handleRequest($request);
 
             if ($formPub->isSubmitted() && $formPub->isValid()) {
@@ -424,13 +424,13 @@ class MultimediaObjectController extends SortableAdminController implements NewA
                 if (false === strpos($request->server->get('HTTP_REFERER'), 'mmslist')) {
                     return $this->render(
                         'PumukitNewAdminBundle:MultimediaObject:list.html.twig',
-                        array(
+                        [
                             'series' => $series,
                             'mms' => $mms,
-                        )
+                        ]
                     );
                 } else {
-                    return $this->redirectToRoute('pumukitnewadmin_mms_listall', array(), 301);
+                    return $this->redirectToRoute('pumukitnewadmin_mms_listall', [], 301);
                 }
             }
         }
@@ -451,7 +451,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $allGroups = $this->getAllGroups();
 
         return $this->render('PumukitNewAdminBundle:MultimediaObject:edit.html.twig',
-            array(
+            [
                 'mm' => $resource,
                 'form_meta' => $formMeta->createView(),
                 'form_pub' => $formPub->createView(),
@@ -464,7 +464,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
                 'parent_tags' => $parentTags,
                 'not_change_pub_channel' => $notChangePubChannel,
                 'groups' => $allGroups,
-            )
+            ]
         );
     }
 
@@ -473,12 +473,12 @@ class MultimediaObjectController extends SortableAdminController implements NewA
      */
     public function getChildrenTagAction(Tag $tag, Request $request)
     {
-        return array(
+        return [
             'nodes' => $tag->getChildren(),
             'parent' => $tag->getId(),
             'mmId' => $request->get('mm_id'),
             'block_tag' => $request->get('tag_id'),
-        );
+        ];
     }
 
     /**
@@ -496,14 +496,14 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             throw new \Exception($e->getMessage());
         }
 
-        $json = array('added' => array(), 'recommended' => array());
+        $json = ['added' => [], 'recommended' => []];
         foreach ($addedTags as $n) {
-            $json['added'][] = array(
+            $json['added'][] = [
                 'id' => $n->getId(),
                 'cod' => $n->getCod(),
                 'name' => $n->getTitle(),
                 'group' => $n->getPath(),
-            );
+            ];
         }
 
         $json['prototype'] = $resource->isPrototype();
@@ -526,14 +526,14 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             throw new \Exception($e->getMessage());
         }
 
-        $json = array('deleted' => array(), 'recommended' => array());
+        $json = ['deleted' => [], 'recommended' => []];
         foreach ($deletedTags as $n) {
-            $json['deleted'][] = array(
+            $json['deleted'][] = [
                 'id' => $n->getId(),
                 'cod' => $n->getCod(),
                 'name' => $n->getTitle(),
                 'group' => $n->getPath(),
-            );
+            ];
         }
 
         $json['prototype'] = $resource->isPrototype();
@@ -548,7 +548,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
     {
         if (null !== $checkedTags) {
             foreach ($resource->getTags() as $tag) {
-                if ((0 == strpos($tag->getCod(), $codStart)) && (false !== strpos($tag->getCod(), $codStart)) &&
+                if ((0 === strpos($tag->getCod(), $codStart)) && (false !== strpos($tag->getCod(), $codStart)) &&
                     (!in_array($tag->getCod(), $checkedTags)) &&
                     (!$this->isGranted(Permission::getRoleTagDisableForPubChannel($tag->getCod())))) {
                     $resource->removeTag($tag);
@@ -562,7 +562,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             }
         } else {
             foreach ($resource->getTags() as $tag) {
-                if ((0 == strpos($tag->getCod(), $codStart)) &&
+                if ((0 === strpos($tag->getCod(), $codStart)) &&
                     (false !== strpos($tag->getCod(), $codStart)) &&
                     (!$this->isGranted(Permission::getRoleTagDisableForPubChannel($tag->getCod())))) {
                     $resource->removeTag($tag);
@@ -599,7 +599,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         if (!$result) {
             return $this->render('PumukitNewAdminBundle:MultimediaObject:listtagsajaxnone.html.twig',
-                                 array('mmId' => $mmId, 'parentId' => $parent->getId()));
+                                 ['mmId' => $mmId, 'parentId' => $parent->getId()]);
         }
 
         foreach ($children->toArray() as $tag) {
@@ -615,7 +615,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         return $this->render(
             'PumukitNewAdminBundle:MultimediaObject:listtagsajax.html.twig',
-            array('nodes' => $result, 'mmId' => $mmId, 'block_tag' => $parent->getId(), 'parent' => $parent, 'search_text' => $search_text)
+            ['nodes' => $result, 'mmId' => $mmId, 'block_tag' => $parent->getId(), 'parent' => $parent, 'search_text' => $search_text]
         );
     }
 
@@ -624,7 +624,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         if (null !== $element->getParent()) {
             $parentMissing = true;
             foreach ($tags as $tag) {
-                if ($element->getParent() == $tag) {
+                if ($element->getParent() === $tag) {
                     $parentMissing = false;
                     break;
                 }
@@ -632,7 +632,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
             if ($parentMissing) {
                 $parent = $element->getParent(); //"retrieveByPKWithI18n");
-                if ($parent->getId() != $top_parent) {
+                if ($parent->getId() !== $top_parent) {
                     $tags[] = $parent;
                     $tags = $this->getAllParents($parent, $tags, $top_parent);
                 }
@@ -653,7 +653,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         $maxPerPage = $session->get('admin/mms/paginate', 10);
 
-        $sorting = array('rank' => 'asc');
+        $sorting = ['rank' => 'asc'];
 
         $mmsQueryBuilder = $this
                          ->get('doctrine_mongodb.odm.document_manager')
@@ -715,7 +715,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         }
 
         return $this->redirect($this->generateUrl('pumukitnewadmin_mms_list',
-                                                  array('seriesId' => $seriesId)));
+                                                  ['seriesId' => $seriesId]));
     }
 
     public function batchDeleteAction(Request $request)
@@ -768,7 +768,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $this->get('pumukitschema.factory')->cloneMultimediaObject($resource);
 
         return $this->redirect($this->generateUrl('pumukitnewadmin_mms_list',
-                                                  array('seriesId' => $seriesId)));
+                                                  ['seriesId' => $seriesId]));
     }
 
     /**
@@ -817,7 +817,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         $update_session = true;
         foreach ($mms as $mm) {
-            if ($mm->getId() == $this->get('session')->get('admin/mms/id')) {
+            if ($mm->getId() === $this->get('session')->get('admin/mms/id')) {
                 $update_session = false;
             }
         }
@@ -827,10 +827,10 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         }
 
         return $this->render('PumukitNewAdminBundle:MultimediaObject:list.html.twig',
-                             array(
+                             [
                                  'series' => $series,
                                  'mms' => $mms,
-                             )
+                             ]
         );
     }
 
@@ -942,7 +942,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         } else {
             $factoryService = $this->get('pumukitschema.factory');
             $parentTags = $factoryService->getParentTags();
-            $parentTagsToSync = array();
+            $parentTagsToSync = [];
 
             foreach ($parentTags as $parentTag) {
                 if ($parentTag->getDisplay() && !$parentTag->getProperty('hide_in_tag_group')) {
@@ -973,7 +973,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
         return $this->render(
             'PumukitNewAdminBundle:MultimediaObject:listtagsajax.html.twig',
-            array('nodes' => $parent->getChildren(), 'mmId' => $mmId, 'block_tag' => $parent->getId(), 'parent' => 'root')
+            ['nodes' => $parent->getChildren(), 'mmId' => $mmId, 'block_tag' => $parent->getId(), 'parent' => 'root']
         );
     }
 
@@ -1027,11 +1027,11 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $series = $multimediaObject->getSeries();
         $seriesId = $series->getId();
         if ('POST' === $request->getMethod()) {
-            $addGroups = $request->get('addGroups', array());
+            $addGroups = $request->get('addGroups', []);
             if ('string' === gettype($addGroups)) {
                 $addGroups = json_decode($addGroups, true);
             }
-            $deleteGroups = $request->get('deleteGroups', array());
+            $deleteGroups = $request->get('deleteGroups', []);
             if ('string' === gettype($deleteGroups)) {
                 $deleteGroups = json_decode($deleteGroups, true);
             }
@@ -1043,24 +1043,24 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             try {
                 $isUserStillRelated = $this->isUserStillRelated($multimediaObject);
                 if (!$isUserStillRelated) {
-                    $response = array(
+                    $response = [
                         'redirect' => 1,
-                        'url' => $this->generateUrl('pumukitnewadmin_series_index', array('id' => $seriesId)),
-                    );
+                        'url' => $this->generateUrl('pumukitnewadmin_series_index', ['id' => $seriesId]),
+                    ];
 
                     return new JsonResponse($response, JsonResponse::HTTP_OK);
                 }
             } catch (\Exception $e) {
-                $response = array(
+                $response = [
                     'redirect' => 1,
-                    'url' => $this->generateUrl('pumukitnewadmin_series_index', array('id' => $seriesId)),
-                );
+                    'url' => $this->generateUrl('pumukitnewadmin_series_index', ['id' => $seriesId]),
+                ];
 
                 return new JsonResponse($response, JsonResponse::HTTP_OK);
             }
         }
 
-        return new JsonResponse(array('success', 'redirect' => 0));
+        return new JsonResponse(['success', 'redirect' => 0]);
     }
 
     /**
@@ -1088,13 +1088,13 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         } else {
             $type = EmbeddedBroadcast::TYPE_PUBLIC;
             $password = '';
-            $groups = array('addGroups' => array(), 'deleteGroups' => array());
+            $groups = ['addGroups' => [], 'deleteGroups' => []];
         }
-        $info = array(
+        $info = [
             'type' => $type,
             'password' => $password,
             'groups' => $groups,
-        );
+        ];
 
         return new JsonResponse($info);
     }
@@ -1120,34 +1120,34 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             try {
                 $type = $request->get('type', null);
                 $password = $request->get('password', null);
-                $addGroups = $request->get('addGroups', array());
+                $addGroups = $request->get('addGroups', []);
                 if ('string' === gettype($addGroups)) {
                     $addGroups = json_decode($addGroups, true);
                 }
-                $deleteGroups = $request->get('deleteGroups', array());
+                $deleteGroups = $request->get('deleteGroups', []);
                 if ('string' === gettype($deleteGroups)) {
                     $deleteGroups = json_decode($deleteGroups, true);
                 }
                 $this->modifyBroadcastGroups($multimediaObject, $type, $password, $addGroups, $deleteGroups);
             } catch (\Exception $e) {
-                return new JsonResponse(array('error' => $e->getMessage()), JsonResponse::HTTP_BAD_REQUEST);
+                return new JsonResponse(['error' => $e->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
             }
             $embeddedBroadcast = $multimediaObject->getEmbeddedBroadcast();
-            $jsonResponse = array(
+            $jsonResponse = [
                 'description' => (string) $embeddedBroadcast,
                 'descriptioni18n' => $specialTranslationService->getI18nEmbeddedBroadcast($embeddedBroadcast),
                 'template' => $template,
-            );
+            ];
 
             return new JsonResponse($jsonResponse);
         }
 
-        return array(
+        return [
             'mm' => $multimediaObject,
             'broadcasts' => $broadcasts,
             'groups' => $allGroups,
             'template' => $template,
-        );
+        ];
     }
 
     /**
@@ -1169,8 +1169,8 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             try {
                 $mmId = $request->get('mmId', null);
                 $personId = $request->get('personId', null);
-                $owners = $request->get('owners', array());
-                $addGroups = $request->get('addGroups', array());
+                $owners = $request->get('owners', []);
+                $addGroups = $request->get('addGroups', []);
                 if ('string' === gettype($addGroups)) {
                     $addGroups = json_decode($addGroups, true);
                 }
@@ -1190,7 +1190,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
      */
     public function listPropertiesAction(MultimediaObject $multimediaObject)
     {
-        return array('multimediaObject' => $multimediaObject);
+        return ['multimediaObject' => $multimediaObject];
     }
 
     /**
@@ -1202,9 +1202,9 @@ class MultimediaObjectController extends SortableAdminController implements NewA
     public function listExternalPlayerAction(MultimediaObject $multimediaObject, Request $request)
     {
         $form = $this->createFormBuilder()
-              ->setAction($this->generateUrl('pumukitnewadmin_mms_listexternalproperties', array('id' => $multimediaObject->getId())))
-              ->add('url', UrlType::class, array('required' => false, 'attr' => array('class' => 'form-control')))
-              ->add('save', SubmitType::class, array('label' => 'OK', 'attr' => array('class' => 'btn btn-block btn-pumukit btn-raised')))
+              ->setAction($this->generateUrl('pumukitnewadmin_mms_listexternalproperties', ['id' => $multimediaObject->getId()]))
+              ->add('url', UrlType::class, ['required' => false, 'attr' => ['class' => 'form-control']])
+              ->add('save', SubmitType::class, ['label' => 'OK', 'attr' => ['class' => 'btn btn-block btn-pumukit btn-raised']])
               ->getForm();
 
         $form->handleRequest($request);
@@ -1217,10 +1217,10 @@ class MultimediaObjectController extends SortableAdminController implements NewA
             $multimediaObject->setProperty('externalplayer', $data['url']);
             $dm->flush();
 
-            return $this->forward('PumukitNewAdminBundle:Track:list', array('multimediaObject' => $multimediaObject));
+            return $this->forward('PumukitNewAdminBundle:Track:list', ['multimediaObject' => $multimediaObject]);
         }
 
-        return array('multimediaObject' => $multimediaObject, 'form' => $form->createView());
+        return ['multimediaObject' => $multimediaObject, 'form' => $form->createView()];
     }
 
     /**
@@ -1234,7 +1234,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $multimediaObject->setProperty('externalplayer', '');
         $dm->flush();
 
-        return $this->redirect($this->generateUrl('pumukitnewadmin_track_list', array('id' => $multimediaObject->getId())));
+        return $this->redirect($this->generateUrl('pumukitnewadmin_track_list', ['id' => $multimediaObject->getId()]));
     }
 
     /**
@@ -1246,10 +1246,10 @@ class MultimediaObjectController extends SortableAdminController implements NewA
     {
         $mmService = $this->get('pumukitschema.multimedia_object');
 
-        return array(
+        return [
             'multimediaObject' => $multimediaObject,
             'is_playable' => $mmService->hasPlayableResource($multimediaObject),
-        );
+        ];
     }
 
     /**
@@ -1259,13 +1259,13 @@ class MultimediaObjectController extends SortableAdminController implements NewA
      */
     public function statusAction(MultimediaObject $mm, Request $request)
     {
-        return array('mm' => $mm);
+        return ['mm' => $mm];
     }
 
     /**
      * Modify MultimediaObject Groups.
      */
-    private function modifyMultimediaObjectGroups(MultimediaObject $multimediaObject, $addGroups = array(), $deleteGroups = array())
+    private function modifyMultimediaObjectGroups(MultimediaObject $multimediaObject, $addGroups = [], $deleteGroups = [])
     {
         $dm = $this->get('doctrine_mongodb.odm.document_manager');
         $groupRepo = $dm->getRepository(Group::class);
@@ -1293,7 +1293,7 @@ class MultimediaObjectController extends SortableAdminController implements NewA
     /**
      * Modify EmbeddedBroadcast Groups.
      */
-    private function modifyBroadcastGroups(MultimediaObject $multimediaObject, $type = EmbeddedBroadcast::TYPE_PUBLIC, $password = '', $addGroups = array(), $deleteGroups = array())
+    private function modifyBroadcastGroups(MultimediaObject $multimediaObject, $type = EmbeddedBroadcast::TYPE_PUBLIC, $password = '', $addGroups = [], $deleteGroups = [])
     {
         $dm = $this->get('doctrine_mongodb.odm.document_manager');
         $groupRepo = $dm->getRepository(Group::class);
@@ -1332,20 +1332,20 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $dm->flush();
     }
 
-    private function getResourceGroups($groups = array())
+    private function getResourceGroups($groups = [])
     {
         $groupService = $this->get('pumukitschema.group');
-        $addGroups = array();
-        $deleteGroups = array();
-        $addGroupsIds = array();
-        $allGroupsIds = array();
+        $addGroups = [];
+        $deleteGroups = [];
+        $addGroupsIds = [];
+        $allGroupsIds = [];
 
         foreach ($groups as $group) {
-            $addGroups[$group->getId()] = array(
+            $addGroups[$group->getId()] = [
                 'key' => $group->getKey(),
                 'name' => $group->getName(),
                 'origin' => $group->getOrigin(),
-            );
+            ];
             $addGroupsIds[] = new \MongoId($group->getId());
         }
         $allGroups = $this->getAllGroups();
@@ -1354,14 +1354,14 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         }
         $groupsToDelete = $groupService->findByIdNotInOf($addGroupsIds, $allGroupsIds);
         foreach ($groupsToDelete as $group) {
-            $deleteGroups[$group->getId()] = array(
+            $deleteGroups[$group->getId()] = [
                 'key' => $group->getKey(),
                 'name' => $group->getName(),
                 'origin' => $group->getOrigin(),
-            );
+            ];
         }
 
-        return array('addGroups' => $addGroups, 'deleteGroups' => $deleteGroups);
+        return ['addGroups' => $addGroups, 'deleteGroups' => $deleteGroups];
     }
 
     private function isUserStillRelated(MultimediaObject $multimediaObject)
@@ -1418,12 +1418,12 @@ class MultimediaObjectController extends SortableAdminController implements NewA
     {
         $dm = $this->get('doctrine_mongodb')->getManager();
 
-        $criteria = $this->getCriteria($request->get('criteria', array()));
+        $criteria = $this->getCriteria($request->get('criteria', []));
         $resources = $this->getResources($request, $criteria);
 
         $update_session = true;
         foreach ($resources as $mm) {
-            if ($mm->getId() == $this->get('session')->get('admin/mmslist/id')) {
+            if ($mm->getId() === $this->get('session')->get('admin/mmslist/id')) {
                 $update_session = false;
             }
         }
@@ -1433,24 +1433,24 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         }
 
         $aRoles = $dm->getRepository(Role::class)->findAll();
-        $aPubChannel = $dm->getRepository(Tag::class)->findOneBy(array('cod' => 'PUBCHANNELS'));
-        $aChannels = $dm->getRepository(Tag::class)->findBy(array('parent.$id' => new \MongoId($aPubChannel->getId())));
+        $aPubChannel = $dm->getRepository(Tag::class)->findOneBy(['cod' => 'PUBCHANNELS']);
+        $aChannels = $dm->getRepository(Tag::class)->findBy(['parent.$id' => new \MongoId($aPubChannel->getId())]);
 
         $multimediaObjectLabel = $this->get('translator')->trans($this->container->getParameter('pumukit_new_admin.multimedia_object_label'));
-        $statusPub = array(
+        $statusPub = [
             MultimediaObject::STATUS_PUBLISHED => 'Published',
             MultimediaObject::STATUS_BLOCKED => 'Blocked',
             MultimediaObject::STATUS_HIDDEN => 'Hidden',
-        );
+        ];
 
-        return array(
+        return [
             'mms' => $resources,
             'roles' => $aRoles,
             'statusPub' => $statusPub,
             'pubChannels' => $aChannels,
             'disable_pudenew' => !$this->container->getParameter('show_latest_with_pudenew'),
             'multimedia_object_label' => $multimediaObjectLabel,
-        );
+        ];
     }
 
     /**
@@ -1459,14 +1459,14 @@ class MultimediaObjectController extends SortableAdminController implements NewA
      */
     public function listAllAction(Request $request)
     {
-        $criteria = $this->getCriteria($request->get('criteria', array()));
+        $criteria = $this->getCriteria($request->get('criteria', []));
         $resources = $this->getResources($request, $criteria);
 
         return $this->render('PumukitNewAdminBundle:MultimediaObject:listAll.html.twig',
-                             array(
+                             [
                                  'mms' => $resources,
                                  'disable_pudenew' => !$this->container->getParameter('show_latest_with_pudenew'),
-                             )
+                             ]
         );
     }
 
@@ -1477,13 +1477,13 @@ class MultimediaObjectController extends SortableAdminController implements NewA
 
             return $this->render(
                 'PumukitNewAdminBundle:MultimediaObject:list.html.twig',
-                array(
+                [
                     'mms' => $mms,
                     'series' => $resource->getSeries(),
-                )
+                ]
             );
         } else {
-            return $this->redirectToRoute('pumukitnewadmin_mms_listall', array(), 301);
+            return $this->redirectToRoute('pumukitnewadmin_mms_listall', [], 301);
         }
     }
 
@@ -1493,14 +1493,14 @@ class MultimediaObjectController extends SortableAdminController implements NewA
     public function getCriteria($criteria)
     {
         $request = $this->container->get('request_stack')->getCurrentRequest();
-        $criteria = $request->get('criteria', array());
+        $criteria = $request->get('criteria', []);
 
         if (array_key_exists('reset', $criteria)) {
             $this->get('session')->remove('admin/'.$this->getResourceName().'/criteria');
         } elseif ($criteria) {
             $this->get('session')->set('admin/'.$this->getResourceName().'/criteria', $criteria);
         }
-        $criteria = $this->get('session')->get('admin/'.$this->getResourceName().'/criteria', array());
+        $criteria = $this->get('session')->get('admin/'.$this->getResourceName().'/criteria', []);
 
         $new_criteria = $this->get('pumukitnewadmin.multimedia_object_search')->processMMOCriteria($criteria, $request->getLocale());
 
@@ -1556,11 +1556,11 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $value = $session->get('admin/'.$session_namespace.'/type', 'desc');
         $key = $session->get('admin/'.$session_namespace.'/sort', 'public_date');
 
-        if ('title' == $key) {
+        if ('title' === $key) {
             $key .= '.'.$request->getLocale();
         }
 
-        return  array($key => $value);
+        return  [$key => $value];
     }
 
     public function getResourceName()
@@ -1590,12 +1590,12 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $dm = $this->get('doctrine_mongodb')->getManager();
         $multimediaObject = $dm->getRepository(MultimediaObject::class)->findOneById(new \MongoId($request->get('id')));
         $method = $request->getMethod();
-        if (in_array($method, array('POST'))) {
+        if (in_array($method, ['POST'])) {
             $multimediaObject->setProperty('paellalayout', $request->get('paellalayout'));
             $dm->flush();
         }
 
-        return new JsonResponse(array('paellalayout' => $multimediaObject->getProperty('paellalayout')));
+        return new JsonResponse(['paellalayout' => $multimediaObject->getProperty('paellalayout')]);
     }
 
     /**
@@ -1620,23 +1620,23 @@ class MultimediaObjectController extends SortableAdminController implements NewA
         $syncService = $this->container->get('pumukitnewadmin.multimedia_object_sync');
 
         $tags = $dm->getRepository(Tag::class)->findBy(
-            array('metatag' => true, 'display' => true, 'properties.hide_in_tag_group' => array('$exists' => false)),
-            array('cod' => 1)
+            ['metatag' => true, 'display' => true, 'properties.hide_in_tag_group' => ['$exists' => false]],
+            ['cod' => 1]
         );
         if (!$tags) {
             throw new \Exception($translator->trans('No tags defined with metatag'));
         }
-        $roles = $dm->getRepository(Role::class)->findBy(array(), array("name.$locale" => 1));
+        $roles = $dm->getRepository(Role::class)->findBy([], ["name.$locale" => 1]);
         if (0 === count($roles)) {
             throw new \Exception($translator->trans('No roles defined'));
         }
 
-        return array(
+        return [
             'fields' => $syncService->getSyncFields(),
             'multimediaObject' => $multimediaObject,
             'tags' => $tags,
             'roles' => $roles,
-        );
+        ];
     }
 
     /**

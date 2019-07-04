@@ -170,7 +170,7 @@ class PumukitExtension extends \Twig_Extension
                 if (!$precinctTag) {
                     return false;
                 }
-                if ($precinctCode != $precinctTag->getCod()) {
+                if ($precinctCode !== $precinctTag->getCod()) {
                     return false;
                 }
             }
@@ -266,7 +266,7 @@ class PumukitExtension extends \Twig_Extension
                 $seg = '0'.$seg;
             }
 
-            if (0 == $min) {
+            if (0 === $min) {
                 $aux = $seg."''";
             } else {
                 $aux = $min."' ".$seg."''";
@@ -318,7 +318,7 @@ class PumukitExtension extends \Twig_Extension
         $embeddedBroadcast = $multimediaObject->getEmbeddedBroadcast();
         if (!$embeddedBroadcast) {
             $url_player = '/cmarwatch.html';
-        } elseif (EmbeddedBroadcast::TYPE_PUBLIC == $embeddedBroadcast->getType()) {
+        } elseif (EmbeddedBroadcast::TYPE_PUBLIC === $embeddedBroadcast->getType()) {
             $url_player = '/cmarwatch.html';
         } else {
             $url_player = '/securitywatch.html';

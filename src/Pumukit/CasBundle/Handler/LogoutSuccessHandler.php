@@ -34,7 +34,7 @@ class LogoutSuccessHandler implements LogoutSuccessHandlerInterface
      */
     public function onLogoutSuccess(Request $request)
     {
-        $url = $this->router->generate('pumukit_webtv_index_index', array(), UrlGeneratorInterface::ABSOLUTE_URL);
+        $url = $this->router->generate('pumukit_webtv_index_index', [], UrlGeneratorInterface::ABSOLUTE_URL);
         $this->casService->logoutWithRedirectService($url);
     }
 }

@@ -82,10 +82,10 @@ class LDAPService
                 if (!$success) {
                     $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.'ldap_bind failed for:'.$linkIdentifier);
                 }
-                $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, array(), 0, 1);
+                $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, [], 0, 1);
                 if ($searchResult) {
                     $info = ldap_get_entries($linkIdentifier, $searchResult);
-                    if (($info) && (0 != $info['count'])) {
+                    if (($info) && (0 !== $info['count'])) {
                         $dn = $info[0]['dn'];
                         $ret = @ldap_bind($linkIdentifier, $dn, $pass);
                     }
@@ -119,10 +119,10 @@ class LDAPService
                 if (!$success) {
                     $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.'ldap_bind failed for:'.$linkIdentifier);
                 }
-                $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, array(), 0, 1);
+                $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, [], 0, 1);
                 if ($searchResult) {
                     $info = ldap_get_entries($linkIdentifier, $searchResult);
-                    if (($info) && (0 != count($info))) {
+                    if (($info) && (0 !== count($info))) {
                         $name = $info[0]['cn'][0];
                     }
                 }
@@ -157,10 +157,10 @@ class LDAPService
                 if (!$success) {
                     $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.'ldap_bind failed for:'.$linkIdentifier);
                 }
-                $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, array(), 0, 1);
+                $searchResult = ldap_search($linkIdentifier, $this->baseDn, 'uid='.$user, [], 0, 1);
                 if ($searchResult) {
                     $info = ldap_get_entries($linkIdentifier, $searchResult);
-                    if (($info) && (0 != count($info))) {
+                    if (($info) && (0 !== count($info))) {
                         $name = $info[0]['mail'][0];
                     }
                 }
@@ -207,10 +207,11 @@ class LDAPService
             if (!$success) {
                 $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.'ldap_bind failed for:'.$linkIdentifier);
             }
-            $searchResult = ldap_search($linkIdentifier, $this->baseDn, $key.'='.$value, array(), 0, 1);
+            $searchResult = ldap_search($linkIdentifier, $this->baseDn, $key.'='.$value, [], 0, 1);
+
             if ($searchResult) {
                 $info = ldap_get_entries($linkIdentifier, $searchResult);
-                if (($info) && (0 != count($info)) && isset($info[0])) {
+                if (($info) && (0 !== count($info)) && isset($info[0])) {
                     $return = $info[0];
                 }
             }
@@ -239,7 +240,7 @@ class LDAPService
     public function getListUsers($cn = '', $mail = '')
     {
         $limit = 40;
-        $out = array();
+        $out = [];
         try {
             $linkIdentifier = ldap_connect($this->server);
             ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
@@ -249,18 +250,18 @@ class LDAPService
                     $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.'ldap_bind failed for:'.$linkIdentifier);
                 }
                 $filter = $this->getFilter($cn, $mail);
-                $searchResult = ldap_search($linkIdentifier, $this->baseDn, $filter, array(), 0, $limit);
+                $searchResult = ldap_search($linkIdentifier, $this->baseDn, $filter, [], 0, $limit);
                 if ($searchResult) {
                     $info = ldap_get_entries($linkIdentifier, $searchResult);
-                    if (($info) && (0 != count($info))) {
+                    if (($info) && (0 !== count($info))) {
                         foreach ($info as $k => $i) {
                             if ('count' === $k) {
                                 continue;
                             }
-                            $out[] = array(
+                            $out[] = [
                                            'mail' => $i['mail'][0],
                                            'cn' => $i['cn'][0],
-                                           );
+                                           ];
                         }
                     }
                 }

@@ -37,12 +37,12 @@ class SeriesController extends AdminController implements NewAdminControllerInte
      */
     public function indexAction(Request $request)
     {
-        $criteria = $this->getCriteria($request->get('criteria', array()));
+        $criteria = $this->getCriteria($request->get('criteria', []));
         $resources = $this->getResources($request, $criteria);
 
         $update_session = true;
         foreach ($resources as $series) {
-            if ($series->getId() == $this->get('session')->get('admin/series/id')) {
+            if ($series->getId() === $this->get('session')->get('admin/series/id')) {
                 $update_session = false;
             }
         }
@@ -67,7 +67,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
      */
     public function listAction(Request $request)
     {
-        $criteria = $this->getCriteria($request->get('criteria', array()));
+        $criteria = $this->getCriteria($request->get('criteria', []));
         $selectedSeriesId = $request->get('selectedSeriesId', null);
         $resources = $this->getResources($request, $criteria, $selectedSeriesId);
 
@@ -148,10 +148,10 @@ class SeriesController extends AdminController implements NewAdminControllerInte
         $translator = $this->get('translator');
         $locale = $request->getLocale();
         $disablePudenew = !$this->container->getParameter('show_latest_with_pudenew');
-        $form = $this->createForm(SeriesType::class, $resource, array('translator' => $translator, 'locale' => $locale, 'disable_PUDENEW' => $disablePudenew));
+        $form = $this->createForm(SeriesType::class, $resource, ['translator' => $translator, 'locale' => $locale, 'disable_PUDENEW' => $disablePudenew]);
 
         $method = $request->getMethod();
-        if (in_array($method, array('POST', 'PUT', 'PATCH')) &&
+        if (in_array($method, ['POST', 'PUT', 'PATCH']) &&
             $form->handleRequest($request)->isValid()) {
             $this->update($resource);
             $this->get('pumukitschema.series_dispatcher')->dispatchUpdate($resource);
@@ -159,12 +159,12 @@ class SeriesController extends AdminController implements NewAdminControllerInte
                 $this->get('pumukitschema.sorted_multimedia_object')->reorder($resource);
             }
 
-            $criteria = $this->getCriteria($request->get('criteria', array()));
+            $criteria = $this->getCriteria($request->get('criteria', []));
             $resources = $this->getResources($request, $criteria, $resource->getId());
 
             return $this->render(
                 'PumukitNewAdminBundle:Series:list.html.twig',
-                array('series' => $resources)
+                ['series' => $resources]
             );
         }
 
@@ -193,13 +193,13 @@ class SeriesController extends AdminController implements NewAdminControllerInte
         $translator = $this->get('translator');
         $locale = $request->getLocale();
 
-        $formMeta = $this->createForm(MultimediaObjectTemplateMetaType::class, $mmtemplate, array('translator' => $translator, 'locale' => $locale));
+        $formMeta = $this->createForm(MultimediaObjectTemplateMetaType::class, $mmtemplate, ['translator' => $translator, 'locale' => $locale]);
 
         $pubDecisionsTags = $factoryService->getTagsByCod('PUBDECISIONS', true);
 
         //These fields are form fields that are rendered separately, so they should be 'excluded' from the generic foreach.
-        $exclude_fields = array();
-        $show_later_fields = array('pumukitnewadmin_series_i18n_header', 'pumukitnewadmin_series_i18n_footer', 'pumukitnewadmin_series_i18n_line2', 'pumukitnewadmin_series_template', 'pumukitnewadmin_series_sorting', 'pumukitnewadmin_series_series_style');
+        $exclude_fields = [];
+        $show_later_fields = ['pumukitnewadmin_series_i18n_header', 'pumukitnewadmin_series_i18n_footer', 'pumukitnewadmin_series_i18n_line2', 'pumukitnewadmin_series_template', 'pumukitnewadmin_series_sorting', 'pumukitnewadmin_series_series_style'];
         $showSeriesTypeTab = $this->container->hasParameter('pumukit.use_series_channels') && $this->container->getParameter('pumukit.use_series_channels');
         if (!$showSeriesTypeTab) {
             $exclude_fields[] = 'pumukitnewadmin_series_series_type';
@@ -326,7 +326,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
             }
         }
 
-        if (0 == $deleteSeriesCount) {
+        if (0 === $deleteSeriesCount) {
             return new Response('0 series deleted', Response::HTTP_BAD_REQUEST);
         }
 
@@ -380,11 +380,11 @@ class SeriesController extends AdminController implements NewAdminControllerInte
     {
         $series = $this->findOr404($request);
 
-        $mmStatus = array(
+        $mmStatus = [
             'published' => MultimediaObject::STATUS_PUBLISHED,
             'blocked' => MultimediaObject::STATUS_BLOCKED,
             'hidden' => MultimediaObject::STATUS_HIDDEN,
-        );
+        ];
 
         $dm = $this->get('doctrine_mongodb.odm.document_manager');
         $multimediaObjects = $dm->getRepository(MultimediaObject::class)->findWithoutPrototype($series);
@@ -397,12 +397,12 @@ class SeriesController extends AdminController implements NewAdminControllerInte
             }
         }
 
-        return array(
+        return [
             'series' => $series,
             'mm_status' => $mmStatus,
             'pub_channels' => $pubChannels,
             'multimediaObjects' => $multimediaObjects,
-        );
+        ];
     }
 
     /**
@@ -438,16 +438,16 @@ class SeriesController extends AdminController implements NewAdminControllerInte
         $request = $this->container->get('request_stack')->getCurrentRequest();
         $criteria = $request->get('criteria', []);
 
-        $emptySeries = array();
+        $emptySeries = [];
         if ($request->query->has('empty_series') || $this->get('session')->has('admin/series/empty_series')) {
             $this->get('session')->set('admin/series/empty_series', true);
             $dm = $this->get('doctrine_mongodb')->getManager();
             $mmObjColl = $dm->getDocumentCollection(MultimediaObject::class);
-            $pipeline = array(
-                array('$group' => array('_id' => '$series', 'count' => array('$sum' => 1))),
-                array('$match' => array('count' => 1)),
-            );
-            $allSeries = $mmObjColl->aggregate($pipeline, array('cursor' => array()))->toArray();
+            $pipeline = [
+                ['$group' => ['_id' => '$series', 'count' => ['$sum' => 1]]],
+                ['$match' => ['count' => 1]],
+            ];
+            $allSeries = $mmObjColl->aggregate($pipeline, ['cursor' => []])->toArray();
             foreach ($allSeries as $series) {
                 $emptySeries[] = $series['_id'];
             }
@@ -493,7 +493,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
         $value = $session->get('admin/series/type', 'desc');
         $key = $session->get('admin/series/sort', 'public_date');
 
-        if ('title' == $key) {
+        if ('title' === $key) {
             $key .= '.'.$request->getLocale();
         }
 
@@ -552,7 +552,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
             $position = 1;
             $findSerie = false;
             foreach ($returnedSeries as $series) {
-                if ($selectedSeriesId == $series->getId()) {
+                if ($selectedSeriesId === $series->getId()) {
                     $findSerie = true;
                     break;
                 }
@@ -560,7 +560,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
             }
 
             $maxPerPage = $session->get($session_namespace.'/paginate', 10);
-            $page = intval(ceil($position / $maxPerPage));
+            $page = (int) (ceil($position / $maxPerPage));
             if (!$findSerie) {
                 $page = 1;
             }
@@ -594,7 +594,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
             if ($mm) {
                 if ($this->isGranted(Permission::CHANGE_MMOBJECT_PUBCHANNEL)) {
                     foreach ($value['channels'] as $channelId => $mustContainsTag) {
-                        $mustContainsTag = ('true' == $mustContainsTag);
+                        $mustContainsTag = ('true' === $mustContainsTag);
                         $tag = $repoTags->find($channelId);
                         if ($tag && !$this->isGranted(Permission::getRoleTagDisableForPubChannel($tag->getCod()))) {
                             if ($mustContainsTag && (!($mm->containsTag($tag)))) {
@@ -608,7 +608,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
                     }
                 }
 
-                if ($this->isGranted(Permission::CHANGE_MMOBJECT_STATUS) && $value['status'] != $mm->getStatus()) {
+                if ($this->isGranted(Permission::CHANGE_MMOBJECT_STATUS) && $value['status'] !== $mm->getStatus()) {
                     $mm->setStatus($value['status']);
                     $executeFlush = true;
                 }
@@ -640,7 +640,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
                     if ($this->compareSeries($resource, $oneseries)) {
                         array_splice($series, $index, 0, [$resource]);
                         break;
-                    } elseif ($index == (count($aux) - 1)) {
+                    } elseif ($index === (count($aux) - 1)) {
                         $series[] = $resource;
                     }
                 }
@@ -811,14 +811,14 @@ class SeriesController extends AdminController implements NewAdminControllerInte
             return new JsonResponse(['description' => (string) $embeddedBroadcast]);
         }
 
-        return array(
+        return [
             'series' => $series,
             'broadcasts' => $broadcasts,
             'groups' => $allGroups,
             'sameBroadcast' => $sameBroadcast,
             'embeddedBroadcast' => $embeddedBroadcast,
             'multimediaObjects' => $mmRepo->findBySeries($series),
-        );
+        ];
     }
 
     /**

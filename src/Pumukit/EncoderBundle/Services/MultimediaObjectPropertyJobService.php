@@ -68,11 +68,11 @@ class MultimediaObjectPropertyJobService
              ->update()
              ->field('properties.'.$key)->unsetField()
              ->field('_id')->equals($multimediaObject->getId())
-             ->field('properties.'.$key)->equals(array($value))
+             ->field('properties.'.$key)->equals([$value])
              ->getQuery()
              ->execute();
 
-        if ((isset($out['nModified']) && 1 == $out['nModified']) || (isset($out['n']) && 1 == $out['n'])) {
+        if ((isset($out['nModified']) && 1 === $out['nModified']) || (isset($out['n']) && 1 === $out['n'])) {
             return true;
         }
 
@@ -85,7 +85,7 @@ class MultimediaObjectPropertyJobService
              ->getQuery()
              ->execute();
 
-        if ((isset($out['nModified']) && 1 == $out['nModified']) || (isset($out['n']) && 1 == $out['n'])) {
+        if ((isset($out['nModified']) && 1 === $out['nModified']) || (isset($out['n']) && 1 === $out['n'])) {
             return true;
         }
 

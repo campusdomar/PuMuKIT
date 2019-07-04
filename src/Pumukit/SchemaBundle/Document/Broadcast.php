@@ -77,7 +77,7 @@ class Broadcast
      *
      * @MongoDB\Field(type="raw")
      */
-    private $description = array('en' => '');
+    private $description = ['en' => ''];
 
     /**
      * @var string
@@ -332,7 +332,7 @@ class Broadcast
      */
     public function isPasswordValid()
     {
-        return (self::BROADCAST_TYPE_PUB == $this->getBroadcastTypeId())
-                || ('' != $this->getPasswd());
+        return (self::BROADCAST_TYPE_PUB === $this->getBroadcastTypeId())
+                || ('' !== $this->getPasswd());
     }
 }

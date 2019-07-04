@@ -64,11 +64,11 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $criteria = array(
-            'pics' => array('$exists' => true),
+        $criteria = [
+            'pics' => ['$exists' => true],
             'pics.tags' => 'auto',
             'pics.path' => new \MongoRegex(sprintf('/%s/i', $this->extensionFile)),
-        );
+        ];
 
         $multimediaObjects = $this->dm->getRepository(MultimediaObject::class)->findBy($criteria);
 
@@ -113,7 +113,7 @@ EOT
                         }
                     }
 
-                    if ('true' == $this->deletePngFiles) {
+                    if ('true' === $this->deletePngFiles) {
                         $this->multimediaObjectPicService->removePicFromMultimediaObject($multimediaObject, $pic->getId());
                         $this->output->writeln('Deleted pic for the mmobj - '.$multimediaObject->getId().' with path '.$pic->getPath());
                     }

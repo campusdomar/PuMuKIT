@@ -84,7 +84,7 @@ class JobGeneratorListener
      */
     private function generateJobs(MultimediaObject $multimediaObject, $pubChannelCod)
     {
-        $jobs = array();
+        $jobs = [];
         $default_profiles = $this->profileService->getDefaultProfiles();
 
         if ($this->containsTrackWithProfileWithTargetTag($multimediaObject, $pubChannelCod)) {
@@ -119,8 +119,8 @@ class JobGeneratorListener
             }
 
             if ((in_array($pubChannelCod, $targets['standard']))
-               && ($multimediaObject->isOnlyAudio() == $profile['audio'])) {
-                if (!$multimediaObject->isOnlyAudio() && 0 != $profile['resolution_ver']) {
+               && ($multimediaObject->isOnlyAudio() === $profile['audio'])) {
+                if (!$multimediaObject->isOnlyAudio() && 0 !== $profile['resolution_ver']) {
                     $profileAspectRatio = $profile['resolution_hor'] / $profile['resolution_ver'];
                     $multimediaObjectAspectRatio = $multimediaObject->getTrackWithTag('master')->getAspectRatio();
                     if ((1.5 > $profileAspectRatio) !== (1.5 > $multimediaObjectAspectRatio)) {
@@ -155,10 +155,10 @@ class JobGeneratorListener
      */
     private function getTargets($targets)
     {
-        $return = array('standard' => array(), 'force' => array());
+        $return = ['standard' => [], 'force' => []];
 
         foreach (array_filter(preg_split('/[,\s]+/', $targets)) as $target) {
-            if ('*' == substr($target, -1)) {
+            if ('*' === substr($target, -1)) {
                 $return['force'][] = substr($target, 0, -1);
             } else {
                 $return['standard'][] = $target;
