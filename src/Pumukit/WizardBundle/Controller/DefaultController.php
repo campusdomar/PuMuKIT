@@ -335,7 +335,6 @@ class DefaultController extends Controller
      *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      *
-     *
      * @Template("PumukitWizardBundle:Default:upload.html.twig")
      */
     public function uploadAction(Request $request)

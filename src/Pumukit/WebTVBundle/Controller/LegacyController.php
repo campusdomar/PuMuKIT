@@ -101,9 +101,9 @@ class LegacyController extends Controller implements WebTVControllerInterface
         }
 
         return $this->redirectToRoute(
-                'pumukit_webtv_multimediaobject_index',
-                ['id' => $multimediaObject->getId()],
-                Response::HTTP_MOVED_PERMANENTLY
+            'pumukit_webtv_multimediaobject_index',
+            ['id' => $multimediaObject->getId()],
+            Response::HTTP_MOVED_PERMANENTLY
             );
     }
 
