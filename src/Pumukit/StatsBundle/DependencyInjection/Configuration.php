@@ -21,12 +21,13 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->root('pumukit_stats');
 
         $rootNode
-          ->children()
+            ->children()
             ->booleanNode('use_aggregation')
-              ->defaultFalse('on_load')
-              ->info('Use ViewsAggregation instead ViewsLog for generate stats (See PumukitAggregateCommand).')
+            ->defaultFalse('on_load')
+            ->info('Use ViewsAggregation instead ViewsLog for generate stats (See PumukitAggregateCommand).')
             ->end()
-          ->end();
+            ->end()
+        ;
 
         return $treeBuilder;
     }

@@ -2,8 +2,8 @@
 
 namespace Pumukit\SchemaBundle\Document;
 
-use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
@@ -34,6 +34,12 @@ class MultimediaObject
     const STATUS_NEW = -1;
     const STATUS_PROTOTYPE = -2;
 
+    const TYPE_UNKNOWN = 0;
+    const TYPE_VIDEO = 1;
+    const TYPE_AUDIO = 2;
+    const TYPE_EXTERNAL = 3;
+    const TYPE_LIVE = 4;
+
     public static $statusTexts = [
         self::STATUS_PUBLISHED => 'Published',
         self::STATUS_BLOCKED => 'Blocked',
@@ -41,12 +47,6 @@ class MultimediaObject
         self::STATUS_NEW => 'New',
         self::STATUS_PROTOTYPE => 'Prototype',
     ];
-
-    const TYPE_UNKNOWN = 0;
-    const TYPE_VIDEO = 1;
-    const TYPE_AUDIO = 2;
-    const TYPE_EXTERNAL = 3;
-    const TYPE_LIVE = 4;
 
     public static $typeTexts = [
         self::TYPE_UNKNOWN => '',
@@ -315,6 +315,8 @@ class MultimediaObject
     /**
      * Set numerical id.
      *
+     * @param mixed $numericalID
+     *
      * @return int
      */
     public function setNumericalID($numericalID)
@@ -536,7 +538,7 @@ class MultimediaObject
      * Set title.
      *
      * @param string      $title
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setTitle($title, $locale = null)
     {
@@ -549,7 +551,7 @@ class MultimediaObject
     /**
      * Get title.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -589,7 +591,7 @@ class MultimediaObject
      * Set subtitle.
      *
      * @param string      $subtitle
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setSubtitle($subtitle, $locale = null)
     {
@@ -602,7 +604,7 @@ class MultimediaObject
     /**
      * Get subtitle.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -642,7 +644,7 @@ class MultimediaObject
      * Set description.
      *
      * @param string      $description
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setDescription($description, $locale = null)
     {
@@ -655,7 +657,7 @@ class MultimediaObject
     /**
      * Get description.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -715,7 +717,7 @@ class MultimediaObject
      * Set line2.
      *
      * @param string      $line2
-     * @param string|null $locale
+     * @param null|string $locale
      */
     public function setLine2($line2, $locale = null)
     {
@@ -728,7 +730,7 @@ class MultimediaObject
     /**
      * Get line2.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -846,9 +848,9 @@ class MultimediaObject
             }
 
             return $aux;
-        } else {
-            return "0''";
         }
+
+        return "0''";
     }
 
     /**
@@ -917,7 +919,7 @@ class MultimediaObject
     /**
      * Get series title, only for performace use.
      *
-     * @param string|null $locale
+     * @param null|string $locale
      *
      * @return string
      */
@@ -1065,7 +1067,7 @@ class MultimediaObject
     /**
      * Get embeddedBroadcast.
      *
-     * @return EmbeddedBroadcast|null
+     * @return null|EmbeddedBroadcast
      */
     public function getEmbeddedBroadcast()
     {
@@ -1149,7 +1151,7 @@ class MultimediaObject
      * The original string tag logic used array_search to seek the tag element in array.
      * This function uses doctrine2 arrayCollection contains function instead.
      *
-     * @param Tag|EmbeddedTag $tagToRemove
+     * @param EmbeddedTag|Tag $tagToRemove
      *
      * @return bool TRUE if this multimedia_object contained the specified tag, FALSE otherwise
      */
@@ -1169,7 +1171,7 @@ class MultimediaObject
      * The original string tag logic used in_array to check it.
      * This function uses doctrine2 arrayCollection contains function instead.
      *
-     * @param Tag|EmbeddedTag $tagToCheck
+     * @param EmbeddedTag|Tag $tagToCheck
      *
      * @return bool TRUE if this multimedia_object contained the specified tag, FALSE otherwise
      */
@@ -1345,32 +1347,6 @@ class MultimediaObject
     }
 
     /**
-     * Reorder track by id.
-     *
-     * @param string $trackId
-     * @param bool   $up
-     */
-    private function reorderTrackById($trackId, $up = true)
-    {
-        $snapshot = array_values($this->tracks->toArray());
-        $this->tracks->clear();
-
-        $out = [];
-        foreach ($snapshot as $key => $track) {
-            if ($track->getId() === $trackId) {
-                $out[($key * 10) + ($up ? -11 : 11)] = $track;
-            } else {
-                $out[$key * 10] = $track;
-            }
-        }
-
-        ksort($out);
-        foreach ($out as $track) {
-            $this->tracks->add($track);
-        }
-    }
-
-    /**
      * Contains track.
      *
      * @param Track $track
@@ -1397,7 +1373,7 @@ class MultimediaObject
      *
      * @param $trackId
      *
-     * @return Track|null
+     * @return null|Track
      */
     public function getTrackById($trackId)
     {
@@ -1435,7 +1411,7 @@ class MultimediaObject
      *
      * @param string $tag
      *
-     * @return Track|null
+     * @return null|Track
      */
     public function getTrackWithTag($tag)
     {
@@ -1473,7 +1449,7 @@ class MultimediaObject
      *
      * @param array $tags
      *
-     * @return Track|null
+     * @return null|Track
      */
     public function getTrackWithAllTags(array $tags)
     {
@@ -1511,7 +1487,7 @@ class MultimediaObject
      *
      * @param array $tags
      *
-     * @return Track|null
+     * @return null|Track
      */
     public function getTrackWithAnyTag(array $tags)
     {
@@ -1549,7 +1525,7 @@ class MultimediaObject
      *
      * @param bool $any to get only tagged tracks
      *
-     * @return Track|null
+     * @return null|Track
      */
     public function getMaster($any = true)
     {
@@ -1573,7 +1549,7 @@ class MultimediaObject
     /**
      * Get audio/video track with tag display. Get an audio track if the object is an audio.
      *
-     * @return Track|null
+     * @return null|Track
      */
     public function getDisplayTrack()
     {
@@ -1627,7 +1603,7 @@ class MultimediaObject
      * @param array $not_all_tags
      * @param bool  $all
      *
-     * @return Track|null
+     * @return null|Track
      */
     public function getFilteredTrackWithTags(array $any_tags = [], array $all_tags = [], array $not_any_tags = [], array $not_all_tags = [], $all = true)
     {
@@ -1715,6 +1691,7 @@ class MultimediaObject
             foreach ($embeddedRole->getPeople() as $embeddedPerson) {
                 if ($embeddedPerson->getId() === $person->getId()) {
                     $aux[] = $embeddedRole;
+
                     break;
                 }
             }
@@ -1727,7 +1704,7 @@ class MultimediaObject
      * Contains EmbeddedPerson without mattering the role
      * Use containsPersonWithRole instead.
      *
-     * @param Person|EmbeddedPerson $person
+     * @param EmbeddedPerson|Person $person
      *
      * @return bool TRUE if this multimedia_object contains the specified person, FALSE otherwise
      */
@@ -1745,8 +1722,8 @@ class MultimediaObject
     /**
      * Contains person with role.
      *
-     * @param Person|EmbeddedPerson $person
-     * @param Role|EmbeddedRole     $role
+     * @param EmbeddedPerson|Person $person
+     * @param EmbeddedRole|Role     $role
      *
      * @return bool
      */
@@ -1764,7 +1741,7 @@ class MultimediaObject
     /**
      * Contains person with all roles.
      *
-     * @param Person|EmbeddedPerson $person
+     * @param EmbeddedPerson|Person $person
      * @param array                 $roles
      *
      * @return bool
@@ -1783,7 +1760,7 @@ class MultimediaObject
     /**
      * Contains person with any role.
      *
-     * @param Person|EmbeddedPerson $person
+     * @param EmbeddedPerson|Person $person
      * @param array                 $roles
      *
      * @return bool
@@ -1802,7 +1779,7 @@ class MultimediaObject
     /**
      * Get people in multimedia object by role.
      *
-     * @param Role|EmbeddedRole $role
+     * @param EmbeddedRole|Role $role
      * @param bool              $always
      *
      * @return array
@@ -1832,6 +1809,7 @@ class MultimediaObject
                             $aux[] = $embeddedPerson;
                         }
                     }
+
                     break;
                 }
             }
@@ -1853,8 +1831,8 @@ class MultimediaObject
     /**
      * Add Person with Role.
      *
-     * @param Person|EmbeddedPerson $person
-     * @param Role|EmbeddedRole     $role
+     * @param EmbeddedPerson|Person $person
+     * @param EmbeddedRole|Role     $role
      */
     public function addPersonWithRole($person, $role)
     {
@@ -1872,8 +1850,8 @@ class MultimediaObject
     /**
      * Remove Person With Role.
      *
-     * @param Person|EmbeddedPerson $person
-     * @param Role|EmbeddedRole     $role
+     * @param EmbeddedPerson|Person $person
+     * @param EmbeddedRole|Role     $role
      *
      * @return bool TRUE if this multimedia_object contained the specified person_in_multimedia_object, FALSE otherwise
      */
@@ -1897,10 +1875,10 @@ class MultimediaObject
     /**
      * Get person with role.
      *
-     * @param Person|EmbeddedPerson $person
-     * @param Role|EmbeddedRole     $role
+     * @param EmbeddedPerson|Person $person
+     * @param EmbeddedRole|Role     $role
      *
-     * @return EmbeddedPerson|bool EmbeddedPerson if found, FALSE otherwise
+     * @return bool|EmbeddedPerson EmbeddedPerson if found, FALSE otherwise
      */
     public function getPersonWithRole($person, $role)
     {
@@ -1914,8 +1892,8 @@ class MultimediaObject
     /**
      * Up person with role.
      *
-     * @param Person|EmbeddedPerson $person
-     * @param Role|EmbeddedRole     $role
+     * @param EmbeddedPerson|Person $person
+     * @param EmbeddedRole|Role     $role
      */
     public function upPersonWithRole($person, $role)
     {
@@ -1925,8 +1903,8 @@ class MultimediaObject
     /**
      * Down person with role.
      *
-     * @param Person|EmbeddedPerson $person
-     * @param Role|EmbeddedRole     $role
+     * @param EmbeddedPerson|Person $person
+     * @param EmbeddedRole|Role     $role
      */
     public function downPersonWithRole($person, $role)
     {
@@ -1936,8 +1914,8 @@ class MultimediaObject
     /**
      * Reorder person with role.
      *
-     * @param Person|EmbeddedRole $person
-     * @param Role|EmbeddedRole   $role
+     * @param EmbeddedRole|Person $person
+     * @param EmbeddedRole|Role   $role
      * @param bool                $up
      */
     public function reorderPersonWithRole($person, $role, $up = true)
@@ -1963,9 +1941,10 @@ class MultimediaObject
     /**
      * Get embedded role.
      *
-     * @param Role|EmbeddedRole
+     * @param EmbeddedRole|Role
+     * @param mixed $role
      *
-     * @return EmbeddedRole|bool EmbeddedRole if found, FALSE otherwise
+     * @return bool|EmbeddedRole EmbeddedRole if found, FALSE otherwise
      */
     public function getEmbeddedRole($role)
     {
@@ -1989,10 +1968,9 @@ class MultimediaObject
     {
         if ($role instanceof EmbeddedRole) {
             return $role;
-        } elseif ($role instanceof Role) {
-            $embeddedRole = new EmbeddedRole($role);
-
-            return $embeddedRole;
+        }
+        if ($role instanceof Role) {
+            return new EmbeddedRole($role);
         }
 
         throw new \InvalidArgumentException('Only Role or EmbeddedRole are allowed.');
@@ -2056,6 +2034,132 @@ class MultimediaObject
         return $this->groups;
     }
 
+    /**
+     * Is only audio.
+     *
+     * @return bool TRUE if all tracks in multimedia object are only audio, FALSE otherwise
+     */
+    public function isOnlyAudio()
+    {
+        if (self::TYPE_AUDIO === $this->type) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get duration in minutes and seconds.
+     *
+     * @return array
+     */
+    public function getDurationInMinutesAndSeconds()
+    {
+        $minutes = floor($this->getDuration() / 60);
+
+        $seconds = $this->getDuration() % 60;
+
+        return [
+            'minutes' => $minutes,
+            'seconds' => $seconds,
+        ];
+    }
+
+    /**
+     * Set duration in minutes and seconds.
+     *
+     * @param array
+     * @param mixed $durationInMinutesAndSeconds
+     */
+    public function setDurationInMinutesAndSeconds($durationInMinutesAndSeconds)
+    {
+        if ((!empty($durationInMinutesAndSeconds['minutes'])) && (!empty($durationInMinutesAndSeconds['seconds']))) {
+            $this->duration = ($durationInMinutesAndSeconds['minutes'] * 60) + $durationInMinutesAndSeconds['seconds'];
+        }
+    }
+
+    /**
+     * Is multistream.
+     *
+     * @return bool TRUE if multimediaObject has tracks with tags presenter/delivery and presentation/delivery, FALSE otherwise
+     */
+    public function isMultistream()
+    {
+        $presenterTracks = $this->getFilteredTracksWithTags(['presenter/delivery']);
+        $presentationTracks = $this->getFilteredTracksWithTags(['presentation/delivery']);
+        if ($presenterTracks && $presentationTracks) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Set textindex.
+     *
+     * @param array $textindex
+     */
+    public function setTextIndex($textindex)
+    {
+        $this->textindex = $textindex;
+    }
+
+    /**
+     * Get textindex.
+     *
+     * @return array
+     */
+    public function getTextIndex()
+    {
+        return $this->textindex;
+    }
+
+    /**
+     * Set secondarytextindex.
+     *
+     * @param array $secondarytextindex
+     */
+    public function setSecondaryTextIndex($secondarytextindex)
+    {
+        $this->secondarytextindex = $secondarytextindex;
+    }
+
+    /**
+     * Get secondarytextindex.
+     *
+     * @return array
+     */
+    public function getSecondaryTextIndex()
+    {
+        return $this->secondarytextindex;
+    }
+
+    /**
+     * Reorder track by id.
+     *
+     * @param string $trackId
+     * @param bool   $up
+     */
+    private function reorderTrackById($trackId, $up = true)
+    {
+        $snapshot = array_values($this->tracks->toArray());
+        $this->tracks->clear();
+
+        $out = [];
+        foreach ($snapshot as $key => $track) {
+            if ($track->getId() === $trackId) {
+                $out[($key * 10) + ($up ? -11 : 11)] = $track;
+            } else {
+                $out[$key * 10] = $track;
+            }
+        }
+
+        ksort($out);
+        foreach ($out as $track) {
+            $this->tracks->add($track);
+        }
+    }
+
     // End of Group section
 
     /**
@@ -2080,106 +2184,5 @@ class MultimediaObject
         if ($minDuration > $trackMinDuration) {
             $this->setDuration($trackMinDuration);
         }
-    }
-
-    /**
-     * Is only audio.
-     *
-     * @return bool TRUE if all tracks in multimedia object are only audio, FALSE otherwise
-     */
-    public function isOnlyAudio()
-    {
-        if (self::TYPE_AUDIO === $this->type) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Get duration in minutes and seconds.
-     *
-     * @return array
-     */
-    public function getDurationInMinutesAndSeconds()
-    {
-        $minutes = floor($this->getDuration() / 60);
-
-        $seconds = $this->getDuration() % 60;
-
-        return [
-            'minutes' => $minutes,
-            'seconds' => $seconds,
-        ];
-    }
-
-    /**
-     * Set duration in minutes and seconds.
-     *
-     * @param array
-     */
-    public function setDurationInMinutesAndSeconds($durationInMinutesAndSeconds)
-    {
-        if ((!empty($durationInMinutesAndSeconds['minutes'])) && (!empty($durationInMinutesAndSeconds['seconds']))) {
-            $this->duration = ($durationInMinutesAndSeconds['minutes'] * 60) + $durationInMinutesAndSeconds['seconds'];
-        }
-    }
-
-    /**
-     * Is multistream.
-     *
-     * @return bool TRUE if multimediaObject has tracks with tags presenter/delivery and presentation/delivery, FALSE otherwise
-     */
-    public function isMultistream()
-    {
-        $presenterTracks = $this->getFilteredTracksWithTags(['presenter/delivery']);
-        $presentationTracks = $this->getFilteredTracksWithTags(['presentation/delivery']);
-        if ($presenterTracks && $presentationTracks) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Set textindex.
-     *
-     * @param array $textindex
-     */
-    public function setTextIndex($textindex)
-    {
-        $this->textindex = $textindex;
-    }
-
-    /**
-     * Get textindex.
-     *
-     *
-     * @return array
-     */
-    public function getTextIndex()
-    {
-        return $this->textindex;
-    }
-
-    /**
-     * Set secondarytextindex.
-     *
-     * @param array $secondarytextindex
-     */
-    public function setSecondaryTextIndex($secondarytextindex)
-    {
-        $this->secondarytextindex = $secondarytextindex;
-    }
-
-    /**
-     * Get secondarytextindex.
-     *
-     *
-     * @return array
-     */
-    public function getSecondaryTextIndex()
-    {
-        return $this->secondarytextindex;
     }
 }
