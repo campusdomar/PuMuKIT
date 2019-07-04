@@ -62,7 +62,7 @@ class ProfileService
         $tags = is_array($tags) ? $tags : [$tags];
 
         return array_filter($this->profiles, function ($profile) use ($tags) {
-            return 0 == count(array_diff($tags, array_filter(preg_split('/[,\s]+/', $profile['tags']))));
+            return 0 === count(array_diff($tags, array_filter(preg_split('/[,\s]+/', $profile['tags']))));
         });
     }
 
@@ -89,7 +89,7 @@ class ProfileService
         $tags = ['copy'];
         $masterNotCopyProfiles = array_filter($masterProfiles, function ($profile) use ($tags) {
             if (isset($profile['tags'])) {
-                return 0 != count(array_diff($tags, array_filter(preg_split('/[,\s]+/', $profile['tags']))));
+                return 0 !== count(array_diff($tags, array_filter(preg_split('/[,\s]+/', $profile['tags']))));
             }
         });
 

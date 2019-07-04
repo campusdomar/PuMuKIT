@@ -33,7 +33,7 @@ class InboxController extends Controller implements NewAdminControllerInterface
 
         $res = [];
 
-        if ('file' == $type) {
+        if ('file' === $type) {
             $finder->depth('< 1')->followLinks()->in($dir);
             $finder->sortByName();
             foreach ($finder as $f) {

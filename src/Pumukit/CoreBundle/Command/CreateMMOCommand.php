@@ -74,7 +74,7 @@ EOT
             $status = $this->validStatuses[$statusText];
         }
 
-        if ('IN_CLOSE_WRITE' != $input->getArgument('inotify_event')) {
+        if ('IN_CLOSE_WRITE' !== $input->getArgument('inotify_event')) {
             return -1;
         }
         $locale = $this->getContainer()->getParameter('locale');
@@ -119,7 +119,7 @@ EOT
             throw new \Exception('The file  ('.$path.') is not a valid video or audio file');
         }
 
-        if (0 == $duration) {
+        if (0 === $duration) {
             throw new \Exception('The file ('.$path.') is not a valid video or audio file (duration is zero)');
         }
 

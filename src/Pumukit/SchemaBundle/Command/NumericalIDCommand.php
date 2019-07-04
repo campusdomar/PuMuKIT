@@ -183,7 +183,7 @@ EOT
             $lastNumericalID = $nextNumericalID;
             $progressBar->advance();
 
-            if (0 == $i % 50) {
+            if (0 === $i % 50) {
                 $this->dm->flush();
             }
         }

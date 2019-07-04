@@ -131,9 +131,9 @@ class SearchService
      */
     public function addTypeQueryBuilder(Builder $queryBuilder, $typeFound)
     {
-        if ('' != $typeFound) {
+        if ('' !== $typeFound) {
             $queryBuilder->field('type')->equals(
-                ('audio' == $typeFound) ? Multimediaobject::TYPE_AUDIO : Multimediaobject::TYPE_VIDEO
+                ('audio' === $typeFound) ? Multimediaobject::TYPE_AUDIO : Multimediaobject::TYPE_VIDEO
             );
         }
 
@@ -148,20 +148,20 @@ class SearchService
      */
     public function addDurationQueryBuilder(Builder $queryBuilder, $durationFound)
     {
-        if ('' != $durationFound) {
-            if ('-5' == $durationFound) {
+        if ('' !== $durationFound) {
+            if ('-5' === $durationFound) {
                 $queryBuilder->field('tracks.duration')->lte(300);
             }
-            if ('-10' == $durationFound) {
+            if ('-10' === $durationFound) {
                 $queryBuilder->field('tracks.duration')->lte(600);
             }
-            if ('-30' == $durationFound) {
+            if ('-30' === $durationFound) {
                 $queryBuilder->field('tracks.duration')->lte(1800);
             }
-            if ('-60' == $durationFound) {
+            if ('-60' === $durationFound) {
                 $queryBuilder->field('tracks.duration')->lte(3600);
             }
-            if ('+60' == $durationFound) {
+            if ('+60' === $durationFound) {
                 $queryBuilder->field('tracks.duration')->gt(3600);
             }
         }
@@ -187,7 +187,7 @@ class SearchService
             $mRegex = new \MongoRegex("/$searchFound/i");
             $queryBuilder->addOr($queryBuilder->expr()->field('title.'.$locale)->equals($mRegex));
             $queryBuilder->addOr($queryBuilder->expr()->field('people.people.name')->equals($mRegex));
-        } elseif ('' != $searchFound) {
+        } elseif ('' !== $searchFound) {
             $queryBuilder->field('$text')->equals([
                 '$search' => TextIndexUtils::cleanTextIndex($searchFound),
                 '$language' => TextIndexUtils::getCloseLanguage($locale),
@@ -214,11 +214,11 @@ class SearchService
             $queryBuilder->field($dateField)->gte($start);
             $queryBuilder->field($dateField)->lt($end);
         } else {
-            if ('' != $startFound) {
+            if ('' !== $startFound) {
                 $start = \DateTime::createFromFormat('!Y-m-d', $startFound);
                 $queryBuilder->field($dateField)->gt($start);
             }
-            if ('' != $endFound) {
+            if ('' !== $endFound) {
                 $end = \DateTime::createFromFormat('!Y-m-d', $endFound);
                 $end->modify('+1 day');
                 $queryBuilder->field($dateField)->lt($end);
@@ -236,7 +236,7 @@ class SearchService
      */
     public function addLanguageQueryBuilder(Builder $queryBuilder, $languageFound)
     {
-        if ('' != $languageFound) {
+        if ('' !== $languageFound) {
             $queryBuilder->field('tracks.language')->equals($languageFound);
         }
 
