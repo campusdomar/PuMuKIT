@@ -55,7 +55,7 @@ class TrackController extends Controller implements NewAdminControllerInterface
         $profile = $request->get('profile');
         $priority = $request->get('priority', 2);
         $formData = $request->get('pumukitnewadmin_track', []);
-        list($language, $description) = $this->getArrayData($formData);
+        [$language, $description] = $this->getArrayData($formData);
 
         $jobService = $this->get('pumukitencoder.job');
 
@@ -63,9 +63,9 @@ class TrackController extends Controller implements NewAdminControllerInterface
             if (0 === $request->files->count() && 0 === $request->request->count()) {
                 throw new \Exception('PHP ERROR: File exceeds post_max_size ('.ini_get('post_max_size').')');
             }
-            if (($request->files->has('resource')) && ('file' == $request->get('file_type'))) {
+            if (($request->files->has('resource')) && ('file' === $request->get('file_type'))) {
                 $multimediaObject = $jobService->createTrackFromLocalHardDrive($multimediaObject, $request->files->get('resource'), $profile, $priority, $language, $description);
-            } elseif (($request->get('file', null)) && ('inbox' == $request->get('file_type'))) {
+            } elseif (($request->get('file', null)) && ('inbox' === $request->get('file_type'))) {
                 $multimediaObject = $jobService->createTrackFromInboxOnServer($multimediaObject, $request->get('file'), $profile, $priority, $language, $description);
             }
         } catch (\Exception $e) {
@@ -131,7 +131,7 @@ class TrackController extends Controller implements NewAdminControllerInterface
 
         $track = $multimediaObject->getTrackById($request->get('id'));
         $isPlayable = $track->containsTag('display');
-        $isPublished = $multimediaObject->containsTagWithCod('PUCHWEBTV') && MultimediaObject::STATUS_PUBLISHED == $multimediaObject->getStatus();
+        $isPublished = $multimediaObject->containsTagWithCod('PUCHWEBTV') && MultimediaObject::STATUS_PUBLISHED === $multimediaObject->getStatus();
 
         $job = null;
         if ($track->getPath()) {

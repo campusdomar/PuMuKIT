@@ -76,7 +76,7 @@ class PicExtractorService
 
         $num_frames = $track->getNumFrames();
 
-        if ((is_null($numframe) || (0 == $num_frames))) {
+        if ((is_null($numframe) || (0 === $num_frames))) {
             $num = 125 * (count($multimediaObject->getPics())) + 1;
         } elseif ('%' === substr($numframe, -1, 1)) {
             $num = (int) $numframe * $num_frames / 100;
@@ -162,7 +162,7 @@ class PicExtractorService
      */
     private function getAspect(Track $track)
     {
-        if (0 == $track->getHeight()) {
+        if (0 === $track->getHeight()) {
             return 0;
         }
 
@@ -209,7 +209,7 @@ class PicExtractorService
     private function getPicByUrl(MultimediaObject $multimediaObject, $picUrl)
     {
         foreach ($multimediaObject->getPics() as $pic) {
-            if ($picUrl == $pic->getUrl()) {
+            if ($picUrl === $pic->getUrl()) {
                 return $pic;
             }
         }

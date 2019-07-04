@@ -49,7 +49,7 @@ class PicService
      */
     public function findPicsByOptions($id = null, $size = null, $path = null, $extension = null, $tags = null, $exists = null, $type = null)
     {
-        if ('series' == $type) {
+        if ('series' === $type) {
             $collection = $this->dm->getDocumentCollection(Series::class);
         } else {
             $collection = $this->dm->getDocumentCollection(MultimediaObject::class);
@@ -347,12 +347,12 @@ class PicService
      */
     private function createFromPic($pic, $params, $no_replace, $ext)
     {
-        list($originalWidth, $originalHeight) = getimagesize($pic['path']);
+        [$originalWidth, $originalHeight] = getimagesize($pic['path']);
 
         $width = $params['max_width'] ?? 0;
         $height = $params['max_height'] ?? 0;
 
-        list($width, $height) = $this->preserveAspectRatio($width, $height, $originalWidth, $originalHeight);
+        [$width, $height] = $this->preserveAspectRatio($width, $height, $originalWidth, $originalHeight);
 
         $image_p = \imagecreatetruecolor($width, $height);
         if ('png' === $ext) {
@@ -385,7 +385,7 @@ class PicService
      */
     private function preserveAspectRatio($width, $height, $originalWidth, $originalHeight)
     {
-        if (0 == $width && 0 == $height) {
+        if (0 === $width && 0 === $height) {
             $width = $this->max_width;
         }
 
@@ -426,7 +426,7 @@ class PicService
         $newPic->setHide(false);
         $newPic->addTag('refactor_image');
 
-        list($width, $height, $type, $attributes) = \getimagesize($picPath);
+        [$width, $height, $type, $attributes] = \getimagesize($picPath);
 
         $newPic->setWidth($width);
         $newPic->setHeight($height);
@@ -463,7 +463,7 @@ class PicService
         $url = $this->mmsPicService->getTargetUrl($multimediaObject);
         $url .= '/'.basename($picPath);
 
-        list($width, $height, $type, $attributes) = \getimagesize($picPath);
+        [$width, $height, $type, $attributes] = \getimagesize($picPath);
 
         foreach ($multimediaObject->getPics() as $mmsPic) {
             if ($mmsPic->getPath() === $pic['path']) {

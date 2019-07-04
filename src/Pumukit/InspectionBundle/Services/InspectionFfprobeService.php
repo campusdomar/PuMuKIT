@@ -99,7 +99,7 @@ class InspectionFfprobeService implements InspectionServiceInterface
     {
         if (null !== $json->streams) {
             foreach ($json->streams as $stream) {
-                if ((isset($stream->codec_type)) && ('audio' == $stream->codec_type || 'video' == $stream->codec_type) && ('ansi' != $stream->codec_name)) {
+                if ((isset($stream->codec_type)) && ('audio' === $stream->codec_type || 'video' === $stream->codec_type) && ('ansi' !== $stream->codec_name)) {
                     return true;
                 }
             }
