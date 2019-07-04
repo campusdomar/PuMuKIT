@@ -76,12 +76,12 @@ class PicExtractorService
 
         $num_frames = $track->getNumFrames();
 
-        if ((null === $numframe || (0 == $num_frames))) {
+        if ((null === $numframe || (0 === $num_frames))) {
             $num = 125 * (count($multimediaObject->getPics())) + 1;
         } elseif ('%' === substr($numframe, -1, 1)) {
-            $num = intval($numframe) * $num_frames / 100;
+            $num = (int) $numframe * $num_frames / 100;
         } else {
-            $num = intval($numframe);
+            $num = (int) $numframe;
         }
 
         $this->createPic($multimediaObject, $track, $num);
@@ -113,12 +113,12 @@ class PicExtractorService
 
         $aspectTrack = $this->getAspect($track);
         if (0 !== $aspectTrack) {
-            $newHeight = intval(1.0 * $this->width / $aspectTrack);
+            $newHeight = (int) (1.0 * $this->width / $aspectTrack);
             if ($newHeight <= $this->height) {
                 $newWidth = $this->width;
             } else {
                 $newHeight = $this->height;
-                $newWidth = intval(1.0 * $this->height * $aspectTrack);
+                $newWidth = (int) (1.0 * $this->height * $aspectTrack);
             }
         } else {
             $newHeight = $this->height;
@@ -162,7 +162,7 @@ class PicExtractorService
      */
     private function getAspect(Track $track)
     {
-        if (0 == $track->getHeight()) {
+        if (0 === $track->getHeight()) {
             return 0;
         }
 
@@ -209,7 +209,7 @@ class PicExtractorService
     private function getPicByUrl(MultimediaObject $multimediaObject, $picUrl)
     {
         foreach ($multimediaObject->getPics() as $pic) {
-            if ($picUrl == $pic->getUrl()) {
+            if ($picUrl === $pic->getUrl()) {
                 return $pic;
             }
         }

@@ -50,14 +50,14 @@ class DefaultController extends Controller
         if ($live->getPasswd() && $live->getPasswd() !== $request->get('broadcast_password')) {
             return $this->render($iframe ? 'PumukitLiveBundle:Default:iframepassword.html.twig' : 'PumukitLiveBundle:Default:indexpassword.html.twig', [
                 'live' => $live,
-                'invalid_password' => boolval($request->get('broadcast_password')),
+                'invalid_password' => (bool) ($request->get('broadcast_password')),
             ]);
         }
         $userAgent = $request->headers->get('user-agent');
         $mobileDetectorService = $this->get('mobile_detect.mobile_detector');
         $mobileDevice = ($mobileDetectorService->isMobile($userAgent) || $mobileDetectorService->isTablet($userAgent));
         $isIE = $mobileDetectorService->version('IE');
-        $versionIE = $isIE ? floatval($isIE) : 11.0;
+        $versionIE = $isIE ? (float) $isIE : 11.0;
 
         return [
             'live' => $live,
@@ -134,7 +134,7 @@ class DefaultController extends Controller
         if (embeddedBroadcast::TYPE_PASSWORD === $multimediaObject->getEmbeddedBroadcast()->getType() && $multimediaObject->getEmbeddedBroadcast()->getPassword() !== $request->get('broadcast_password')) {
             return $this->render($iframe ? 'PumukitLiveBundle:Default:iframepassword.html.twig' : 'PumukitLiveBundle:Default:indexpassword.html.twig', [
                 'live' => $multimediaObject->getEmbeddedEvent(),
-                'invalid_password' => boolval($request->get('broadcast_password')),
+                'invalid_password' => (bool) ($request->get('broadcast_password')),
             ]);
         }
 
@@ -142,7 +142,7 @@ class DefaultController extends Controller
         $mobileDetectorService = $this->get('mobile_detect.mobile_detector');
         $mobileDevice = ($mobileDetectorService->isMobile($userAgent) || $mobileDetectorService->isTablet($userAgent));
         $isIE = $mobileDetectorService->version('IE');
-        $versionIE = $isIE ? floatval($isIE) : 11.0;
+        $versionIE = $isIE ? (float) $isIE : 11.0;
 
         $translator = $this->get('translator');
         $locale = $request->getLocale();
@@ -308,7 +308,7 @@ class DefaultController extends Controller
     public function contactAction($multimediaObject, Request $request)
     {
         $translator = $this->get('translator');
-        if ('POST' == $request->getMethod() && $this->checkCaptcha($request->request->get('g-recaptcha-response'), $request->getClientIp())) {
+        if ('POST' === $request->getMethod() && $this->checkCaptcha($request->request->get('g-recaptcha-response'), $request->getClientIp())) {
             $mail = $this->container->hasParameter('pumukit_notification.sender_email') ? $this->container->getParameter('pumukit_notification.sender_email') : 'noreplay@yourplatform.es';
             $to = $multimediaObject->getEmbeddedSocial()->getEmail();
 
@@ -326,7 +326,7 @@ class DefaultController extends Controller
             $message->setSubject($subject)->setSender($mail)->setFrom($mail)->setTo($to)->setBody($bodyMail, 'text/plain');
             $sent = $this->get('mailer')->send($message);
 
-            if (0 == $sent) {
+            if (0 === $sent) {
                 $this->get('logger')->error('Event contact: Error sending message from - '.$request->request->get('email'));
             }
 
@@ -352,7 +352,7 @@ class DefaultController extends Controller
     {
         $privatekey = $this->container->getParameter('captcha_private_key');
 
-        if (null === $response || 0 == strlen($response)) {
+        if (null === $response || 0 === strlen($response)) {
             return false;
         }
 

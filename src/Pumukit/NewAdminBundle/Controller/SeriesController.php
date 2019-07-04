@@ -42,7 +42,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
 
         $update_session = true;
         foreach ($resources as $series) {
-            if ($series->getId() == $this->get('session')->get('admin/series/id')) {
+            if ($series->getId() === $this->get('session')->get('admin/series/id')) {
                 $update_session = false;
             }
         }
@@ -326,7 +326,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
             }
         }
 
-        if (0 == $deleteSeriesCount) {
+        if (0 === $deleteSeriesCount) {
             return new Response('0 series deleted', Response::HTTP_BAD_REQUEST);
         }
 
@@ -493,7 +493,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
         $value = $session->get('admin/series/type', 'desc');
         $key = $session->get('admin/series/sort', 'public_date');
 
-        if ('title' == $key) {
+        if ('title' === $key) {
             $key .= '.'.$request->getLocale();
         }
 
@@ -552,7 +552,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
             $position = 1;
             $findSerie = false;
             foreach ($returnedSeries as $series) {
-                if ($selectedSeriesId == $series->getId()) {
+                if ($selectedSeriesId === $series->getId()) {
                     $findSerie = true;
                     break;
                 }
@@ -560,7 +560,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
             }
 
             $maxPerPage = $session->get($session_namespace.'/paginate', 10);
-            $page = intval(ceil($position / $maxPerPage));
+            $page = (int) (ceil($position / $maxPerPage));
             if (!$findSerie) {
                 $page = 1;
             }
@@ -594,7 +594,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
             if ($mm) {
                 if ($this->isGranted(Permission::CHANGE_MMOBJECT_PUBCHANNEL)) {
                     foreach ($value['channels'] as $channelId => $mustContainsTag) {
-                        $mustContainsTag = ('true' == $mustContainsTag);
+                        $mustContainsTag = ('true' === $mustContainsTag);
                         $tag = $repoTags->find($channelId);
                         if ($tag && !$this->isGranted(Permission::getRoleTagDisableForPubChannel($tag->getCod()))) {
                             if ($mustContainsTag && (!($mm->containsTag($tag)))) {
@@ -608,7 +608,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
                     }
                 }
 
-                if ($this->isGranted(Permission::CHANGE_MMOBJECT_STATUS) && $value['status'] != $mm->getStatus()) {
+                if ($this->isGranted(Permission::CHANGE_MMOBJECT_STATUS) && $value['status'] !== $mm->getStatus()) {
                     $mm->setStatus($value['status']);
                     $executeFlush = true;
                 }
@@ -640,7 +640,7 @@ class SeriesController extends AdminController implements NewAdminControllerInte
                     if ($this->compareSeries($resource, $oneseries)) {
                         array_splice($series, $index, 0, [$resource]);
                         break;
-                    } elseif ($index == (count($aux) - 1)) {
+                    } elseif ($index === (count($aux) - 1)) {
                         $series[] = $resource;
                     }
                 }

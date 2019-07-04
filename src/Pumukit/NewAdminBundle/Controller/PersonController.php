@@ -628,7 +628,7 @@ class PersonController extends AdminController implements NewAdminControllerInte
 
         if (array_key_exists('name', $criteria) && array_key_exists('letter', $criteria)) {
             if (('' !== $criteria['name']) && ('' !== $criteria['letter'])) {
-                $more = strtoupper($criteria['name'][0]) == strtoupper($criteria['letter']) ? '|^'.$criteria['name'].'.*' : '';
+                $more = strtoupper($criteria['name'][0]) === strtoupper($criteria['letter']) ? '|^'.$criteria['name'].'.*' : '';
                 $new_criteria['name'] = new \MongoRegex('/^'.$criteria['letter'].'.*'.$criteria['name'].'.*'.$more.'/i');
             } elseif ('' !== $criteria['name']) {
                 $new_criteria['name'] = new \MongoRegex('/'.$criteria['name'].'/i');
@@ -691,13 +691,13 @@ class PersonController extends AdminController implements NewAdminControllerInte
             $returnedPerson = $adapter->getSlice(0, $adapter->getNbResults());
             $position = 1;
             foreach ($returnedPerson as $person) {
-                if ($selectedPersonId == $person->getId()) {
+                if ($selectedPersonId === $person->getId()) {
                     break;
                 }
                 ++$position;
             }
             $maxPerPage = $session->get('admin/person/paginate', 10);
-            $page = intval(ceil($position / $maxPerPage));
+            $page = (int) (ceil($position / $maxPerPage));
         } else {
             $maxPerPage = $session->get('admin/person/paginate', 10);
             $page = $session->get('admin/person/page', 1);

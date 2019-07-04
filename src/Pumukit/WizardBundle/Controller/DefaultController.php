@@ -179,7 +179,7 @@ class DefaultController extends Controller
         if (!$licenseEnabledAndAccepted) {
             return $this->redirect($this->generateUrl('pumukitwizard_default_license', ['pumukitwizard_form_data' => $formData, 'same_series' => $sameSeries]));
         }
-        if (('multiple' == $formData['type']['option']) && (false !== $this->get('security.authorization_checker')->isGranted(Permission::ACCESS_INBOX))) {
+        if (('multiple' === $formData['type']['option']) && (false !== $this->get('security.authorization_checker')->isGranted(Permission::ACCESS_INBOX))) {
             return $this->redirect($this->generateUrl('pumukitwizard_default_track', ['pumukitwizard_form_data' => $formData, 'same_series' => $sameSeries]));
         }
 
@@ -422,7 +422,7 @@ class DefaultController extends Controller
                         throw new \Exception('The file is not a valid video or audio file');
                     }
 
-                    if (0 == $duration) {
+                    if (0 === $duration) {
                         throw new \Exception('The file is not a valid video or audio file (duration is zero)');
                     }
 
@@ -482,12 +482,12 @@ class DefaultController extends Controller
                     }
 
                     if ($multimediaObject && isset($status)) {
-                        $multimediaObject->setStatus(intval($status));
+                        $multimediaObject->setStatus((int) $status);
                     }
 
                     if ($showTags) {
                         $tagCode = $this->getKeyData('tag', $formData['multimediaobject']);
-                        if ('0' != $tagCode) {
+                        if ('0' !== $tagCode) {
                             $this->addTagToMultimediaObjectByCode($multimediaObject, $tagCode);
                         }
                     }

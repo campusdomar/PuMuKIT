@@ -65,7 +65,7 @@ EOT
                 $total = $statistics['statistics']['total'];
             }
 
-            if (0 == $total) {
+            if (0 === $total) {
                 return null;
             }
             $workflowName = 'retract';

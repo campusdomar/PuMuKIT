@@ -809,7 +809,7 @@ class Job
      */
     public function isPending()
     {
-        return self::STATUS_WAITING == $this->status || self::STATUS_PAUSED == $this->status;
+        return self::STATUS_WAITING === $this->status || self::STATUS_PAUSED === $this->status;
     }
 
     /**
@@ -817,7 +817,7 @@ class Job
      */
     public function isWaiting()
     {
-        return self::STATUS_WAITING == $this->status;
+        return self::STATUS_WAITING === $this->status;
     }
 
     /**
@@ -825,7 +825,7 @@ class Job
      */
     public function isPaused()
     {
-        return self::STATUS_PAUSED == $this->status;
+        return self::STATUS_PAUSED === $this->status;
     }
 
     /**
@@ -833,7 +833,7 @@ class Job
      */
     public function isExecuting()
     {
-        return self::STATUS_EXECUTING == $this->status;
+        return self::STATUS_EXECUTING === $this->status;
     }
 
     /**
@@ -841,7 +841,7 @@ class Job
      */
     public function isFailed()
     {
-        return self::STATUS_ERROR == $this->status;
+        return self::STATUS_ERROR === $this->status;
     }
 
     /**
@@ -849,7 +849,7 @@ class Job
      */
     public function isFinished()
     {
-        return self::STATUS_FINISHED == $this->status;
+        return self::STATUS_FINISHED === $this->status;
     }
 
     /**
@@ -857,6 +857,6 @@ class Job
      */
     public function isExecuted()
     {
-        return self::STATUS_ERROR == $this->status || self::STATUS_FINISHED == $this->status;
+        return self::STATUS_ERROR === $this->status || self::STATUS_FINISHED === $this->status;
     }
 }

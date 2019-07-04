@@ -29,11 +29,11 @@ class LegacyEventController extends AdminController implements NewAdminControlle
     public function indexAction(Request $request)
     {
         $criteria = $this->getCriteria($request->get('criteria', []));
-        list($events, $month, $year, $calendar) = $this->getResources($request, $criteria);
+        [$events, $month, $year, $calendar] = $this->getResources($request, $criteria);
 
         $update_session = true;
         foreach ($events as $event) {
-            if ($event->getId() == $this->get('session')->get('admin/event/id')) {
+            if ($event->getId() === $this->get('session')->get('admin/event/id')) {
                 $update_session = false;
             }
         }
@@ -97,7 +97,7 @@ class LegacyEventController extends AdminController implements NewAdminControlle
     public function listAction(Request $request)
     {
         $criteria = $this->getCriteria($request->get('criteria', []));
-        list($events, $month, $year, $calendar) = $this->getResources($request, $criteria);
+        [$events, $month, $year, $calendar] = $this->getResources($request, $criteria);
 
         $repo = $this
               ->get('doctrine_mongodb.odm.document_manager')
@@ -201,15 +201,15 @@ class LegacyEventController extends AdminController implements NewAdminControlle
         $m = $this->get('session')->get('admin/event/month');
         $y = $this->get('session')->get('admin/event/year');
 
-        if ('next' == $request->query->get('month')) {
+        if ('next' === $request->query->get('month')) {
             $changed_date = mktime(0, 0, 0, $m + 1, 1, $y);
             $this->get('session')->set('admin/event/year', date('Y', $changed_date));
             $this->get('session')->set('admin/event/month', date('m', $changed_date));
-        } elseif ('previous' == $request->query->get('month')) {
+        } elseif ('previous' === $request->query->get('month')) {
             $changed_date = mktime(0, 0, 0, $m - 1, 1, $y);
             $this->get('session')->set('admin/event/year', date('Y', $changed_date));
             $this->get('session')->set('admin/event/month', date('m', $changed_date));
-        } elseif ('today' == $request->query->get('month')) {
+        } elseif ('today' === $request->query->get('month')) {
             $this->get('session')->set('admin/event/year', date('Y'));
             $this->get('session')->set('admin/event/month', date('m'));
         }
@@ -233,10 +233,10 @@ class LegacyEventController extends AdminController implements NewAdminControlle
 
         $d = self::$daysInMonth[$month - 1];
 
-        if (2 == $month) {
-            if (0 == $year % 4) {
-                if (0 == $year % 100) {
-                    if (0 == $year % 400) {
+        if (2 === $month) {
+            if (0 === $year % 4) {
+                if (0 === $year % 100) {
+                    if (0 === $year % 400) {
                         $d = 29;
                     }
                 } else {
@@ -257,7 +257,7 @@ class LegacyEventController extends AdminController implements NewAdminControlle
 
         $dweek = date('N', mktime(0, 0, 0, $month, 1, $year)) - 1;
         foreach (range(1, self::getDaysInMonth($month, $year)) as $i) {
-            $aux[intval($dweek / 7)][($dweek % 7)] = $i;
+            $aux[(int) ($dweek / 7)][($dweek % 7)] = $i;
             ++$dweek;
         }
 
@@ -289,7 +289,7 @@ class LegacyEventController extends AdminController implements NewAdminControlle
             //preg_match('/^\/.*?\/[imxlsu]*$/i', $e)
             if (('' !== $value) && ('date' !== $property)) {
                 $new_criteria[$property] = new \MongoRegex('/'.$value.'/i');
-            } elseif (('' !== $value) && ('date' == $property)) {
+            } elseif (('' !== $value) && ('date' === $property)) {
                 if ('' !== $value['from']) {
                     $date_from = new \DateTime($value['from']);
                 }
@@ -338,7 +338,7 @@ class LegacyEventController extends AdminController implements NewAdminControlle
 
         $resources->setCurrentPage($page);
 
-        list($m, $y, $calendar) = $this->getCalendar($request);
+        [$m, $y, $calendar] = $this->getCalendar($request);
 
         return [$resources, $m, $y, $calendar];
     }

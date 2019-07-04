@@ -517,7 +517,7 @@ EOT
         curl_close($ch);
         $progress->finish();
 
-        return 200 == $statusCode;
+        return 200 === $statusCode;
     }
 
     private function getRoleWithCode($code)

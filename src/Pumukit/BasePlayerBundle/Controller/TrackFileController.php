@@ -36,7 +36,7 @@ class TrackFileController extends Controller
             return new Response('', Response::HTTP_NOT_FOUND);
         }
 
-        list($mmobj, $track) = $this->getMmobjAndTrack($id);
+        [$mmobj, $track] = $this->getMmobjAndTrack($id);
 
         if ($this->shouldIncreaseViews($track, $request)) {
             $this->dispatchViewEvent($mmobj, $track);
@@ -85,9 +85,9 @@ class TrackFileController extends Controller
             return new JsonResponse(['status' => 'error']);
         }
 
-        list($mmobj, $track) = $this->getMmobjAndTrack($id);
+        [$mmobj, $track] = $this->getMmobjAndTrack($id);
 
-        if ('on_play' != $this->container->getParameter('pumukitplayer.when_dispatch_view_event')) {
+        if ('on_play' !== $this->container->getParameter('pumukitplayer.when_dispatch_view_event')) {
             return new JsonResponse(['status' => 'error']);
         }
 
@@ -156,7 +156,7 @@ class TrackFileController extends Controller
      */
     protected function shouldIncreaseViews(Track $track, Request $request)
     {
-        if ('on_load' != $this->container->getParameter('pumukitplayer.when_dispatch_view_event')) {
+        if ('on_load' !== $this->container->getParameter('pumukitplayer.when_dispatch_view_event')) {
             return false;
         }
 
@@ -169,10 +169,10 @@ class TrackFileController extends Controller
         if (!$range && !$start) {
             return true;
         }
-        if ($range && 'bytes=0-' == substr($range, 0, 8)) {
+        if ($range && 'bytes=0-' === substr($range, 0, 8)) {
             return true;
         }
-        if (null !== $start && 0 == $start) {
+        if (null !== $start && 0 === $start) {
             return true;
         }
 
