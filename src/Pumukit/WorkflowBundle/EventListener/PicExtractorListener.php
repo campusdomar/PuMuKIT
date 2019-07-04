@@ -62,9 +62,9 @@ class PicExtractorListener
             try {
                 if ($multimediaObject->isOnlyAudio() || $track->isOnlyAudio()) {
                     return false;
-                } else {
-                    return $this->generatePicFromVideo($multimediaObject, $track);
                 }
+
+                return $this->generatePicFromVideo($multimediaObject, $track);
             } catch (\Exception $e) {
                 $this->logger->error(__CLASS__.'['.__FUNCTION__.'] '
                                     .'There was an error in extracting a pic for MultimediaObject "'

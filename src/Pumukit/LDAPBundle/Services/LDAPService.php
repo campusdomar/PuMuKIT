@@ -74,6 +74,7 @@ class LDAPService
             return false;
         }
         $ret = false;
+
         try {
             $linkIdentifier = ldap_connect($this->server);
             ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
@@ -94,6 +95,7 @@ class LDAPService
             }
         } catch (\Exception $e) {
             $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.$e->getMessage());
+
             throw $e;
         }
 
@@ -104,13 +106,15 @@ class LDAPService
      * Obtiene el nombre completo de usuario del
      * servidor ldap.
      *
-     * @return string nombre completo del usuario
      *
      * @param string $user nombre del usuario
+     *
+     * @return string nombre completo del usuario
      */
     public function getName($user)
     {
         $name = false;
+
         try {
             $linkIdentifier = ldap_connect($this->server);
             ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
@@ -130,6 +134,7 @@ class LDAPService
             }
         } catch (\Exception $e) {
             $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.$e->getMessage());
+
             throw $e;
         }
 
@@ -142,13 +147,14 @@ class LDAPService
      *
      * @public
      *
-     * @return string correo del usuario
-     *
      * @param string $user nombre del usuario
+     *
+     * @return string correo del usuario
      */
     public function getMail($user)
     {
         $name = false;
+
         try {
             $linkIdentifier = ldap_connect($this->server);
             ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
@@ -168,6 +174,7 @@ class LDAPService
             }
         } catch (\Exception $e) {
             $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.$e->getMessage());
+
             throw $e;
         }
 
@@ -179,6 +186,8 @@ class LDAPService
      *
      * @public
      * @pararm string $email
+     *
+     * @param mixed $email
      *
      * @return array|false
      */
@@ -193,6 +202,9 @@ class LDAPService
      * @public
      * @pararm string $key
      * @pararm string $value
+     *
+     * @param mixed $key
+     * @param mixed $value
      *
      * @return array|false
      */
@@ -241,6 +253,7 @@ class LDAPService
     {
         $limit = 40;
         $out = [];
+
         try {
             $linkIdentifier = ldap_connect($this->server);
             ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
@@ -259,9 +272,9 @@ class LDAPService
                                 continue;
                             }
                             $out[] = [
-                                           'mail' => $i['mail'][0],
-                                           'cn' => $i['cn'][0],
-                                           ];
+                                'mail' => $i['mail'][0],
+                                'cn' => $i['cn'][0],
+                            ];
                         }
                     }
                 }
@@ -269,6 +282,7 @@ class LDAPService
             }
         } catch (\Exception $e) {
             $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.$e->getMessage());
+
             throw $e;
         }
 

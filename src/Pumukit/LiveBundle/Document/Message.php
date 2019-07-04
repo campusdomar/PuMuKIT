@@ -125,6 +125,8 @@ class Message
     }
 
     /**
+     * @param mixed $multimediaObject
+     *
      * @return string $multimediaObject
      */
     public function getMultimediaObject($multimediaObject)

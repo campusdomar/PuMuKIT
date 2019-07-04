@@ -4,8 +4,8 @@ namespace Pumukit\BasePlayerBundle\Twig;
 
 use Pumukit\BasePlayerBundle\Services\TrackUrlService;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RequestContext;
 
 class BasePlayerExtension extends \Twig_Extension
 {
@@ -55,9 +55,9 @@ class BasePlayerExtension extends \Twig_Extension
      * @param $track
      * @param $request
      *
-     * @return string
-     *
      * @throws \Exception
+     *
+     * @return string
      */
     public function generateDirectTrackFileUrl($track, $request)
     {
@@ -67,7 +67,7 @@ class BasePlayerExtension extends \Twig_Extension
     /**
      * @param MultimediaObject $mmobj
      *
-     * @return \Pumukit\SchemaBundle\Document\Track|null
+     * @return null|\Pumukit\SchemaBundle\Document\Track
      */
     public function getFirstPublicTrackFilter(MultimediaObject $mmobj)
     {

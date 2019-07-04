@@ -2,18 +2,18 @@
 
 namespace Pumukit\CasBundle\Handler;
 
+use Pumukit\CasBundle\Services\CASService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Logout\LogoutSuccessHandlerInterface;
-use Pumukit\CasBundle\Services\CASService;
 
 /**
  * Class LogoutSuccessHandler.
  */
 class LogoutSuccessHandler implements LogoutSuccessHandlerInterface
 {
-    private $router;
     protected $casService;
+    private $router;
 
     /**
      * LogoutSuccessHandler constructor.

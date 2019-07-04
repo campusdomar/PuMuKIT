@@ -5,13 +5,14 @@ $finder = PhpCsFixer\Finder::create()
 return PhpCsFixer\Config::create()
     ->setRules([
         '@Symfony' => true,
+        '@PhpCsFixer' => true,
         'array_syntax' => ['syntax' => 'short'],
+        'combine_nested_dirname' => true,
         'is_null' => true,
-        'modernize_types_casting' => true,
         'list_syntax' => ['syntax' => 'short'],
+        'modernize_types_casting' => true,
         'strict_comparison' => true,
         'ternary_to_null_coalescing' => true,
-        'combine_nested_dirname' => true,
     ])
     ->setFinder($finder)
     ->setRiskyAllowed(true)

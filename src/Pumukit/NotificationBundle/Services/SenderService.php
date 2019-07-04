@@ -2,9 +2,9 @@
 
 namespace Pumukit\NotificationBundle\Services;
 
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\Translation\TranslatorInterface;
-use Doctrine\ODM\MongoDB\DocumentManager;
 
 class SenderService
 {
@@ -105,7 +105,7 @@ class SenderService
     /**
      * Get Admin email.
      *
-     * @return string|array
+     * @return array|string
      */
     public function getAdminEmail()
     {
@@ -208,9 +208,111 @@ class SenderService
     }
 
     /**
+     * Get message to send.
+     *
+     * @param $message
+     * @param $email
+     * @param $subject
+     * @param $template
+     * @param $parameters
+     * @param $error
+     * @param $transConfigSubject
+     *
+     * @return mixed
+     */
+    public function getMessageToSend($message, $email, $subject, $template, $parameters, $error, $transConfigSubject)
+    {
+        $body = $this->getBodyInMultipleLanguages($template, $parameters, $error, $transConfigSubject);
+
+        // Send to verified emails
+        $message
+            ->setSubject($subject)
+            ->setSender($this->senderEmail, $this->senderName)
+            ->setFrom($this->senderEmail, $this->senderName)
+            ->addReplyTo($this->senderEmail, $this->senderName)
+            ->setTo($email)
+            ->setBody($body, 'text/html')
+        ;
+
+        return $message;
+    }
+
+    /**
+     * Get body in multiple languages.
+     *
+     * @param string $template
+     * @param array  $parameters
+     * @param bool   $error
+     * @param bool   $transConfigSubject
+     *
+     * @return string
+     */
+    public function getBodyInMultipleLanguages($template, $parameters, $error, $transConfigSubject)
+    {
+        if (!$this->enableMultiLang) {
+            return $this->templating->render($template, $parameters);
+        }
+
+        $sessionLocale = $this->translator->getLocale();
+        $body = '';
+        foreach ($this->locales as $locale) {
+            $this->translator->setLocale($locale);
+            $parameters = $this->transConfigurationSubject($parameters, $locale, $error, $transConfigSubject);
+            $parameters['locale'] = $locale;
+            $bodyLocale = $this->templating->render($template, $parameters);
+            $body = $body.$bodyLocale;
+        }
+        $this->translator->setLocale($sessionLocale);
+
+        return $body;
+    }
+
+    /**
+     * Get Subject Success Trans With Locale.
+     *
+     * @param mixed $locale
+     *
+     * @return string
+     */
+    public function getSubjectSuccessTransWithLocale($locale = 'en')
+    {
+        return $this->getSubjectTransWithLocale($this->subjectSuccessTrans, $locale);
+    }
+
+    /**
+     * Get Subject Fails Trans With Locale.
+     *
+     * @param mixed $locale
+     *
+     * @return string
+     */
+    public function getSubjectFailsTransWithLocale($locale = 'en')
+    {
+        return $this->getSubjectTransWithLocale($this->subjectFailsTrans, $locale);
+    }
+
+    /**
+     * Get Subject Trans With Locale.
+     *
+     * @param mixed $locale
+     *
+     * @return string
+     */
+    public function getSubjectTransWithLocale(array $subjectArray = [], $locale = 'en')
+    {
+        foreach ($subjectArray as $translation) {
+            if (isset($translation['locale']) && ($locale === $translation['locale']) && isset($translation['subject'])) {
+                return $translation['subject'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Checks if string|array email are valid.
      *
-     * @param string|array $emailTo
+     * @param array|string $emailTo
      *
      * @return bool
      */
@@ -233,12 +335,11 @@ class SenderService
                 $errorEmails[] = $emailTo;
             }
         }
-        $filterEmail = [
+
+        return [
             'verified' => $verifiedEmails,
             'error' => $errorEmails,
         ];
-
-        return $filterEmail;
     }
 
     /**
@@ -275,71 +376,11 @@ class SenderService
             }
 
             return $aux;
-        } else {
-            $parameters['person_name'] = $this->getPersonNameFromEmail($emailTo);
-            $message = $this->getMessageToSend($message, $emailTo, $subject, $template, $parameters, $error, $transConfigSubject);
         }
+        $parameters['person_name'] = $this->getPersonNameFromEmail($emailTo);
+        $message = $this->getMessageToSend($message, $emailTo, $subject, $template, $parameters, $error, $transConfigSubject);
 
         return $this->mailer->send($message);
-    }
-
-    /**
-     * Get message to send.
-     *
-     * @param $message
-     * @param $email
-     * @param $subject
-     * @param $template
-     * @param $parameters
-     * @param $error
-     * @param $transConfigSubject
-     *
-     * @return mixed
-     */
-    public function getMessageToSend($message, $email, $subject, $template, $parameters, $error, $transConfigSubject)
-    {
-        $body = $this->getBodyInMultipleLanguages($template, $parameters, $error, $transConfigSubject);
-
-        /* Send to verified emails */
-        $message
-            ->setSubject($subject)
-            ->setSender($this->senderEmail, $this->senderName)
-            ->setFrom($this->senderEmail, $this->senderName)
-            ->addReplyTo($this->senderEmail, $this->senderName)
-            ->setTo($email)
-            ->setBody($body, 'text/html');
-
-        return $message;
-    }
-
-    /**
-     * Get body in multiple languages.
-     *
-     * @param string $template
-     * @param array  $parameters
-     * @param bool   $error
-     * @param bool   $transConfigSubject
-     *
-     * @return string
-     */
-    public function getBodyInMultipleLanguages($template, $parameters, $error, $transConfigSubject)
-    {
-        if (!$this->enableMultiLang) {
-            return $this->templating->render($template, $parameters);
-        }
-
-        $sessionLocale = $this->translator->getLocale();
-        $body = '';
-        foreach ($this->locales as $locale) {
-            $this->translator->setLocale($locale);
-            $parameters = $this->transConfigurationSubject($parameters, $locale, $error, $transConfigSubject);
-            $parameters['locale'] = $locale;
-            $bodyLocale = $this->templating->render($template, $parameters);
-            $body = $body.$bodyLocale;
-        }
-        $this->translator->setLocale($sessionLocale);
-
-        return $body;
     }
 
     private function transConfigurationSubject($parameters, $locale, $error, $transConfigSubject)
@@ -354,42 +395,6 @@ class SenderService
         }
 
         return $parameters;
-    }
-
-    /**
-     * Get Subject Success Trans With Locale.
-     *
-     * @return string
-     */
-    public function getSubjectSuccessTransWithLocale($locale = 'en')
-    {
-        return $this->getSubjectTransWithLocale($this->subjectSuccessTrans, $locale);
-    }
-
-    /**
-     * Get Subject Fails Trans With Locale.
-     *
-     * @return string
-     */
-    public function getSubjectFailsTransWithLocale($locale = 'en')
-    {
-        return $this->getSubjectTransWithLocale($this->subjectFailsTrans, $locale);
-    }
-
-    /**
-     * Get Subject Trans With Locale.
-     *
-     * @return string
-     */
-    public function getSubjectTransWithLocale(array $subjectArray = [], $locale = 'en')
-    {
-        foreach ($subjectArray as $translation) {
-            if (isset($translation['locale']) && ($locale === $translation['locale']) && isset($translation['subject'])) {
-                return $translation['subject'];
-            }
-        }
-
-        return null;
     }
 
     private function getPersonNameFromEmail($email)
