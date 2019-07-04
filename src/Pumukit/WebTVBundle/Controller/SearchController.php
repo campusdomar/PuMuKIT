@@ -44,10 +44,10 @@ class SearchController extends Controller implements WebTVControllerInterface
         $numberCols = $this->container->getParameter('columns_objs_search');
 
         // Generate QueryBuilder search
-        $searchFound = $request->query->get('search');
-        $startFound = $request->query->get('start');
-        $endFound = $request->query->get('end');
-        $yearFound = $request->query->get('year');
+        $searchFound = $request->query->get('search', '');
+        $startFound = $request->query->get('start', '');
+        $endFound = $request->query->get('end', '');
+        $yearFound = $request->query->get('year', '');
 
         $request = $this->container->get('request_stack')->getCurrentRequest();
         $queryBuilder = $this->createSeriesQueryBuilder();
@@ -106,14 +106,14 @@ class SearchController extends Controller implements WebTVControllerInterface
         $numberCols = $this->container->getParameter('columns_objs_search');
 
         // Generate QueryBuilder search
-        $searchFound = $request->query->get('search');
+        $searchFound = $request->query->get('search', '');
         $tagsFound = $request->query->get('tags');
-        $typeFound = $request->query->get('type');
-        $durationFound = $request->query->get('duration');
-        $startFound = $request->query->get('start');
-        $endFound = $request->query->get('end');
-        $yearFound = $request->query->get('year');
-        $languageFound = $request->query->get('language');
+        $typeFound = $request->query->get('type', '');
+        $durationFound = $request->query->get('duration', '');
+        $startFound = $request->query->get('start', '');
+        $endFound = $request->query->get('end', '');
+        $yearFound = $request->query->get('year', '');
+        $languageFound = $request->query->get('language', '');
 
         $request = $this->container->get('request_stack')->getCurrentRequest();
         $queryBuilder = $this->createMultimediaObjectQueryBuilder();

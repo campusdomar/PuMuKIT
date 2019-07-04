@@ -128,7 +128,7 @@ class SearchService
      *
      * @return Builder
      */
-    public function addTypeQueryBuilder(Builder $queryBuilder, $typeFound)
+    public function addTypeQueryBuilder(Builder $queryBuilder, string $typeFound)
     {
         if ('' !== $typeFound) {
             $queryBuilder->field('type')->equals(
@@ -145,7 +145,7 @@ class SearchService
      *
      * @return Builder
      */
-    public function addDurationQueryBuilder(Builder $queryBuilder, $durationFound)
+    public function addDurationQueryBuilder(Builder $queryBuilder, string $durationFound)
     {
         if ('' !== $durationFound) {
             if ('-5' === $durationFound) {
@@ -177,7 +177,7 @@ class SearchService
      *
      * @return Builder
      */
-    public function addSearchQueryBuilder(Builder $queryBuilder, $locale, $searchFound)
+    public function addSearchQueryBuilder(Builder $queryBuilder, string $locale, string $searchFound)
     {
         $searchFound = trim($searchFound);
 
@@ -205,7 +205,7 @@ class SearchService
      *
      * @return mixed
      */
-    public function addDateQueryBuilder(Builder $queryBuilder, $startFound, $endFound, $yearFound, $dateField = 'record_date')
+    public function addDateQueryBuilder(Builder $queryBuilder, string $startFound, string $endFound, string $yearFound, string $dateField = 'record_date')
     {
         if (null !== $yearFound && '' !== $yearFound) {
             $start = \DateTime::createFromFormat('d/m/Y:H:i:s', sprintf('01/01/%s:00:00:00', $yearFound));
@@ -233,7 +233,7 @@ class SearchService
      *
      * @return Builder
      */
-    public function addLanguageQueryBuilder(Builder $queryBuilder, $languageFound)
+    public function addLanguageQueryBuilder(Builder $queryBuilder, string $languageFound)
     {
         if ('' !== $languageFound) {
             $queryBuilder->field('tracks.language')->equals($languageFound);
