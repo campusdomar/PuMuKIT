@@ -50,7 +50,7 @@ class PicExtractorServiceTest extends WebTestCase
         $width = 304;
         $height = 242;
         $command = 'ffmpeg -ss {{ss}} -y -i "{{input}}" -r 1 -vframes 1 -s {{size}} -f image2 "{{output}}"';
-        $this->picExtractor = new PicExtractorService($this->dm, $mmsPicService, $width, $height, $this->targetPath, $this->targetUrl, $command);
+        $this->picExtractor = new PicExtractorService($this->dm, $mmsPicService, $width, $height, $this->targetPath, $command);
     }
 
     public function tearDown()

@@ -49,11 +49,10 @@ class UserServiceTest extends WebTestCase
 
         $this->userService = new UserService(
             $this->dm, $userDispatcher,
-            $permissionService, $permissionProfileService,
-            $personalScopeDeleteOwners
+            $permissionService, $permissionProfileService
         );
 
-        $listener = new PermissionProfileListener($this->dm, $this->userService, $this->logger);
+        $listener = new PermissionProfileListener($this->dm, $this->userService);
         $dispatcher->addListener('permissionprofile.update', [$listener, 'postUpdate']);
 
         $this->dm->getDocumentCollection(User::class)->remove([]);

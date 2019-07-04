@@ -42,18 +42,15 @@ class PermissionProfileListenerTest extends WebTestCase
             $permissionService
         );
 
-        $personalScopeDeleteOwners = false;
-
         $this->userService = new UserService(
             $this->dm, $userDispatcher,
-            $permissionService, $this->permissionProfileService,
-            $personalScopeDeleteOwners
+            $permissionService, $this->permissionProfileService
         );
         $this->logger = static::$kernel->getContainer()
             ->get('logger');
 
-        $this->listener = new PermissionProfileListener($this->dm, $this->userService, $this->logger);
-        $dispatcher->addListener('permissionprofile.update', [$this->listener, 'postUpdate']);
+        $this->listener = new PermissionProfileListener($this->dm, $this->userService);
+        $dispatcher->addListener('permissionprofile.update', array($this->listener, 'postUpdate'));
 
         $this->dm->getDocumentCollection(PermissionProfile::class)
           ->remove([]);

@@ -3,7 +3,6 @@
 namespace Pumukit\SchemaBundle\EventListener;
 
 use Doctrine\ODM\MongoDB\DocumentManager;
-use Psr\Log\LoggerInterface;
 use Pumukit\SchemaBundle\Event\PermissionProfileEvent;
 use Pumukit\SchemaBundle\Services\UserService;
 
@@ -11,13 +10,11 @@ class PermissionProfileListener
 {
     private $userService;
     private $dm;
-    private $logger;
 
-    public function __construct(DocumentManager $dm, UserService $userService, LoggerInterface $logger)
+    public function __construct(DocumentManager $dm, UserService $userService)
     {
         $this->dm = $dm;
         $this->userService = $userService;
-        $this->logger = $logger;
     }
 
     /**

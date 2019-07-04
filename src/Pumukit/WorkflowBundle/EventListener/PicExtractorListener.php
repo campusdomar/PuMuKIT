@@ -6,7 +6,6 @@ use Doctrine\ODM\MongoDB\DocumentManager;
 use Psr\Log\LoggerInterface;
 use Pumukit\EncoderBundle\Event\JobEvent;
 use Pumukit\EncoderBundle\Services\PicExtractorService;
-use Pumukit\SchemaBundle\Services\MultimediaObjectPicService;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Track;
 
@@ -14,7 +13,6 @@ class PicExtractorListener
 {
     private $dm;
     private $logger;
-    private $mmsPicService;
     private $picExtractorService;
     private $resourcesDir;
     private $defaultAudioPic;
@@ -24,10 +22,9 @@ class PicExtractorListener
     private $profileService;
     private $autoExtractPicPercentage;
 
-    public function __construct(DocumentManager $documentManager, MultimediaObjectPicService $mmsPicService, PicExtractorService $picExtractorService, LoggerInterface $logger, $profileService, $autoExtractPic = true, $autoExtractPicPercentage = '50%')
+    public function __construct(DocumentManager $documentManager, PicExtractorService $picExtractorService, LoggerInterface $logger, $profileService, $autoExtractPic = true, $autoExtractPicPercentage = '50%')
     {
         $this->dm = $documentManager;
-        $this->mmsPicService = $mmsPicService;
         $this->picExtractorService = $picExtractorService;
         $this->logger = $logger;
         $this->resourcesDir = realpath(__DIR__.'/../Resources/public/images');
@@ -64,7 +61,6 @@ class PicExtractorListener
         if ($multimediaObject->getPics()->isEmpty() && $this->autoExtractPic) {
             try {
                 if ($multimediaObject->isOnlyAudio() || $track->isOnlyAudio()) {
-                    //return $this->addDefaultAudioPic($multimediaObject, $track);
                     return false;
                 } else {
                     return $this->generatePicFromVideo($multimediaObject, $track);

@@ -58,8 +58,7 @@ class JobGeneratorListenerTest extends WebTestCase
         $dispatcher->addListener('multimediaobject.update', [$this->listener, 'postUpdate']);
         $this->trackDispatcher = static::$kernel->getContainer()
           ->get('pumukitschema.track_dispatcher');
-        $profileService = new ProfileService($testProfiles, $this->dm);
-        $this->trackService = new TrackService($this->dm, $this->trackDispatcher, $profileService, null, true);
+        $this->trackService = new TrackService($this->dm, $this->trackDispatcher, null, true);
     }
 
     public function tearDown()

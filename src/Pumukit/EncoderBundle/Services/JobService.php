@@ -452,11 +452,6 @@ class JobService
         $pb = new ProcessBuilder();
         // PHP wraps the process in "sh -c" by default, but we need to control
         // the process directly.
-        /*
-          if ( ! defined('PHP_WINDOWS_VERSION_MAJOR')) {
-          $pb->add('exec');
-          }
-        */
 
         $console = $this->binPath.'console';
 

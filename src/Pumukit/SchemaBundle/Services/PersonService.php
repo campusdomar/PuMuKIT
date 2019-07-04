@@ -503,7 +503,7 @@ class PersonService
      * @param Person $person
      * @param bool   $executeFlush
      */
-    public function removeUserFromPerson(User $user, Person $person, $executeFlush = true)
+    public function removeUserFromPerson(Person $person, $executeFlush = true)
     {
         $person->setUser(null);
         $this->dm->persist($person);

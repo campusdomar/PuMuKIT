@@ -18,7 +18,6 @@
             <argument/>  <!-- UserProvider -->
             <argument/>  <!-- providerKey -->
             <argument type="service" id="security.user_checker"/>
-            <argument type="service" id="service_container"/>
             <argument type="service" id="pumukit.casuserservice"/>
             <argument>%pumukit_security.create_users%</argument>
             <!--<call method="setUserService"><argument type="service" id="pumukitschema.user" /></call>-->
@@ -27,7 +26,6 @@
         <service id="pumukit.security.authentication.listener" class="Pumukit\CasBundle\Firewall\PumukitListener" parent="security.authentication.listener.abstract" abstract="true"/>
 
         <service id="pumukit.security.handler.logout" class="Pumukit\CasBundle\Handler\LogoutSuccessHandler">
-            <argument type="collection"/>
             <argument type="service" id="router"/>
             <argument type="service" id="pumukit.casservice"/>
         </service>

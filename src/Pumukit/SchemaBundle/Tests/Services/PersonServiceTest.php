@@ -796,7 +796,7 @@ class PersonServiceTest extends WebTestCase
         $this->assertEquals($person, $user->getPerson());
         $this->assertEquals($user, $person->getUser());
 
-        $this->personService->removeUserFromPerson($user, $person, true);
+        $this->personService->removeUserFromPerson($person, true);
 
         $this->assertEquals($person, $user->getPerson());
         $this->assertEquals(null, $person->getUser());

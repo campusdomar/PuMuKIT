@@ -50,18 +50,19 @@ class LicenseServiceTest extends WebTestCase
         $locale = 'en';
         $content = 'test';
         $licenseService = new LicenseService($showLicense, $this->licenseDir, $locales, $this->translator);
+
         $formData = [];
-        $this->assertTrue($licenseService->isLicenseEnabledAndAccepted($formData, $locale));
+        $this->assertTrue($licenseService->isLicenseEnabledAndAccepted($formData));
 
         $showLicense = true;
         $licenseService = new LicenseService($showLicense, $this->licenseDir, $locales, $this->translator);
-        $this->assertFalse($licenseService->isLicenseEnabledAndAccepted($formData, $locale));
+        $this->assertFalse($licenseService->isLicenseEnabledAndAccepted($formData));
 
         $formData = ['license' => ['accept' => true]];
-        $this->assertTrue($licenseService->isLicenseEnabledAndAccepted($formData, $locale));
+        $this->assertTrue($licenseService->isLicenseEnabledAndAccepted($formData));
 
         $formData = ['license' => ['accept' => false]];
-        $this->assertFalse($licenseService->isLicenseEnabledAndAccepted($formData, $locale));
+        $this->assertFalse($licenseService->isLicenseEnabledAndAccepted($formData));
     }
 
     public function testGetLicenseContent()
