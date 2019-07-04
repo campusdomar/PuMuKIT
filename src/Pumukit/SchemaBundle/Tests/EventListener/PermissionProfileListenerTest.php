@@ -50,7 +50,7 @@ class PermissionProfileListenerTest extends WebTestCase
             ->get('logger');
 
         $this->listener = new PermissionProfileListener($this->dm, $this->userService);
-        $dispatcher->addListener('permissionprofile.update', array($this->listener, 'postUpdate'));
+        $dispatcher->addListener('permissionprofile.update', [$this->listener, 'postUpdate']);
 
         $this->dm->getDocumentCollection(PermissionProfile::class)
           ->remove([]);

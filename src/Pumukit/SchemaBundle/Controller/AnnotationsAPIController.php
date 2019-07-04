@@ -34,7 +34,7 @@ class AnnotationsAPIController extends Controller
         $limit = $request->get('limit') ?: 10;
         $offset = $request->get('offset') ?: 0;
         $total = 10;
-      
+
         $resAnnotations = [];
         $annonRepo = $this->get('doctrine_mongodb')->getRepository(Annotation::class);
         $annonQB = $annonRepo->createQueryBuilder();

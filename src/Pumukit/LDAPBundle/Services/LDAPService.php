@@ -115,7 +115,6 @@ class LDAPService
             $linkIdentifier = ldap_connect($this->server);
             ldap_set_option($linkIdentifier, LDAP_OPT_PROTOCOL_VERSION, 3);
             if ($linkIdentifier) {
-
                 $success = ldap_bind($linkIdentifier, $this->bindRdn, $this->bindPassword);
                 if (!$success) {
                     $this->logger->error(__CLASS__.' ['.__FUNCTION__.'] '.'ldap_bind failed for:'.$linkIdentifier);

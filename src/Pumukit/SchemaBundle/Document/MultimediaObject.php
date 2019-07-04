@@ -2106,7 +2106,7 @@ class MultimediaObject
         $minutes = floor($this->getDuration() / 60);
 
         $seconds = $this->getDuration() % 60;
-      
+
         return [
             'minutes' => $minutes,
             'seconds' => $seconds,

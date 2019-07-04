@@ -283,7 +283,7 @@ class StatsService
     private function aggrPipeAddMatch(\DateTime $fromDate = null, \DateTime $toDate = null, $matchExtra = [], $pipeline = [])
     {
         $date = [];
-      
+
         if ($fromDate) {
             $fromMongoDate = new \MongoDate($fromDate->format('U'), $fromDate->format('u'));
             $date['$gte'] = $fromMongoDate;
