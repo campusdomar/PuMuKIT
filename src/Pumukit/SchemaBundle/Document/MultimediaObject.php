@@ -839,7 +839,7 @@ class MultimediaObject
                 $seg = '0'.$seg;
             }
 
-            if (0 === $min) {
+            if ((int) 0 === (int) $min) {
                 $aux = $seg."''";
             } else {
                 $aux = $min."' ".$seg."''";
