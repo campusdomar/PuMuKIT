@@ -78,11 +78,19 @@ class MultimediaObjectController extends SortableAdminController implements NewA
      *
      * Route: /admin/mm/{id}
      */
-    public function shortenerAction(MultimediaObject $mm, Request $request)
+    public function shortenerAction($id, Request $request)
     {
-        $this->updateSession($mm);
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $multimediaObject = $dm->getRepository('PumukitSchemaBundle:MultimediaObject')->findOneBy(array('id' => $id));
+        if (!$multimediaObject) {
+            $template = 'PumukitNewAdminBundle:MultimediaObject:404notfound.html.twig';
+            $options = array('id' => $id);
 
-        return $this->redirectToRoute('pumukitnewadmin_mms_index', array('id' => $mm->getSeries()->getId()));
+            return new Response($this->renderView($template, $options), 404);
+        }
+        $this->updateSession($multimediaObject);
+
+        return $this->redirectToRoute('pumukitnewadmin_mms_index', array('id' => $multimediaObject->getSeries()->getId()));
     }
 
     /**
