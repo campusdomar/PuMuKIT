@@ -35,8 +35,8 @@ class OpencastSyncSeriesCommand extends ContainerAwareCommand
 
         $numSynced = 0;
         foreach ($allSeries as $series) {
-            $numSynced += 1;
-            if ($dryRun == false) {
+            ++$numSynced;
+            if (false === $dryRun) {
                 $dispatcher->dispatchCreate($series);
             }
             if ($output) {
