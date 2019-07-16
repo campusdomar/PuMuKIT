@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class MultimediaObjectController extends Controller implements WebTVControllerInterface
 {
     /**
-     * @Route("/video/{id}", name="pumukit_webtv_multimediaobject_index" )
+     * @Route("/video/{id}", name="pumukit_webtv_multimediaobject_index", defaults={"show_block": true, "track": false})
      * @Template("PumukitWebTVBundle:MultimediaObject:template.html.twig")
      *
      * @param MultimediaObject $multimediaObject
@@ -29,38 +29,7 @@ class MultimediaObjectController extends Controller implements WebTVControllerIn
      */
     public function indexAction(MultimediaObject $multimediaObject, Request $request)
     {
-        $track = null;
-
-        if ($request->query->has('track_id')) {
-            $track = $multimediaObject->getTrackById($request->query->get('track_id'));
-
-            if (!$track) {
-                throw $this->createNotFoundException();
-            }
-
-            if ($track->containsTag('download')) {
-                $url = $track->getUrl();
-                $url .= (parse_url($url, PHP_URL_QUERY) ? '&' : '?').'forcedl=1';
-
-                return $this->redirect($url);
-            }
-        }
-
-        $this->updateBreadcrumbs($multimediaObject);
-
-        $editorChapters = $this->get('pumukit_web_tv.chapter_marks_service')->getChapterMarks($multimediaObject);
-
-        return [
-            'autostart' => $request->query->get('autostart', 'true'),
-            'intro' => $this->get('pumukit_baseplayer.intro')->getIntroForMultimediaObject(
-                $request->query->get('intro'),
-                $multimediaObject->getProperty('intro')
-            ),
-            'multimediaObject' => $multimediaObject,
-            'track' => $track,
-            'editor_chapters' => $editorChapters,
-            'cinema_mode' => $this->getParameter('pumukit_web_tv.cinema_mode'),
-        ];
+        return $this->doRender($request, $multimediaObject, false);
     }
 
     /**
@@ -79,7 +48,7 @@ class MultimediaObjectController extends Controller implements WebTVControllerIn
     }
 
     /**
-     * @Route("/video/magic/{secret}", name="pumukit_webtv_multimediaobject_magicindex", defaults={"show_hide": true})
+     * @Route("/video/magic/{secret}", name="pumukit_webtv_multimediaobject_magicindex", defaults={"show_block": true, "track": false})
      * @Template("PumukitWebTVBundle:MultimediaObject:template.html.twig")
      *
      * @param MultimediaObject $multimediaObject
@@ -91,30 +60,24 @@ class MultimediaObjectController extends Controller implements WebTVControllerIn
      */
     public function magicIndexAction(MultimediaObject $multimediaObject, Request $request)
     {
-        $mmobjService = $this->get('pumukitschema.multimedia_object');
-        if ($mmobjService->isPublished($multimediaObject, 'PUCHWEBTV')) {
-            if ($mmobjService->hasPlayableResource($multimediaObject) && $multimediaObject->isPublicEmbeddedBroadcast()) {
-                return $this->redirect($this->generateUrl('pumukit_webtv_multimediaobject_index', ['id' => $multimediaObject->getId()]));
-            }
-        } elseif ((
-            MultimediaObject::STATUS_PUBLISHED != $multimediaObject->getStatus()
-                && MultimediaObject::STATUS_HIDDEN != $multimediaObject->getStatus()
-            )
-            || !$multimediaObject->containsTagWithCod('PUCHWEBTV')) {
-            return $this->render('PumukitWebTVBundle:Index:404notfound.html.twig');
-        }
+        return $this->doRender($request, $multimediaObject, true);
+    }
 
-        $request->attributes->set('noindex', true);
-
+    /**
+     * @param Request          $request
+     * @param MultimediaObject $multimediaObject
+     * @param                  $isMagicUrl
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    private function doRender(Request $request, MultimediaObject $multimediaObject, $isMagicUrl = false)
+    {
         $track = null;
-
         if ($request->query->has('track_id')) {
             $track = $multimediaObject->getTrackById($request->query->get('track_id'));
-
             if (!$track) {
                 throw $this->createNotFoundException();
             }
-
             if ($track->containsTag('download')) {
                 $url = $track->getUrl();
                 $url .= (parse_url($url, PHP_URL_QUERY) ? '&' : '?').'forcedl=1';
@@ -123,20 +86,24 @@ class MultimediaObjectController extends Controller implements WebTVControllerIn
             }
         }
 
-        $this->updateBreadcrumbs($multimediaObject);
+        if (in_array($multimediaObject->getStatus(), [MultimediaObject::STATUS_BLOCKED, MultimediaObject::STATUS_HIDDEN]) || $isMagicUrl) {
+            $request->attributes->set('noindex', true);
+        }
 
+        $this->updateBreadcrumbs($multimediaObject);
         $editorChapters = $this->get('pumukit_web_tv.chapter_marks_service')->getChapterMarks($multimediaObject);
+        $intro = $this->get('pumukit_baseplayer.intro')->getIntroForMultimediaObject(
+            $request->query->get('intro'),
+            $multimediaObject->getProperty('intro')
+        );
 
         return [
             'autostart' => $request->query->get('autostart', 'true'),
-            'intro' => $this->get('pumukit_baseplayer.intro')->getIntroForMultimediaObject(
-                $request->query->get('intro'),
-                $multimediaObject->getProperty('intro')
-            ),
+            'intro' => $intro,
             'multimediaObject' => $multimediaObject,
             'track' => $track,
-            'magic_url' => true,
             'editor_chapters' => $editorChapters,
+            'magic_url' => $isMagicUrl,
             'cinema_mode' => $this->getParameter('pumukit_web_tv.cinema_mode'),
             'fullMagicUrl' => $this->getMagicUrlConfiguration(),
         ];

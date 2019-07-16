@@ -127,6 +127,7 @@ class FilterService
         if (!isset($routeParams['track']) || $routeParams['track']) {
             $filter->setParameter('display_track_tag', 'display');
         }
+
     }
 
     /**

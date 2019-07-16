@@ -41,9 +41,8 @@ class IntroService
      * Returns the intro url if introParameter is null or 'true' and not exist an introProperty.
      * Returns the intro property if it is a string and introParameter is null or 'true'.
      *
-     * @param mixed      $introPropoerty multimedia object property null|false|'url'
+     * @param mixed      $introProperty multimedia object property null|false|'url'
      * @param mixed      $introParameter request parameter null|string('false'|'true')
-     * @param null|mixed $introProperty
      *
      * @return null|bool
      */

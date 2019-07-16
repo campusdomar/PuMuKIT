@@ -13,41 +13,28 @@ use Symfony\Component\HttpFoundation\Request;
 abstract class BasePlayerController extends Controller
 {
     /**
-     * @Route("/videoplayer/{id}", name="pumukit_videoplayer_index" )
+     * @Route("/videoplayer/{id}", name="pumukit_videoplayer_index")
+     *
+     * @param Request          $request
+     * @param MultimediaObject $multimediaObject
+     *
+     * @return mixed
      */
-    abstract public function indexAction(MultimediaObject $multimediaObject, Request $request);
+    abstract public function indexAction(Request $request, MultimediaObject $multimediaObject);
 
     /**
      * @Route("/videoplayer/magic/{secret}", name="pumukit_videoplayer_magicindex")
+     *
+     * @param Request          $request
+     * @param MultimediaObject $multimediaObject
+     *
+     * @return mixed
      */
-    abstract public function magicAction(MultimediaObject $multimediaObject, Request $request);
+    abstract public function magicAction(Request $request, MultimediaObject $multimediaObject);
 
     protected function dispatchViewEvent(MultimediaObject $multimediaObject, Track $track = null)
     {
         $event = new ViewedEvent($multimediaObject, $track);
         $this->get('event_dispatcher')->dispatch(BasePlayerEvents::MULTIMEDIAOBJECT_VIEW, $event);
-    }
-
-    /**
-     * @deprecated Will be removed in version 2.5.x
-     *             Use lines in this function instead
-     */
-    protected function testBroadcast(MultimediaObject $multimediaObject, Request $request)
-    {
-        $embeddedBroadcastService = $this->get('pumukitschema.embeddedbroadcast');
-        $password = $request->get('broadcast_password');
-
-        return $embeddedBroadcastService->canUserPlayMultimediaObject($multimediaObject, $this->getUser(), $password);
-    }
-
-    /**
-     * @deprecated Will be removed in version 2.5.x
-     *             Use lines in this function instead
-     *
-     * @param mixed $queryIntro
-     */
-    protected function getIntro($queryIntro = false)
-    {
-        return $this->get('pumukit_baseplayer.intro')->getIntro($queryIntro);
     }
 }
