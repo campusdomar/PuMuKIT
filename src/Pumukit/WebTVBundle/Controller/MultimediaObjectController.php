@@ -64,52 +64,6 @@ class MultimediaObjectController extends Controller implements WebTVControllerIn
     }
 
     /**
-     * @param Request          $request
-     * @param MultimediaObject $multimediaObject
-     * @param                  $isMagicUrl
-     *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
-     */
-    private function doRender(Request $request, MultimediaObject $multimediaObject, $isMagicUrl = false)
-    {
-        $track = null;
-        if ($request->query->has('track_id')) {
-            $track = $multimediaObject->getTrackById($request->query->get('track_id'));
-            if (!$track) {
-                throw $this->createNotFoundException();
-            }
-            if ($track->containsTag('download')) {
-                $url = $track->getUrl();
-                $url .= (parse_url($url, PHP_URL_QUERY) ? '&' : '?').'forcedl=1';
-
-                return $this->redirect($url);
-            }
-        }
-
-        if (in_array($multimediaObject->getStatus(), [MultimediaObject::STATUS_BLOCKED, MultimediaObject::STATUS_HIDDEN]) || $isMagicUrl) {
-            $request->attributes->set('noindex', true);
-        }
-
-        $this->updateBreadcrumbs($multimediaObject);
-        $editorChapters = $this->get('pumukit_web_tv.chapter_marks_service')->getChapterMarks($multimediaObject);
-        $intro = $this->get('pumukit_baseplayer.intro')->getIntroForMultimediaObject(
-            $request->query->get('intro'),
-            $multimediaObject->getProperty('intro')
-        );
-
-        return [
-            'autostart' => $request->query->get('autostart', 'true'),
-            'intro' => $intro,
-            'multimediaObject' => $multimediaObject,
-            'track' => $track,
-            'editor_chapters' => $editorChapters,
-            'magic_url' => $isMagicUrl,
-            'cinema_mode' => $this->getParameter('pumukit_web_tv.cinema_mode'),
-            'fullMagicUrl' => $this->getMagicUrlConfiguration(),
-        ];
-    }
-
-    /**
      * @Route("/iframe/magic/{secret}", name="pumukit_webtv_multimediaobject_magiciframe", defaults={"show_hide": true})
      *
      * @param MultimediaObject $multimediaObject
@@ -227,6 +181,52 @@ class MultimediaObjectController extends Controller implements WebTVControllerIn
             'showDownloads' => $showDownloads,
             'isMagicRoute' => $isMagicRoute,
             'fullMagicUrl' => $fullMagicUrl,
+        ];
+    }
+
+    /**
+     * @param Request          $request
+     * @param MultimediaObject $multimediaObject
+     * @param                  $isMagicUrl
+     *
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    private function doRender(Request $request, MultimediaObject $multimediaObject, $isMagicUrl = false)
+    {
+        $track = null;
+        if ($request->query->has('track_id')) {
+            $track = $multimediaObject->getTrackById($request->query->get('track_id'));
+            if (!$track) {
+                throw $this->createNotFoundException();
+            }
+            if ($track->containsTag('download')) {
+                $url = $track->getUrl();
+                $url .= (parse_url($url, PHP_URL_QUERY) ? '&' : '?').'forcedl=1';
+
+                return $this->redirect($url);
+            }
+        }
+
+        if (in_array($multimediaObject->getStatus(), [MultimediaObject::STATUS_BLOCKED, MultimediaObject::STATUS_HIDDEN]) || $isMagicUrl) {
+            $request->attributes->set('noindex', true);
+        }
+
+        $this->updateBreadcrumbs($multimediaObject);
+        $editorChapters = $this->get('pumukit_web_tv.chapter_marks_service')->getChapterMarks($multimediaObject);
+        $intro = $this->get('pumukit_baseplayer.intro')->getIntroForMultimediaObject(
+            $request->query->get('intro'),
+            $multimediaObject->getProperty('intro')
+        );
+
+        return [
+            'autostart' => $request->query->get('autostart', 'true'),
+            'intro' => $intro,
+            'multimediaObject' => $multimediaObject,
+            'track' => $track,
+            'editor_chapters' => $editorChapters,
+            'magic_url' => $isMagicUrl,
+            'cinema_mode' => $this->getParameter('pumukit_web_tv.cinema_mode'),
+            'fullMagicUrl' => $this->getMagicUrlConfiguration(),
         ];
     }
 
