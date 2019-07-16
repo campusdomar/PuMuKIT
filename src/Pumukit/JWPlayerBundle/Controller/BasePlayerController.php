@@ -19,7 +19,7 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
      * @param Request          $request
      * @param MultimediaObject $multimediaObject
      *
-     * @return array|bool|mixed|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return array|bool|mixed|Response|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function indexAction(Request $request, MultimediaObject $multimediaObject)
     {
@@ -41,7 +41,7 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
      * @param Request          $request
      * @param MultimediaObject $multimediaObject
      *
-     * @return array|bool|mixed|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return array|bool|mixed|Response|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function magicAction(Request $request, MultimediaObject $multimediaObject)
     {
@@ -52,6 +52,7 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
                 'object' => $multimediaObject,
             ];
         }
+
         return $this->doRender($request, $multimediaObject, true);
     }
 
@@ -60,7 +61,7 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
      * @param MultimediaObject $multimediaObject
      * @param bool             $isMagicUrl
      *
-     * @return array|bool|\Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return array|bool|Response|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function doRender(Request $request, MultimediaObject $multimediaObject, $isMagicUrl = false)
     {
@@ -83,7 +84,7 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
             return $this->redirect($url);
         }
 
-        return array(
+        return [
             'autostart' => $request->query->get('autostart', 'false'),
             'intro' => $this->get('pumukit_baseplayer.intro')->getIntroForMultimediaObject($request->query->get('intro'), $multimediaObject->getProperty('intro')),
             'multimediaObject' => $multimediaObject,
@@ -91,6 +92,6 @@ class BasePlayerController extends BasePlayerControllero implements PersonalCont
             'when_dispatch_view_event' => $this->container->getParameter('pumukitplayer.when_dispatch_view_event'),
             'track' => $track,
             'magic_url' => $isMagicUrl,
-        );
+        ];
     }
 }
