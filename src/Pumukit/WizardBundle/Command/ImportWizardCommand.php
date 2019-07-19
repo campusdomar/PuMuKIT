@@ -193,8 +193,13 @@ EOT
                 if ($multimediaObject && isset($this->status)) {
                     $multimediaObject->setStatus((int) ($this->status));
                 }
-                $this->dm->flush();
+                $this->flushDocumentManager();
             }
         }
+    }
+
+    private function flushDocumentManager()
+    {
+        $this->dm->flush();
     }
 }

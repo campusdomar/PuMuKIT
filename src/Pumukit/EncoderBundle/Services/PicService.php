@@ -280,7 +280,7 @@ class PicService
                 }
             }
 
-            $this->dm->flush();
+            $this->flushDocumentManager();
         }
 
         return $output;
@@ -482,5 +482,10 @@ class PicService
                 break;
             }
         }
+    }
+
+    private function flushDocumentManager()
+    {
+        $this->dm->flush();
     }
 }

@@ -201,7 +201,7 @@ EOT
 
                 if ($embeddedSegments) {
                     $multimediaObject->setEmbeddedSegments($embeddedSegments);
-                    $this->dm->flush();
+                    $this->flushDocumentManager();
                 }
             }
             $numSegments = isset($mediaPackage['segments']['segment']) ? count($segments) : 0;
@@ -261,5 +261,10 @@ EOT
         $this->dm->persist($embeddedSegment);
 
         return $embeddedSegment;
+    }
+
+    private function flushDocumentManager()
+    {
+        $this->dm->flush();
     }
 }

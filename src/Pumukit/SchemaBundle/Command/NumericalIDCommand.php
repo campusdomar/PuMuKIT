@@ -185,11 +185,16 @@ EOT
             $progressBar->advance();
 
             if (0 == $i % 50) {
-                $this->dm->flush();
+                $this->flushDocumentManager();
             }
         }
 
         $this->dm->flush();
         $progressBar->finish();
+    }
+
+    private function flushDocumentManager()
+    {
+        $this->dm->flush();
     }
 }
