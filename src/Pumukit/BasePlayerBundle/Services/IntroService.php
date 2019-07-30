@@ -19,7 +19,7 @@ class IntroService
      *
      * @param mixed $introParameter request parameter null|'false'|'true'
      *
-     * @return null|string
+     * @return bool|string
      */
     public function getIntro($introParameter = null)
     {
