@@ -86,7 +86,7 @@ class MultimediaObject
     private $secret;
 
     /**
-     * @MongoDB\ReferenceOne(targetDocument="Series", simple=true, inversedBy="multimedia_object", cascade={"persist"})
+     * @MongoDB\ReferenceOne(targetDocument="Series", storeAs="id", inversedBy="multimedia_object", cascade={"persist"})
      * @Gedmo\SortableGroup
      * @MongoDB\Index
      */
@@ -106,7 +106,7 @@ class MultimediaObject
      *
      * @deprecated in version 2.3
      * use EmbeddedBroadcast instead
-     * @MongoDB\ReferenceOne(targetDocument="Broadcast", inversedBy="multimedia_object", simple=true, cascade={"persist"})
+     * @MongoDB\ReferenceOne(targetDocument="Broadcast", inversedBy="multimedia_object", storeAs="id", cascade={"persist"})
      */
     private $broadcast;
 
@@ -148,7 +148,7 @@ class MultimediaObject
 
     /**
      * @var ArrayCollection
-     * @MongoDB\ReferenceMany(targetDocument="Group", simple=true, sort={"key":1}, strategy="setArray")
+     * @MongoDB\ReferenceMany(targetDocument="Group", storeAs="id", sort={"key":1}, strategy="setArray")
      */
     private $groups;
 
@@ -229,8 +229,7 @@ class MultimediaObject
 
     /**
      * @var int
-     * @MongoDB\Field(type="int")
-     * @MongoDB\Increment
+     * @MongoDB\Field(type="increment")
      */
     private $numview = 0;
 
@@ -242,13 +241,13 @@ class MultimediaObject
 
     /**
      * @var array
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $textindex = [];
 
     /**
      * @var array
-     * @MongoDB\Raw
+     * @MongoDB\Field(type="raw")
      */
     private $secondarytextindex = [];
 
@@ -397,7 +396,7 @@ class MultimediaObject
     /**
      * Set type.
      *
-     * @param $type
+     * @param int $type
      */
     public function setType($type)
     {
@@ -415,7 +414,7 @@ class MultimediaObject
     }
 
     /**
-     * @param $type
+     * @param int $type
      *
      * @return string
      */
@@ -445,7 +444,7 @@ class MultimediaObject
     }
 
     /**
-     * @param $status
+     * @param int $status
      *
      * @return string
      */
@@ -1130,7 +1129,7 @@ class MultimediaObject
      * Add tag.
      * The original string tag logic used array_unique to avoid tag duplication.
      *
-     * @param $tag Tag|EmbeddedTag
+     * @param EmbeddedTag|Tag $tag
      *
      * @return bool
      */
@@ -1371,7 +1370,7 @@ class MultimediaObject
     /**
      * Get track by id.
      *
-     * @param $trackId
+     * @param \MongoId|string $trackId
      *
      * @return null|Track
      */
@@ -1941,8 +1940,7 @@ class MultimediaObject
     /**
      * Get embedded role.
      *
-     * @param EmbeddedRole|Role
-     * @param mixed $role
+     * @param EmbeddedRole|Role $role
      *
      * @return bool|EmbeddedRole EmbeddedRole if found, FALSE otherwise
      */
@@ -2059,8 +2057,6 @@ class MultimediaObject
 
         $seconds = $this->getDuration() % 60;
 
-        //if ($seconds < 10 ) $minutes = '0' . $seconds;
-
         return [
             'minutes' => $minutes,
             'seconds' => $seconds,
@@ -2070,8 +2066,7 @@ class MultimediaObject
     /**
      * Set duration in minutes and seconds.
      *
-     * @param array
-     * @param mixed $durationInMinutesAndSeconds
+     * @param array $durationInMinutesAndSeconds
      */
     public function setDurationInMinutesAndSeconds($durationInMinutesAndSeconds)
     {

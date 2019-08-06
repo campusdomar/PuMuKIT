@@ -2,7 +2,7 @@
 
 namespace Pumukit\NewAdminBundle\Controller;
 
-use Pumukit\LiveBundle\Document\Event;
+use Pumukit\SchemaBundle\Document\Event;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -284,9 +284,6 @@ class LegacyEventController extends AdminController implements NewAdminControlle
      */
     private function getCalendar($request)
     {
-        /*if (!$this->getUser()->hasAttribute('page', 'tv_admin/event'))
-          $this->getUser()->setAttribute('page', 1, 'tv_admin/event');*/
-
         if (!$this->get('session')->get('admin/event/month')) {
             $this->get('session')->set('admin/event/month', date('m'));
         }
@@ -357,7 +354,7 @@ class LegacyEventController extends AdminController implements NewAdminControlle
     {
         $aux = [];
 
-        $dweek = date('N', mktime(0, 0, 0, $month, 1, $year)) - 1;
+        $dweek = (int) (date('N', mktime(0, 0, 0, $month, 1, $year))) - 1;
         foreach (range(1, self::getDaysInMonth($month, $year)) as $i) {
             $aux[(int) ($dweek / 7)][($dweek % 7)] = $i;
             ++$dweek;

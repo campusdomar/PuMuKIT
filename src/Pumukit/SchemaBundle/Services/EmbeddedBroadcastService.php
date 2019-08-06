@@ -268,7 +268,7 @@ class EmbeddedBroadcastService
      * @param User             $user
      * @param string           $password
      *
-     * @return
+     * @return bool|Response
      */
     public function canUserPlayMultimediaObject(MultimediaObject $multimediaObject, User $user = null, $password = null)
     {
@@ -320,7 +320,7 @@ class EmbeddedBroadcastService
     /**
      * Delete all embedded broadcasts from group.
      *
-     * @param Group
+     * @param Group $group
      */
     public function deleteAllFromGroup(Group $group)
     {

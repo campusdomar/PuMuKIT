@@ -8,7 +8,8 @@ parameters:
   limit_objs_series:         12                           # Search Pager limit.  (Default 10)
   limit_objs_byuser:         12                           # ByUser Pager limit.   (Default 10)
   limit_objs_player_series:  12                           # Limit for mmobjs to appear on the mmobj player (Default 10)
-
+  categories_tag_cod:        UNESCO
+  categories.list_general_tags:  true
   search.parent_tag.cod:     UNESCO                      # Search controller option for the main tag search.
   search.parent_tag_2.cod:   null                         # Search controller option for the optional tag search.
   menu.announces_title:      'Latest Uploads'             # 'Announces' option title for the menu widget.
@@ -44,6 +45,7 @@ parameters:
   hightlight.objects_by_col: 3
   recentlyadded.objects_by_col: 4
   mostviewed.objects_by_col: 4
+  bytagblock.objects_by_col: 6
   limit_objs_mostviewed:     4                            # Mostviewed limit.     (Default 3)
   limit_objs_recentlyadded:  4                            # Recentlyadded limit.    (Default 3)
   limit_objs_hightlight: 3                                # HightLight limit.    (Default 3)
@@ -56,4 +58,5 @@ parameters:
 
   live_block.objects_by_col: 3
   limit_objs_live_block: 3
-  wall_block.wall_tag: 'WALL'
+  wall_block.wall_tag: 'PUDEWALL'
+

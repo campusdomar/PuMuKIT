@@ -6,8 +6,6 @@ use Doctrine\ODM\MongoDB\DocumentManager;
 use Pumukit\SchemaBundle\Document\Annotation;
 use Pumukit\SchemaBundle\Document\EmbeddedBroadcast;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\SchemaBundle\Document\Person;
-use Pumukit\SchemaBundle\Document\Role;
 use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\SeriesType;
 use Pumukit\SchemaBundle\Document\Tag;
@@ -33,8 +31,9 @@ class FactoryService
     private $defaultCopyright;
     private $defaultLicense;
     private $addUserAsPerson;
+    private $textIndexService;
 
-    public function __construct(DocumentManager $documentManager, TagService $tagService, PersonService $personService, UserService $userService, EmbeddedBroadcastService $embeddedBroadcastService, SeriesService $seriesService, MultimediaObjectEventDispatcherService $mmsDispatcher, SeriesEventDispatcherService $seriesDispatcher, TranslatorInterface $translator, $addUserAsPerson = true, array $locales = [], $defaultCopyright = '', $defaultLicense = '')
+    public function __construct(DocumentManager $documentManager, TagService $tagService, PersonService $personService, UserService $userService, EmbeddedBroadcastService $embeddedBroadcastService, SeriesService $seriesService, MultimediaObjectEventDispatcherService $mmsDispatcher, SeriesEventDispatcherService $seriesDispatcher, TranslatorInterface $translator, $addUserAsPerson = true, array $locales = [], $defaultCopyright = '', $defaultLicense = '', TextIndexService $textIndexService = null)
     {
         $this->dm = $documentManager;
         $this->tagService = $tagService;
@@ -49,6 +48,7 @@ class FactoryService
         $this->defaultCopyright = $defaultCopyright;
         $this->defaultLicense = $defaultLicense;
         $this->addUserAsPerson = $addUserAsPerson;
+        $this->textIndexService = $textIndexService;
     }
 
     /**
@@ -197,12 +197,14 @@ class FactoryService
 
         $mm = $this->addLoggedInUserAsPerson($mm, $loggedInUser);
         // Add other owners in case of exists
-        foreach ($prototype->getRoles() as $embeddedRole) {
-            if ($this->personService->getPersonalScopeRoleCode() === $embeddedRole->getCod()) {
-                $role = $this->dm->getRepository(Role::class)->findOneBy(['cod' => $this->personService->getPersonalScopeRoleCode()]);
-                foreach ($embeddedRole->getPeople() as $embeddedPerson) {
-                    $person = $this->dm->getRepository(Person::class)->findOneBy(['_id' => $embeddedPerson->getId()]);
-                    $mm = $this->personService->createRelationPerson($person, $role, $mm);
+        if (null !== $prototype) {
+            foreach ($prototype->getRoles() as $embeddedRole) {
+                if ($this->personService->getPersonalScopeRoleCode() === $embeddedRole->getCod()) {
+                    $role = $this->dm->getRepository('PumukitSchemaBundle:Role')->findOneBy(['cod' => $this->personService->getPersonalScopeRoleCode()]);
+                    foreach ($embeddedRole->getPeople() as $embeddedPerson) {
+                        $person = $this->dm->getRepository('PumukitSchemaBundle:Person')->findOneBy(['_id' => $embeddedPerson->getId()]);
+                        $mm = $this->personService->createRelationPerson($person, $role, $mm);
+                    }
                 }
             }
         }
@@ -232,7 +234,6 @@ class FactoryService
     {
         $mm = $this->doCreateMultimediaObject($series, $flush, $loggedInUser);
 
-        //$this->seriesDispatcher->dispatchUpdate($series);
         $this->mmsDispatcher->dispatchCreate($mm);
 
         return $mm;
@@ -447,6 +448,8 @@ class FactoryService
             $newSeries->addPic($clonedThumb);
         }
 
+        $this->textIndexService->updateSeriesTextIndex($newSeries);
+
         $this->dm->flush();
 
         $this->generateNumericalIDSeries($newSeries);
@@ -488,8 +491,7 @@ class FactoryService
         $new->setCopyright($src->getCopyright());
         $new->setLicense($src->getLicense());
         $new->setNumview(0);
-        $new->setTextIndex($src->getTextIndex());
-        $new->setSecondaryTextIndex($src->getSecondaryTextIndex());
+
         // NOTE: #7408 Specify which properties are clonable
         $new->setProperty('subseries', $src->getProperty('subseries'));
         $new->setProperty('subseriestitle', $src->getProperty('subseriestitle'));
@@ -540,6 +542,8 @@ class FactoryService
             $clonedAnnot->setMultimediaObject($new->getId());
             $this->dm->persist($clonedAnnot);
         }
+
+        $this->textIndexService->updateMultimediaObjectTextIndex($new);
 
         $this->dm->flush();
 
@@ -711,6 +715,7 @@ class FactoryService
             $this->dm->getFilterCollection()->disable($enableFilter);
         }
 
+        /** @var MultimediaObject */
         $multimediaObject = $this->dm->getRepository(MultimediaObject::class)->createQueryBuilder()
             ->field('numerical_id')->exists(true)
             ->sort(['numerical_id' => -1])
@@ -746,6 +751,7 @@ class FactoryService
             $this->dm->getFilterCollection()->disable($enableFilter);
         }
 
+        /** @var Series */
         $series = $this->dm->getRepository(Series::class)->createQueryBuilder()
             ->field('numerical_id')->exists(true)
             ->sort(['numerical_id' => -1])

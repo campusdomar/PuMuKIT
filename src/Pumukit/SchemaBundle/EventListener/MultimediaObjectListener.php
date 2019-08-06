@@ -4,20 +4,19 @@ namespace Pumukit\SchemaBundle\EventListener;
 
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
-use Pumukit\SchemaBundle\Utils\Mongo\TextIndexUtils;
+use Pumukit\SchemaBundle\Services\TextIndexService;
 
 class MultimediaObjectListener
 {
     private $dm;
+    private $textIndexService;
 
-    public function __construct(DocumentManager $dm)
+    public function __construct(DocumentManager $dm, TextIndexService $textIndexService)
     {
         $this->dm = $dm;
+        $this->textIndexService = $textIndexService;
     }
 
-    /**
-     * @param $event
-     */
     public function postUpdate($event)
     {
         $multimediaObject = $event->getMultimediaObject();
@@ -26,9 +25,6 @@ class MultimediaObjectListener
         $this->dm->flush();
     }
 
-    /**
-     * @param $multimediaObject
-     */
     public function updateType(MultimediaObject $multimediaObject)
     {
         if ($multimediaObject->isLive()) {
@@ -50,34 +46,9 @@ class MultimediaObjectListener
         }
     }
 
-    /**
-     * @param $multimediaObject
-     */
-    public function updateTextIndex($multimediaObject)
+    public function updateTextIndex(MultimediaObject $multimediaObject)
     {
-        $textIndex = [];
-        $secondaryTextIndex = [];
-        $title = $multimediaObject->getI18nTitle();
-        foreach (array_keys($title) as $lang) {
-            $text = '';
-            $secondaryText = '';
-            $mongoLang = TextIndexUtils::getCloseLanguage($lang);
-
-            $text .= $multimediaObject->getTitle($lang);
-            $text .= ' | '.$multimediaObject->getKeyword($lang);
-            $text .= ' | '.$multimediaObject->getSeriesTitle($lang);
-            $secondaryText .= $multimediaObject->getDescription($lang);
-
-            $persons = $multimediaObject->getPeopleByRole();
-            foreach ($persons as $key => $person) {
-                $secondaryText .= ' | '.$person->getName();
-            }
-
-            $textIndex[] = ['indexlanguage' => $mongoLang, 'text' => TextIndexUtils::cleanTextIndex($text)];
-            $secondaryTextIndex[] = ['indexlanguage' => $mongoLang, 'text' => TextIndexUtils::cleanTextIndex($secondaryText)];
-        }
-        $multimediaObject->setTextIndex($textIndex);
-        $multimediaObject->setSecondaryTextIndex($secondaryTextIndex);
+        $this->textIndexService->updateMultimediaObjectTextIndex($multimediaObject);
     }
 
     private function getTracksType($tracks)

@@ -2,8 +2,8 @@
 
 namespace Pumukit\SchemaBundle\Controller;
 
-use Pumukit\LiveBundle\Document\Live;
 use Pumukit\NewAdminBundle\Controller\NewAdminControllerInterface;
+use Pumukit\SchemaBundle\Document\Live;
 use Pumukit\SchemaBundle\Document\MultimediaObject;
 use Pumukit\SchemaBundle\Document\Series;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -281,8 +281,8 @@ class APIController extends Controller implements NewAdminControllerInterface
      *
      * JSON criteria has priority over row criteria.
      *
-     * @param $row
-     * @param $json
+     * @param array|string $row
+     * @param string       $json
      *
      * @return array
      */
