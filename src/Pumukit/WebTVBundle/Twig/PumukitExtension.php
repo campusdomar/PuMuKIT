@@ -13,11 +13,14 @@ use Pumukit\SchemaBundle\Services\MultimediaObjectDurationService;
 use Pumukit\SchemaBundle\Services\PicService;
 use Pumukit\WebTVBundle\Services\LinkService;
 use Symfony\Component\Routing\RequestContext;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 /**
  * Class PumukitExtension.
  */
-class PumukitExtension extends \Twig_Extension
+class PumukitExtension extends AbstractExtension
 {
     protected $defaultPic;
 
@@ -46,20 +49,23 @@ class PumukitExtension extends \Twig_Extension
      */
     private $linkService;
 
+    /**
+     * @var MultimediaObjectDurationService
+     */
     private $mmobjDurationService;
 
     /**
      * PumukitExtension constructor.
      *
-     * @param DocumentManager $documentManager
-     * @param RequestContext  $context
-     * @param                 $defaultPic
-     * @param CaptionService  $captionService
-     * @param PicService      $picService
-     * @param LinkService     $linkService
-     * @param                 $mmobjDurationService
+     * @param DocumentManager                  $documentManager
+     * @param RequestContext                   $context
+     * @param Mixed                            $defaultPic
+     * @param CaptionService                   $captionService
+     * @param PicService                       $picService
+     * @param LinkService                      $linkService
+     * @param MultimediaObjectDurationService  $mmobjDurationService
      */
-    public function __construct(DocumentManager $documentManager, RequestContext $context, $defaultPic, CaptionService $captionService, PicService $picService, LinkService $linkService, $mmobjDurationService)
+    public function __construct(DocumentManager $documentManager, RequestContext $context, $defaultPic, CaptionService $captionService, PicService $picService, LinkService $linkService, MultimediaObjectDurationService $mmobjDurationService)
     {
         $this->dm = $documentManager;
         $this->context = $context;
@@ -76,10 +82,11 @@ class PumukitExtension extends \Twig_Extension
     public function getFilters()
     {
         return [
-            new \Twig_SimpleFilter('first_url_pic', [$this, 'getFirstUrlPicFilter']),
-            new \Twig_SimpleFilter('precinct_fulltitle', [$this, 'getPrecinctFulltitle']),
-            new \Twig_SimpleFilter('duration_minutes_seconds', [$this, 'getDurationInMinutesSeconds']),
-            new \Twig_SimpleFilter('duration_string', [$this, 'getDurationString']),
+            new TwigFilter('first_url_pic', [$this, 'getFirstUrlPicFilter']),
+            new TwigFilter('precinct_fulltitle', [$this, 'getPrecinctFulltitle']),
+            new TwigFilter('duration_minutes_seconds', [$this, 'getDurationInMinutesSeconds']),
+            new TwigFilter('duration_string', [$this, 'getDurationString']),
+            new TwigFilter('first_dynamic_pic', [$this, 'getDynamicPic']),
         ];
     }
 
@@ -89,17 +96,17 @@ class PumukitExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
-            new \Twig_SimpleFunction('public_broadcast', [$this, 'getPublicBroadcast']),
-            new \Twig_SimpleFunction('precinct', [$this, 'getPrecinct']),
-            new \Twig_SimpleFunction('precinct_of_series', [$this, 'getPrecinctOfSeries']),
-            new \Twig_SimpleFunction('captions', [$this, 'getCaptions']),
-            new \Twig_SimpleFunction('iframeurl', [$this, 'getIframeUrl']),
-            new \Twig_SimpleFunction('path_to_tag', [$this, 'getPathToTag']),
-            new \Twig_SimpleFunction('mmobj_duration', [$this, 'getMmobjDuration']),
-            new \Twig_SimpleFunction('next_event_session', [$this, 'getNextEventSession']),
-            new \Twig_SimpleFunction('live_event_session', [$this, 'getLiveEventSession']),
-            new \Twig_SimpleFunction('precinct_of_mmo', [$this, 'getPrecinctOfMultimediaObject']),
-            new \Twig_SimpleFunction('count_published_mmobjs', [$this, 'getMMobjsFromSerie']),
+            new TwigFunction('public_broadcast', [$this, 'getPublicBroadcast']),
+            new TwigFunction('precinct', [$this, 'getPrecinct']),
+            new TwigFunction('precinct_of_series', [$this, 'getPrecinctOfSeries']),
+            new TwigFunction('captions', [$this, 'getCaptions']),
+            new TwigFunction('iframeurl', [$this, 'getIframeUrl']),
+            new TwigFunction('path_to_tag', [$this, 'getPathToTag']),
+            new TwigFunction('mmobj_duration', [$this, 'getMmobjDuration']),
+            new TwigFunction('next_event_session', [$this, 'getNextEventSession']),
+            new TwigFunction('live_event_session', [$this, 'getLiveEventSession']),
+            new TwigFunction('precinct_of_mmo', [$this, 'getPrecinctOfMultimediaObject']),
+            new TwigFunction('count_published_mmobjs', [$this, 'getMMobjsFromSerie']),
         ];
     }
 
@@ -116,6 +123,17 @@ class PumukitExtension extends \Twig_Extension
     }
 
     /**
+     * @param object  $object
+     * @param bool    $absolute
+     *
+     * @return null|string
+     */
+    public function getDynamicPic($object, $absolute = false)
+    {
+        return $this->picService->getDynamicPic($object, $absolute);
+    }
+
+    /**
      * Get public broadcast.
      *
      * @return string
@@ -128,7 +146,7 @@ class PumukitExtension extends \Twig_Extension
     /**
      * Get precinct.
      *
-     * @param $embeddedTags
+     * @param Array<Tag> $embeddedTags
      *
      * @return null|EmbeddedTag
      */
@@ -148,11 +166,11 @@ class PumukitExtension extends \Twig_Extension
     /**
      * Get precinct of Series.
      *
-     * @param $multimediaObjects
+     * @param MultimediaObject $multimediaObjects
      *
      * @return bool|EmbeddedTag
      */
-    public function getPrecinctOfSeries($multimediaObjects)
+    public function getPrecinctOfSeries(MultimediaObject $multimediaObjects)
     {
         $precinctTag = false;
         $precinctCode = null;
@@ -256,6 +274,10 @@ class PumukitExtension extends \Twig_Extension
      */
     public function getDurationString($duration)
     {
+        if (null === $duration) {
+            return '';
+        }
+
         if ($duration > 0) {
             $min = floor($duration / 60);
             $seg = $duration % 60;
@@ -353,13 +375,13 @@ class PumukitExtension extends \Twig_Extension
     /**
      * Get next event session without sessions that reproducing now.
      *
-     * @param $event
+     * @param Event $event
      *
      * @throws \Exception
      *
      * @return \DateTime|string
      */
-    public function getNextEventSession($event)
+    public function getNextEventSession(Event $event)
     {
         $embeddedEventSession = $event['embeddedEventSession'];
 
@@ -383,7 +405,7 @@ class PumukitExtension extends \Twig_Extension
     /**
      * Get next live event session.
      *
-     * @param $multimediaObject
+     * @param MultimediaObject $multimediaObject
      *
      * @throws \Exception
      *
@@ -415,6 +437,8 @@ class PumukitExtension extends \Twig_Extension
 
     /**
      * @param Series $series
+     *
+     * @throws \MongoException
      *
      * @return int
      */
