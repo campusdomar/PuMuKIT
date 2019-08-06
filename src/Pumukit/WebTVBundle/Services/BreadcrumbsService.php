@@ -26,7 +26,7 @@ class BreadcrumbsService
      *
      * @param RouterInterface  $router
      * @param SessionInterface $session
-     * @param                  $translator
+     * @param mixed            $translator
      * @param string           $allTitle
      * @param string           $allRoute
      * @param string           $homeTitle
@@ -36,9 +36,9 @@ class BreadcrumbsService
         RouterInterface $router,
         SessionInterface $session,
         $translator,
-        $allTitle = 'All',
-        $allRoute = 'pumukit_webtv_medialibrary_index',
-        $homeTitle = 'home',
+        string $allTitle = 'All',
+        string $allRoute = 'pumukit_webtv_medialibrary_index',
+        string $homeTitle = 'home',
         $parentWeb = null
     ) {
         $this->session = $session;
@@ -82,12 +82,12 @@ class BreadcrumbsService
     }
 
     /**
-     * @param       $title
-     * @param       $routeName
-     * @param array $routeParameters
-     * @param bool  $forceTranslation
+     * @param string $title
+     * @param string $routeName
+     * @param array  $routeParameters
+     * @param bool   $forceTranslation
      */
-    public function addList($title, $routeName, array $routeParameters = [], $forceTranslation = false)
+    public function addList(string $title, string $routeName, array $routeParameters = [], $forceTranslation = false)
     {
         if ($forceTranslation) {
             $title = $this->translator->trans($title);
@@ -137,11 +137,11 @@ class BreadcrumbsService
     }
 
     /**
-     * @param       $title
-     * @param       $routeName
-     * @param array $routeParameters
+     * @param string $title
+     * @param string $routeName
+     * @param array  $routeParameters
      */
-    public function add($title, $routeName, array $routeParameters = [])
+    public function add( string $title, string $routeName, array $routeParameters = [])
     {
         $this->breadcrumbs[] = [
             'title' => $title,
@@ -158,7 +158,7 @@ class BreadcrumbsService
     }
 
     /**
-     * @param $title
+     * @param string $title
      */
     public function setTitle($title)
     {

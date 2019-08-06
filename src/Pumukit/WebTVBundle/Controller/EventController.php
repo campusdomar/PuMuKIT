@@ -121,19 +121,19 @@ class EventController extends Controller implements WebTVControllerInterface
     }
 
     /**
-     * @param       $title
-     * @param       $routeName
-     * @param array $routeParameters
+     * @param string $title
+     * @param string $routeName
+     * @param array  $routeParameters
      */
-    private function updateBreadcrumbs($title, $routeName, array $routeParameters = [])
+    private function updateBreadcrumbs( string $title, string $routeName, array $routeParameters = [])
     {
         $breadcrumbs = $this->get('pumukit_web_tv.breadcrumbs');
         $breadcrumbs->addList($title, $routeName, $routeParameters);
     }
 
     /**
-     * @param $eventsNow
-     * @param $eventsToday
+     * @param Event[] $eventsNow
+     * @param Event[] $eventsToday
      *
      * @return array
      */

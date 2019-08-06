@@ -375,13 +375,13 @@ class PumukitExtension extends AbstractExtension
     /**
      * Get next event session without sessions that reproducing now.
      *
-     * @param Event $event
+     * @param Mixed $event
      *
      * @throws \Exception
      *
      * @return \DateTime|string
      */
-    public function getNextEventSession(Event $event)
+    public function getNextEventSession($event)
     {
         $embeddedEventSession = $event['embeddedEventSession'];
 

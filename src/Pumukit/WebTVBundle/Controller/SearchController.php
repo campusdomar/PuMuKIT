@@ -154,8 +154,8 @@ class SearchController extends Controller implements WebTVControllerInterface
     }
 
     /**
-     * @param $objects
-     * @param $page
+     * @param object[] $objects
+     * @param mixed $page
      *
      * @throws \Exception
      *

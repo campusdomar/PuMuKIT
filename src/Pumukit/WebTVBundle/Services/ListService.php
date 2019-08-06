@@ -41,7 +41,7 @@ class ListService
     }
 
     /**
-     * @param $limit
+     * @param mixed $limit
      *
      * @return array
      */

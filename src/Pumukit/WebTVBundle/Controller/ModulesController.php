@@ -209,15 +209,15 @@ class ModulesController extends Controller implements WebTVControllerInterface
     /**
      * @Template("PumukitWebTVBundle:Modules:widget_categories.html.twig")
      *
-     * @param Request $request
-     * @param         $title
-     * @param         $class
-     * @param         $categories
-     * @param int     $cols
+     * @param Request  $request
+     * @param string   $title
+     * @param string   $class
+     * @param string[] $categories
+     * @param int      $cols
      *
      * @return array
      */
-    public function categoriesAction(Request $request, $title, $class, $categories, $cols = 6)
+    public function categoriesAction(Request $request, string $title, string $class, $categories, int $cols = 6)
     {
         if (!$categories) {
             throw new NotFoundHttpException('Categories not found');

@@ -42,7 +42,7 @@ class BootstrapExtension extends \Twig_Extension
     }
 
     /**
-     * @param $objectsByCol
+     * @param object[] $objectsByCol
      *
      * @return mixed
      */
@@ -65,12 +65,12 @@ class BootstrapExtension extends \Twig_Extension
     }
 
     /**
-     * @param $loopIndex
-     * @param $objectsByCol
+     * @param int $loopIndex
+     * @param object[] $objectsByCol
      *
      * @return bool
      */
-    public function getClearFixMediumDevices($loopIndex, $objectsByCol)
+    public function getClearFixMediumDevices(int $loopIndex, $objectsByCol)
     {
         $mapping = [
             '1' => 1,
@@ -93,12 +93,12 @@ class BootstrapExtension extends \Twig_Extension
     }
 
     /**
-     * @param $loopIndex
-     * @param $objectsByCol
+     * @param int $loopIndex
+     * @param object[] $objectsByCol
      *
      * @return bool
      */
-    public function getClearFixSmallDevices($loopIndex, $objectsByCol)
+    public function getClearFixSmallDevices(int $loopIndex, $objectsByCol)
     {
         $mapping = [
             '1' => 1,

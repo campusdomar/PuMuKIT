@@ -349,26 +349,26 @@ class ListController extends Controller implements WebTVControllerInterface
     }
 
     /**
-     * @param       $title
-     * @param       $routeName
-     * @param array $routeParameters
+     * @param string $title
+     * @param string $routeName
+     * @param array  $routeParameters
      */
-    private function updateBreadcrumbs($title, $routeName, array $routeParameters = [])
+    private function updateBreadcrumbs( string $title, string $routeName, array $routeParameters = [])
     {
         $breadcrumbs = $this->get('pumukit_web_tv.breadcrumbs');
         $breadcrumbs->add($title, $routeName, $routeParameters);
     }
 
     /**
-     * @param     $objects
-     * @param     $page
-     * @param int $limit
+     * @param object[] $objects
+     * @param mixed    $page
+     * @param int      $limit
      *
      * @throws \Exception
      *
      * @return mixed|Pagerfanta
      */
-    private function createPager($objects, $page, $limit = 10)
+    private function createPager( $objects, $page, $limit = 10)
     {
         return $this->get('pumukit_web_tv.pagination_service')->createDoctrineODMMongoDBAdapter($objects, $page, $limit);
     }
