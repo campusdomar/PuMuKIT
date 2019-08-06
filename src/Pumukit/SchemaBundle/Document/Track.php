@@ -97,9 +97,7 @@ class Track extends Element
 
     /**
      * @var int
-     *
-     * @MongoDB\Field(type="int")
-     * @MongoDB\Increment
+     * @MongoDB\Field(type="increment")
      */
     private $numview;
 
@@ -463,8 +461,7 @@ class Track extends Element
     /**
      * Set Resolution.
      *
-     * @param array
-     * @param mixed $resolution
+     * @param array $resolution
      */
     public function setResolution($resolution)
     {
@@ -494,7 +491,6 @@ class Track extends Element
         $minutes = floor($this->getDuration() / 60);
 
         $seconds = $this->getDuration() % 60;
-        //if ($seconds < 10 ) $minutes = '0' . $seconds;
 
         return ['minutes' => $minutes, 'seconds' => $seconds];
     }
@@ -502,8 +498,7 @@ class Track extends Element
     /**
      * Set duration in minutes and seconds.
      *
-     * @param array
-     * @param mixed $durationInMinutesAndSeconds
+     * @param array $durationInMinutesAndSeconds
      */
     public function setDurationInMinutesAndSeconds($durationInMinutesAndSeconds)
     {

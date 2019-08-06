@@ -16,7 +16,7 @@ class Playlist
     /**
      * @var ArrayCollection
      *
-     * @MongoDB\ReferenceMany(targetDocument="MultimediaObject", simple=true, strategy="setArray")
+     * @MongoDB\ReferenceMany(targetDocument="MultimediaObject", storeAs="id", strategy="setArray")
      * @Serializer\Exclude
      */
     private $multimedia_objects;
@@ -61,8 +61,7 @@ class Playlist
     /**
      * Removes all references to the multimedia objects with the given id.
      *
-     * @param MultimediaObject $multimedia_object
-     * @param mixed            $mmobjId
+     * @param mixed $mmobjId
      */
     public function removeAllMultimediaObjectsById($mmobjId)
     {

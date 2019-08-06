@@ -27,9 +27,8 @@ class MultimediaObjectService
     /**
      * Returns true if the $mm is published. ( Keep updated with SchemaFilter->getCriteria() ).
      *
-     * @param MultimediaObject
-     * @param mixed $mm
-     * @param mixed $pubChannelCod
+     * @param MultimediaObject $mm
+     * @param string           $pubChannelCod
      *
      * @return bool
      */
@@ -44,10 +43,8 @@ class MultimediaObjectService
     /**
      * Returns true if the $mm is hidden. Not 404 on its magic url. ( Keep updated with MultimediaObjectController:magicIndexAction ).
      *
-     * @param MultimediaObject
-     * @param Publication channel code
-     * @param mixed $mm
-     * @param mixed $pubChannelCod
+     * @param MultimediaObject $mm
+     * @param string           $pubChannelCod
      *
      * @return bool
      */
@@ -62,8 +59,7 @@ class MultimediaObjectService
     /**
      * Returns true if the $mm has a playable resource. ( Keep updated with SchemaFilter->getCriteria() ).
      *
-     * @param MultimediaObject
-     * @param mixed $mm
+     * @param MultimediaObject $mm
      *
      * @return bool
      */
@@ -77,10 +73,8 @@ class MultimediaObjectService
     /**
      * Returns true if the $mm is being displayed on the baseplayer. ( Keep updated with SchemaFilter->getCriteria() ).
      *
-     * @param MultimediaObject
-     * @param string
-     * @param mixed $mm
-     * @param mixed $pubChannelCod
+     * @param MultimediaObject $mm
+     * @param string           $pubChannelCod
      *
      * @return bool
      */
@@ -92,8 +86,7 @@ class MultimediaObjectService
     /**
      * Resets the magic url for a given multimedia object. Returns the secret id.
      *
-     * @param MultimediaObject
-     * @param mixed $mm
+     * @param MultimediaObject $mm
      *
      * @return string
      */
@@ -197,7 +190,7 @@ class MultimediaObjectService
     /**
      * Delete all multimedia objects from group.
      *
-     * @param Group
+     * @param Group $group
      */
     public function deleteAllFromGroup(Group $group)
     {
@@ -216,8 +209,7 @@ class MultimediaObjectService
     public function removeFromAllPlaylists(MultimediaObject $multimediaObject)
     {
         $qb = $this->seriesRepo->createQueryBuilder()->field('playlist.multimedia_objects')->equals(new \MongoId($multimediaObject->getId()));
-        //Doing some variation of this should work as well. (Not this code particularly).
-        //$qb = $this->seriesRepo->createQueryBuilder()->field('playlist.multimedia_objects')->pullAll(array(new \MongoId($multimediaObject->getId())));
+
         $playlists = $qb->getQuery()->execute();
         foreach ($playlists as $playlist) {
             $playlist->getPlaylist()->removeAllMultimediaObjectsById($multimediaObject->getId());

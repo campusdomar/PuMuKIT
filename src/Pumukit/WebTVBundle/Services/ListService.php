@@ -207,6 +207,51 @@ class ListService
         return [$dateEnd, $last];
     }
 
+    public function getVideosByTag($tagCod = null, $limit = 0)
+    {
+        if (!$tagCod) {
+            throw new \Exception('You must send tagCod');
+        }
+
+        $tag = $this->documentManager->getRepository(Tag::class)->findOneBy([
+            'cod' => $tagCod,
+        ]);
+
+        if (!$tag) {
+            throw new \Exception('Tag not found');
+        }
+
+        return $this->documentManager->getRepository(MultimediaObject::class)->findBy([
+            'tags.cod' => $tagCod,
+        ], [], $limit);
+    }
+
+    /**
+     * @param null $tagCod
+     *
+     * @throws \Exception
+     *
+     * @return null|object|Tag
+     */
+    public function getEmbedVideoBlock($tagCod = null)
+    {
+        if (!$tagCod) {
+            throw new \Exception('Tag code not found');
+        }
+
+        $tag = $this->documentManager->getRepository(Tag::class)->findOneBy([
+            'cod' => $tagCod,
+        ]);
+
+        if (!$tag) {
+            throw new \Exception('Tag code not exist');
+        }
+
+        return $this->documentManager->getRepository(MultimediaObject::class)->findOneBy([
+            'tags.cod' => $tagCod,
+        ]);
+    }
+
     /**
      * @param Builder   $qb
      * @param \DateTime $dateStart

@@ -214,35 +214,45 @@ class ModulesController extends Controller implements WebTVControllerInterface
      * @param string   $class
      * @param string[] $categories
      * @param int      $cols
+     * @param bool    $sort
+     *
+     * @throws \Doctrine\ODM\MongoDB\MongoDBException
      *
      * @return array
      */
-    public function categoriesAction(Request $request, string $title, string $class, $categories, int $cols = 6)
+    public function categoriesAction(Request $request, string $title, string $class, $categories, $cols = 6, $sort = true)
     {
         if (!$categories) {
             throw new NotFoundHttpException('Categories not found');
         }
 
-        $dm = $this->get('doctrine.odm.mongodb.document_manager');
+        $dm = $this->get('doctrine_mongodb.odm.document_manager');
 
-        if (is_array($categories)) {
-            $tags = $dm->createQueryBuilder(Tag::class)
-                ->field('cod')->in($categories)
-                ->field('display')->equals(true)
-                ->sort('title.'.$request->getLocale(), 1)
-                ->getQuery()
-                ->execute()
-            ;
-        } else {
-            $tag = $dm->getRepository(Tag::class)->findOneBy([
-                'cod' => $categories,
-            ]);
-
-            if (!$tag) {
-                throw new NotFoundHttpException('Category not found');
+        if ($sort) {
+            if (is_array($categories)) {
+                $tags = $dm->createQueryBuilder(Tag::class)
+                    ->field('cod')->in($categories)
+                    ->field('display')->equals(true)
+                    ->sort('title.'.$request->getLocale(), 1)
+                    ->getQuery()
+                    ->execute()
+                ;
+            } else {
+                $tag = $dm->getRepository(Tag::class)->findOneBy(
+                    [
+                        'cod' => $categories,
+                    ]
+                );
+                if (!$tag) {
+                    throw new NotFoundHttpException('Category not found');
+                }
+                $tags = $tag->getChildren();
             }
-
-            $tags = $tag->getChildren();
+        } else {
+            $tags = [];
+            foreach ($categories as $categoryCod) {
+                $tags[] = $dm->getRepository(Tag::class)->findOneBy(['cod' => $categoryCod, 'display' => true]);
+            }
         }
 
         return [
@@ -378,6 +388,56 @@ class ModulesController extends Controller implements WebTVControllerInterface
     public function searchBlockAction()
     {
         return [];
+    }
+
+    /**
+     * @Template("PumukitWebTVBundle:Modules:widget_media.html.twig")
+     *
+     * @param $tagCod
+     * @param $title
+     *
+     * @throws \Exception
+     *
+     * @return array
+     */
+    public function byTagBlockAction($tagCod, $title)
+    {
+        $translator = $this->get('translator');
+        $title = $translator->trans($title);
+
+        $listService = $this->get('pumukit_web_tv.list_service');
+        $limit = $this->container->getParameter('bytagblock.objects_by_col');
+        $objects = $listService->getVideosByTag($tagCod, $limit);
+
+        return [
+            'objects' => $objects,
+            'objectByCol' => $limit,
+            'title' => $title,
+            'class' => 'by-tag-block',
+            'show_info' => true,
+            'show_more' => false,
+            'show_more_path' => false,
+        ];
+    }
+
+    /**
+     * @Template("PumukitWebTVBundle:Modules:widget_player.html.twig")
+     *
+     * @param $tagCod
+     *
+     * @throws \Exception
+     *
+     * @return array
+     */
+    public function embedVideoBlockAction($tagCod)
+    {
+        $listService = $this->get('pumukit_web_tv.list_service');
+        $object = $listService->getEmbedVideoBlock($tagCod);
+
+        return [
+            'object' => $object,
+            'autostart' => false,
+        ];
     }
 
     /**

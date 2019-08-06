@@ -53,7 +53,7 @@ class PicService
             return $this->getDefaultUrlPicForObject($object, $absolute, $hd);
         }
         foreach ($pics as $pic) {
-            if (($pic->getUrl()) && !$pic->getHide() && !$pic->containsTag('banner') && !$pic->containsTag('poster')) {
+            if (($pic->getUrl()) && !$pic->getHide() && !$pic->containsTag('banner') && !$pic->containsTag('poster') && !$pic->containsTag('dynamic')) {
                 $picUrl = $pic->getUrl();
 
                 break;
@@ -267,9 +267,9 @@ class PicService
     }
 
     /**
-     * @param      $object
-     * @param bool $absolute
-     * @param bool $hd
+     * @param object $object
+     * @param bool   $absolute
+     * @param bool   $hd
      *
      * @return null|string
      */
@@ -283,6 +283,35 @@ class PicService
 
         foreach ($pics as $pic) {
             if ($pic->getUrl() && $pic->containsTag('poster')) {
+                $picUrl = $pic->getUrl();
+
+                break;
+            }
+        }
+
+        if ($absolute) {
+            return $this->getAbsoluteUrlPic($picUrl);
+        }
+
+        return $picUrl;
+    }
+
+    /**
+     * @param object $object
+     * @param bool   $absolute
+     *
+     * @return null|string
+     */
+    public function getDynamicPic($object, $absolute = false)
+    {
+        $pics = $object->getPics();
+        $picUrl = null;
+        if (0 === count($pics)) {
+            return $picUrl;
+        }
+
+        foreach ($pics as $pic) {
+            if ($pic->getUrl() && $pic->containsTag('dynamic')) {
                 $picUrl = $pic->getUrl();
 
                 break;
@@ -319,8 +348,6 @@ class PicService
                 return $scheme.'://'.$host.$port.$picUrl;
             }
         }
-
-        return $picUrl;
     }
 
     /**

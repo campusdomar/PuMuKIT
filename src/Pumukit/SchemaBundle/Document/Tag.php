@@ -28,8 +28,7 @@ class Tag
      *
      * @var int
      *
-     * @MongoDB\Field(type="int")
-     * @MongoDB\Increment
+     * @MongoDB\Field(type="increment")
      */
     private $number_multimedia_objects = 0;
 
@@ -124,8 +123,7 @@ class Tag
      *
      * @var int
      *
-     * @MongoDB\Field(type="int")
-     * @MongoDB\Increment
+     * @MongoDB\Field(type="increment")
      */
     private $number_children = 0;
 
@@ -580,8 +578,7 @@ class Tag
     /**
      * Returns true if given node cod is descendant of tag.
      *
-     * @param EmbeddedTag|Tag $tag
-     * @param mixed           $tagCod
+     * @param mixed $tagCod
      *
      * @return bool
      */

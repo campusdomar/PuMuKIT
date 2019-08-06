@@ -67,6 +67,7 @@ EOT
         $this->input = $input;
 
         $this->path = $this->input->getOption('path');
+        $this->delete = $this->input->getOption('delete');
     }
 
     /**
@@ -96,7 +97,7 @@ EOT
         $finder = new Finder();
         $files = $finder->files()->in($path);
 
-        $output->writeln('<comment>***** Files to delete: '.count($files).' *****</comment>');
+        $output->writeln('<comment>***** Files on folder: '.count($files).' *****</comment>');
         foreach ($files as $file) {
             $filePath = $file->getRelativePathName();
             $absoluteFilePath = $file->getPathName();

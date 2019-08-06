@@ -30,16 +30,14 @@ class Broadcast
     /**
      * @var ArrayCollection
      *
-     * @MongoDB\ReferenceMany(targetDocument="MultimediaObject", mappedBy="broadcast", simple=true, orphanRemoval=false)
+     * @MongoDB\ReferenceMany(targetDocument="MultimediaObject", mappedBy="broadcast", storeAs="id", orphanRemoval=false)
      * @Serializer\Exclude
      */
     private $multimedia_objects;
 
     /**
      * @var int
-     *
-     * @MongoDB\Field(type="int")
-     * @MongoDB\Increment
+     * @MongoDB\Field(type="increment")
      */
     private $number_multimedia_objects = 0;
 
@@ -226,7 +224,6 @@ class Broadcast
     /**
      * Set default_sel.
      *
-     * @param bool  $defatul_sel
      * @param mixed $default_sel
      */
     public function setDefaultSel($default_sel)
