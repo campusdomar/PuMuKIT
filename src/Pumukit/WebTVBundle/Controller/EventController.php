@@ -133,7 +133,7 @@ class EventController extends Controller implements WebTVControllerInterface
 
     /**
      * @param Event[] $eventsNow
-     * @param Event[] $eventsToday
+     * @param array $eventsToday
      *
      * @return array
      */
