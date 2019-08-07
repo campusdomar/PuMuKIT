@@ -173,7 +173,7 @@ class LegacyController extends Controller implements WebTVControllerInterface
      * Parameters:
      * - {hash} matches series.properties("pumukit1magic")
      *
-     * @param mixed $hash
+     * @param string $hash
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
