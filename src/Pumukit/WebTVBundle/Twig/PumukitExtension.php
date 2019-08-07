@@ -166,7 +166,7 @@ class PumukitExtension extends AbstractExtension
     /**
      * Get precinct of Series.
      *
-     * @param MultimediaObject $multimediaObjects
+     * @param MultimediaObject[] $multimediaObjects
      *
      * @return bool|EmbeddedTag
      */
