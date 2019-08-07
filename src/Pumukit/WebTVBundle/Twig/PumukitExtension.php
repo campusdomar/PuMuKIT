@@ -375,7 +375,7 @@ class PumukitExtension extends AbstractExtension
     /**
      * Get next event session without sessions that reproducing now.
      *
-     * @param Mixed $event
+     * @param array $event
      *
      * @throws \Exception
      *
