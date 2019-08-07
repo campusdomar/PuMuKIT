@@ -59,7 +59,7 @@ class PumukitExtension extends AbstractExtension
      *
      * @param DocumentManager                  $documentManager
      * @param RequestContext                   $context
-     * @param Mixed                            $defaultPic
+     * @param string                            $defaultPic
      * @param CaptionService                   $captionService
      * @param PicService                       $picService
      * @param LinkService                      $linkService
