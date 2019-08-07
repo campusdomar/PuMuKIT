@@ -170,7 +170,7 @@ class PumukitExtension extends AbstractExtension
      *
      * @return bool|EmbeddedTag
      */
-    public function getPrecinctOfSeries(MultimediaObject $multimediaObjects)
+    public function getPrecinctOfSeries(array $multimediaObjects)
     {
         $precinctTag = false;
         $precinctCode = null;
