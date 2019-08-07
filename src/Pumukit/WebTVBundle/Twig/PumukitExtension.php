@@ -146,7 +146,7 @@ class PumukitExtension extends AbstractExtension
     /**
      * Get precinct.
      *
-     * @param Array<Tag> $embeddedTags
+     * @param Tag[] $embeddedTags
      *
      * @return null|EmbeddedTag
      */
