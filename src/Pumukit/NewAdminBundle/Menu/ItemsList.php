@@ -13,7 +13,7 @@ class ItemsList
 
     public function add(ItemInterface $item)
     {
-        $this->items[] = $item;
+        array_push($this->items, $item);
     }
 
     public function items()
