@@ -32,7 +32,7 @@ class Job
     ];
 
     /**
-     * @var int
+     * @var string
      *
      * @MongoDB\Id
      */
@@ -97,14 +97,14 @@ class Job
     private $priority;
 
     /**
-     * @var string
+     * @var string[]
      *
      * @MongoDB\Field(type="raw")
      */
     private $name = ['en' => ''];
 
     /**
-     * @var string
+     * @var string[]
      *
      * @MongoDB\Field(type="raw")
      */
@@ -370,7 +370,7 @@ class Job
      * @param string      $name
      * @param null|string $locale
      */
-    public function setName($name, $locale = null)
+    public function setName(string $name, $locale = null)
     {
         if (null === $locale) {
             $locale = $this->locale;
@@ -410,7 +410,7 @@ class Job
     /**
      * Get I18n name.
      *
-     * @return string
+     * @return array
      */
     public function getI18nName()
     {
@@ -463,7 +463,7 @@ class Job
     /**
      * Get I18n description.
      *
-     * @return string
+     * @return array
      */
     public function getI18nDescription()
     {
@@ -765,7 +765,7 @@ class Job
      */
     public function setInitVars($initVars)
     {
-        $this->initVars = $initVars;
+        array_push($this->initVars,$initVars);
     }
 
     /**
