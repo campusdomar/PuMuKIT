@@ -758,14 +758,14 @@ class Job
         return $this->output;
     }
 
-    /**
+   /**
      * Set initVars.
      *
-     * @param string $initVars
+     * @param array $initVars
      */
-    public function setInitVars($initVars)
+    public function setInitVars(array $initVars)
     {
-        array_push($this->initVars,$initVars);
+        $this->initVars = $initVars;
     }
 
     /**
