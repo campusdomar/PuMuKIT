@@ -19,7 +19,7 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'bin/console' ]; then
 		bin/console pumukit:init:repo all --force
     	if [ "$AUTOCREATE_PUMUKIT_USER" == 'true']; then
 			set +e
-			php bin/console fos:user:create $PUMUKIT_USER $PUMUKIT_MAIL $PUMUKIT_PASS || true
+			php bin/console fos:user:create $PUMUKIT_USER $PUMUKIT_MAIL $PUMUKIT_PASS --super-admin || true
 			set -e
 		fi
     fi
