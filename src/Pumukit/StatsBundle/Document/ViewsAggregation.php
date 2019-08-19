@@ -61,7 +61,7 @@ class ViewsAggregation
     /**
      * Get id.
      *
-     * @return string $id
+     * @return int $id
      */
     public function getId()
     {
@@ -109,7 +109,7 @@ class ViewsAggregation
     /**
      * Get multimediaObject.
      *
-     * @return int $multimediaObject
+     * @return string $multimediaObject
      */
     public function getMultimediaObject()
     {
@@ -119,11 +119,11 @@ class ViewsAggregation
     /**
      * Set series.
      *
-     * @param int $series
+     * @param string $series
      *
      * @return self
      */
-    public function setSeries($series)
+    public function setSeries(string $series)
     {
         $this->series = $series;
 
@@ -133,7 +133,7 @@ class ViewsAggregation
     /**
      * Get series.
      *
-     * @return int $series
+     * @return string $series
      */
     public function getSeries()
     {
@@ -149,7 +149,7 @@ class ViewsAggregation
      */
     public function setNumViews($numView)
     {
-        $this->numView = $numView;
+        $this->numView = intval($numView);
 
         return $this;
     }
@@ -157,7 +157,7 @@ class ViewsAggregation
     /**
      * Get numView.
      *
-     * @return string $numView
+     * @return int $numView
      */
     public function getNumViews()
     {

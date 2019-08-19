@@ -41,7 +41,7 @@ class PicExtractorService
      * @param Track            $track
      * @param array            $marks
      *
-     * @return string $message
+     * @return boolean | string $message
      */
     public function extractPicOnBatch(MultimediaObject $multimediaObject, Track $track, array $marks = null)
     {
@@ -97,7 +97,7 @@ class PicExtractorService
      * @param Track            $track
      * @param int              $frame            numero del frame donde se realiza la captura
      *
-     * @return PIC o null si mal
+     * @return boolean
      */
     private function createPic(MultimediaObject $multimediaObject, Track $track, $frame = 25)
     {

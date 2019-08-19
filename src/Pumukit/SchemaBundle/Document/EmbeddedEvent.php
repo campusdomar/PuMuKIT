@@ -361,7 +361,7 @@ class EmbeddedEvent
     }
 
     /**
-     * @return Collection
+     * @return array
      */
     public function getEmbeddedEventSession()
     {
