@@ -19,7 +19,4 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'bin/console' ]; then
 	bin/console pumukit:init:repo all --force
     fi
 fi
-set +e
-php bin/console fos:user:create $PUMUKIT_USER $PUMUKIT_MAIL $PUMUKIT_PASS || true
-set -e
 exec docker-php-entrypoint "$@"
