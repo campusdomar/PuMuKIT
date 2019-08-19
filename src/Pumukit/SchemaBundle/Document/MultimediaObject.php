@@ -124,7 +124,7 @@ class MultimediaObject
     private $embeddedEvent;
 
     /**
-     * @var Collection
+     * @var Collection | ArrayCollection
      * @MongoDB\EmbedMany(targetDocument="EmbeddedSegment")
      */
     private $embeddedSegments;
@@ -1008,7 +1008,7 @@ class MultimediaObject
     }
 
     /**
-     * @return ArrayCollection
+     * @return Collection[] | Collection
      */
     public function getEmbeddedSegments()
     {
@@ -1016,7 +1016,7 @@ class MultimediaObject
     }
 
     /**
-     * @param array $embeddedSegments
+     * @param Collection[] $embeddedSegments
      */
     public function setEmbeddedSegments(array $embeddedSegments)
     {

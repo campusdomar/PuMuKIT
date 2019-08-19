@@ -24,5 +24,4 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'bin/console' ]; then
 		fi
     fi
 fi
-
 exec docker-php-entrypoint "$@"

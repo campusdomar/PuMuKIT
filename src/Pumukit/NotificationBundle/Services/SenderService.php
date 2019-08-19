@@ -301,7 +301,7 @@ class SenderService
      *
      * @param mixed $locale
      *
-     * @return string
+     * @return string | null
      */
     public function getSubjectTransWithLocale(array $subjectArray = [], $locale = 'en')
     {
@@ -319,7 +319,7 @@ class SenderService
      *
      * @param array|string $emailTo
      *
-     * @return bool
+     * @return bool | array<mixed>
      */
     private function filterEmail($emailTo)
     {
