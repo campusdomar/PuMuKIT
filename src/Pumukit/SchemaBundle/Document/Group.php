@@ -92,7 +92,7 @@ class Group implements GroupInterface
     /**
      * Get id.
      *
-     * @return null|\MongoId|string|int
+     * @return null|\MongoId|string
      */
     public function getId()
     {

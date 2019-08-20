@@ -87,7 +87,7 @@ class PicService
             array_push($pipeline, $match);
         }
 
-        if (isset($extension)) {
+        if ($extension) {
             $orCondition = [];
             foreach ($extension as $ext) {
                 if (false !== strpos($ext, '.')) {

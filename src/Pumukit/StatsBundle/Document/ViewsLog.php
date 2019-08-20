@@ -14,7 +14,7 @@ class ViewsLog
     use Traits\Properties;
 
     /**
-     * @var int
+     * @var int | string
      *
      * @MongoDB\Id
      */
@@ -102,7 +102,7 @@ class ViewsLog
     /**
      * Get id.
      *
-     * @return int $id
+     * @return string $id
      */
     public function getId()
     {

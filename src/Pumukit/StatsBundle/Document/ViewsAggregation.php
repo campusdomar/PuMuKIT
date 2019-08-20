@@ -14,7 +14,7 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 class ViewsAggregation
 {
     /**
-     * @var int
+     * @var int | string
      *
      * @MongoDB\Id
      */
@@ -61,7 +61,7 @@ class ViewsAggregation
     /**
      * Get id.
      *
-     * @return int $id
+     * @return string $id
      */
     public function getId()
     {

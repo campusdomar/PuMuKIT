@@ -761,11 +761,11 @@ class Job
     /**
      * Set initVars.
      *
-     * @param string $initVars
+     * @param array $initVars
      */
     public function setInitVars($initVars)
     {
-        array_push($this->initVars,$initVars);
+        $this->initVars = $initVars;
     }
 
     /**
