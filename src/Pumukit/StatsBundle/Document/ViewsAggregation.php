@@ -149,7 +149,7 @@ class ViewsAggregation
      */
     public function setNumViews($numView)
     {
-        $this->numView = intval($numView);
+        $this->numView = (int) $numView;
 
         return $this;
     }

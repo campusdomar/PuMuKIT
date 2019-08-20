@@ -35,13 +35,13 @@ class PicService
     }
 
     /**
-     * @param null|string $id
-     * @param null|string $size
-     * @param null|string $path
+     * @param null|string   $id
+     * @param null|string   $size
+     * @param null|string   $path
      * @param null|string[] $extension
-     * @param null|string $tags
-     * @param null|string $exists
-     * @param null|string $type
+     * @param null|string   $tags
+     * @param null|string   $exists
+     * @param null|string   $type
      *
      * @throws \Doctrine\ODM\MongoDB\MongoDBException
      *
@@ -127,7 +127,7 @@ class PicService
     }
 
     /**
-     * @param mixed $data
+     * @param mixed  $data
      * @param string $exists
      *
      * @return array $data
