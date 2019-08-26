@@ -84,7 +84,7 @@ class LicenseService
         } else {
             $licenseFile = $this->getAnyLicenseFile();
         }
-        if (!$licenseFile) {
+        if (is_bool($licenseFile)) {
             throw new \Exception($this->translator->trans('Not valid locale "'.$locale.'". There is no license file in the directory "'.$this->licenseDir.'" in the format "{locale}.txt".'));
         }
 
@@ -123,7 +123,7 @@ class LicenseService
     /**
      * Get any license file path in locales.
      *
-     * @return string $filepath
+     * @return string | boolean $filepath
      */
     private function getAnyLicenseFile()
     {

@@ -12,14 +12,19 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Pumukit\WizardBundle\Services\LicenseService;
 
+use Doctrine\ODM\MongoDB\DocumentManager;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Pumukit\EncoderBundle\Services\ProfileService;
+use Pumukit\SchemaBundle\Services\FactoryService;
 /**
  * @Security("is_granted('ROLE_ACCESS_WIZARD_UPLOAD')")
  */
 class DefaultController extends Controller
 {
     const SERIES_LIMIT = 30;
-
+    
     /**
      * @Template("PumukitWizardBundle:Default:license.html.twig")
      */
@@ -29,6 +34,7 @@ class DefaultController extends Controller
         $sameSeries = $this->getSameSeriesValue($formData, $request->get('same_series', false));
         $showSeries = !$sameSeries;
         $formData['same_series'] = $sameSeries ? 1 : 0;
+         /** @var LicenseService */
         $licenseService = $this->get('pumukit_wizard.license');
         if (!$licenseService->isEnabled()) {
             if ($sameSeries) {
@@ -60,6 +66,7 @@ class DefaultController extends Controller
         $formData = $request->get('pumukitwizard_form_data', []);
         $sameSeries = $this->getSameSeriesValue($formData, $request->get('same_series', false));
         $formData['same_series'] = $sameSeries ? 1 : 0;
+        /** @var LicenseService */
         $licenseService = $this->get('pumukit_wizard.license');
         $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData, $request->getLocale());
         if (!$licenseEnabledAndAccepted) {
@@ -72,6 +79,7 @@ class DefaultController extends Controller
         if ($reuseSeries) {
             $user = $this->getUser();
             $reuseAdminSeries = $this->getParameter('pumukit_wizard.reuse_admin_series');
+            /** @var DocumentManager */
             $dm = $this->get('doctrine_mongodb.odm.document_manager');
             $userSeries = $dm->getRepository(Series::class)->findUserSeries($user, $reuseAdminSeries);
 
@@ -126,12 +134,15 @@ class DefaultController extends Controller
         if ($series) {
             $formData = $this->completeFormWithSeries($formData, $series);
         }
-        if (false === $this->get('security.authorization_checker')->isGranted(Permission::ACCESS_INBOX)) {
+        /** @var AuthorizationCheckerInterface */
+        $authorizationChecker = $this->get('security.authorization_checker');
+        if (false === $authorizationChecker->isGranted(Permission::ACCESS_INBOX)) {
             $formData['series']['id'] = $id;
             $formData['type']['option'] = 'single';
 
             return $this->redirect($this->generateUrl('pumukitwizard_default_option', ['pumukitwizard_form_data' => $formData, 'same_series' => $sameSeries]));
         }
+        /** @var LicenseService */
         $licenseService = $this->get('pumukit_wizard.license');
         $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData, $request->getLocale());
         if (!$licenseEnabledAndAccepted) {
@@ -159,12 +170,15 @@ class DefaultController extends Controller
         $formData = $request->get('pumukitwizard_form_data', []);
         $sameSeries = $this->getSameSeriesValue($formData, $request->get('same_series', false));
         $formData['same_series'] = $sameSeries ? 1 : 0;
+        /** @var LicenseService */
         $licenseService = $this->get('pumukit_wizard.license');
         $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData, $request->getLocale());
         if (!$licenseEnabledAndAccepted) {
             return $this->redirect($this->generateUrl('pumukitwizard_default_license', ['pumukitwizard_form_data' => $formData, 'same_series' => $sameSeries]));
         }
-        if (('multiple' == $formData['type']['option']) && (false !== $this->get('security.authorization_checker')->isGranted(Permission::ACCESS_INBOX))) {
+        /** @var AuthorizationCheckerInterface */
+        $authorizationChecker = $this->get('security.authorization_checker');
+        if (('multiple' == $formData['type']['option']) && (false !== $authorizationChecker->isGranted(Permission::ACCESS_INBOX))) {
             return $this->redirect($this->generateUrl('pumukitwizard_default_track', ['pumukitwizard_form_data' => $formData, 'same_series' => $sameSeries]));
         }
 
@@ -195,6 +209,7 @@ class DefaultController extends Controller
             $formData['series']['id'] = null;
             $formData['series']['reuse']['id'] = null;
         }
+        /** @var LicenseService */
         $licenseService = $this->get('pumukit_wizard.license');
         $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData, $request->getLocale());
         if (!$licenseEnabledAndAccepted) {
@@ -205,6 +220,7 @@ class DefaultController extends Controller
         $availableTags = [];
         if ($showTags) {
             $tagCode = $this->container->getParameter('pumukit_wizard.tag_parent_code');
+            /** @var DocumentManager */
             $dm = $this->get('doctrine_mongodb.odm.document_manager');
             $tagRepo = $dm->getRepository(Tag::class);
             $tagParent = $tagRepo->findOneBy(['cod' => $tagCode]);
@@ -244,13 +260,16 @@ class DefaultController extends Controller
         $sameSeries = $this->getSameSeriesValue($formData, $request->get('same_series', false));
         $showSeries = !$sameSeries;
         $formData['same_series'] = $sameSeries ? 1 : 0;
+        /** @var LicenseService */
         $licenseService = $this->get('pumukit_wizard.license');
         $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData, $request->getLocale());
         if (!$licenseEnabledAndAccepted) {
             return $this->redirect($this->generateUrl('pumukitwizard_default_license', ['pumukitwizard_form_data' => $formData, 'same_series' => $sameSeries]));
         }
-
-        $masterProfiles = $this->get('pumukitencoder.profile')->getMasterProfiles(true);
+        /** @var ProfileService */
+        $profiles = $this->get('pumukitencoder.profile');
+        $masterProfiles = $profiles->getMasterProfiles(true);
+        /** @var FactoryService */
         $factoryService = $this->get('pumukitschema.factory');
         $pubChannelsTags = $factoryService->getTagsByCod('PUBCHANNELS', true);
 
@@ -305,11 +324,13 @@ class DefaultController extends Controller
      */
     public function uploadAction(Request $request)
     {
+        /** @var DocumentManager */
         $dm = $this->get('doctrine_mongodb')->getManager();
         $formData = $request->get('pumukitwizard_form_data', []);
         $sameSeries = $this->getSameSeriesValue($formData, $request->get('same_series', false));
         $showSeries = !$sameSeries;
         $formData['same_series'] = $sameSeries ? 1 : 0;
+        /** @var LicenseService */
         $licenseService = $this->get('pumukit_wizard.license');
         $licenseEnabledAndAccepted = $licenseService->isLicenseEnabledAndAccepted($formData, $request->getLocale());
         if (!$licenseEnabledAndAccepted) {
@@ -526,6 +547,7 @@ class DefaultController extends Controller
      */
     public function endAction(Request $request)
     {
+        /** @var DocumentManager */
         $dm = $this->get('doctrine_mongodb.odm.document_manager');
         $mmRepo = $dm->getRepository(MultimediaObject::class);
 
@@ -533,7 +555,7 @@ class DefaultController extends Controller
         $multimediaObject = $mmRepo->find($request->get('mmId'));
         $option = $request->get('option');
         $showSeries = $request->get('show_series');
-
+        /** @var LicenseService */
         $licenseService = $this->get('pumukit_wizard.license');
         $licenseEnabled = $licenseService->isEnabled();
 
@@ -579,6 +601,7 @@ class DefaultController extends Controller
         $step = $request->get('step');
         $option = $request->get('option');
         $showSeries = $request->get('show_series');
+        /** @var LicenseService */
         $licenseService = $this->get('pumukit_wizard.license');
         $showLicense = $licenseService->isEnabled();
         $sameSeries = $request->get('same_series', false);
@@ -687,6 +710,7 @@ class DefaultController extends Controller
         }
 
         $tagService = $this->get('pumukitschema.tag');
+        /** @var DocumentManager */
         $dm = $this->get('doctrine_mongodb.odm.document_manager');
         $tagRepo = $dm->getRepository(Tag::class);
 
@@ -709,6 +733,7 @@ class DefaultController extends Controller
      */
     private function setData($resource, $resourceData, $keys)
     {
+        /** @var DocumentManager */
         $dm = $this->get('doctrine_mongodb.odm.document_manager');
 
         foreach ($keys as $key) {
@@ -734,6 +759,7 @@ class DefaultController extends Controller
      */
     private function removeInvalidMultimediaObject(MultimediaObject $multimediaObject, Series $series)
     {
+        /** @var DocumentManager */
         $dm = $this->get('doctrine_mongodb.odm.document_manager');
         $dm->remove($multimediaObject);
         $dm->flush();

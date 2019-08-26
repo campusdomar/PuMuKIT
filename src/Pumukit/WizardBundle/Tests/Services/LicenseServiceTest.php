@@ -75,6 +75,10 @@ class LicenseServiceTest extends WebTestCase
         $licenseService = new LicenseService($showLicense, $this->licenseDir, $locales, $this->translator);
 
         $licenseFile = realpath($this->licenseDir.'/en.txt');
+        if(is_bool($licenseFile))
+        {
+            throw new \Exception("Boolean type on incorrect context");
+        }
         $licenseContent = @file_get_contents($licenseFile);
         $this->assertEquals($licenseContent, $licenseService->getLicenseContent());
         $this->assertEquals($licenseContent, $licenseService->getLicenseContent('en'));
