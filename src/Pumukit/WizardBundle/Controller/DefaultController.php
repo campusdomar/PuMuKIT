@@ -23,6 +23,9 @@ use Pumukit\InspectionBundle\Services\InspectionFfprobeService;
 use Pumukit\WizardBundle\Services\FormEventDispatcherService;
 use Pumukit\WizardBundle\Services\WizardService;
 use Pumukit\SchemaBundle\Services\SortedMultimediaObjectsService;
+use Pumukit\SchemaBundle\Services\TagService;
+use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
+        
 /**
  * @Security("is_granted('ROLE_ACCESS_WIZARD_UPLOAD')")
  */
@@ -329,7 +332,9 @@ class DefaultController extends Controller
      */
     public function uploadAction(Request $request)
     {
-        $dm = $this->get('doctrine_mongodb')->getManager();
+        /** @var ManagerRegistry */
+        $aux = $this->get('doctrine_mongodb');
+        $dm =$aux->getManager();
         $formData = $request->get('pumukitwizard_form_data', []);
         $sameSeries = $this->getSameSeriesValue($formData, $request->get('same_series', false));
         $showSeries = !$sameSeries;
@@ -671,6 +676,7 @@ class DefaultController extends Controller
     private function createSeries($seriesData = [])
     {
         if ($seriesData) {
+            /** @var FactoryService */
             $factoryService = $this->get('pumukitschema.factory');
             $series = $factoryService->createSeries($this->getUser());
 
@@ -695,6 +701,7 @@ class DefaultController extends Controller
      */
     private function createMultimediaObject(array $mmData, Series $series)
     {
+        /** @var FactoryService */
         $factoryService = $this->get('pumukitschema.factory');
         $multimediaObject = $factoryService->createMultimediaObject($series, true, $this->getUser());
 
@@ -721,7 +728,8 @@ class DefaultController extends Controller
         if ($this->isGranted(Permission::getRoleTagDisableForPubChannel($tagCode))) {
             return $addedTags;
         }
-
+        
+        /** @var TagService*/
         $tagService = $this->get('pumukitschema.tag');
         /** @var DocumentManager */
         $dm = $this->get('doctrine_mongodb.odm.document_manager');
