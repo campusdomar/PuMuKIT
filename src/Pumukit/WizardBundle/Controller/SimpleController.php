@@ -12,6 +12,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
+use Pumukit\WizardBundle\Services\LicenseService;
+use Pumukit\InspectionBundle\Services\InspectionFfprobeService;
+use Pumukit\SchemaBundle\Services\SortedMultimediaObjectsService;
+use Pumukit\WizardBundle\Services\FormEventDispatcherService;
+use Pumukit\SchemaBundle\Services\FactoryService;
+use Doctrine\ODM\MongoDB\DocumentManager;
+use Pumukit\EncoderBundle\Services\ProfileService;
 /**
  * @Security("is_granted('ROLE_ACCESS_WIZARD_UPLOAD')")
  */
@@ -27,7 +34,8 @@ class SimpleController extends Controller
      */
     public function indexAction(Series $series, Request $request)
     {
-        (LicenseService) $licenseService = $this->get('pumukit_wizard.license');
+         /** @var LicenseService */
+        $licenseService = $this->get('pumukit_wizard.license');
         $licenseContent = $licenseService->getLicenseContent($request->getLocale());
 
         $languages = CustomLanguageType::getLanguageNames($this->container->getParameter('pumukit.customlanguages'), $this->get('translator'));
@@ -49,8 +57,10 @@ class SimpleController extends Controller
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function uploadAction(Series $series, Request $request)
-    {
+    {   
+        /** @var JobService */
         $jobService = $this->get('pumukitencoder.job');
+        /** @var InspectionFfprobeService */
         $inspectionService = $this->get('pumukit.inspection');
 
         $priority = 2;
@@ -84,7 +94,6 @@ class SimpleController extends Controller
             $title = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $multimediaObject = $this->createMultimediaObject($title, $series);
             $multimediaObject->setDuration($duration);
-
             $jobService->createTrackFromLocalHardDrive(
                 $multimediaObject,
                 $file,
@@ -99,8 +108,9 @@ class SimpleController extends Controller
         } catch (\Exception $e) {
             throw $e;
         }
-
-        $this->get('pumukitschema.sorted_multimedia_object')->reorder($series);
+        /** @var SortedMultimediaObjectsService*/
+        $aux = $this->get('pumukitschema.sorted_multimedia_object');
+        $aux->reorder($series);
 
         return $this->redirect($this->generateUrl('pumukitnewadmin_mms_shortener', ['id' => $multimediaObject->getId()]));
     }
@@ -120,7 +130,7 @@ class SimpleController extends Controller
         if (!$series) {
             $series = $this->getSeriesByExternalData($externalData);
         }
-
+        /** @var LicenseService */
         $licenseService = $this->get('pumukit_wizard.license');
         $licenseContent = $licenseService->getLicenseContent($request->getLocale());
 
@@ -163,8 +173,9 @@ class SimpleController extends Controller
         if (!$series) {
             $series = $this->getSeriesByExternalData($externalData);
         }
-
+        /** @var JobService */
         $jobService = $this->get('pumukitencoder.job');
+        /** @var InspectionFfprobeService */
         $inspectionService = $this->get('pumukit.inspection');
 
         $priority = 2;
@@ -226,14 +237,15 @@ class SimpleController extends Controller
                 $duration,
                 JobService::ADD_JOB_NOT_CHECKS
             );
-
+            /** @var FormEventDispatcherService */
             $formDispatcher = $this->get('pumukit_wizard.form_dispatcher');
             $formDispatcher->dispatchSubmit($this->getUser(), $multimediaObject, ['simple' => true, 'externalData' => $externalData]);
         } catch (\Exception $e) {
             throw $e;
         }
-
-        $this->get('pumukitschema.sorted_multimedia_object')->reorder($series);
+        /** @var SortedMultimediaObjectsService*/
+        $aux = $this->get('pumukitschema.sorted_multimedia_object');
+        $aux->reorder($series);
 
         $response = [
             'url' => $this->generateUrl('pumukitnewadmin_mms_shortener', ['id' => $multimediaObject->getId()]),
@@ -253,6 +265,7 @@ class SimpleController extends Controller
      */
     private function createMultimediaObject($title, Series $series)
     {
+        /** @var FactoryService */
         $factoryService = $this->get('pumukitschema.factory');
         $multimediaObject = $factoryService->createMultimediaObject($series, true, $this->getUser());
 
@@ -273,6 +286,7 @@ class SimpleController extends Controller
      */
     private function createMultimediaObjectWithI18nTitle($i18nTitle, Series $series)
     {
+        /** @var FactoryService */
         $factoryService = $this->get('pumukitschema.factory');
         $multimediaObject = $factoryService->createMultimediaObject($series, true, $this->getUser());
         if (!array_filter($i18nTitle)) {
@@ -292,6 +306,7 @@ class SimpleController extends Controller
      */
     private function getSeries($seriesId)
     {
+        /** @var DocumentManager */
         $dm = $this->get('doctrine_mongodb.odm.document_manager');
         $repo = $dm->getRepository(Series::class);
 
@@ -307,6 +322,7 @@ class SimpleController extends Controller
      */
     private function getSeriesByExternalData($externalData)
     {
+        /** @var DocumentManager */
         $dm = $this->get('doctrine_mongodb.odm.document_manager');
         $repo = $dm->getRepository(Series::class);
 
@@ -324,6 +340,7 @@ class SimpleController extends Controller
      */
     private function createSeries($externalData)
     {
+        /** @var FactoryService */
         $factoryService = $this->get('pumukitschema.factory');
         if (isset($externalData['seriesData']['title'])) {
             $series = $factoryService->createSeries($this->getUser(), $externalData['seriesData']['title']);
@@ -361,6 +378,7 @@ class SimpleController extends Controller
             foreach ($externalData['mmobjData']['properties'] as $key => $value) {
                 $multimediaObject->setProperty($key, $value);
             }
+            /** @var DocumentManager */
             $dm = $this->get('doctrine_mongodb.odm.document_manager');
             $dm->persist($multimediaObject);
             $dm->flush();
@@ -377,7 +395,8 @@ class SimpleController extends Controller
         if ($this->container->hasParameter('pumukit_wizard.simple_default_master_profile')) {
             return $this->container->getParameter('pumukit_wizard.simple_default_master_profile');
         }
-
-        return $this->get('pumukitencoder.profile')->getDefaultMasterProfile();
+        /** @var ProfileService */
+        $profile = $this->get('pumukitencoder.profile');
+        return $profile->getDefaultMasterProfile();
     }
 }
