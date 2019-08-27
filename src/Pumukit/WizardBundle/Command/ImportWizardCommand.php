@@ -75,7 +75,7 @@ EOT
         $this->defaultLanguage = $this->getContainer()->getParameter('locale');
         $this->factoryService = $this->getContainer()->get('pumukitschema.factory');
 
-        $this->user = (DocumentManager)$this->dm->getRepository(User::class)->findOneBy([
+        $this->user =$this->dm->getRepository(User::class)->findOneBy([
             '_id' => $input->getArgument('user'),
         ]);
 
