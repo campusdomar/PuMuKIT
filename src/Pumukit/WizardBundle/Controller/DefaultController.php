@@ -18,6 +18,11 @@ use Doctrine\ODM\MongoDB\DocumentManager;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Pumukit\EncoderBundle\Services\ProfileService;
 use Pumukit\SchemaBundle\Services\FactoryService;
+use Doctrine\Bundle\MongoDBBundle\Repository\ContainerRepositoryFactory;
+use Pumukit\InspectionBundle\Services\InspectionFfprobeService;
+use Pumukit\WizardBundle\Services\FormEventDispatcherService;
+use Pumukit\WizardBundle\Services\WizardService;
+use Pumukit\SchemaBundle\Services\SortedMultimediaObjectsService;
 /**
  * @Security("is_granted('ROLE_ACCESS_WIZARD_UPLOAD')")
  */
@@ -324,7 +329,6 @@ class DefaultController extends Controller
      */
     public function uploadAction(Request $request)
     {
-        /** @var DocumentManager */
         $dm = $this->get('doctrine_mongodb')->getManager();
         $formData = $request->get('pumukitwizard_form_data', []);
         $sameSeries = $this->getSameSeriesValue($formData, $request->get('same_series', false));
@@ -336,7 +340,10 @@ class DefaultController extends Controller
         if (!$licenseEnabledAndAccepted) {
             return $this->redirect($this->generateUrl('pumukitwizard_default_license', ['pumukitwizard_form_data' => $formData, 'same_series' => $sameSeries]));
         }
+        
+        /** @var JobService */
         $jobService = $this->get('pumukitencoder.job');
+        /** @var InspectionFfprobeService */
         $inspectionService = $this->get('pumukit.inspection');
         $showTags = $this->container->getParameter('pumukit_wizard.show_tags');
         $showObjectLicense = $this->container->getParameter('pumukit_wizard.show_object_license');
@@ -345,7 +352,8 @@ class DefaultController extends Controller
         $seriesId = null;
         $multimediaObject = null;
         $mmId = null;
-
+        
+        /** @var FormEventDispatcherService */
         $formDispatcher = $this->get('pumukit_wizard.form_dispatcher');
 
         if ($formData) {
@@ -359,7 +367,9 @@ class DefaultController extends Controller
             if (!$this->isGranted('ROLE_DISABLED_WIZARD_TRACK_PROFILES')) {
                 $profile = $this->getKeyData('profile', $trackData, null);
             } else {
-                $profile = $this->get('pumukitencoder.profile')->getDefaultMasterProfile();
+                /** @var ProfileService */
+                $encoderProfile =  $this->get('pumukitencoder.profile');
+                $profile = $encoderProfile->getDefaultMasterProfile();
             }
             if (!$profile) {
                 throw new \Exception('Not exists master profile');
@@ -476,7 +486,8 @@ class DefaultController extends Controller
                     }
                 } elseif ('multiple' === $option) {
                     $this->denyAccessUnlessGranted(Permission::ACCESS_INBOX);
-
+                    
+                    /** @var WizardService*/
                     $wizardService = $this->get('pumukit_wizard.wizard');
 
                     $series = $wizardService->uploadMultipleFiles(
@@ -521,7 +532,9 @@ class DefaultController extends Controller
 
         if ($series) {
             $seriesId = $series->getId();
-            $this->get('pumukitschema.sorted_multimedia_object')->reorder($series);
+            /** @var SortedMultimediaObjectsService*/
+            $aux = $this->get('pumukitschema.sorted_multimedia_object');
+            $aux->reorder($series);
         } else {
             $seriesId = null;
         }
@@ -820,9 +833,9 @@ class DefaultController extends Controller
      */
     private function findSeriesById($id)
     {
-        $seriesRepo = $this->get('doctrine_mongodb.odm.document_manager')
-            ->getRepository(Series::class)
-        ;
+        /** @var DocumentManager */
+        $dm = $this->get('doctrine_mongodb.odm.document_manager');
+        $seriesRepo = $dm->getRepository(Series::class);
 
         return $seriesRepo->find($id);
     }
