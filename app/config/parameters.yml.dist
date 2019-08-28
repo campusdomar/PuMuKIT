@@ -21,4 +21,5 @@ parameters:
     env(PUMUKIT_DELETE_ON_DISK): true
     env(PUMUKIT_PRIMARY_COLOR)%: "#ed6d00"
     env(PUMUKIT_FONT_COLOR): "#ffffff"
+    env(PUMUKIT_DEMO_MODE): false
 
