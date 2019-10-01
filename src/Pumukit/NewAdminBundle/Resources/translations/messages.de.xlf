@@ -681,9 +681,9 @@
         <source>WARNING, this multimedia object is not yet published on WebTV, or does not have a playable resource.</source>
         <target xml:lang="de" state="needs-translation">WARNING, this multimedia object is not yet published on WebTV, or does not have a playable resource.</target>
       </trans-unit>
-      <trans-unit id="e0c2297cd0586edafa230edc0585c1af" resname="Audio/Video">
-        <source>Audio/Video</source>
-        <target xml:lang="de" state="needs-translation">Audio/Video</target>
+      <trans-unit id="e0c2297cd0586edafa230edc0585c1af" resname="Format">
+        <source>Format</source>
+        <target xml:lang="de" state="needs-translation">Format</target>
       </trans-unit>
       <trans-unit id="b78a3223503896721cca1303f776159b" resname="Title">
         <source>Title</source>

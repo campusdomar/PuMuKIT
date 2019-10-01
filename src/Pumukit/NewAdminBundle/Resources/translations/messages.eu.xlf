@@ -1126,9 +1126,9 @@ Oharra: Esteka honek bideo gabeko erreproduzitzaile bat azalduko du, erakutsi da
         <source>WARNING, this multimedia object is not yet published on WebTV, or does not have a playable resource.</source>
         <target xml:lang="eu" state="translated">ADVERTENCIA, este objeto multimedia aún no ha sido publicado en WebTV, o no tiene un recurso reproducible.</target>
       </trans-unit>
-      <trans-unit id="e0c2297cd0586edafa230edc0585c1af" resname="Audio/Video">
-        <source>Audio/Video</source>
-        <target xml:lang="eu" state="translated">Audio/Bideo</target>
+      <trans-unit id="e0c2297cd0586edafa230edc0585c1af" resname="Format">
+        <source>Format</source>
+        <target xml:lang="eu" state="needs-translation">Format</target>
         <alt-trans>
           <target xml:lang="eu">Audio/Vídeo</target>
         </alt-trans>
