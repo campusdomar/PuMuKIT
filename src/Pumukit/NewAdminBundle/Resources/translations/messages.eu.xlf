@@ -1151,11 +1151,11 @@ Oharra: Esteka honek bideo gabeko erreproduzitzaile bat azalduko du, erakutsi da
           <target xml:lang="eu">Grabación</target>
         </alt-trans>
       </trans-unit>
-      <trans-unit id="b9098dfe6720d6c108e103efa643a582" resname="PubDate">
-        <source>PubDate</source>
-        <target xml:lang="eu" state="translated">ArgitaratzeData</target>
+      <trans-unit id="b9098dfe6720d6c108e103efa643a582" resname="Publication">
+        <source>Publication</source>
+        <target xml:lang="eu" state="translated">Argitaratzea</target>
         <alt-trans>
-          <target xml:lang="eu">FechPub</target>
+          <target xml:lang="eu">Publicación</target>
         </alt-trans>
       </trans-unit>
       <trans-unit id="6ad82d464215ca3b501dad2cfdfea8fa" resname="Move one position up">

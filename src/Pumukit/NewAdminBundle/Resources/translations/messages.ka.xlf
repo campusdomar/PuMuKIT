@@ -697,9 +697,9 @@
         <source>Recording</source>
         <target xml:lang="ka" state="needs-translation">Recording</target>
       </trans-unit>
-      <trans-unit id="b9098dfe6720d6c108e103efa643a582" resname="PubDate">
-        <source>PubDate</source>
-        <target xml:lang="ka" state="needs-translation">PubDate</target>
+      <trans-unit id="b9098dfe6720d6c108e103efa643a582" resname="Publication">
+        <source>Publication</source>
+        <target xml:lang="ka" state="needs-translation">Publication</target>
       </trans-unit>
       <trans-unit id="6ad82d464215ca3b501dad2cfdfea8fa" resname="Move one position up">
         <source>Move one position up</source>
