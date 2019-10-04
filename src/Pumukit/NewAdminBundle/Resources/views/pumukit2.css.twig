@@ -812,3 +812,10 @@ hr.pumukit-green {
     display:none;
   }
 }
+
+{% if is_naked() %}
+    body .main .well{
+    box-shadow: none;
+    border: solid #eee 1px;
+    }
+{% endif %}
