@@ -8,7 +8,7 @@
     </th>
     <th id="th-icons" colspan="{{ is_naked() ? 2 : 3 }}" width="5%"></th>
     <th id="th-video" width="1%">{% trans %}Format{% endtrans %}</th>
-    <th id="th-img" width="1%">{% trans %}Img{% endtrans %}</th>
+    <th id="th-img" width="5%"></th>
     {% if 'series' == app.session.get('admin/mmslist/sort') %}
         <th id="th-series" width="15%">
             <a href="#" id="pumukitnewadmin_mmo_series_sort_selected">{% trans %}Series{% endtrans %}&nbsp;{{ app.session.get('admin/series/type')=='asc'?'&#x25B4;':'&#x25BE;' }}</a>
