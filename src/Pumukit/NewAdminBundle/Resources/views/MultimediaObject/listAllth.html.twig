@@ -38,11 +38,11 @@
     {% endif %}
     {% if 'record_date' == app.session.get('admin/mmslist/sort') %}
         <th id="th-rec-date" width="1%">
-            <a href="#" id="pumukitnewadmin_mmo_record_date_sort_selected">{% trans %}RecDate{% endtrans %}&nbsp;{{ app.session.get('admin/mmslist/type')=='asc'?'&#x25B4;':'&#x25BE;' }}</a>
+            <a href="#" id="pumukitnewadmin_mmo_record_date_sort_selected">{% trans %}Recording{% endtrans %}&nbsp;{{ app.session.get('admin/mmslist/type')=='asc'?'&#x25B4;':'&#x25BE;' }}</a>
         </th>
     {% else %}
         <th id="th-rec-date" width="1%">
-            <a href="#" id="pumukitnewadmin_mmo_record_date_sort_not_selected">{% trans %}RecDate{% endtrans %}</a>
+            <a href="#" id="pumukitnewadmin_mmo_record_date_sort_not_selected">{% trans %}Recording{% endtrans %}</a>
         </th>
     {% endif %}
     {% if 'public_date' == app.session.get('admin/mmslist/sort') %}

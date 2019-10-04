@@ -1144,11 +1144,11 @@ Oharra: Esteka honek bideo gabeko erreproduzitzaile bat azalduko du, erakutsi da
           <target xml:lang="eu">Duración</target>
         </alt-trans>
       </trans-unit>
-      <trans-unit id="b11befb9b12822f75e5f3d0131e08fec" resname="RecDate">
-        <source>RecDate</source>
-        <target xml:lang="eu" state="translated">GrabaketaData</target>
+      <trans-unit id="b11befb9b12822f75e5f3d0131e08fec" resname="Recording">
+        <source>Recording</source>
+        <target xml:lang="eu" state="translated">Grabaketa</target>
         <alt-trans>
-          <target xml:lang="eu">FechGrab</target>
+          <target xml:lang="eu">Grabación</target>
         </alt-trans>
       </trans-unit>
       <trans-unit id="b9098dfe6720d6c108e103efa643a582" resname="PubDate">

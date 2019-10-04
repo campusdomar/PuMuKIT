@@ -712,9 +712,9 @@
         <source>Duration</source>
         <target xml:lang="zh-TW" state="translated">持續時間</target>
       </trans-unit>
-      <trans-unit id="b11befb9b12822f75e5f3d0131e08fec" resname="RecDate">
-        <source>RecDate</source>
-        <target xml:lang="zh-TW" state="translated">錄製日期</target>
+      <trans-unit id="b11befb9b12822f75e5f3d0131e08fec" resname="Recording">
+        <source>Recording</source>
+        <target xml:lang="zh-TW" state="needs-translation">Recording</target>
       </trans-unit>
       <trans-unit id="b9098dfe6720d6c108e103efa643a582" resname="PubDate">
         <source>PubDate</source>
