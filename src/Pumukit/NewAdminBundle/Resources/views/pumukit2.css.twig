@@ -1,8 +1,13 @@
 {% if is_naked() and app.request.attributes.has('nakedbackoffice_custom_css_url') %}
 /*Naked import custom css url*/
 @import url("{{ app.request.attributes.get('nakedbackoffice_custom_css_url') }}");
-
 {% endif %}
+
+/* objects list headers css*/
+th#th-img{
+width: 50px;
+}
+/* end objects list headers css*/
 
 {% if app.request.attributes.get('nakedbackoffice_color') %}
 /*Naked css rules*/
