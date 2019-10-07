@@ -681,9 +681,9 @@
         <source>WARNING, this multimedia object is not yet published on WebTV, or does not have a playable resource.</source>
         <target xml:lang="fr" state="needs-translation">WARNING, this multimedia object is not yet published on WebTV, or does not have a playable resource.</target>
       </trans-unit>
-      <trans-unit id="e0c2297cd0586edafa230edc0585c1af" resname="Audio/Video">
-        <source>Audio/Video</source>
-        <target xml:lang="fr" state="needs-translation">Audio/Video</target>
+      <trans-unit id="e0c2297cd0586edafa230edc0585c1af" resname="Format">
+        <source>Format</source>
+        <target xml:lang="fr" state="needs-translation">Format</target>
       </trans-unit>
       <trans-unit id="b78a3223503896721cca1303f776159b" resname="Title">
         <source>Title</source>
@@ -693,13 +693,13 @@
         <source>Duration</source>
         <target xml:lang="fr" state="translated">Durée</target>
       </trans-unit>
-      <trans-unit id="b11befb9b12822f75e5f3d0131e08fec" resname="RecDate">
-        <source>RecDate</source>
-        <target xml:lang="fr" state="needs-translation">RecDate</target>
+      <trans-unit id="b11befb9b12822f75e5f3d0131e08fec" resname="Recording">
+        <source>Recording</source>
+        <target xml:lang="fr" state="needs-translation">Recording</target>
       </trans-unit>
-      <trans-unit id="b9098dfe6720d6c108e103efa643a582" resname="PubDate">
-        <source>PubDate</source>
-        <target xml:lang="fr" state="needs-translation">PubDate</target>
+      <trans-unit id="b9098dfe6720d6c108e103efa643a582" resname="Publication">
+        <source>Publication</source>
+        <target xml:lang="fr" state="needs-translation">Publication</target>
       </trans-unit>
       <trans-unit id="6ad82d464215ca3b501dad2cfdfea8fa" resname="Move one position up">
         <source>Move one position up</source>
