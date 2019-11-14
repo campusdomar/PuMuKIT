@@ -205,7 +205,7 @@ EOT
         );
 
         foreach ($multimediaObjects as $multimediaObject) {
-            if (!checkIfTracksImported($clientService, $opencastImportService, $multimediaObject, ['presentation/delivery','presenter/delivery'])) {
+            if (!checkIfTracksImported($clientService, $opencastImportService, $multimediaObject, ['presentation/delivery', 'presenter/delivery'])) {
                 $this->importTrackOnMultimediaObject(
                     $output,
                     $clientService,
@@ -341,7 +341,8 @@ EOT
         } else {
             $mediaPackage = $clientService->getMediaPackage($multimediaObject->getProperty('opencast'));
         }
-        return(count($multimediaObjects)>=countMediaPackageTracks($opencastImportService, $mediaPackage));
+
+        return count($multimediaObjects) >= countMediaPackageTracks($opencastImportService, $mediaPackage);
     }
 
     /**
@@ -356,6 +357,7 @@ EOT
         if (isset($tracks[0])) {
             $tracksCount = count($tracks);
         }
+
         return $tracksCount;
     }
 }
