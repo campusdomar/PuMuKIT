@@ -204,7 +204,7 @@ EOT
         );
 
         foreach ($multimediaObjects as $multimediaObject) {
-            if (!$multimediaObject->getTrackWithTag('presentation/delivery') && !$multimediaObject->getTrackWithTag('presenter/delivery')) {
+            if (!checkIfTracksImported($clientService,$opencastImportService, $multimediaObject, ['presentation/delivery','presenter/delivery'])) {
                 $this->importTrackOnMultimediaObject(
                     $output,
                     $clientService,
@@ -238,7 +238,7 @@ EOT
         );
 
         foreach ($multimediaObjects as $multimediaObject) {
-            if (!checkIfTracksImported($clientService,$opencastImportService, $multimediaObject, true)) {
+            if (!checkIfTracksImported($clientService,$opencastImportService, $multimediaObject, ['master'])) {
                 $this->importTrackOnMultimediaObject(
                     $output,
                     $clientService,
@@ -330,19 +330,17 @@ EOT
      * @param ClientService         $clientService
      * @param OpencastImportService $opencastImportService
      * @param MultimediaObject      $multimediaObject
-     * @param                       $master
+     * @param                       $tags
      */
-    private function checkIfTracksImported(ClientService $clientService, OpencastImportService $opencastImportService, MultimediaObject $multimediaObject,$master)
+    private function checkIfTracksImported(ClientService $clientService, OpencastImportService $opencastImportService, MultimediaObject $multimediaObject,$tags)
     {
-        if ($master) {
-            $multimediaObjects = $multimediaObject->getTracksWithTag('master');
+        $tracks = $multimediaObject->getTracksWithAllTags($tags);
+        if (in_array('master',$tags)) {
             $mediaPackage = $clientService->getMasterMediaPackage($multimediaObject->getProperty('opencast'));
-            return(count($multimediaObjects)>=countMediaPackageTracks($opencastImportService,$mediaPackage));
         } else {
-            $multimediaObject->getTracksWithTag('display');
             $mediaPackage = $clientService->getMediaPackage($multimediaObject->getProperty('opencast'));
-            return(count($multimediaObjects)>=countMediaPackageTracks($opencastImportService,$mediaPackage));
         }
+        return(count($multimediaObjects)>=countMediaPackageTracks($opencastImportService,$mediaPackage));
     }
 
     /**
