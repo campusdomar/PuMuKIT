@@ -257,7 +257,7 @@ class ClientService
         if ($version >= '1.4.0' && $version < '1.7.0') {
             $mediaPackage = $this->getMediaPackageFromArchive($id);
             
-            if ( $mediaPackage == false ) {
+            if ($mediaPackage == false) {
                 $mediaPackage = $this->getMediaPackageFromWorkflow($id);
             }
 

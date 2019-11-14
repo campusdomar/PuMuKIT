@@ -36,7 +36,8 @@ class MultipleOpencastHostImportCommand extends ContainerAwareCommand
             ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'ID of multimedia object to import')
             ->addOption('master', null, InputOption::VALUE_NONE, 'Import master tracks')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Set this parameter to execute this action')
-            ->setHelp(<<<'EOT'
+            ->setHelp(
+                <<<'EOT'
             
             Important:
             
@@ -204,7 +205,7 @@ EOT
         );
 
         foreach ($multimediaObjects as $multimediaObject) {
-            if (!checkIfTracksImported($clientService,$opencastImportService, $multimediaObject, ['presentation/delivery','presenter/delivery'])) {
+            if (!checkIfTracksImported($clientService, $opencastImportService, $multimediaObject, ['presentation/delivery','presenter/delivery'])) {
                 $this->importTrackOnMultimediaObject(
                     $output,
                     $clientService,
@@ -238,7 +239,7 @@ EOT
         );
 
         foreach ($multimediaObjects as $multimediaObject) {
-            if (!checkIfTracksImported($clientService,$opencastImportService, $multimediaObject, ['master'])) {
+            if (!checkIfTracksImported($clientService, $opencastImportService, $multimediaObject, ['master'])) {
                 $this->importTrackOnMultimediaObject(
                     $output,
                     $clientService,
@@ -322,7 +323,7 @@ EOT
      */
     private function showMessage(OutputInterface $output, OpencastImportService $opencastImportService, MultimediaObject $multimediaObject, $mediaPackage)
     {
-        $tracksCount = countMediaPackageTracks($opencastImportService,$mediaPackage);
+        $tracksCount = countMediaPackageTracks($opencastImportService, $mediaPackage);
         $output->writeln(' Multimedia Object: '.$multimediaObject->getId().' - URL: '.$multimediaObject->getProperty('opencasturl').' - Tracks: '.$tracksCount);
     }
 
@@ -332,22 +333,22 @@ EOT
      * @param MultimediaObject      $multimediaObject
      * @param                       $tags
      */
-    private function checkIfTracksImported(ClientService $clientService, OpencastImportService $opencastImportService, MultimediaObject $multimediaObject,$tags)
+    private function checkIfTracksImported(ClientService $clientService, OpencastImportService $opencastImportService, MultimediaObject $multimediaObject, $tags)
     {
         $tracks = $multimediaObject->getTracksWithAllTags($tags);
-        if (in_array('master',$tags)) {
+        if (in_array('master', $tags)) {
             $mediaPackage = $clientService->getMasterMediaPackage($multimediaObject->getProperty('opencast'));
         } else {
             $mediaPackage = $clientService->getMediaPackage($multimediaObject->getProperty('opencast'));
         }
-        return(count($multimediaObjects)>=countMediaPackageTracks($opencastImportService,$mediaPackage));
+        return(count($multimediaObjects)>=countMediaPackageTracks($opencastImportService, $mediaPackage));
     }
 
     /**
      * @param OpencastImportService $opencastImportService
      * @param                       $mediaPackage
      */
-    private function countMediaPackageTracks(OpencastImportService $opencastImportService,$mediaPackage)
+    private function countMediaPackageTracks(OpencastImportService $opencastImportService, $mediaPackage)
     {
         $media = $opencastImportService->getMediaPackageField($mediaPackage, 'media');
         $tracks = $opencastImportService->getMediaPackageField($media, 'track');
