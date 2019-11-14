@@ -238,7 +238,7 @@ EOT
         );
 
         foreach ($multimediaObjects as $multimediaObject) {
-            if (!$multimediaObject->getTrackWithTag('master')) {
+            if (!checkIfTracksImported($clientService,$opencastImportService, $multimediaObject, true)) {
                 $this->importTrackOnMultimediaObject(
                     $output,
                     $clientService,
@@ -322,13 +322,41 @@ EOT
      */
     private function showMessage(OutputInterface $output, OpencastImportService $opencastImportService, MultimediaObject $multimediaObject, $mediaPackage)
     {
+        $tracksCount = countMediaPackageTracks($opencastImportService,$mediaPackage);
+        $output->writeln(' Multimedia Object: '.$multimediaObject->getId().' - URL: '.$multimediaObject->getProperty('opencasturl').' - Tracks: '.$tracksCount);
+    }
+
+    /**
+     * @param ClientService         $clientService
+     * @param OpencastImportService $opencastImportService
+     * @param MultimediaObject      $multimediaObject
+     * @param                       $master
+     */
+    private function checkIfTracksImported(ClientService $clientService, OpencastImportService $opencastImportService, MultimediaObject $multimediaObject,$master)
+    {
+        if ($master) {
+            $multimediaObjects = $multimediaObject->getTracksWithTag('master');
+            $mediaPackage = $clientService->getMasterMediaPackage($multimediaObject->getProperty('opencast'));
+            return(count($multimediaObjects)>=countMediaPackageTracks($opencastImportService,$mediaPackage));
+        } else {
+            $multimediaObject->getTracksWithTag('display');
+            $mediaPackage = $clientService->getMediaPackage($multimediaObject->getProperty('opencast'));
+            return(count($multimediaObjects)>=countMediaPackageTracks($opencastImportService,$mediaPackage));
+        }
+    }
+
+    /**
+     * @param OpencastImportService $opencastImportService
+     * @param                       $mediaPackage
+     */
+    private function countMediaPackageTracks(OpencastImportService $opencastImportService,$mediaPackage)
+    {
         $media = $opencastImportService->getMediaPackageField($mediaPackage, 'media');
         $tracks = $opencastImportService->getMediaPackageField($media, 'track');
         $tracksCount = 1;
         if (isset($tracks[0])) {
             $tracksCount = count($tracks);
         }
-
-        $output->writeln(' Multimedia Object: '.$multimediaObject->getId().' - URL: '.$multimediaObject->getProperty('opencasturl').' - Tracks: '.$tracksCount);
+        return $tracksCount;
     }
 }

@@ -255,12 +255,12 @@ class ClientService
         }
 
         if ($version >= '1.4.0' && $version < '1.7.0') {
-            $mediapackage = $this->getMediaPackageFromArchive($id);
+            $mediaPackage = $this->getMediaPackageFromArchive($id);
             
-            if ( $mediapackage == false ) {
-                $mediapackage = $this->getMediaPackageFromWorkflow($id);
+            if ( $mediaPackage == false ) {
+                $mediaPackage = $this->getMediaPackageFromWorkflow($id);
             }
-            
+
             return $mediapackage;
         }
 
