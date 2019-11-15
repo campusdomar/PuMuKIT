@@ -255,7 +255,13 @@ class ClientService
         }
 
         if ($version >= '1.4.0' && $version < '1.7.0') {
-            return $this->getMediaPackageFromArchive($id);
+            $mediaPackage = $this->getMediaPackageFromArchive($id);
+
+            if (false == $mediaPackage) {
+                $mediaPackage = $this->getMediaPackageFromWorkflow($id);
+            }
+
+            return $mediapackage;
         }
 
         if (0 == strpos($version, '1.2')) {
