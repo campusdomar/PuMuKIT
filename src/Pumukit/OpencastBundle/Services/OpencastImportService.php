@@ -227,6 +227,12 @@ class OpencastImportService
     {
         $media = $this->getMediaPackageField($mediaPackage, 'media');
         $tracks = $this->getMediaPackageField($media, 'track');
+
+        if (isset($tracks['id'])) {
+            //NOTE: Single track
+            $tracks = [$tracks];
+        }
+
         if ($tracks) {
             if (null === $index) {
                 $opencastTrack = $tracks;
@@ -383,6 +389,11 @@ class OpencastImportService
     {
         $media = $this->getMediaPackageField($mediaPackage, 'media');
         $tracks = $this->getMediaPackageField($media, 'track');
+
+        if (isset($tracks['id'])) {
+            //NOTE: Single Tracks
+            $tracks = [$tracks];
+        }
         if (is_array($tracks)) {
             $limit = count($tracks);
             for ($i = 0; $i < $limit; ++$i) {
