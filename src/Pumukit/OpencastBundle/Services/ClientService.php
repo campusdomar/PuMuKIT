@@ -261,7 +261,7 @@ class ClientService
                 $mediaPackage = $this->getMediaPackageFromWorkflow($id);
             }
 
-            return $mediapackage;
+            return $mediaPackage;
         }
 
         if (0 == strpos($version, '1.2')) {
