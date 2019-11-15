@@ -205,7 +205,7 @@ EOT
         );
 
         foreach ($multimediaObjects as $multimediaObject) {
-            if (!checkIfTracksImported($clientService, $opencastImportService, $multimediaObject, ['presentation/delivery', 'presenter/delivery'])) {
+            if (!$this->checkIfTracksImported($clientService, $opencastImportService, $multimediaObject, ['presentation/delivery', 'presenter/delivery'])) {
                 $this->importTrackOnMultimediaObject(
                     $output,
                     $clientService,
@@ -239,7 +239,7 @@ EOT
         );
 
         foreach ($multimediaObjects as $multimediaObject) {
-            if (!checkIfTracksImported($clientService, $opencastImportService, $multimediaObject, ['master'])) {
+            if (!$this->checkIfTracksImported($clientService, $opencastImportService, $multimediaObject, ['master'])) {
                 $this->importTrackOnMultimediaObject(
                     $output,
                     $clientService,
@@ -323,7 +323,7 @@ EOT
      */
     private function showMessage(OutputInterface $output, OpencastImportService $opencastImportService, MultimediaObject $multimediaObject, $mediaPackage)
     {
-        $tracksCount = countMediaPackageTracks($opencastImportService, $mediaPackage);
+        $tracksCount = $this->countMediaPackageTracks($opencastImportService, $mediaPackage);
         $output->writeln(' Multimedia Object: '.$multimediaObject->getId().' - URL: '.$multimediaObject->getProperty('opencasturl').' - Tracks: '.$tracksCount);
     }
 
@@ -342,7 +342,7 @@ EOT
             $mediaPackage = $clientService->getMediaPackage($multimediaObject->getProperty('opencast'));
         }
 
-        return count($multimediaObjects) >= countMediaPackageTracks($opencastImportService, $mediaPackage);
+        return count($multimediaObjects) >= $this->countMediaPackageTracks($opencastImportService, $mediaPackage);
     }
 
     /**
