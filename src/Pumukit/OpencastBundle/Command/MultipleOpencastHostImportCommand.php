@@ -342,7 +342,7 @@ EOT
             $mediaPackage = $clientService->getMediaPackage($multimediaObject->getProperty('opencast'));
         }
 
-        return count($multimediaObjects) >= $this->countMediaPackageTracks($opencastImportService, $mediaPackage);
+        return count($tracks) >= $this->countMediaPackageTracks($opencastImportService, $mediaPackage);
     }
 
     /**
