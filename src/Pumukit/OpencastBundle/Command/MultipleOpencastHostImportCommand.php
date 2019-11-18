@@ -335,7 +335,7 @@ EOT
      */
     private function checkIfTracksImported(ClientService $clientService, OpencastImportService $opencastImportService, MultimediaObject $multimediaObject, $tags)
     {
-        $tracks = $multimediaObject->getTracksWithAllTags($tags);
+        $tracks = $multimediaObject->getTracksWithAnyTag($tags);
         if (in_array('master', $tags)) {
             $mediaPackage = $clientService->getMasterMediaPackage($multimediaObject->getProperty('opencast'));
         } else {
