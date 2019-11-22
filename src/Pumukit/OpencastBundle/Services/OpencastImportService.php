@@ -125,7 +125,7 @@ class OpencastImportService
 
             $media = $this->getMediaPackageField($mediaPackage, 'media');
             $tracks = $this->getMediaPackageField($media, 'track');
-            if (is_array($tracks)) {
+            if (is_array($tracks) && (!(isset($tracks['id'])))) {
                 // NOTE: Multiple tracks
                 $limit = count($tracks);
                 for ($i = 0; $i < $limit; ++$i) {
@@ -184,7 +184,7 @@ class OpencastImportService
             }
             $media = $this->getMediaPackageField($archiveMediaPackage, 'media');
             $tracks = $this->getMediaPackageField($media, 'track');
-            if (is_array($tracks)) {
+            if (is_array($tracks) && (!(isset($tracks['id'])))) {
                 // NOTE: Multiple tracks
                 $limit = count($tracks);
                 for ($i = 0; $i < $limit; ++$i) {
@@ -227,11 +227,6 @@ class OpencastImportService
     {
         $media = $this->getMediaPackageField($mediaPackage, 'media');
         $tracks = $this->getMediaPackageField($media, 'track');
-
-        if (isset($tracks['id'])) {
-            //NOTE: Single track
-            $tracks = [$tracks];
-        }
 
         if ($tracks) {
             if (null === $index) {
@@ -390,11 +385,7 @@ class OpencastImportService
         $media = $this->getMediaPackageField($mediaPackage, 'media');
         $tracks = $this->getMediaPackageField($media, 'track');
 
-        if (isset($tracks['id'])) {
-            //NOTE: Single Tracks
-            $tracks = [$tracks];
-        }
-        if (is_array($tracks)) {
+        if (is_array($tracks) && (!(isset($tracks['id'])))) {
             $limit = count($tracks);
             for ($i = 0; $i < $limit; ++$i) {
                 if (false === stripos($tracks[$i]['url'], 'rtmp:')) {
@@ -425,7 +416,7 @@ class OpencastImportService
 
         $media = $this->getMediaPackageField($mediaPackage, 'media');
         $tracks = $this->getMediaPackageField($media, 'track');
-        if (is_array($tracks)) {
+        if (is_array($tracks) && (!(isset($tracks['id'])))) {
             // NOTE: Multiple tracks
             $limit = count($tracks);
             for ($i = 0; $i < $limit; ++$i) {
