@@ -752,8 +752,8 @@ class EmbeddedEventSessionService
                 }
                 $dateStart = $session['start'];
                 $dateEnds = $session['ends'];
-                $dateStartSession = $dateStart->toDateTime();
-                $dateEndsSession = $dateEnds->toDateTime();
+                $dateStartSession = new \DateTime('@'.$dateStart->sec);
+                $dateEndsSession = new \DateTime('@'.$dateEnds->sec);
                 if (($dateStartSession < $now) || ($dateEndsSession < $now)) {
                     continue;
                 }
@@ -764,7 +764,7 @@ class EmbeddedEventSessionService
                 }
             }
 
-            return $date->toDateTime();
+            return new \DateTime('@'.$date->sec);
         }
 
         return '';
@@ -818,7 +818,7 @@ class EmbeddedEventSessionService
                     return $a['start'] >= $b['start'];
                 });
                 foreach ($eventData['event']['embeddedEventSession'] as $embeddedSession) {
-                    $startDate = $embeddedSession['start']->toDateTime();
+                    $startDate = new \DateTime('@'.$embeddedSession['start']->sec);
                     if ($startDate > $now) {
                         $orderSession = $this->addElementWithSessionSec($orderSession, $element, $embeddedSession['start']->sec);
                         break;
@@ -1183,7 +1183,7 @@ class EmbeddedEventSessionService
                     return $a['start'] >= $b['start'];
                 });
                 foreach ($eventData['event']['embeddedEventSession'] as $embeddedSession) {
-                    $startDate = $embeddedSession['start']->toDateTime();
+                    $startDate = new \DateTime('@'.$embeddedSession['start']->sec);
                     if ($startDate > $now) {
                         $orderSession = $this->addElementWithSessionSec($orderSession, $element, $embeddedSession['start']->sec);
                         break;
