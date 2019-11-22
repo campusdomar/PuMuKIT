@@ -187,7 +187,8 @@ class SenderService
         }
 
         if (!$this->enable) {
-            $this->logger->info(__CLASS__.'['.__FUNCTION__.'] The email sender service is disabled. Not sending emails to "'. implode(', ', $emailsTo).'"');
+            $this->logger->info(__CLASS__.'['.__FUNCTION__.'] The email sender service is disabled. Not sending emails to "'.implode(', ', $emailsTo).'"');
+
             return;
         }
 
