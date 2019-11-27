@@ -725,6 +725,32 @@ class ClientService
         return $output;
     }
 
+
+    /**
+     * Get an Opencast series.
+     *
+     * Get the Opencast series metadata associated to the PuMuKIT series.
+     *
+     * @param $id
+     *
+     * @return mixed|bool|null
+     *
+     */
+    public function getOpencastSerie($serie)
+    {
+        $serieOpencastId = $serie->getProperty('opencast');
+        if (null === $seriesOpencastId) {
+            return false;
+        }
+        $requestUrl = "/api/series/$serieOpencastId";
+        $output = $this->request($requestUrl, array(), 'GET', true);
+        if (200 !== $output['status']) {
+            return false;
+        }
+
+        return $output;
+    }
+
     /**
      * Request.
      *

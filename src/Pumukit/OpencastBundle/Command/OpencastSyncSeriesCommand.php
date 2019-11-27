@@ -165,27 +165,10 @@ EOT
         );
 
         foreach ($series as $serie) {
-            $mediaPackage = $this->clientService->getFullMediaPackage($serie->getProperty('opencast'));
-
-            $segments = 0;
-            if (isset($mediaPackage['segments']) && isset($mediaPackage['segments']['segment'])) {
-                if (!isset($mediaPackage['segments']['segment'][0])) {
-                    $segments = [$mediaPackage['segments']['segment']];
-                } else {
-                    $segments = $mediaPackage['segments']['segment'];
-                }
-                $embeddedSegments = [];
-                foreach ($segments as $segment) {
-                    $embeddedSegments[] = $this->createNewSegment($segment);
-                }
-
-                if ($embeddedSegments) {
-                    $serie->setEmbeddedSegments($embeddedSegments);
-                    $this->dm->flush();
-                }
+            $serie->getProperty('opencast');
+            if (!$this->clientService->getOpencastSerie($serie)) {
+                $this->output->writeln(' Serie: '.$serie->getId().' MediaPackage: -'.$serie->getProperty('opencast').' - no existe en Opencast');
             }
-            $numSegments = isset($mediaPackage['segments']['segment']) ? count($segments) : 0;
-            $this->output->writeln(' Multimedia object: '.$serie->getId().' MediaPackage: -'.$serie->getProperty('opencast').' - Segments: '.$numSegments);
         }
     }
 
@@ -204,7 +187,11 @@ EOT
         );
 
         foreach ($series as $serie) {
-            $this->output->writeln(' Serie: '.$serie->getId().' MediaPackage: -'.$serie->getProperty('opencast'));
+            if (!$this->clientService->getOpencastSerie($serie)) {
+                $this->output->writeln(' Serie: '.$serie->getId().' Opencast Serie: -'.$serie->getProperty('opencast').' - no existe en Opencast');
+            } else {
+                $this->output->writeln(' Serie: '.$serie->getId().' Opencast Serie: -'.$serie->getProperty('opencast').' - ya existe en Opencast');
+            }
         }
     }
 
