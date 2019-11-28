@@ -33,7 +33,8 @@ class OpencastSyncSeriesCommand extends ContainerAwareCommand
             ->addOption('host', null, InputOption::VALUE_REQUIRED, 'Path to selected tracks from PMK using regex')
             ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'ID of multimedia object to import')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Set this parameter to execute this action')
-            ->setHelp(<<<'EOT'
+            ->setHelp(
+                <<<'EOT'
             
             
             Command to synchronize PuMuKIT series in Opencast
