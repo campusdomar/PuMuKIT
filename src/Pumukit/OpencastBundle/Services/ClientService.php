@@ -2,11 +2,11 @@
 
 namespace Pumukit\OpencastBundle\Services;
 
-use Pumukit\SchemaBundle\Document\Series;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Security\Core\Role\Role;
+use Pumukit\SchemaBundle\Document\Series;
 use Pumukit\SchemaBundle\Document\User;
 use Pumukit\SchemaBundle\Security\RoleHierarchy;
+use Symfony\Component\Security\Core\Role\Role;
 
 /**
  * Class ClientService.
@@ -30,19 +30,17 @@ class ClientService
     /**
      * ClientService constructor.
      *
-     * @param string               $url
-     * @param string               $user
-     * @param string               $passwd
-     * @param string               $player
-     * @param string               $scheduler
-     * @param string               $dashboard
-     * @param bool                 $deleteArchiveMediaPackage
-     * @param string               $deletionWorkflowName
-     * @param bool                 $manageOpencastUsers
-     * @param bool                 $insecure
-     * @param null                 $adminUrl
-     * @param LoggerInterface|null $logger
-     * @param RoleHierarchy|null   $roleHierarchy
+     * @param string $url
+     * @param string $user
+     * @param string $passwd
+     * @param string $player
+     * @param string $scheduler
+     * @param string $dashboard
+     * @param bool   $deleteArchiveMediaPackage
+     * @param string $deletionWorkflowName
+     * @param bool   $manageOpencastUsers
+     * @param bool   $insecure
+     * @param null   $adminUrl
      */
     public function __construct($url = '', $user = '', $passwd = '', $player = '/engage/ui/watch.html', $scheduler = '/admin/index.html#/recordings', $dashboard = '/dashboard/index.html', $deleteArchiveMediaPackage = false, $deletionWorkflowName = 'delete-archive', $manageOpencastUsers = false, $insecure = false, $adminUrl = null, LoggerInterface $logger = null, RoleHierarchy $roleHierarchy = null)
     {
@@ -161,7 +159,7 @@ class ClientService
         }
         $decode = $this->decodeJson($output['var']);
 
-        $return = array(0, array());
+        $return = [0, []];
 
         if (0 == $decode['search-results']['total']) {
             return $return;
@@ -280,7 +278,7 @@ class ClientService
      */
     public function getMediaPackageFromWorkflow($id)
     {
-        $output = $this->request('/workflow/instances.json?state=SUCCEEDED&mp='.$id, array(), 'GET', true);
+        $output = $this->request('/workflow/instances.json?state=SUCCEEDED&mp='.$id, [], 'GET', true);
         if (200 == $output['status']) {
             $decode = $this->decodeJson($output['var']);
 
@@ -305,7 +303,7 @@ class ClientService
      */
     public function getMediaPackageFromAssets($id)
     {
-        $output = $this->request('/assets/episode/'.$id, array(), 'GET', true);
+        $output = $this->request('/assets/episode/'.$id, [], 'GET', true);
         if (200 == $output['status']) {
             $decode = $this->decodeXML($output);
 
@@ -327,10 +325,10 @@ class ClientService
     public function getMediaPackageFromArchive($id)
     {
         // NOTE: BC for OC 1.4 to 1.6
-        $output = $this->request('/episode/episode.json?id='.$id, array(), 'GET', true);
+        $output = $this->request('/episode/episode.json?id='.$id, [], 'GET', true);
         if (200 !== $output['status']) {
             // NOTE: BC for OC 2.x
-            $output = $this->request('/archive/episode.json?id='.$id, array(), 'GET', true);
+            $output = $this->request('/archive/episode.json?id='.$id, [], 'GET', true);
             if (200 !== $output['status']) {
                 return false;
             }
@@ -351,14 +349,13 @@ class ClientService
     /**
      * Apply workflow to media packages.
      *
-     * @param array  $mediaPackagesIds
      * @param string $workflowName
      *
      * @return bool
      *
      * @throws \Exception
      */
-    public function applyWorkflowToMediaPackages(array $mediaPackagesIds = array(), $workflowName = '')
+    public function applyWorkflowToMediaPackages(array $mediaPackagesIds = [], $workflowName = '')
     {
         if (!$workflowName || ($workflowName == $this->deletionWorkflowName)) {
             $workflowName = $this->deletionWorkflowName;
@@ -373,15 +370,15 @@ class ClientService
 
         $request = '/admin-ng/tasks/new';
         $opencastVersion = $this->getOpencastVersion();
-        $configurationParameters = array(
+        $configurationParameters = [
             'retractFromEngage' => 'true',
             'retractFromAws' => 'false',
             'retractFromApi' => 'true',
             'retractPreview' => 'true',
             'retractFromOaiPmh' => 'true',
             'retractFromYouTube' => 'false',
-        );
-        $parameters = array();
+        ];
+        $parameters = [];
 
         // SUPPORT FOR OPENCAST < 2.0
         if ($opencastVersion < '2.0.0') {
@@ -394,40 +391,40 @@ class ClientService
                     $mediaPackageIdsParameter = $mediaPackageIdsParameter.',+';
                 }
             }
-            $parameters = array(
+            $parameters = [
                 'mediaPackageIds' => $mediaPackageIdsParameter,
                 'engage' => 'Matterhorn+Engage+Player',
-            );
+            ];
         // SUPPORT FOR OPENCAST < 6.0
         } elseif ($opencastVersion < '6.0.0') {
-            $parameters = array(
+            $parameters = [
                 'metadata' => json_encode(
-                    array(
+                    [
                         'workflow' => $workflowName,
                         'configuration' => $configurationParameters,
                         'eventIds' => $mediaPackagesIds,
-                    )
+                    ]
                 ),
-            );
+            ];
         // DEFAULT
         } else {
-            $configurationsById = array();
+            $configurationsById = [];
             foreach ($mediaPackagesIds as $mediaPackageId) {
                 $configurationsById[$mediaPackageId] = $configurationParameters;
             }
-            $parameters = array(
+            $parameters = [
                 'metadata' => json_encode(
-                    array(
+                    [
                         'workflow' => $workflowName,
                         'configuration' => $configurationsById,
-                    )
+                    ]
                 ),
-            );
+            ];
         }
 
         $output = $this->request($request, $parameters, 'POST', true);
 
-        if (!in_array($output['status'], array(204, 201))) {
+        if (!in_array($output['status'], [204, 201])) {
             $this->logger->addError(__CLASS__.'['.__FUNCTION__.'](line '.__LINE__
                                     .') Opencast error. Status != 204. - error: '.$output['error'].' - var: '.$output['var'].' - status: '.$output['status'].' - params:'.json_encode($parameters));
 
@@ -450,7 +447,7 @@ class ClientService
     {
         $request = '/workflow/statistics.json';
 
-        $output = $this->request($request, array(), 'GET', true);
+        $output = $this->request($request, [], 'GET', true);
 
         if (200 !== $output['status']) {
             return false;
@@ -476,7 +473,7 @@ class ClientService
     {
         $request = '/workflow/instances.json?state=SUCCEEDED'.($workflowName ? '&workflowdefinition='.$workflowName : '').($id ? '&mp='.$id : '').($count ? '&count='.$count : '');
 
-        $output = $this->request($request, array(), 'GET', true);
+        $output = $this->request($request, [], 'GET', true);
 
         if (200 !== $output['status']) {
             return false;
@@ -490,18 +487,16 @@ class ClientService
     /**
      * Stop workflow.
      *
-     * @param array $workflow
-     *
      * @return bool
      *
      * @throws \Exception
      */
-    public function stopWorkflow(array $workflow = array())
+    public function stopWorkflow(array $workflow = [])
     {
         if ($this->deleteArchiveMediaPackage) {
             if (isset($workflow['id'])) {
                 $request = '/workflow/stop';
-                $params = array('id' => $workflow['id']);
+                $params = ['id' => $workflow['id']];
                 $output = $this->request($request, $params, 'POST', true);
                 if (200 !== $output['status']) {
                     return false;
@@ -517,8 +512,6 @@ class ClientService
     /**
      * Create User.
      *
-     * @param User $user
-     *
      * @return bool
      *
      * @throws \Exception
@@ -528,11 +521,11 @@ class ClientService
         if ($this->manageOpencastUsers) {
             $request = '/user-utils/';
             $roles = $this->getUserRoles($user);
-            $params = array(
+            $params = [
                             'username' => $user->getUsername(),
                             'password' => 'pumukit',
                             'roles' => $roles,
-                            );
+                            ];
             $output = $this->request($request, $params, 'POST', true);
             if (201 != $output['status']) {
                 if (409 == $output['status']) {
@@ -551,8 +544,6 @@ class ClientService
     /**
      * Update User.
      *
-     * @param User $user
-     *
      * @return bool
      *
      * @throws \Exception
@@ -562,11 +553,11 @@ class ClientService
         if ($this->manageOpencastUsers) {
             $request = '/user-utils/'.$user->getUsername().'.json';
             $roles = $this->getUserRoles($user);
-            $params = array(
+            $params = [
                             'username' => $user->getUsername(),
                             'password' => 'pumukit',
                             'roles' => $roles,
-                            );
+                            ];
             $output = $this->request($request, $params, 'PUT', true);
             if (200 != $output['status']) {
                 if (404 == $output['status']) {
@@ -584,8 +575,6 @@ class ClientService
 
     /**
      * Delete User.
-     *
-     * @param User $user
      *
      * @return bool
      *
@@ -617,8 +606,6 @@ class ClientService
      * the Opencast series does not exist, it creates a new Opencast series and updates
      * the Opencast id on the PuMuKIT series.
      *
-     * @param Series $series
-     *
      * @return array
      *
      * @throws \Exception
@@ -629,23 +616,23 @@ class ClientService
         if (null === $seriesOpencastId) {
             throw new \Exception('Error trying to update an Opencast series. Error: No opencast ID', 404);
         }
-        $metadata = array(
-            array(
+        $metadata = [
+            [
                 'id' => 'title',
                 'value' => $series->getTitle(),
-            ),
-            array(
+            ],
+            [
                 'id' => 'description',
                 'value' => $series->getDescription(),
-            ),
-        );
+            ],
+        ];
         //There is an Opencast API error. The 'type' parameter should be taken from the form,
         //  but it is taken from the query. Added 'type' in both ways for good measure.
         $type = 'dublincore/series';
-        $params = array(
+        $params = [
             'metadata' => json_encode($metadata),
             'type' => $type,
-        );
+        ];
         $requestUrl = "/api/series/$seriesOpencastId/metadata";
         $requestUrl .= "?type=$type";
         $output = $this->request($requestUrl, $params, 'PUT', true);
@@ -662,34 +649,32 @@ class ClientService
      * Creates an Opencast series and associates it to the PuMuKIT series.
      * The Opencast series metadata is taken from the PuMuKIT series.
      *
-     * @param Series $series
-     *
      * @return array
      *
      * @throws \Exception
      */
     public function createOpencastSeries(Series $series)
     {
-        $metadata = array(
-            array(
+        $metadata = [
+            [
                 'flavor' => 'dublincore/series',
-                'fields' => array(
-                    array(
+                'fields' => [
+                    [
                         'id' => 'title',
                         'value' => $series->getTitle(),
-                    ),
-                    array(
+                    ],
+                    [
                         'id' => 'description',
                         'value' => $series->getDescription(),
-                    ),
-                ),
-            ),
-        );
-        $acl = array();
-        $params = array(
+                    ],
+                ],
+            ],
+        ];
+        $acl = [];
+        $params = [
             'metadata' => json_encode($metadata),
             'acl' => json_encode($acl),
-        );
+        ];
         $requestUrl = '/api/series';
         $output = $this->request($requestUrl, $params, 'POST', true);
         if (201 !== $output['status']) {
@@ -717,14 +702,13 @@ class ClientService
             return false;
         }
         $requestUrl = "/api/series/$seriesOpencastId";
-        $output = $this->request($requestUrl, array(), 'DELETE', true);
+        $output = $this->request($requestUrl, [], 'DELETE', true);
         if (204 !== $output['status']) {
             throw new \Exception('Error trying to delete an Opencast series. Error '.$output['status'].':  "'.$output['error'].' : '.$output['var'], $output['status']);
         }
 
         return $output;
     }
-
 
     /**
      * Get an Opencast series.
@@ -734,18 +718,17 @@ class ClientService
      * @param $id
      *
      * @return mixed|bool|null
-     *
      */
     public function getOpencastSerie($serie)
     {
         $serieOpencastId = $serie->getProperty('opencast');
-        if (null === $seriesOpencastId) {
-            return false;
+        if (null === $serieOpencastId) {
+            return null;
         }
         $requestUrl = "/api/series/$serieOpencastId";
-        $output = $this->request($requestUrl, array(), 'GET', true);
+        $output = $this->request($requestUrl, [], 'GET', true);
         if (200 !== $output['status']) {
-            return false;
+            return null;
         }
 
         return $output;
@@ -765,7 +748,7 @@ class ClientService
      *
      * @throws \Exception
      */
-    private function request($path, $params = array(), $method = 'GET', $useAdminUrl = false)
+    private function request($path, $params = [], $method = 'GET', $useAdminUrl = false)
     {
         if ($useAdminUrl) {
             $requestUrl = $this->getAdminUrl().$path;
@@ -775,8 +758,8 @@ class ClientService
 
         $fields = (is_array($params)) ? http_build_query($params) : $params;
 
-        $header = array('X-Requested-Auth: Digest',
-                        'X-Opencast-Matterhorn-Authorization: true', );
+        $header = ['X-Requested-Auth: Digest',
+                        'X-Opencast-Matterhorn-Authorization: true', ];
 
         $this->logger->addDebug(__CLASS__.'['.__FUNCTION__.'](line '.__LINE__
                                 .') Requested URL "'.$requestUrl.'" '
@@ -825,7 +808,7 @@ class ClientService
             curl_setopt($request, CURLOPT_HTTPHEADER, $header);
         }
 
-        $output = array();
+        $output = [];
         $output['var'] = curl_exec($request);
         $output['error'] = curl_error($request);
         $output['status'] = curl_getinfo($request, CURLINFO_HTTP_CODE);
@@ -869,7 +852,7 @@ class ClientService
      *
      * @throws \Exception
      */
-    private function decodeXML($xmlString = array())
+    private function decodeXML($xmlString = [])
     {
         $decode = null;
         if (is_array($xmlString)) {
@@ -886,8 +869,6 @@ class ClientService
     }
 
     /**
-     * @param User $user
-     *
      * @return string
      */
     private function getUserRoles(User $user)
@@ -923,7 +904,7 @@ class ClientService
             }
             $response = $this->request($path);
         } else {
-            $response = array('var' => file_get_contents($url));
+            $response = ['var' => file_get_contents($url)];
         }
 
         $start = strrpos($response['var'], '<dcterms:spatial>');
@@ -940,7 +921,7 @@ class ClientService
 
     public function removeEvent($id)
     {
-        $output = $this->request('/admin-ng/event/'.$id, array(), 'DELETE', true);
+        $output = $this->request('/admin-ng/event/'.$id, [], 'DELETE', true);
         if (!$output) {
             throw new \Exception("Can't access to admin-ng/event");
         }
