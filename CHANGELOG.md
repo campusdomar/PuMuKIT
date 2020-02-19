@@ -4,6 +4,15 @@ Web version of the changelog in http://pumukit.org/pmk-2-x-release-archive/
 To get the diff for a specific change, go to https://github.com/campusdomar/PuMuKIT2/commit/XXX where XXX is the change hash
 To get the diff between two versions, go to https://github.com/campusdomar/PuMuKIT2/compare/2.0.0...2.1.0-rc1
 
+## [2.7.0](https://github.com/campusdomar/PuMuKIT2/compare/2.6.11...2.7.0) (2020-02-10)
+- Added logic to read mp properties from Galicaster mediapackages in Opencast
+- Added optional notification sending to OpencastBundle when a mediapackage has been imported
+- Added hide/show eye tooltip to multimedia object list of tracks in the back-office
+- Added script that syncs existing PuMuKIT series with Opencast (opencast:sync:series)
+- Added some minor design improvements to the back-office lists and naked view
+- Fixed edge-case where removing a cloned object after changing the user would remove the original attached image.
+- Fixed live events issue related to using mongo driver version 1.4.5 or lower
+
 ## [2.6.0](https://github.com/campusdomar/PuMuKIT2/compare/2.6.0...2.5.0) (2019-04-02)
 - Added custom columns configuration at UNESCO catalogue.
 - Bugfixing.
